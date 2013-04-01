@@ -1242,6 +1242,47 @@ function subab() is null
  $endfieldset()
 end subab
 
+'Suicide Risk Module
+function suiciderisk() is null
+ if $find(sr_errortxt,errors[],,"F") > 0
+  bgcolor = "red"
+ endif
+ $fieldset("Violence Module",,"datatag")
+  $table($funcname,,`table_wbgcolor`)
+   $row()
+    $col("center",,"50%")
+    $col("center",,"10%")$text("0")
+    $col("center",,"10%")$text("1")
+    $col("center",,"10%")$text("2")
+    $col("center",,"10%")$text("3")
+   $row()
+    $col()$tag(hr)
+    $col()$tag(hr)
+    $col()$tag(hr)
+    $col()$tag(hr)
+    $col()$tag(hr)
+   $row(,row_color3) 
+    $col()$text(q_text_hissui)
+    $col("center")$radio(c.cans.sr.hissui,"","0")
+    $col("center")$radio(c.cans.sr.hissui,"","1")
+    $col("center")$radio(c.cans.sr.hissui,"","2")
+    $col("center")$radio(c.cans.sr.hissui,"","3")
+   $row(,row_color2)
+    $col()$text(q_text_hfmsui)
+    $col("center")$radio(c.cans.sr.hfmsui,"","0")
+    $col("center")$radio(c.cans.sr.hfmsui,"","1")
+    $col("center")$radio(c.cans.sr.hfmsui,"","2")
+    $col("center")$radio(c.cans.sr.hfmsui,"","3")   
+   $row(,row_color3)	
+    $col()$text(q_text_firear)
+    $col("center")$radio(c.cans.sr.firear,"","0")
+    $col("center")$radio(c.cans.sr.hissui,"","1")
+    $col("center")$radio(c.cans.sr.hissui,"","2")
+    $col("center")$radio(c.cans.sr. hissui,"","3")
+  $endtable($funcname)
+ $endfieldset()
+end suiciderisk
+
 'Violence Module---------------------------------------------------
 
 function violence() is null
@@ -2639,6 +2680,10 @@ function Validate2() is i
     (void)$arrpush(errors[],sud_errortxt)
    endif  	                            
 
+   if c.cans.cr.suicid != "0" and c.cans.cr.suicid dp and (c.ans.sr.hissui !dp and c.cans.sr.hfmsui !dp and c.cans.sr.firear !dp)
+    (void)$arrpush(errors[],sr_errortxt)   
+   endif
+   
    if c.cans.cr.dangot != "0" and c.cans.cr.dangot dp and(c.cans.vi.hxpabs !dp or c.cans.vi.hxviol !dp or c.cans.vi.wdomab !dp or c.cans.vi.wenvab !dp)
     (void)$arrpush(errors[],vi_errortxt)
    endif  	                            
