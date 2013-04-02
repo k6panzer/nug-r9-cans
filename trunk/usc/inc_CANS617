@@ -7,6 +7,7 @@
 %global c.cans.intref,c.cans.intrefoth
 %global c.cans.loc_dev,c.cans.devoth,c.cans.devr1,c.cans.devr2,c.cans.devr2,c.cans.devr3,c.cans.devr4,c.cans.devr5
 %global c.cans.alocstaff,c.cans.alocdate,c.cans.alocedate
+%global c.cans.snapid
 rc_cans_dstlist   is i
 cans_dstlist      is dstlist
 c.cans.rec        is H 'CLIENT CANS RECORD HEADER
@@ -47,6 +48,7 @@ c.cans.devR5      is x 'Reason for Deviation 5 253-255
 c.cans.alocstaff  is x 'Authorization staff
 c.cans.alocdate   is d 'Authorization date
 c.cans.alocedate  is d 'Authorization End date
+c.cans.snapid     is x
 
 'remove these?
 'c.cans.resv3 is X      'CLIENT CANS RESERVED 3
@@ -466,19 +468,21 @@ c.cans.sr.firear   is x      'CANS SR Accessible Firearm/Lethal Medication
 %define q_text_firear "Accessible Firearm/Lethal Medication"
 
 'Community scale questions
-%define q_text_school3m "Has the child/youth attended school at any time in the last 3 months?"
-%define q_text_arrest "Number of arrests last 30 days"
-%define q_text_grade "Current grade level or highest grade level completed?"
-%define q_text_restype "Primary Residence Type (Last 90 Days"
-%define q_text_resother1 "Primary Residence Other (Part 1)"
-%define q_text_resother2 "Primary Residence Other (Part 2)"
-%define q_text_emptype "Employement Type"
-%define q_text_labor "Main reasn for being out of labor force"
+%define q_text_school3m "Has the child/youth attended school at any time in the last 3 months?: "
+%define q_text_arrest "Number of arrests last 30 days: "
+%define q_text_grade "Current grade level or highest grade level completed?: "
+%define q_text_restype "Primary Residence Type (Last 90 Days: "
+%define q_text_resother1 "Primary Residence Other (Part 1): "
+%define q_text_resother2 "Primary Residence Other (Part 2): "
+%define q_text_emptype "Employement Type: "
+%define q_text_labor "Main reasn for being out of labor force: "
 
 'Other Questions
-%define q_text_sped "Special Education"
-%define q_text_extdrev "Extended Review Period Requested"
-%define q_text_foster "Foster Care"
+%define q_text_sped "Special Education: "
+%define q_text_extdrev "Extended Review Period Requested: "
+%define q_text_foster "Foster Care: "
+%define q_text_riskplc "At Risk of Placement: "
+%define q_text_tcoommi "TCOOMMI Consumer?"
 
 'Intake/Discharge
 %define q_text_type "Assessment Type: "
@@ -489,9 +493,18 @@ c.cans.sr.firear   is x      'CANS SR Accessible Firearm/Lethal Medication
 %define q_text_intref "Intake Referral: "
 %define q_text_intrefoth "Intake Referral Other: "
 
+'LOC related
+%define q_text_aloc "Authorized Level of Care: "
+%define q_text_rloc "Recommended Level of Care: "
+%define q_text_dloc "Deviation of Level of Care Requested by Staff: "
+%define q_text_loc_dev "Deviation Explanation: "
+%define q_text_devoth "Discription of Other Reason: "
+%define q_text_alocstaff "Authorization Staff: "
+%define q_text_alocdate "Authorization Date: "
+%define q_text_alocedate "Authorization End Date: "
+
 %global errors[]
 errors[] is x       'array for capturing errors by section
-'Life Domain Functining
 %define ld_errortxt  "All items in Life Domain are Required"
 %define sc_errortxt  "If LD School is between 1 & 3, All School Items are Required"
 %define dv_errortxt  "If LD Developmental is between 1 & 3, All Developmental Items are Required"
@@ -556,6 +569,7 @@ c.cans.disdt,c.cans.disreas,c.cans.disref,c.cans.disoth,
 c.cans.intref,c.cans.intrefoth,
 c.cans.loc_dev,c.cans.devoth,c.cans.devr1,c.cans.devr2,c.cans.devr2,c.cans.devr3,c.cans.devr4,c.cans.devr5,
 c.cans.alocstaff,c.cans.alocdate,c.cans.alocedate,
+c.cans.snapid,
 'c.cans.resv3,c.cans.resv4,c.cans.resv5,c.cans.resv6,c.cans.resv7,c.cans.resv8,c.cans.resv9,
 c.cans.ld.family,c.cans.ld.livsit,c.cans.ld.school,c.cans.ld.socFun,c.cans.ld.recret,c.cans.ld.develp,c.cans.ld.commun,c.cans.ld.judgmt,c.cans.ld.jobfun,c.cans.ld.legal,c.cans.ld.medicl,c.cans.ld.physcl,c.cans.ld.sexdev,c.cans.ld.sleep,c.cans.ld.indliv,
 c.cans.cs.family,c.cans.cs.intper,c.cans.cs.optims,c.cans.cs.educat,c.cans.cs.vocate,c.cans.cs.talint,c.cans.cs.spirel,c.cans.cs.comlif,c.cans.cs.permin,c.cans.cs.youth,c.cans.cs.natsup,
@@ -581,3 +595,13 @@ c.cans.fs.serios,c.cans.fs.histry,c.cans.fs.planin,c.cans.fs.useacc,c.cans.fs.in
 c.cans.hs.numprr,c.cans.hs.longst,c.cans.hs.durrec,c.cans.hs.timlst,
 c.cans.sr.hissui,c.cans.sr.hfmsui,c.cans.sr.firear,
 c.cans.caredt)
+
+'*** Style related
+%global bgcolor
+bgcolor is x 
+%define table_wbgcolor "width='100%' cellspacing='0' cellpadding='0' bgcolor='" + bgcolor + "'"
+%define table_nobgcolor "width='100%' cellspacing='0' cellpadding='0'"  
+%define row_color1 "bgcolor='LightSkyBlue'"
+%define row_color2 "bgcolor='White'"
+%define row_color3 "bgcolor='PaleGreen'"
+%define col_color_multi "bgcolor='LightGrey'"
