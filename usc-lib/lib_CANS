@@ -5,7 +5,7 @@ library lib_CANS()
   c.cans.staff    is x
   c.cans.ver      is x
   c.cans.date     is d
-  c.cans.age      is n
+  c.cans.age      is i
   c.cans.aloc     is x
   c.cans.rloc     is x
   c.cans.dloc     is x
@@ -35,7 +35,7 @@ library lib_CANS()
   c.cans.staff    is x
   c.cans.ver      is x
   c.cans.date     is d
-  c.cans.age      is n
+  c.cans.age      is i
   c.cans.aloc     is x
   c.cans.rloc     is x
   c.cans.dloc     is x

@@ -203,14 +203,17 @@ function SaveData() is i
   $dblock()
   SaveData = $dbpoint(02, $regid, c.cans.rec)	                          
  else
-  mode = "UPDATE"
+  mode = "UPDATE"  
   $dblock()
-  SaveData = $dbread(02, $regid, c.cans.rec)	                           
+  SaveData = $dbread(02, $regid, c.cans.rec)
  endif
  c.cans.staff = $operstaffid
  c.cans.ver   = "1.00"
  c.cans.age   = {"lib_COMMON"}ClientAge($regid, c.cans.date)
- c.cans.compd = $today
+ if c.cans.aloc dp
+  c.cans.compd = $today
+  c.cans.snapid = {"l_snapLibSC"}sn_GetSnapID()	                           
+ endif 
  if c.cans.resother1 dp
   c.cans.resother1 = $seg(c.cans.resother1,1,44)
   c.cans.resother2 = $seg(c.cans.resother1,45,56)
@@ -2127,12 +2130,6 @@ function Page4() is null
  $form($funcname)    
   {"lib_COMMON"}ClientPageHeader($regid,"Y")
   $table($funcname,,table_nobgcolor)
-'c.cans.school3m
-'c.cans.arrest     is x 'Number of arrests last 30 days
-'c.cans.grade      is x 'Current grade level or highest grade level completed?   GRADE
-'c.cans.restype    is x 'Primary Residence Type (Last 90 Days)   PRIMARY_RESIDENCE
-'c.cans.resother1  is x 'Primary Residence Other (Part 1)        PRIMARY_RESIDENCE_OTHER
-'c.cans.resother2  is x 'Primary Residence Other (Part 2) PRIMARY_RESIDENCE_OTHER
    $row()
     $col("right",,"50%")$text(q_text_school3m,"datatag")
     $col()$radio(c.cans.school3m,"No","N")$radio(c.cans.school3m,"Yes","Y")
