@@ -11,7 +11,7 @@ start CANS617(parmfile,option,client,retcode)
  RptTitle = "CANS Report" 
  ReportID = "CANS"  
  
- if option = "reportonly" or option = "bigreport"
+ if $lc(option) = "reportonly" or $lc(option) = "bigreport"
   if $dbread(ClientDB, $regid, c.cans.rec, c.cans.date) < 2
    if snap_handle:sn_viewLatest(ReportID,Parmfile,$regid,ClientDB,$ScriptID) = 0
     retcode = "0"
@@ -30,15 +30,6 @@ start CANS617(parmfile,option,client,retcode)
  ' return
  endif
 
-
- %global bgcolor
- bgcolor is x 
- %define table_wbgcolor "width='100%' cellspacing='0' cellpadding='0' bgcolor='" + bgcolor + "'"
- %define table_nobgcolor "width='100%' cellspacing='0' cellpadding='0'"  
- %define row_color1 "bgcolor='LightSkyBlue'"
- %define row_color2 "bgcolor='White'"
- %define row_color3 "bgcolor='PaleGreen'"
- %define col_color_multi "bgcolor='LightGrey'"
  c.cans.cg.na = "N"
  Page is x
  Page = "1"
@@ -131,7 +122,7 @@ function Report(RptTitle,ReportID) is null
  $form("Report")
   {"lib_COMMON"}ClientPageHeader($regid,"Y")
   $style("siginfotag")
-  $br()ReportHdr()
+  $br(){"lib_CANS617"}ReportHdr()
   $br()ChildRiskRpt()
   $br()BehEmoRpt()
   $br()LifeDomainRpt()
@@ -145,16 +136,45 @@ function Report(RptTitle,ReportID) is null
 end Report
 
 function SaveData() is i
- $dblock()
- SaveData = $dbpoint(02, $regid, c.cans.rec)	                          
+ mode is x
+ (void)$dbread(02, $regid, cans_dstlist)
+ if c.cans.compd !dp and c.cans.staff dp and c.cans.type dp
+  mode = "ADD"
+  $dblock()
+  SaveData = $dbpoint(02, $regid, c.cans.rec)	                          
+ else
+  mode = "UPDATE"  
+  $dblock()
+  SaveData = $dbread(02, $regid, c.cans.rec)
+ endif
  c.cans.staff = $operstaffid
  c.cans.ver   = "1.00"
- c.cans.date  = $today
  c.cans.age   = {"lib_COMMON"}ClientAge($regid, c.cans.date)
- c.cans.compd = $today
- SaveData = $dbadddst(02, $regid, cans_dstlist)
+ if c.cans.aloc dp
+  c.cans.compd = $today
+  c.cans.snapid = {"l_snapLibSC"}sn_GetSnapID()	                           
+ endif 
+ if c.cans.resother1 dp
+  c.cans.resother1 = $seg(c.cans.resother1,1,44)
+  c.cans.resother2 = $seg(c.cans.resother1,45,56)
+ else
+  $clear(c.cans.resother1,c.cans.resother2)
+ endif
+ if c.cans.devoth dp
+  c.cans.devR1 = $seg(c.cans.devoth,1,63)
+  c.cans.devR2 = $seg(c.cans.devoth,64,63)
+  c.cans.devR3 = $seg(c.cans.devoth,127,63)
+  c.cans.devR4 = $seg(c.cans.devoth,190,63)
+  c.cans.devR5 = $seg(c.cans.devoth,253,3)
+ else
+  $clear(c.cans.devR1,c.cans.devR2,c.cans.devR3,c.cans.devR4,c.cans.devR5)
+ endif 
+ select mode
+  case "ADD"    SaveData = $dbadddst(02, $regid, cans_dstlist)
+  case "UPDATE" SaveData = $dbupdate(02, $regid, cans_dstlist)
+ endselect
   select SaveData
-   case 0     $brmsg("Data Successfully Added to Database!",1,"W","Process Complete")
+   case 0     $brmsg("CANS Assessment Successfully saved to Database!",1,"W","Process Complete")
    case other $brmsg(`"Error Saving Data,  RC=" + SaveData`,1,"W","Error Saving")
   endselect
 end SaveData
@@ -2680,7 +2700,7 @@ function Validate2() is i
     (void)$arrpush(errors[],sud_errortxt)
    endif  	                            
 
-   if c.cans.cr.suicid != "0" and c.cans.cr.suicid dp and (c.ans.sr.hissui !dp and c.cans.sr.hfmsui !dp and c.cans.sr.firear !dp)
+   if c.cans.cr.suicid != "0" and c.cans.cr.suicid dp and (c.cans.sr.hissui !dp and c.cans.sr.hfmsui !dp and c.cans.sr.firear !dp)
     (void)$arrpush(errors[],sr_errortxt)   
    endif
    
@@ -2800,6 +2820,12 @@ function Page1() is null
   $cancelopt("off", "BACK")
   $form("PAGE1")
    {"lib_COMMON"}ClientPageHeader($regid,"Y")
+   $br()AssessmentDate()
+   $br()AssessmentType()
+   $tag(hr)
+   $br()OtherQuestions()
+   $tag(hr)
+   $br()   
    $table("1",,table_nobgcolor)
     $row()
      $col(,,"50%")ChildRisk()
@@ -3085,23 +3111,6 @@ function Validate() is i
   endif
  end Validate
 
-
-function ReportHdr() is null
- $table($funcname,,"width='100%' cellspacing='0' cellpadding='2' bgcolor='White' style='border-style: solid; border-width: 1px'")
-  $row()
-   $col(,,"5%")
-   $col(,,"15%")$text("Assessment Date: ")
-   $col(,,"80%")$text(c.cans.date)
-  $row()
-   $col()
-   $col()$text("Assessment Type: ")
-   $col()$text(c.cans.type) 
- $endtable($funcname)
- $br()
- $tag(hr)
- $br()
-end ReportHdr
-
 function Page4() is null
 end Page4
 
@@ -3281,48 +3290,3 @@ function RLOC() is x
   RLOC = "105"
  endif
 end RLOC
-
-function ValidateALOC() is i
- last_type     is x
- last_aloc     is x
- last_alocdate is d
- datediff      is i
- $clear(errors[],last_type)
- {"lib_CANS"}Last_Assessment($regid,last_type,,,,,last_aloc,,last_alocdate) 
- if c.cans.aloc dp 
-  if c.cans.rloc = "100" and c.cans.aloc != c.cans.rloc
-   (void)$arrpush(errors[],aloc1_errortxt)  
-  endif
-  if c.cans.aloc != "100" and c.cans.aloc != "105"
-   (void)$arrpush(errors[],aloc2_errortxt)
-  endif
-  if c.cans.aloc != c.cans.rloc and c.cans.loc_dev !dp
-   (void)$arrpush(errors[],aloc3_errortxt)
-  endif  
-  if c.cans.aloc = "100" and (last_type = "I" or last_type = "U")
-    (void)$arrpush(errors[],aloc9_errortxt)  
-  endif
-  if c.cans.aloc = c.cans.rloc and c.cans.loc_dev dp
-   $clear(c.cans.loc_dev,c.cans.devoth,c.cans.devR1,c.cans.devR2,c.cans.devR3,c.cans.devR4,c.cans.devR5)   
-  endif
- else
-  (void)$arrpush(errors[],aloc4_errortxt)  
- endif
- if c.cans.alocdate dp
-  if c.cans.alocdate > $today
-   (void)$arrpush(errors[],aloc7_errortxt)    
-  endif
-  if c.cans.alocdate <= last_alocdate
-   (void)$arrpush(errors[],aloc8_errortxt)    
-  endif
- else
-  (void)$arrpush(errors[],aloc5_errortxt)  
- endif
- 
- if errors[1] dp	
-  ValidateALOC = 1
- else
-  ValidateALOC = 0	
- endif 
- c.cans.alocedate = {"lib_CANS"}EndDate(c.cans.aloc,c.cans.alocdate)
-end ValidateALOC
