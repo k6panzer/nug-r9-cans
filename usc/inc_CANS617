@@ -560,6 +560,7 @@ errors[] is x       'array for capturing errors by section
 %define aloc7_errortxt "The Authorization Date cannot be future dated"
 %define aloc8_errortxt "The Authorization Date cannot be older than 30 days"
 %define aloc9_errortxt "Crisis may only be assigned to a child/youth who is not currently assigned to an LOC"
+%define dloc_errortxt "The LOC requested for deviation is the same as the Recommended LOC. It will be unselected now. You can either leave the field blank or select another LOC."
 
 rc_cans_dstlist = $dstlist(cans_dstlist,02,
 c.cans.rec,c.cans.staff,c.cans.ver,c.cans.date,c.cans.age,c.cans.aloc,c.cans.rloc,c.cans.dloc,c.cans.compd,c.cans.type,
