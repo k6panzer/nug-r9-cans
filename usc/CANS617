@@ -25,7 +25,7 @@ start CANS617(parmfile,option,client,retcode)
  endif
 
  if Validate() = 1
-  DisplayErrors()
+  {"lib_CANS"}DisplayErrors()
  ' return
  endif
 
@@ -43,7 +43,17 @@ start CANS617(parmfile,option,client,retcode)
  %define col_color_multi "bgcolor='LightGrey'"
  c.cans.cg.na = "N"
  Page is x
- Page = "1"
+ %global UM_StaffYN
+ UM_StaffYN is x
+ UM_StaffYN = {"lib_COMMON"}UMStaff()
+ if UM_StaffYN = "Y"
+  if c.cans.compd !dp and c.cans.type dp
+   rc = $dbread(02, $regid, cans_dstlist)
+   Page = "Authorize"
+  else
+   Page = "1"
+  endif
+ endif
  do while 1 = 1
   select Page
    case "1" Page1()
@@ -70,60 +80,76 @@ start CANS617(parmfile,option,client,retcode)
 			endselect
    case "Validate1" select Validate1()
 					 case 0 select CanSkipPage2() 
-					         case "Y" Page = "Report"
+					         case "Y" Page = "4"
 							 case "N" Page = "2"
 							endselect
 					 case 1 Page = "1"
-					        DisplayErrors()
+					        {"lib_CANS"}DisplayErrors()
 					endselect										  
    case "Validate2" select Validate2()
 					 case 0 select CanSkipPage3() 
-					         case "Y" Page = "Report"
+					         case "Y" Page = "4"
 							 case "N" Page = "3"
 							endselect
 					 case 1 Page = "2"
-					        DisplayErrors()
+					        {"lib_CANS"}DisplayErrors()
 					endselect
    case "Validate3" select Validate3()
 					 case 0 Page = "4"
 					 case 1 Page = "3"
-					        DisplayErrors()  
+					        {"lib_CANS"}DisplayErrors()  
 					endselect
    case "Validate4" select Validate4()
 					 case 0 Page = "Report"
 					 case 1 Page = "4"
-					        DisplayErrors()
+					        {"lib_CANS"}DisplayErrors()
 					endselect
-   case "Report"    Report(RptTitle,ReportID)
+   case "ValidateALOC" select ValidateALOC()
+                        case 0 Page = "Report"
+                        case 1 Page = "Authorize"
+                               {"lib_CANS"}DisplayErrors()
+                       endselect					
+   case "Report"    Report(RptTitle,ReportID,page)
 					select $endbutton
 					 case "SUBMIT" if SaveData() = 0
 							        Page = "Exit"
 								   endif	 
-					 case "CANCEL" select CanSkipPage2()
-					                case "Y" Page = "1"
-					                case "N" select CanSkipPage3()
-									          case "Y" Page = "2"
-											  case "N" Page = "3"
-											 endselect
-					               endselect 
+					 case "CANCEL" Page = "4"
 					 case other if SaveData() = 0
 					             Page = "Exit"
 								endif 
+					endselect
+   case "Authorize" c.cans.rloc = RLOC()
+                    REPORT(RptTitle,ReportID,page)
+                    select $endbutton
+					 case "SUBMIT" Page = "ValidateALOC"
+					 case "CANCEL" if {"lib_COMMON"}ConfirmExit() = "Y"   
+                                    return
+                                   endif
 					endselect
    case "Exit" return					
   endselect 
  enddo
 end CANS617
 
-function Report(RptTitle,ReportID) is null
+function Report(RptTitle,ReportID,mode) is null
  RptTitle is x
  ReportID is x
- $submitopt("off", "")
- $cancelopt("off", "BACK")
+ mode     is x
+ if UM_StaffYN = "Y"
+  select mode
+   case "Report"    $submitopt("off", "")
+   case "Authorize" $submitopt("off", "Authorize")
+  endselect
+ else
+  $submitopt("off", "Send to UM")
+ endif
+ $cancelopt("off", "Back") 
  $form("Report")
   {"lib_COMMON"}ClientPageHeader($regid,"Y")
   $style("siginfotag")
   $br(){"lib_CANS617"}ReportHdr(c.cans.date,c.cans.type)
+  $br(){"lib_CANS617"}OtherQuestionRpt(q_text_sped,c.cans.sped,q_text_extdrev,c.cans.extdrev,q_text_foster,c.cans.foster,q_text_riskplc,c.cans.riskplc)
   $br(){"lib_CANS617"}ChildRiskRpt(c.cans.cr.suicid,q_text_cr_smutil,c.cans.cr.smutil,q_text_cr_oslfhr,c.cans.cr.oslfhr,
                                    q_text_cr_dangot,c.cans.cr.dangot,q_text_cr_sexagr,c.cans.cr.sexagr,
 								   q_text_cr_runawy,c.cans.cr.runawy,
@@ -174,11 +200,30 @@ function Report(RptTitle,ReportID) is null
                                   q_text_fc_empedu,c.cans.fc.empedu,q_text_fc_eduatt,c.cans.fc.eduatt,
                                   q_text_fc_legal,c.cans.fc.legal,q_text_fc_motive,c.cans.fc.motive,
                                   q_text_fc_finres,c.cans.fc.finres,q_text_fc_transp,c.cans.fc.transp)
-  $br()ChildStrRpt()
-  $br()CultureRpt()
-  $br()PsyHospRpt()
-  $br()CrisisRpt()
-  {"l_snapLibSC"}sn_CreateReport(RptTitle,,,ReportID)
+  $br(){"lib_CANS617"}ChildStrRpt(q_text_cs_family,c.cans.cs.family,q_text_cs_intper,c.cans.cs.intper,
+                                  q_text_cs_optims,c.cans.cs.optims,q_text_cs_educat,c.cans.cs.educat,
+                                  q_text_cs_vocate,c.cans.cs.vocate,q_text_cs_talint,c.cans.cs.talint,
+                                  q_text_cs_spirel,c.cans.cs.spirel,q_text_cs_comlif,c.cans.cs.comlif,
+                                  q_text_cs_permin,c.cans.cs.permin,q_text_cs_youth,c.cans.cs.youth,
+                                  q_text_cs_natsup,c.cans.cs.natsup)
+  $br(){"lib_CANS617"}CultureRpt(q_text_ac_langua,c.cans.ac.langua,
+                                 q_text_ac_identy,c.cans.ac.identy,
+                                 q_text_ac_sexgen,c.cans.ac.sexgen,
+                                 q_text_ac_ritual,c.cans.ac.ritual,
+                                 q_text_ac_culstr,c.cans.ac.culstr)
+  $br(){"lib_CANS617"}PsyHospRpt(q_text_ps_hosptl,c.cans.ps.hosptl,
+                                 q_text_hs_numprr,c.cans.hs.numprr,
+                                 q_text_hs_longst,c.cans.hs.longst,
+                                 q_text_hs_durrec,c.cans.hs.durrec,
+                                 q_text_hs_timlst,c.cans.hs.timlst)
+  $br(){"lib_CANS617"}CrisisRpt(q_text_cr_episds,c.cans.cr.episds)
+  select mode
+   case "Report"  if UM_StaffYN = "Y"
+                   $br(){"lib_CANS617"}ALOCRpt(RptTitle,ReportID,q_text_alocstaff,c.cans.alocstaff,q_text_alocdate,c.cans.alocdate,q_text_alocedate,c.cans.alocedate,
+                                               q_text_rloc,c.cans.rloc,q_text_dloc,c.cans.dloc,q_text_aloc,c.cans.aloc,q_text_devoth,c.cans.devoth)
+				  endif
+   case "Authorize" ALOC()
+  endselect
  $sendform("Report")
 end Report
 
@@ -1862,134 +1907,6 @@ function PsyHospHx() is null
  $endfieldset()                                                                                                                                                                                                                    
 end PsyHospHx                                                                                                             
 
-'Child Strengths Report
-function ChildStrRpt() is null
- $table($funcname,,"width='100%' cellspacing='0' cellpadding='2' bgcolor='White' style='border-style: solid; border-width: 1px'")
-  $row(,col_color_multi)
-   $col("center",,,"3"  )$text("ChildStrengths","datatag")
-  $row(,row_color2)
-   $col(,,"40%")$text(q_text_cs_family)
-   $col("center",,"10%")$text(c.cans.cs.family)
-   $col(,,"50%")                               
-  $row()                                      
-   $col()$text(q_text_cs_intper)
-   $col("center")$text(c.cans.cs.intper)
-   $col()                                      
-  $row()                                      
-   $col()$text(q_text_cs_optims)
-   $col("center")$text(c.cans.cs.optims)
-   $col()                                      
-  $row()                                      
-   $col()$text(q_text_cs_educat)
-   $col("center")$text(c.cans.cs.educat)
-   $col(,,"50%")                               
-  $row()                                      
-   $col()$text(q_text_cs_vocate)
-   $col("center")$text(c.cans.cs.vocate)
-   $col()                                      
-  $row()                                      
-   $col()$text(q_text_cs_talint)
-   $col("center")$text(c.cans.cs.talint)
-   $col()                                      
-  $row()                                      
-   $col()$text(q_text_cs_spirel)
-   $col("center")$text(c.cans.cs.spirel)
-   $col()                                      
-  $row()                                      
-   $col()$text(q_text_cs_comlif)
-   $col("center")$text(c.cans.cs.comlif)
-   $col()                                      
-  $row()                                      
-   $col()$text(q_text_cs_permin)
-   $col("center")$text(c.cans.cs.permin)
-   $col()                                      
-  $row()                                      
-   $col()$text(q_text_cs_youth)
-   $col("center")$text(c.cans.cs.youth)
-   $col()                                     
-  $row()                                      
-   $col()$text(q_text_cs_natsup)
-   $col("center")$text(c.cans.cs.natsup)
-   $col()                                      
- $endtable($funcname)
-end ChildStrRpt
-
-'Culture Report
-function CultureRpt() is null
- $table($funcname,,"width='100%' cellspacing='0' cellpadding='2' bgcolor='White' style='border-style: solid; border-width: 1px'")
-  $row(,col_color_multi)
-   $col("center",,,"3"  )$text("Culture","datatag")
-  $row(,row_color2)
-   $col(,,"40%")$text(q_text_ac_langua)
-   $col("center",,"10%")$text(c.cans.ac.langua)
-   $col(,,"50%")                               
-  $row()                                      
-   $col()$text(q_text_ac_identy)
-   $col("center")$text(c.cans.ac.identy)
-   $col()                                      
-  $row()                                      
-   $col()$text(q_text_ac_sexgen)
-   $col("center")$text(c.cans.ac.sexgen)
-   $col()                                      
-  $row()                                      
-   $col()$text(q_text_ac_ritual)
-   $col("center")$text(c.cans.ac.ritual)
-   $col()                                      
-  $row()                                      
-   $col()$text(q_text_ac_culstr)
-   $col("center")$text(c.cans.ac.culstr)
-   $col(,,"50%")                               
- $endtable($funcname)
-end CultureRpt
-
-'Crisis History Report
-function CrisisRpt() is null
- $table($funcname,,"width='100%' cellspacing='0' cellpadding='2' bgcolor='White' style='border-style: solid; border-width: 1px'")
-  $row(,col_color_multi)
-   $col("center",,,"3"  )$text("Crisis History, # of Crisis Episodes Past 90 Days","datatag")
-  $row(,row_color2)
-   $col(,,"40%")$text(q_text_cr_episds )
-   $col("center",,"10%")$text(c.cans.cr.episds )
-   $col(,,"50%")                               
- $endtable($funcname)
-end CrisisRpt
-
-'Psychiatric Hospitalization Report
-function PsyHospRpt() is null
- $table($funcname,,"width='100%' cellspacing='0' cellpadding='2' bgcolor='White' style='border-style: solid; border-width: 1px'")
-  $row(,col_color_multi)
-   $col("center",,,"3"  )$text("Psychiatric Hospitalizations","datatag")$text("{sup}11{/sup}")
-  $row(,row_color2)
-   $col(,,"40%")$text(q_text_ps_hosptl )
-   $col("center",,"10%")$text(c.cans.ps.hosptl )
-	  if c.cans.ps.hosptl = "1"
-	   $col() HospHxRpt()
-	  else
-	   $col()                               
-	  endif
- $endtable($funcname)
-end PsyHospRpt
-
-'Psychiatric Hospitalization History Module Report
-function HospHxRpt() is null
- $table($funcname,,"width='100%' cellspacing='0' cellpadding='2' bgcolor='White'  style='border-style: solid; border-width: 1px'")
-  $row(,col_color_multi)
-   $col("center",,,"2"  )$text("Hostpitalization History", "datatag")
-  $row(,row_color2)
-   $col(,, "50%")$text(q_text_hs_numprr)
-   $col("center")$text(c.cans.hs.numprr)
-  $row()                                       
-   $col()$text(q_text_hs_longst) 
-   $col("center")$text(c.cans.hs.longst)
-  $row()                                       
-   $col()$text(q_text_hs_durrec)
-   $col("center")$text(c.cans.hs.durrec)
-  $row()                                       
-   $col()$text(q_text_hs_timlst) 
-   $col("center")$text(c.cans.hs.timlst)
- $endtable($funcname)
-end HospHxRpt
-
 function Validate1() is i
    $clear(errors[])
 
@@ -2061,117 +1978,116 @@ function Validate1() is i
 end Validate1
 
 function Validate2() is i
-   $clear(errors[])
-   if ($num(c.cans.ld.school) > 0) and (c.cans.sc.behavr !dp or c.cans.sc.achiev !dp or c.cans.sc.attend !dp or c.cans.sc.reltch !dp) 
-    (void)$arrpush(errors[],sc_errortxt)
-   endif  
-
-   if ($num(c.cans.ld.develp) > 0) and (c.cans.dv.cognit !dp or c.cans.dv.develp !dp or c.cans.dv.selfcr !dp) 
-    (void)$arrpush(errors[],dv_errortxt)
-   endif     
-
-   if c.cans.ps.hosptl = "1" and (q_text_hs_numprr !dp or q_text_hs_longst !dp or q_text_hs_durrec !dp or q_text_hs_timlst !dp)
-    (void)$arrpush(errors[],pshx_errortxt)
-   endif
-
-   if c.cans.cg.safety != "0" and c.cans.cg.safety dp and (c.cans.fc.selfcr !dp or c.cans.fc.culstr !dp or c.cans.fc.empedu !dp or c.cans.fc.eduatt !dp or c.cans.fc.legal !dp or c.cans.fc.motive !dp or c.cans.fc.finres !dp or c.cans.fc.transp !dp)
-    (void)$arrpush(errors[],fcg_errortxt)
-   endif
-
-   if c.cans.cb.adjtrm != "0" and c.cans.cb.adjtrm dp and (c.cans.tr.sexabs !dp or c.cans.tr.phyabs !dp or c.cans.tr.emoabs !dp or c.cans.tr.medtrm !dp or c.cans.tr.natdis !dp or 
-      c.cans.tr.wtofam !dp or c.cans.tr.wtocom !dp or c.cans.tr.wcrime !dp or c.cans.tr.waraff !dp or c.cans.tr.teraff !dp)    
-    (void)$arrpush(errors[],tr_errortxt)
-   endif  	                            
-                               
-   if c.cans.cb.adjtrm != "0" and c.cans.cb.adjtrm dp and (c.cans.ad.affreg !dp or c.cans.ad.intrus !dp or c.cans.ad.attach !dp or c.cans.ad.dissoc !dp or c.cans.ad.timb4t !dp)    
-    (void)$arrpush(errors[],adj_errortxt)
-   endif  	                            
-                           
-   if c.cans.cb.subabs != "0" and c.cans.cb.subabs dp and(c.cans.sa.severe !dp or c.cans.sa.durati !dp or c.cans.sa.stgrec !dp or c.cans.sa.perinf !dp or c.cans.sa.parinf !dp or c.cans.sa.envinf !dp)    
-    (void)$arrpush(errors[],sud_errortxt)
-   endif  	                            
-
-   if c.cans.cr.suicid != "0" and c.cans.cr.suicid dp and (c.cans.sr.hissui !dp and c.cans.sr.hfmsui !dp and c.cans.sr.firear !dp)
-    (void)$arrpush(errors[],sr_errortxt)   
-   endif
-   
-   if c.cans.cr.dangot != "0" and c.cans.cr.dangot dp and(c.cans.vi.hxpabs !dp or c.cans.vi.hxviol !dp or c.cans.vi.wdomab !dp or c.cans.vi.wenvab !dp)
-    (void)$arrpush(errors[],vi_errortxt)
-   endif  	                            
-
-   if c.cans.cr.dangot != "0" and c.cans.cr.dangot dp and (c.cans.eb.frsmgt !dp or c.cans.eb.hostil !dp or c.cans.eb.parand !dp or c.cans.eb.secgan !dp or c.cans.eb.viothk !dp )
-    (void)$arrpush(errors[],eb_errortxt) 
-   endif  	                            
-
-   if c.cans.cr.dangot != "0" and c.cans.cr.dangot dp and (c.cans.rf.viopot !dp or c.cans.rf.rescon !dp or c.cans.rf.comsc  !dp or c.cans.rf.trtinv !dp )
-    (void)$arrpush(errors[],res_errortxt)
-   endif  	                            
-
-   if c.cans.cr.sexagr != "0" and c.cans.cr.sexagr dp and 
-     (c.cans.sb.relton !dp or c.cans.sb.phyfrc !dp or c.cans.sb.planin !dp or c.cans.sb.agedif !dp or c.cans.sb.typsex !dp or c.cans.sb.resacc !dp or c.cans.sb.temcon !dp or c.cans.sb.hxsxbh !dp or c.cans.sb.svsxab !dp )
-    (void)$arrpush(errors[],sab_errortxt) 
-   endif  	                            
-
-   if c.cans.cr.runawy != "0" and c.cans.cr.runawy dp and (c.cans.rn.frqncy !dp or c.cans.rn.condes !dp or c.cans.rn.safdes !dp or c.cans.rn.invill !dp or c.cans.rn.retown !dp or c.cans.rn.invoth !dp or c.cans.rn.relexp !dp or c.cans.rn.planin !dp )
-    (void)$arrpush(errors[], rw_errortxt)
-   endif  	                            
-
-   if c.cans.cr.delqcy != "0" and c.cans.cr.delqcy dp and 
-     (c.cans.jj.serios !dp or c.cans.jj.histry !dp or c.cans.jj.arrest !dp or c.cans.jj.planin !dp or c.cans.jj.comsaf !dp or c.cans.jj.lefcom !dp or c.cans.jj.perinf !dp or c.cans.jj.parinf !dp or c.cans.jj.envinf !dp )
-    (void)$arrpush(errors[],jj_errortxt)
-   endif  	                            
-
-   if c.cans.cr.firset != "0" and c.cans.cr.firset dp and 
-      (c.cans.fs.serios !dp or c.cans.fs.histry !dp or c.cans.fs.planin !dp or c.cans.fs.useacc !dp or c.cans.fs.inthrm !dp or c.cans.fs.comsaf !dp or c.cans.fs.resacc !dp or c.cans.fs.remrse !dp or c.cans.fs.futfir !dp )
-    (void)$arrpush(errors[],fs_errortxt)
-   endif                     
-
-   if errors[1] dp	
-    Validate2 = 1
-   else
-    Validate2 = 0	
- 'Clear dependant fields
- if c.cans.cg.na = "Y"
-  $clear(c.cans.cg.super,c.cans.cg.involv,c.cans.cg.knoldg,c.cans.cg.organz,c.cans.cg.socres,c.cans.cg.ressbl,c.cans.cg.physcl,c.cans.cg.menhth,c.cans.cg.subabs,c.cans.cg.develp,c.cans.cg.chldcr,c.cans.cg.miltra,c.cans.cg.famsts,c.cans.cg.safety)
- endif
- 
- if $num(c.cans.ps.hosptl) != 1
-  $clear(q_text_hs_numprr, q_text_hs_longst, q_text_hs_durrec, q_text_hs_timlst)
- endif
- if $num(c.cans.cg.safety) = 0 or c.cans.cg.safety = "N"
-     $clear(c.cans.fc.selfcr, c.cans.fc.culstr, c.cans.fc.empedu, c.cans.fc.eduatt, c.cans.fc.legal, c.cans.fc.motive, c.cans.fc.finres, c.cans.fc.transp)	
- endif
- if $num(c.cans.cb.adjtrm) = 0
-  $clear(c.cans.tr.sexabs, c.cans.tr.phyabs, c.cans.tr.emoabs, c.cans.tr.medtrm, c.cans.tr.natdis, c.cans.tr.wtofam, c.cans.tr.wtocom, c.cans.tr.wcrime, c.cans.tr.waraff, c.cans.tr.teraff)    
-     $clear(c.cans.ad.affreg, c.cans.ad.intrus, c.cans.ad.attach, c.cans.ad.dissoc, c.cans.ad.timb4t)	
- endif
- if $num(c.cans.cb.subabs) = 0
-  $clear(c.cans.sa.severe, c.cans.sa.durati, c.cans.sa.stgrec, c.cans.sa.perinf, c.cans.sa.parinf, c.cans.sa.envinf)
- endif
- if $num(c.cans.cr.dangot) = 0
-     $clear(c.cans.eb.frsmgt, c.cans.eb.hostil, c.cans.eb.parand, c.cans.eb.secgan, c.cans.eb.viothk)	
-  $clear(c.cans.vi.hxpabs, c.cans.vi.hxviol, c.cans.vi.wdomab, c.cans.vi.wenvab)
-     $clear(c.cans.rf.viopot, c.cans.rf.rescon, c.cans.rf.comsc , c.cans.rf.trtinv)	
- endif
- if $num(c.cans.cr.sexagr) = 0
-  $clear(c.cans.sb.relton, c.cans.sb.phyfrc, c.cans.sb.planin, c.cans.sb.agedif, c.cans.sb.typsex, c.cans.sb.resacc, c.cans.sb.temcon, c.cans.sb.hxsxbh, c.cans.sb.svsxab)
- endif
- if $num(c.cans.cr.runawy) = 0
-     $clear(c.cans.rn.frqncy, c.cans.rn.condes, c.cans.rn.safdes, c.cans.rn.invill, c.cans.rn.retown, c.cans.rn.invoth, c.cans.rn.relexp, c.cans.rn.planin)
- endif
- if $num(c.cans.cr.delqcy) = 0
-     $clear(c.cans.jj.serios, c.cans.jj.histry, c.cans.jj.arrest, c.cans.jj.planin, c.cans.jj.comsaf, c.cans.jj.lefcom, c.cans.jj.perinf, c.cans.jj.parinf, c.cans.jj.envinf)
- endif
- if $num(c.cans.cr.firset) = 0
-     $clear(c.cans.fs.serios, c.cans.fs.histry, c.cans.fs.planin, c.cans.fs.useacc, c.cans.fs.inthrm, c.cans.fs.comsaf, c.cans.fs.resacc, c.cans.fs.remrse, c.cans.fs.futfir)	
- endif     
- if $num(c.cans.ld.school) = 0
-  $clear(c.cans.sc.behavr, c.cans.sc.achiev, c.cans.sc.attend, c.cans.sc.reltch)
+ $clear(errors[])
+ if ($num(c.cans.ld.school) > 0) and (c.cans.sc.behavr !dp or c.cans.sc.achiev !dp or c.cans.sc.attend !dp or c.cans.sc.reltch !dp) 
+  (void)$arrpush(errors[],sc_errortxt)
  endif  
- if $num(c.cans.ld.develp) = 0
-  $clear(c.cans.dv.cognit, c.cans.dv.develp, c.cans.dv.selfcr)
+ 
+ if ($num(c.cans.ld.develp) > 0) and (c.cans.dv.cognit !dp or c.cans.dv.develp !dp or c.cans.dv.selfcr !dp) 
+  (void)$arrpush(errors[],dv_errortxt)
+ endif     
+
+ if c.cans.ps.hosptl = "1" and (q_text_hs_numprr !dp or q_text_hs_longst !dp or q_text_hs_durrec !dp or q_text_hs_timlst !dp)
+  (void)$arrpush(errors[],pshx_errortxt)
+ endif
+
+ if c.cans.cg.safety != "0" and c.cans.cg.safety dp and (c.cans.fc.selfcr !dp or c.cans.fc.culstr !dp or c.cans.fc.empedu !dp or c.cans.fc.eduatt !dp or c.cans.fc.legal !dp or c.cans.fc.motive !dp or c.cans.fc.finres !dp or c.cans.fc.transp !dp)
+  (void)$arrpush(errors[],fcg_errortxt)
+ endif
+
+ if c.cans.cb.adjtrm != "0" and c.cans.cb.adjtrm dp and (c.cans.tr.sexabs !dp or c.cans.tr.phyabs !dp or c.cans.tr.emoabs !dp or c.cans.tr.medtrm !dp or c.cans.tr.natdis !dp or 
+    c.cans.tr.wtofam !dp or c.cans.tr.wtocom !dp or c.cans.tr.wcrime !dp or c.cans.tr.waraff !dp or c.cans.tr.teraff !dp)    
+  (void)$arrpush(errors[],tr_errortxt)
+ endif  	                            
+                               
+ if c.cans.cb.adjtrm != "0" and c.cans.cb.adjtrm dp and (c.cans.ad.affreg !dp or c.cans.ad.intrus !dp or c.cans.ad.attach !dp or c.cans.ad.dissoc !dp or c.cans.ad.timb4t !dp)    
+  (void)$arrpush(errors[],adj_errortxt)
+ endif  	                            
+                           
+ if c.cans.cb.subabs != "0" and c.cans.cb.subabs dp and(c.cans.sa.severe !dp or c.cans.sa.durati !dp or c.cans.sa.stgrec !dp or c.cans.sa.perinf !dp or c.cans.sa.parinf !dp or c.cans.sa.envinf !dp)    
+  (void)$arrpush(errors[],sud_errortxt)
+ endif  	                            
+
+ if c.cans.cr.suicid != "0" and c.cans.cr.suicid dp and (c.cans.sr.hissui !dp and c.cans.sr.hfmsui !dp and c.cans.sr.firear !dp)
+  (void)$arrpush(errors[],sr_errortxt)   
+ endif
+   
+ if c.cans.cr.dangot != "0" and c.cans.cr.dangot dp and(c.cans.vi.hxpabs !dp or c.cans.vi.hxviol !dp or c.cans.vi.wdomab !dp or c.cans.vi.wenvab !dp)
+  (void)$arrpush(errors[],vi_errortxt)
+ endif  	                            
+
+ if c.cans.cr.dangot != "0" and c.cans.cr.dangot dp and (c.cans.eb.frsmgt !dp or c.cans.eb.hostil !dp or c.cans.eb.parand !dp or c.cans.eb.secgan !dp or c.cans.eb.viothk !dp )
+  (void)$arrpush(errors[],eb_errortxt) 
+ endif  	                            
+
+ if c.cans.cr.dangot != "0" and c.cans.cr.dangot dp and (c.cans.rf.viopot !dp or c.cans.rf.rescon !dp or c.cans.rf.comsc  !dp or c.cans.rf.trtinv !dp )
+  (void)$arrpush(errors[],res_errortxt)
+ endif  	                            
+
+ if c.cans.cr.sexagr != "0" and c.cans.cr.sexagr dp and 
+   (c.cans.sb.relton !dp or c.cans.sb.phyfrc !dp or c.cans.sb.planin !dp or c.cans.sb.agedif !dp or c.cans.sb.typsex !dp or c.cans.sb.resacc !dp or c.cans.sb.temcon !dp or c.cans.sb.hxsxbh !dp or c.cans.sb.svsxab !dp )
+  (void)$arrpush(errors[],sab_errortxt) 
+ endif  	                            
+
+ if c.cans.cr.runawy != "0" and c.cans.cr.runawy dp and (c.cans.rn.frqncy !dp or c.cans.rn.condes !dp or c.cans.rn.safdes !dp or c.cans.rn.invill !dp or c.cans.rn.retown !dp or c.cans.rn.invoth !dp or c.cans.rn.relexp !dp or c.cans.rn.planin !dp )
+  (void)$arrpush(errors[], rw_errortxt)
+ endif  	                            
+
+ if c.cans.cr.delqcy != "0" and c.cans.cr.delqcy dp and 
+   (c.cans.jj.serios !dp or c.cans.jj.histry !dp or c.cans.jj.arrest !dp or c.cans.jj.planin !dp or c.cans.jj.comsaf !dp or c.cans.jj.lefcom !dp or c.cans.jj.perinf !dp or c.cans.jj.parinf !dp or c.cans.jj.envinf !dp )
+  (void)$arrpush(errors[],jj_errortxt)
+ endif  	                            
+
+ if c.cans.cr.firset != "0" and c.cans.cr.firset dp and 
+    (c.cans.fs.serios !dp or c.cans.fs.histry !dp or c.cans.fs.planin !dp or c.cans.fs.useacc !dp or c.cans.fs.inthrm !dp or c.cans.fs.comsaf !dp or c.cans.fs.resacc !dp or c.cans.fs.remrse !dp or c.cans.fs.futfir !dp )
+  (void)$arrpush(errors[],fs_errortxt)
+ endif                     
+
+ if errors[1] dp	
+  Validate2 = 1
+ else
+  Validate2 = 0	
+'Clear dependant fields
+  if c.cans.cg.na = "Y"
+   $clear(c.cans.cg.super,c.cans.cg.involv,c.cans.cg.knoldg,c.cans.cg.organz,c.cans.cg.socres,c.cans.cg.ressbl,c.cans.cg.physcl,c.cans.cg.menhth,c.cans.cg.subabs,c.cans.cg.develp,c.cans.cg.chldcr,c.cans.cg.miltra,c.cans.cg.famsts,c.cans.cg.safety)
+  endif 
+  if $num(c.cans.ps.hosptl) != 1
+   $clear(q_text_hs_numprr, q_text_hs_longst, q_text_hs_durrec, q_text_hs_timlst)
+  endif
+  if $num(c.cans.cg.safety) = 0 or c.cans.cg.safety = "N"
+   $clear(c.cans.fc.selfcr, c.cans.fc.culstr, c.cans.fc.empedu, c.cans.fc.eduatt, c.cans.fc.legal, c.cans.fc.motive, c.cans.fc.finres, c.cans.fc.transp)	
+  endif
+  if $num(c.cans.cb.adjtrm) = 0
+   $clear(c.cans.tr.sexabs, c.cans.tr.phyabs, c.cans.tr.emoabs, c.cans.tr.medtrm, c.cans.tr.natdis, c.cans.tr.wtofam, c.cans.tr.wtocom, c.cans.tr.wcrime, c.cans.tr.waraff, c.cans.tr.teraff)    
+   $clear(c.cans.ad.affreg, c.cans.ad.intrus, c.cans.ad.attach, c.cans.ad.dissoc, c.cans.ad.timb4t)	
+  endif
+  if $num(c.cans.cb.subabs) = 0
+   $clear(c.cans.sa.severe, c.cans.sa.durati, c.cans.sa.stgrec, c.cans.sa.perinf, c.cans.sa.parinf, c.cans.sa.envinf)
+  endif
+  if $num(c.cans.cr.dangot) = 0
+   $clear(c.cans.eb.frsmgt, c.cans.eb.hostil, c.cans.eb.parand, c.cans.eb.secgan, c.cans.eb.viothk)	
+   $clear(c.cans.vi.hxpabs, c.cans.vi.hxviol, c.cans.vi.wdomab, c.cans.vi.wenvab)
+   $clear(c.cans.rf.viopot, c.cans.rf.rescon, c.cans.rf.comsc , c.cans.rf.trtinv)	
+  endif
+  if $num(c.cans.cr.sexagr) = 0
+   $clear(c.cans.sb.relton, c.cans.sb.phyfrc, c.cans.sb.planin, c.cans.sb.agedif, c.cans.sb.typsex, c.cans.sb.resacc, c.cans.sb.temcon, c.cans.sb.hxsxbh, c.cans.sb.svsxab)
+  endif
+  if $num(c.cans.cr.runawy) = 0
+   $clear(c.cans.rn.frqncy, c.cans.rn.condes, c.cans.rn.safdes, c.cans.rn.invill, c.cans.rn.retown, c.cans.rn.invoth, c.cans.rn.relexp, c.cans.rn.planin)
+  endif
+  if $num(c.cans.cr.delqcy) = 0
+   $clear(c.cans.jj.serios, c.cans.jj.histry, c.cans.jj.arrest, c.cans.jj.planin, c.cans.jj.comsaf, c.cans.jj.lefcom, c.cans.jj.perinf, c.cans.jj.parinf, c.cans.jj.envinf)
+  endif
+  if $num(c.cans.cr.firset) = 0
+   $clear(c.cans.fs.serios, c.cans.fs.histry, c.cans.fs.planin, c.cans.fs.useacc, c.cans.fs.inthrm, c.cans.fs.comsaf, c.cans.fs.resacc, c.cans.fs.remrse, c.cans.fs.futfir)	
+  endif     
+  if $num(c.cans.ld.school) = 0
+   $clear(c.cans.sc.behavr, c.cans.sc.achiev, c.cans.sc.attend, c.cans.sc.reltch)
+  endif  
+  if $num(c.cans.ld.develp) = 0
+   $clear(c.cans.dv.cognit, c.cans.dv.develp, c.cans.dv.selfcr)
   endif      
-endif
+ endif
 end Validate2
 
 function Validate3() is i
@@ -2188,23 +2104,6 @@ function Validate3() is i
   endif  	 
  endif 
 end Validate3
-
-function DisplayErrors() is null
- index is i
- $submitopt("off", "")
- $cancelopt("off", "BACK")
- $form("errors")
-  {"lib_COMMON"}ClientPageHeader($regid,"Y")
-  $text("{H1}Errors Were Found{/H1}")
-  $br()
-  $tag("<CENTER>")
-   index = 0
-   do while index++ <= $maxarray(errors[])
-    $br()$text(errors[index] , "error")
-   enddo
-  $tag("</CENTER>")
- $sendform("errors")
-end DisplayErrors
 
 function Page1() is null
   $submitopt("off", "SUBMIT")
@@ -2529,23 +2428,6 @@ function OtherQuestions() is null
  $endtable($funcname)
 end OtherQuestions
 
-function OtherQuestionRpt() is null
- $table($funcname,,"width='100%' cellspacing='0' cellpadding='2' bgcolor='White' style='border-style: solid; border-width: 1px'")
-  $row()
-   $col("right",,"50%")$text(q_text_sped,"datatag")
-   $col()$text(c.cans.sped)
-  $row()
-   $col("right",,"50%")$text(q_text_extdrev,"datatag")
-   $col()$text(c.cans.extdrev)
-  $row()
-   $col("right",,"50%")$text(q_text_foster,"datatag")
-   $col()$text(c.cans.foster)
-  $row()
-   $col("right",,"50%")$text(q_text_riskplc,"datatag")
-   $col()$text(c.cans.riskplc)
- $endtable($funcname)
-end OtherQuestionRpt
-
 function ALOC() is null
  $table($funcname,,table_nobgcolor)
    $row()
@@ -2576,46 +2458,52 @@ function ALOC() is null
  $endblock("OTHER","OTHER") 
 end ALOC
 
-function ALOCRpt(RptTitle,ReportID) is null
- RptTitle is x
- ReportID is x
- $table($funcname,,"width='100%' cellspacing='0' cellpadding='2' bgcolor='White'  style='border-style: solid; border-width: 1px'")
-   $row()
-    $col("right",,"50%")$text(q_text_alocstaff,"datatag")
-	$col()$text($dct(2071, c.cans.alocstaff, "D"))
-   $row()
-    $col("right",,"50%")$text(q_text_alocdate,"datatag")
-	$col()$text(c.cans.alocdate)
-   $row()
-    $col("right",,"50%")$text(q_text_alocedate,"datatag")
-	$col()$text(c.cans.alocedate)
-   $row()
-   $row()
-    $col("right",,"50%")$text(q_text_rloc,"datatag")
-	$col()$text($dct(9701,c.cans.rloc))
- if c.cans.dloc dp
-   $row()
-    $col("right",,"50%")$text(q_text_dloc,"datatag")
-	$col()$text($dct(9701,c.cans.dloc))              
- endif	
-   $row()
-    $col("right",,"50%")$text(q_text_aloc,"datatag")
-	$col()$text($dct(9701,c.cans.aloc)) 
- if c.cans.devoth dp
-   $row()
-    $col("right",,"50%")$text(q_text_devoth,"datatag")
-	$col()$text(c.cans.devoth)
- endif
- $endtable($funcname)
- $br()
- {"l_snapLibSC"}sn_CreateReport(RptTitle,,,ReportID)
-end ALOCRpt
-
-'CANS 3-5 RLOC
+'CANS 6-17 RLOC
 function RLOC() is x
- if c.cans.type = "1" and c.cans.cr.sfharm = "3"
-  RLOC = "100"
- else
-  RLOC = "105"
- endif
 end RLOC
+
+function ValidateALOC() is i
+ last_type     is x
+ last_aloc     is x
+ last_alocdate is d
+ datediff      is i
+ $clear(errors[],last_type)
+ {"lib_CANS"}Last_Assessment($regid,last_type,,,,,last_aloc,,last_alocdate) 
+ if c.cans.aloc dp 
+  if c.cans.rloc = "100" and c.cans.aloc != c.cans.rloc
+   (void)$arrpush(errors[],aloc1_errortxt)  
+  endif
+  if c.cans.aloc != "100" and c.cans.aloc != "105"
+   (void)$arrpush(errors[],aloc2_errortxt)
+  endif
+  if c.cans.aloc != c.cans.rloc and c.cans.loc_dev !dp
+   (void)$arrpush(errors[],aloc3_errortxt)
+  endif  
+  if c.cans.aloc = "100" and (last_type = "I" or last_type = "U")
+    (void)$arrpush(errors[],aloc9_errortxt)  
+  endif
+  if c.cans.aloc = c.cans.rloc and c.cans.loc_dev dp
+   $clear(c.cans.loc_dev,c.cans.devoth,c.cans.devR1,c.cans.devR2,c.cans.devR3,c.cans.devR4,c.cans.devR5)   
+  endif
+ else
+  (void)$arrpush(errors[],aloc4_errortxt)  
+ endif
+ if c.cans.alocdate dp
+  if c.cans.alocdate > $today
+   (void)$arrpush(errors[],aloc7_errortxt)    
+  endif
+  if c.cans.alocdate <= last_alocdate
+   (void)$arrpush(errors[],aloc8_errortxt)    
+  endif
+ else
+  (void)$arrpush(errors[],aloc5_errortxt)  
+ endif
+ 
+ if errors[1] dp	
+  ValidateALOC = 1
+ else
+  ValidateALOC = 0	
+ endif 
+ c.cans.alocedate = {"lib_CANS"}EndDate(c.cans.aloc,c.cans.alocdate)
+ c.cans.alocstaff = $operstaffid
+end ValidateALOC
