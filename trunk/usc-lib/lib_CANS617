@@ -1335,3 +1335,199 @@ function SafetyRpt(q_text_fc_selfcr,c.cans.fc.selfcr,q_text_fc_culstr,c.cans.fc.
    $col("center")$text(c.cans.fc.transp)
  $endtable($funcname)
 end SafetyRpt
+
+'Child Strengths Report
+function ChildStrRpt(q_text_cs_family,c.cans.cs.family,q_text_cs_intper,c.cans.cs.intper,
+                     q_text_cs_optims,c.cans.cs.optims,q_text_cs_educat,c.cans.cs.educat,
+                     q_text_cs_vocate,c.cans.cs.vocate,q_text_cs_talint,c.cans.cs.talint,
+                     q_text_cs_spirel,c.cans.cs.spirel,q_text_cs_comlif,c.cans.cs.comlif,
+                     q_text_cs_permin,c.cans.cs.permin,q_text_cs_youth,c.cans.cs.youth,
+                     q_text_cs_natsup,c.cans.cs.natsup) is null
+ q_text_cs_family is x
+ c.cans.cs.family is x
+ q_text_cs_intper is x
+ c.cans.cs.intper is x
+ q_text_cs_optims is x
+ c.cans.cs.optims is x
+ q_text_cs_educat is x
+ c.cans.cs.educat is x
+ q_text_cs_vocate is x
+ c.cans.cs.vocate is x
+ q_text_cs_talint is x
+ c.cans.cs.talint is x
+ q_text_cs_spirel is x
+ c.cans.cs.spirel is x
+ q_text_cs_comlif is x
+ c.cans.cs.comlif is x
+ q_text_cs_permin is x
+ c.cans.cs.permin is x
+ q_text_cs_youth  is x
+ c.cans.cs.youth  is x
+ q_text_cs_natsup is x
+ c.cans.cs.natsup is x
+ $table($funcname,,"width='100%' cellspacing='0' cellpadding='2' bgcolor='White' style='border-style: solid; border-width: 1px'")
+  $row(,col_color_multi)
+   $col("center",,,"3"  )$text("ChildStrengths","datatag")
+  $row(,row_color2)
+   $col(,,"40%")$text(q_text_cs_family)
+   $col("center",,"10%")$text(c.cans.cs.family)
+   $col(,,"50%")                               
+  $row()                                      
+   $col()$text(q_text_cs_intper)
+   $col("center")$text(c.cans.cs.intper)
+   $col()                                      
+  $row()                                      
+   $col()$text(q_text_cs_optims)
+   $col("center")$text(c.cans.cs.optims)
+   $col()                                      
+  $row()                                      
+   $col()$text(q_text_cs_educat)
+   $col("center")$text(c.cans.cs.educat)
+   $col(,,"50%")                               
+  $row()                                      
+   $col()$text(q_text_cs_vocate)
+   $col("center")$text(c.cans.cs.vocate)
+   $col()                                      
+  $row()                                      
+   $col()$text(q_text_cs_talint)
+   $col("center")$text(c.cans.cs.talint)
+   $col()                                      
+  $row()                                      
+   $col()$text(q_text_cs_spirel)
+   $col("center")$text(c.cans.cs.spirel)
+   $col()                                      
+  $row()                                      
+   $col()$text(q_text_cs_comlif)
+   $col("center")$text(c.cans.cs.comlif)
+   $col()                                      
+  $row()                                      
+   $col()$text(q_text_cs_permin)
+   $col("center")$text(c.cans.cs.permin)
+   $col()                                      
+  $row()                                      
+   $col()$text(q_text_cs_youth)
+   $col("center")$text(c.cans.cs.youth)
+   $col()                                     
+  $row()                                      
+   $col()$text(q_text_cs_natsup)
+   $col("center")$text(c.cans.cs.natsup)
+   $col()                                      
+ $endtable($funcname)
+end ChildStrRpt
+
+'Culture Report
+function CultureRpt(q_text_ac_langua,c.cans.ac.langua,
+                    q_text_ac_identy,c.cans.ac.identy,
+                    q_text_ac_sexgen,c.cans.ac.sexgen,
+                    q_text_ac_ritual,c.cans.ac.ritual,
+                    q_text_ac_culstr,c.cans.ac.culstr) is null
+ q_text_ac_langua  is x
+ c.cans.ac.langua  is x
+ q_text_ac_identy  is x
+ c.cans.ac.identy  is x
+ q_text_ac_sexgen  is x
+ c.cans.ac.sexgen  is x
+ q_text_ac_ritual  is x
+ c.cans.ac.ritual  is x
+ q_text_ac_culstr  is x
+ c.cans.ac.culstr  is x
+ $table($funcname,,"width='100%' cellspacing='0' cellpadding='2' bgcolor='White' style='border-style: solid; border-width: 1px'")
+  $row(,col_color_multi)
+   $col("center",,,"3"  )$text("Culture","datatag")
+  $row(,row_color2)
+   $col(,,"40%")$text(q_text_ac_langua)
+   $col("center",,"10%")$text(c.cans.ac.langua)
+   $col(,,"50%")                               
+  $row()                                      
+   $col()$text(q_text_ac_identy)
+   $col("center")$text(c.cans.ac.identy)
+   $col()                                      
+  $row()                                      
+   $col()$text(q_text_ac_sexgen)
+   $col("center")$text(c.cans.ac.sexgen)
+   $col()                                      
+  $row()                                      
+   $col()$text(q_text_ac_ritual)
+   $col("center")$text(c.cans.ac.ritual)
+   $col()                                      
+  $row()                                      
+   $col()$text(q_text_ac_culstr)
+   $col("center")$text(c.cans.ac.culstr)
+   $col(,,"50%")                               
+ $endtable($funcname)
+end CultureRpt
+
+'Crisis History Report
+function CrisisRpt(q_text_cr_episds,c.cans.cr.episds) is null
+ q_text_cr_episds is x
+ c.cans.cr.episds is x
+ $table($funcname,,"width='100%' cellspacing='0' cellpadding='2' bgcolor='White' style='border-style: solid; border-width: 1px'")
+  $row(,col_color_multi)
+   $col("center",,,"3"  )$text("Crisis History, # of Crisis Episodes Past 90 Days","datatag")
+  $row(,row_color2)
+   $col(,,"40%")$text(q_text_cr_episds)
+   $col("center",,"10%")$text(c.cans.cr.episds)
+   $col(,,"50%")                               
+ $endtable($funcname)
+end CrisisRpt
+
+'Psychiatric Hospitalization Report
+function PsyHospRpt(q_text_ps_hosptl,c.cans.ps.hosptl,
+                    q_text_hs_numprr,c.cans.hs.numprr,
+                    q_text_hs_longst,c.cans.hs.longst,
+                    q_text_hs_durrec,c.cans.hs.durrec,
+                    q_text_hs_timlst,c.cans.hs.timlst) is null
+ q_text_ps_hosptl is x
+ c.cans.ps.hosptl is x
+ q_text_hs_numprr is x
+ c.cans.hs.numprr is x
+ q_text_hs_longst is x
+ c.cans.hs.longst is x
+ q_text_hs_durrec is x
+ c.cans.hs.durrec is x
+ q_text_hs_timlst is x
+ c.cans.hs.timlst is x
+ $table($funcname,,"width='100%' cellspacing='0' cellpadding='2' bgcolor='White' style='border-style: solid; border-width: 1px'")
+  $row(,col_color_multi)
+   $col("center",,,"3"  )$text("Psychiatric Hospitalizations","datatag")$text("{sup}11{/sup}")
+  $row(,row_color2)
+   $col(,,"40%")$text(q_text_ps_hosptl)
+   $col("center",,"10%")$text(c.cans.ps.hosptl)
+	  if c.cans.ps.hosptl = "1"
+	   $col()HospHxRpt()
+	  else
+	   $col()                               
+	  endif
+ $endtable($funcname)
+end PsyHospRpt
+
+'Psychiatric Hospitalization History Module Report
+function HospHxRpt(q_text_hs_numprr,c.cans.hs.numprr,
+                   q_text_hs_longst,c.cans.hs.longst,
+                   q_text_hs_durrec,c.cans.hs.durrec,
+                   q_text_hs_timlst,c.cans.hs.timlst) is null
+ q_text_hs_numprr is x
+ c.cans.hs.numprr is x
+ q_text_hs_longst is x
+ c.cans.hs.longst is x
+ q_text_hs_durrec is x
+ c.cans.hs.durrec is x
+ q_text_hs_timlst is x
+ c.cans.hs.timlst is x
+ $table($funcname,,"width='100%' cellspacing='0' cellpadding='2' bgcolor='White'  style='border-style: solid; border-width: 1px'")
+  $row(,col_color_multi)
+   $col("center",,,"2"  )$text("Hostpitalization History", "datatag")
+  $row(,row_color2)
+   $col(,, "50%")$text(q_text_hs_numprr)
+   $col("center")$text(c.cans.hs.numprr)
+  $row()                                       
+   $col()$text(q_text_hs_longst) 
+   $col("center")$text(c.cans.hs.longst)
+  $row()                                       
+   $col()$text(q_text_hs_durrec)
+   $col("center")$text(c.cans.hs.durrec)
+  $row()                                       
+   $col()$text(q_text_hs_timlst) 
+   $col("center")$text(c.cans.hs.timlst)
+ $endtable($funcname)
+end HospHxRpt

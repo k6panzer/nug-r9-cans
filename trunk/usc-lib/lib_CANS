@@ -63,3 +63,21 @@ library lib_CANS()
    case "107" EndDate = c.cans.alocdate + 7
   endselect 
  end EndDate
+ 
+ function DisplayErrors(errors[]) is null
+  errors[] is x
+  index    is i
+  $submitopt("off", "")
+  $cancelopt("off", "BACK")
+  $form("errors")
+   {"lib_COMMON"}ClientPageHeader($regid,"Y")
+   $text("{H1}Errors Were Found{/H1}")
+   $br()
+   $tag("<CENTER>")
+    index = 0
+    do while index++ <= $maxarray(errors[])
+     $br()$text(errors[index] , "error")
+    enddo
+   $tag("</CENTER>")
+  $sendform("errors")
+ end DisplayErrors 

@@ -25,7 +25,7 @@ start CANS35(parmfile,option,client,retcode)
  endif
  
  if Validate() = 1
-  DisplayErrors()
+  {"lib_CANS"}DisplayErrors()
  ' return
  endif
  
@@ -57,93 +57,64 @@ start CANS35(parmfile,option,client,retcode)
  do while 1 = 1
   select Page
    case "1" Page1()
-            if $endbutton = "SUBMIT"
-			 Page = "Validate1"
-			else
-			 if {"lib_COMMON"}ConfirmExit() = "Y"   
-              return
-             endif	
-			endif 
+            select $endbutton
+			 case "SUBMIT" Page = "Validate1"
+			 case other if {"lib_COMMON"}ConfirmExit() = "Y"
+                         return
+                        endif
+			endselect			
    case "2" Page2()
-            if $endbutton = "SUBMIT"
-			 Page = "Validate2"		
-			else
-			 Page = "1" 
-			endif
-   case "3" Page3()
-            if $endbutton = "SUBMIT"
-			 Page = "Validate3"
-			else
-             Page = "2"
-			endif   			
-   case "4" Page4()
-            if $endbutton = "SUBMIT"
-			 Page = "Validate4"
-			else
-             Page = "3"
-			endif  
-   case "Validate1" if Validate1() = 0
-                     if CanSkipPage2() = "Y"
-                      if UM_StaffYN = "Y"
-					   Page = "Authorize"
-                      else
-					   Page = "Report"
-					  endif
-					 else
-					  Page = "2"
-					 endif  
-					else
-					 Page = "1"
-					 DisplayErrors()
-					endif  
-   case "Validate2" if Validate2() = 0
-                     if CanSkipPage3() = "Y"					  
-					  if UM_StaffYN = "Y"
-					   Page = "Authorize"
-					  else
-					   Page = "Report"
-					  endif
-					 else
-					  Page = "3"
-					 endif 
-					else
-					 Page = "2"
-					 DisplayErrors()
-					endif
-   case "Validate3" if Validate3() = 0
-                     if UM_StaffYN = "Y"
-					  Page = "Authorize"
-					 else 
-					  Page = "Report"
-					 endif
-					else
-					 Page = "3"
-					 DisplayErrors()
-					endif
-   case "Validate4" if Validate4() = 0
-                     Page = "Report"
-					else
-					 Page = "4"
-					 DisplayErrors()
-					endif					
-   case "ValidateALOC" if ValidateALOC() = 0
-                     Page = "Report"
-					else
-					 Page = "Authorize"
-					 DisplayErrors()
-					endif
+			select $endbutton
+			 case "SUBMIT" Page = "Validate2"
+			 case other Page = "1"
+			endselect			
+   case "3" Page3()  			
+			select $endbutton
+			 case "SUBMIT" Page = "Validate3"
+			 case other Page = "2"
+			endselect					
+   case "4" Page4()			
+			select $endbutton
+			 case "SUBMIT" Page = "Validate4"
+			 case other Page = "3"
+			endselect			  
+   case "Validate1" select Validate1()
+					 case 0 select CanSkipPage2()
+					         case "Y" Page = "4"
+					         case "N" Page = "2"
+							endselect
+					 case 1 Page = "1"
+					        {"lib_CANS"}DisplayErrors()
+					endselect					 
+   case "Validate2" select Validate2()
+					 case 0 select CanSkipPage3()
+					         case "Y" Page = "4"
+					         case "N" Page = "3"
+							endselect
+					 case 1 Page = "2"
+					        {"lib_CANS"}DisplayErrors()
+					endselect					
+   case "Validate3" select Validate3()
+					 case 0 Page = "4"
+					 case 1 Page = "3"
+					        {"lib_CANS"}DisplayErrors()  
+					endselect					
+   case "Validate4" select Validate4() 
+                     case 0 Page = "Report"
+					 case 1 Page = "4"
+					        {"lib_CANS"}DisplayErrors()
+					endselect 				
+   case "ValidateALOC" select ValidateALOC()
+                        case 0 Page = "Report"
+						case 1 Page = "Authorize"
+					           {"lib_CANS"}DisplayErrors()
+					   endselect
    case "Report"    Report(RptTitle,ReportID,page)
 					select $endbutton
 					 case "SUBMIT" if SaveData() = 0
 							        Page = "Exit"
 								   endif	 
-					 case "CANCEL" select CanSkipPage2()
-					                case "Y" Page = "1"
-					                case "N" select CanSkipPage3()
-									          case "Y" Page = "2"
-											  case "N" Page = "3"
-											 endselect
-					               endselect 
+					 case "CANCEL" Page = "4"				 					 
 					 case other if SaveData() = 0
 					             Page = "Exit"
 								endif 
@@ -1647,23 +1618,6 @@ function Validate3() is i
  endif 
 end Validate3
 
-function DisplayErrors() is null
- index is i
- $submitopt("off", "")
- $cancelopt("off", "Back")
- $form($funcname)
-  {"lib_COMMON"}ClientPageHeader($regid,"Y")
-  $text("{H1}Errors Were Found{/H1}")
-  $br()
-  $tag("<CENTER>")
-   index = 0
-   do while index++ <= $maxarray(errors[])
-    $br()$text(errors[index] , "error")
-   enddo
-  $tag("</CENTER>")
- $sendform($funcname)
-end DisplayErrors
-
 function Page1() is null
   $submitopt("off", "Submit")
   $cancelopt("off", "Back")
@@ -2382,4 +2336,5 @@ function ValidateALOC() is i
   ValidateALOC = 0	
  endif 
  c.cans.alocedate = {"lib_CANS"}EndDate(c.cans.aloc,c.cans.alocdate)
+ c.cans.alocstaff = $operstaffid
 end ValidateALOC
