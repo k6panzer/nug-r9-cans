@@ -104,6 +104,13 @@ start CANS617(parmfile,option,client,retcode)
 					 case 1 Page = "4"
 					        {"lib_CANS"}DisplayErrors()
 					endselect
+   case "ValidateReport" select ValidateReport()
+                          case 0 if SaveData() = 0
+					             Page = "Exit"
+								endif 
+                          case 1 Page = "Report"
+						         {"lib_CANS"}DisplayErrors()
+                         endselect			
    case "ValidateALOC" select ValidateALOC()
                         case 0 Page = "Report"
                         case 1 Page = "Authorize"
@@ -111,9 +118,7 @@ start CANS617(parmfile,option,client,retcode)
                        endselect					
    case "Report"    Report(RptTitle,ReportID,page)
 					select $endbutton
-					 case "SUBMIT" if SaveData() = 0
-							        Page = "Exit"
-								   endif	 
+					 case "SUBMIT" Page = "ValidateReport"
 					 case "CANCEL" Page = "4"
 					 case other if SaveData() = 0
 					             Page = "Exit"
@@ -221,6 +226,8 @@ function Report(RptTitle,ReportID,mode) is null
    case "Report"  if UM_StaffYN = "Y"
                    $br(){"lib_CANS617"}ALOCRpt(RptTitle,ReportID,q_text_alocstaff,c.cans.alocstaff,q_text_alocdate,c.cans.alocdate,q_text_alocedate,c.cans.alocedate,
                                                q_text_rloc,c.cans.rloc,q_text_dloc,c.cans.dloc,q_text_aloc,c.cans.aloc,q_text_devoth,c.cans.devoth)
+				  else
+				   DLOC()
 				  endif
    case "Authorize" ALOC()
   endselect
@@ -260,7 +267,7 @@ function SaveData() is i
   c.cans.devR5 = $seg(c.cans.devoth,253,3)
  else
   $clear(c.cans.devR1,c.cans.devR2,c.cans.devR3,c.cans.devR4,c.cans.devR5)
- endif 
+ endif
  select mode
   case "ADD"    SaveData = $dbadddst(02, $regid, cans_dstlist)
   case "UPDATE" SaveData = $dbupdate(02, $regid, cans_dstlist)
@@ -2507,3 +2514,24 @@ function ValidateALOC() is i
  c.cans.alocedate = {"lib_CANS"}EndDate(c.cans.aloc,c.cans.alocdate)
  c.cans.alocstaff = $operstaffid
 end ValidateALOC
+
+function DLOC() is null
+ $table($funcname,,table_nobgcolor)
+   $row()
+    $col("right",,"50%")$text(q_text_dloc,"datatag")
+	$col()$dropboxdct(c.cans.dloc,9701,,,,"N")
+ $endtable($funcname)	
+end DLOC
+
+function ValidateReport() is i
+ $clear(errors[])
+ if c.cans.dloc = c.cans.rloc
+  (void)$arrpush(errors[],dloc_errortxt)
+  $clear(c.cans.dloc)
+ endif 
+ if errors[1] dp	
+  ValidateReport = 1
+ else
+  ValidateReport = 0	
+ endif 
+end ValidateReport

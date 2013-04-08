@@ -7,6 +7,7 @@
 %global c.cans.intref,c.cans.intrefoth
 %global c.cans.loc_dev,c.cans.devoth,c.cans.devr1,c.cans.devr2,c.cans.devr2,c.cans.devr3,c.cans.devr4,c.cans.devr5
 %global c.cans.alocstaff,c.cans.alocdate,c.cans.alocedate
+%global c.cans.snapid
 rc_cans_dstlist   is i
 cans_dstlist      is dstlist
 c.cans.rec        is H 'CLIENT CANS RECORD HEADER
@@ -47,6 +48,7 @@ c.cans.devR5      is x 'Reason for Deviation 5 253-255
 c.cans.alocstaff  is x 'Authorization staff
 c.cans.alocdate   is d 'Authorization date
 c.cans.alocedate  is d 'Authorization End date
+c.cans.snapid     is x
 
 
 'remove these?
@@ -400,6 +402,7 @@ errors[] is x  'array for capturing errors by section
 %define aloc7_errortxt "The Authorization Date cannot be future dated"
 %define aloc8_errortxt "The Authorization Date cannot be older than 30 days"
 %define aloc9_errortxt "Crisis may only be assigned to a child/youth who is not currently assigned to an LOC"
+%define dloc_errortxt "The LOC requested for deviation is the same as the Recommended LOC. It will be unselected now. You can either leave the field blank or select another LOC."
 
 
 rc_cans_dstlist = $dstlist(cans_dstlist,02,
@@ -410,6 +413,7 @@ c.cans.disdt,c.cans.disreas,c.cans.disref,c.cans.disoth,
 c.cans.intref,c.cans.intrefoth,
 c.cans.loc_dev,c.cans.devoth,c.cans.devr1,c.cans.devr2,c.cans.devr2,c.cans.devr3,c.cans.devr4,c.cans.devr5,
 c.cans.alocstaff,c.cans.alocdate,c.cans.alocedate,
+c.cans.snapid,
 'c.cans.resv3,c.cans.resv4,c.cans.resv5,c.cans.resv6,c.cans.resv7,c.cans.resv8,c.cans.resv9,
 c.cans.ld.family,c.cans.ld.livsit,c.cans.ld.preday,c.cans.ld.socFun,c.cans.ld.recret,c.cans.ld.develp,c.cans.ld.motor,c.cans.ld.commun,c.cans.ld.medicl,c.cans.ld.physcl,c.cans.ld.sleep ,c.cans.ld.relper, 
 c.cans.cs.family,c.cans.cs.extfam,c.cans.cs.intper,c.cans.cs.adapt,c.cans.cs.persis,c.cans.cs.curios,
