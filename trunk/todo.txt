@@ -1,0 +1,3 @@
+Finish the RLOC function for CANS617
+Deviation selection for both CANS versions
+Create a shared inc_CANS file, then use inc_CAS35 and inc_CANS617 to hold the %global definitions,the dstlist and the unique DSTs or fields
