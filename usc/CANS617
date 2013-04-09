@@ -25,9 +25,20 @@ start CANS617(parmfile,option,client,retcode)
  endif
 
  if Validate() = 1
-  {"lib_CANS"}DisplayErrors()
+  DisplayErrors()
  ' return
  endif
+ 
+ select {"lib_CANS"}PromptNewEditDel($regid)
+  case 1 $dblock()
+         rc = $dbremovedst(02, $regid, cans_dstlist)
+                 $brmsg("CANS Assessment Successfully Removed from the Database!",1,"C","Process Complete")
+                 $brmsg("The assessment will restart now.",2,"W")
+  case 2 rc = $dbread(02, $regid, cans_dstlist)
+  case 3 rc = $dbremovedst(02, $regid, cans_dstlist)
+                 $brmsg("CANS Assessment Successfully Removed from the Database!",1,"C","Process Complete")
+                 $brmsg("The assessment will exit now.",2,"W")
+ endselect
 
  %global assessments
  assessments[] is x
@@ -73,10 +84,16 @@ start CANS617(parmfile,option,client,retcode)
 			 case "SUBMIT" Page = "Validate3"
 			 case other Page = "2"
 			endselect
-   case "3" Page4()
+   case "4" Page4()
 			select $endbutton
 			 case "SUBMIT" Page = "Validate4"
-			 case other Page = "3"
+			 case other select CanSkipPage3() 
+					     case "Y" select CanSkipPage2()
+								   case "Y" Page = "1"
+								   case "N" Page = "2"
+								  endselect
+						 case "N" Page = "3"
+						endselect
 			endselect
    case "Validate1" select Validate1()
 					 case 0 select CanSkipPage2() 
@@ -84,7 +101,7 @@ start CANS617(parmfile,option,client,retcode)
 							 case "N" Page = "2"
 							endselect
 					 case 1 Page = "1"
-					        {"lib_CANS"}DisplayErrors()
+					        DisplayErrors()
 					endselect										  
    case "Validate2" select Validate2()
 					 case 0 select CanSkipPage3() 
@@ -92,29 +109,29 @@ start CANS617(parmfile,option,client,retcode)
 							 case "N" Page = "3"
 							endselect
 					 case 1 Page = "2"
-					        {"lib_CANS"}DisplayErrors()
+					        DisplayErrors()
 					endselect
    case "Validate3" select Validate3()
 					 case 0 Page = "4"
 					 case 1 Page = "3"
-					        {"lib_CANS"}DisplayErrors()  
+					        DisplayErrors()  
 					endselect
    case "Validate4" select Validate4()
 					 case 0 Page = "Report"
 					 case 1 Page = "4"
-					        {"lib_CANS"}DisplayErrors()
+					        DisplayErrors()
 					endselect
    case "ValidateReport" select ValidateReport()
                           case 0 if SaveData() = 0
 					             Page = "Exit"
 								endif 
                           case 1 Page = "Report"
-						         {"lib_CANS"}DisplayErrors()
+						         DisplayErrors()
                          endselect			
    case "ValidateALOC" select ValidateALOC()
                         case 0 Page = "Report"
                         case 1 Page = "Authorize"
-                               {"lib_CANS"}DisplayErrors()
+                               DisplayErrors()
                        endselect					
    case "Report"    Report(RptTitle,ReportID,page)
 					select $endbutton
@@ -2347,6 +2364,33 @@ function Validate() is i
  end Validate
 
 function Page4() is null
+ $submitopt("off","Submit")
+ $cancelopt("off","Back")
+ $form($funcname)
+  {"lib_COMMON"}ClientPageHeader($regid,"Y")
+  $table($funcname,,table_nobgcolor)
+   $row()
+    $col("right",,"50%")$text(q_text_school3m,"datatag")
+    $col()$radio(c.cans.school3m,"No","N")$radio(c.cans.school3m,"Yes","Y")
+   $row()
+    $col("right")$text(q_text_grade,"datatag")
+    $col()$dropboxdct(c.cans.grade,9073,,,,"Y")
+   $row()
+    $col("right")$text(q_text_arrest,"datatag")
+    $col()$textbox(c.cans.arrest,,2,2,"Y")
+   $row()
+    $col("right")$text(q_text_restype,"datatag")
+    $col()$dropboxdct(c.cans.restype,9012,,,,"Y")
+              $dropbox(c.cans.restype,"Other","9",,,"OTHER","OTHER","Y")
+  $endtable($funcname)
+  $block("OTHER","OTHER")
+   $table("OTHER",,table_nobgcolor)
+    $row()
+     $col("right")$text(q_text_resother1,"datatag")
+     $col()$textbox(c.cans.resother1,,100,110,"Y")
+   $endtable("OTHER")
+  $endblock("OTHER","OTHER")
+ $sendform($funcname)
 end Page4
 
 function Validate4() is i
@@ -2535,3 +2579,20 @@ function ValidateReport() is i
   ValidateReport = 0	
  endif 
 end ValidateReport
+
+function DisplayErrors() is null
+ index    is i
+ $submitopt("off", "")
+ $cancelopt("off", "BACK")
+  $form("errors")
+  {"lib_COMMON"}ClientPageHeader($regid,"Y")
+  $text("{H1}Errors Were Found{/H1}")
+  $br()
+  $tag("<CENTER>")
+   index = 0
+   do while index++ <= $maxarray(errors[])
+    $br()$text(errors[index], "error")
+   enddo
+  $tag("</CENTER>")
+ $sendform("errors")
+end DisplayErrors
