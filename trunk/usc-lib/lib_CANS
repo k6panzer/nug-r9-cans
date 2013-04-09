@@ -64,20 +64,40 @@ library lib_CANS()
   endselect 
  end EndDate
  
- function DisplayErrors(errors[]) is null
-  errors[] is x
-  index    is i
-  $submitopt("off", "")
-  $cancelopt("off", "BACK")
-  $form("errors")
-   {"lib_COMMON"}ClientPageHeader($regid,"Y")
-   $text("{H1}Errors Were Found{/H1}")
-   $br()
-   $tag("<CENTER>")
-    index = 0
-    do while index++ <= $maxarray(errors[])
-     $br()$text(errors[index] , "error")
-    enddo
-   $tag("</CENTER>")
-  $sendform("errors")
- end DisplayErrors 
+ function PromptNewEditDel(clientid) is i
+  clientid        is x
+  c.cans.rec      is h
+  c.cans.staff    is x
+  c.cans.ver      is x
+  c.cans.date     is d
+  c.cans.age      is i
+  c.cans.aloc     is x
+  c.cans.rloc     is x
+  c.cans.dloc     is x
+  c.cans.compd    is d
+  c.cans.type     is x
+  c.cans.alocdate is d
+  rc              is i
+  choice_btn[]    is x
+  rc = $dbread(02,clientid,c.cans.rec,c.cans.type,c.cans.staff,c.cans.date,c.cans.rloc,c.cans.compd)
+  if c.cans.staff = $operstaffid and c.cans.compd !dp  
+   $clear(choice_btn[])
+   $submitopt("off")
+   $cancelopt("off","Exit")
+   $form($funcname)
+    {"lib_COMMON"}ClientPageHeader($regid,"Y")
+	$br(3)$text("There is a current CANS assessment that has not yet been authorized. How do you wish to proceed?","datatag")
+	$table($funcname,,"width='100%' cellspacing='0' cellpadding='0'")
+	 $row()
+	  $col("center",,"33%")$submit(choice_btn[1],"Restart Current")
+	  $col("center",,"34%")$submit(choice_btn[2],"Edit Existing")
+	  $col("center",,"33%")$submit(choice_btn[3],"Delete Existing")
+	$endtable($funcname)
+   $sendform($funcname)
+   select $endbutton
+    case "SUBMIT"
+	case "CANCEL"
+	case other PromptNewEditDel = $maxarray(choice_btn[])
+   endselect    
+  endif
+ end PromptNewEditDel
