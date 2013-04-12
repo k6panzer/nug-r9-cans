@@ -2486,15 +2486,15 @@ function ALOC() is null
 	$col()$textbox(c.cans.alocdate,"CAL",10,6,"Y","normal")
    $row()
     $col("right",,"50%")$text(q_text_rloc,"datatag")
-	$col()$text($dct(9701,c.cans.rloc))
+	$col()$text($dct(9705,c.cans.rloc))
  if c.cans.dloc dp
    $row()
     $col("right",,"50%")$text(q_text_dloc,"error")
-	$col()$text($dct(9701,c.cans.dloc)) 
+	$col()$text($dct(9705,c.cans.dloc)) 
  endif	
    $row()
     $col("right",,"50%")$text(q_text_aloc,"datatag")
-	$col()$dropboxdct(c.cans.aloc,9701,,,,"Y")
+	$col()$dropboxdct(c.cans.aloc,9705,,,,"Y")
    $row()
     $col("right",,"50%")$text(q_text_loc_dev,"datatag")
 	$col()$dropboxdct(c.cans.loc_dev,9706,,,,"Y")
@@ -2563,7 +2563,7 @@ function DLOC() is null
  $table($funcname,,table_nobgcolor)
    $row()
     $col("right",,"50%")$text(q_text_dloc,"datatag")
-	$col()$dropboxdct(c.cans.dloc,9701,,,,"N")
+	$col()$dropboxdct(c.cans.dloc,9705,,,,"N")
  $endtable($funcname)	
 end DLOC
 
