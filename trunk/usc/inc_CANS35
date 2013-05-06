@@ -1,13 +1,19 @@
 'Include file for the CANS (Children's Assessment of Needs and Strengths) 3-5
    
-%global cans_dstlist,c.cans.rec,c.cans.staff,c.cans.ver,c.cans.date,c.cans.caredt,c.cans.title,c.cans.title35,c.cans.age,c.cans.aloc,c.cans.rloc,c.cans.dloc,c.cans.compd,c.cans.type
+%global cans_dstlist
+%global c.cans.rec,c.cans.staff,c.cans.ver,c.cans.date,c.cans.caredt,c.cans.title,c.cans.title35,c.cans.age,c.cans.aloc,c.cans.rloc,c.cans.dloc,c.cans.compd,c.cans.type
 %global c.cans.school3m,c.cans.arrest,c.cans.grade,c.cans.restype,c.cans.resother1,c.cans.resother2
 %global c.cans.sped,c.cans.extdrev,c.cans.foster,c.cans.riskplc,c.cans.tcoommi
 %global c.cans.disdt,c.cans.disreas,c.cans.disref,c.cans.disoth
 %global c.cans.intref,c.cans.intrefoth
 %global c.cans.loc_dev,c.cans.devoth,c.cans.devr1,c.cans.devr2,c.cans.devr2,c.cans.devr3,c.cans.devr4,c.cans.devr5
-%global c.cans.alocstaff,c.cans.alocdate,c.cans.alocedate
+%global c.cans.alocstaff,c.cans.alocdate,c.cans.alocedate,c.cans.alate,c.cans.alateoth,c.cans.fairhear
 %global c.cans.snapid
+%global c.cans.isn
+%global c.cans.slate,c.cans.slateoth
+%global c.cans.commdate
+%global c.cans.comment,c.cans.acomment
+
 rc_cans_dstlist   is i
 cans_dstlist      is dstlist
 c.cans.rec        is H 'CLIENT CANS RECORD HEADER
@@ -39,7 +45,7 @@ c.cans.disref     is x 'Discharge Referral
 c.cans.intref     is x 'Intake Referral
 c.cans.intrefoth  is x 'Intake Referral Other
 c.cans.loc_dev    is x 'ALOC Deviation Reason
-c.cans.devoth     is x 'Other Deviation reason
+c.cans.devoth     is dbtext-l 'Other Deviation reason
 c.cans.devR1      is x 'Reason for Deviation 1 1-63
 c.cans.devR2      is x 'Reason for Deviation 2 64-126
 c.cans.devR3      is x 'Reason for Deviation 3 127-189
@@ -48,8 +54,16 @@ c.cans.devR5      is x 'Reason for Deviation 5 253-255
 c.cans.alocstaff  is x 'Authorization staff
 c.cans.alocdate   is d 'Authorization date
 c.cans.alocedate  is d 'Authorization End date
+c.cans.alate      is x 'Justification for late auth
+c.cans.alateoth   is x 'Justification for late auth other
+c.cans.fairhear   is x 'Subject to Medicaid Fair Hearing
 c.cans.snapid     is x
-
+c.cans.isn        is x
+c.cans.slate      is x 'Justification for late submission
+c.cans.slateoth   is x 'Justification for late submission other
+c.cans.commdate   is d 'Community section date
+c.cans.comment    is dbtext-l 'CANS UA Staff Comment
+c.cans.acomment   is dbtext-l 'Cans ALOC Staff Comment
 
 'remove these?
 'c.cans.resv3 is X      'CLIENT CANS RESERVED 3
@@ -320,11 +334,14 @@ c.cans.rg.emot     is x      'CANS REGULATORY FUNCTIONING EMOTIONAL CONTROL
 %define q_text_rg_emot "Emotional Control"
 
 'Community scale questions
+%define q_text_commdate "Community Section Date: "
 %define q_text_school3m "Has the child/youth attended school at any time in the last 3 months?: "
 %define q_text_arrest "Number of arrests last 30 days: "
 %define q_text_grade "Current grade level or highest grade level completed?: "
 %define q_text_restype "Primary Residence Type (Last 90 Days): "
 %define q_text_resother1 "Primary Residence Other: "
+%define q_text_slate "Justification for Late Submission of Uniform Assessment: "
+%define q_text_slateoth "Justification for Late Submission of Uniform Assessment if Other was Selected: "
 
 'Other Questions
 %define q_text_sped "Special Education: "
@@ -352,6 +369,11 @@ c.cans.rg.emot     is x      'CANS REGULATORY FUNCTIONING EMOTIONAL CONTROL
 %define q_text_alocstaff "Authorization Staff: "
 %define q_text_alocdate "Authorization Date: "
 %define q_text_alocedate "Authorization End Date: "
+%define q_text_alate "Justification for Late Authorization of Uniform Assessment: "
+%define q_text_alateoth "Justification for Late Authorization of Uniform Assessment if Other was Selected: "
+%define q_text_fairhear "Subject to Medicaid Fair Hearing: "
+%define q_text_comment "Staff Comment: "
+%define q_text_acomment "Authorization Staff Comment: "
 
 %global errors[]
 errors[] is x  'array for capturing errors by section
@@ -402,8 +424,10 @@ errors[] is x  'array for capturing errors by section
 %define aloc7_errortxt "The Authorization Date cannot be future dated"
 %define aloc8_errortxt "The Authorization Date cannot be older than 30 days"
 %define aloc9_errortxt "Crisis may only be assigned to a child/youth who is not currently assigned to an LOC"
+%define aloc10_errortxt "If client is in Foster Care then YES Waiver cannot be authorized"
+%define aloc11_errortxt "Due to the Discharge Reason, the ALOC will be changed to Ineligible"
 %define dloc_errortxt "The LOC requested for deviation is the same as the Recommended LOC. It will be unselected now. You can either leave the field blank or select another LOC."
-
+%define staff_errortxt "You cannot authorize your own assessment, another UM staff must authorize it."
 
 rc_cans_dstlist = $dstlist(cans_dstlist,02,
 c.cans.rec,c.cans.staff,c.cans.ver,c.cans.date,c.cans.age,c.cans.aloc,c.cans.rloc,c.cans.dloc,c.cans.compd,c.cans.type,
@@ -412,14 +436,20 @@ c.cans.sped,c.cans.extdrev,c.cans.foster,c.cans.riskplc,c.cans.tcoommi,
 c.cans.disdt,c.cans.disreas,c.cans.disref,c.cans.disoth,
 c.cans.intref,c.cans.intrefoth,
 c.cans.loc_dev,c.cans.devoth,c.cans.devr1,c.cans.devr2,c.cans.devr2,c.cans.devr3,c.cans.devr4,c.cans.devr5,
-c.cans.alocstaff,c.cans.alocdate,c.cans.alocedate,
+c.cans.alocstaff,c.cans.alocdate,c.cans.alocedate,c.cans.alate,c.cans.alateoth,c.cans.fairhear,
 c.cans.snapid,
+c.cans.isn,
+c.cans.slate,c.cans.slateoth,
+c.cans.commdate,
+c.cans.comment,c.cans.acomment,
 'c.cans.resv3,c.cans.resv4,c.cans.resv5,c.cans.resv6,c.cans.resv7,c.cans.resv8,c.cans.resv9,
 c.cans.ld.family,c.cans.ld.livsit,c.cans.ld.preday,c.cans.ld.socFun,c.cans.ld.recret,c.cans.ld.develp,c.cans.ld.motor,c.cans.ld.commun,c.cans.ld.medicl,c.cans.ld.physcl,c.cans.ld.sleep ,c.cans.ld.relper, 
 c.cans.cs.family,c.cans.cs.extfam,c.cans.cs.intper,c.cans.cs.adapt,c.cans.cs.persis,c.cans.cs.curios,
 c.cans.ac.langua,c.cans.ac.identy,c.cans.ac.ritual,c.cans.ac.culstr,c.cans.ac.culdif,
 c.cans.cg.super,c.cans.cg.involv,c.cans.cg.knoldg,c.cans.cg.organz,c.cans.cg.socres,c.cans.cg.ressbl,c.cans.cg.physcl,c.cans.cg.menhth,c.cans.cg.subabs,c.cans.cg.develp,c.cans.cg.chldcr,c.cans.cg.miltra,c.cans.cg.famsts,c.cans.cg.safety,
 c.cans.cg.empath,c.cans.cg.marvio,
+c.cans.cb.attach,c.cans.cb.regula,c.cans.cb.fthriv,c.cans.cb.depres,c.cans.cb.anxity,c.cans.cb.atypic,c.cans.cb.implsv,c.cans.cb.oppdef,c.cans.cb.adjtrm,
+c.cans.cr.sfharm,c.cans.cr.aggbeh,c.cans.cr.socbeh,
 c.cans.cf.birthw,c.cans.cf.pica,c.cans.cf.prenat,c.cans.cf.labdel,c.cans.cf.subexp,c.cans.cf.psprob,c.cans.cf.matava,c.cans.cf.abuse,
 c.cans.sc.prequa,c.cans.sc.pbehav,c.cans.sc.pachie,c.cans.sc.patten,
 c.cans.dv.cognit,c.cans.dv.selfcr,
