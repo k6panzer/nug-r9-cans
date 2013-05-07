@@ -29,7 +29,7 @@ start CANS35(parmfile,option,client,retcode)
  
  if Validate() = 1
   DisplayErrors()
-  return
+ ' return
  endif
  
  %global assessments
@@ -60,7 +60,7 @@ start CANS35(parmfile,option,client,retcode)
 		                      $brmsg("CANS Assessment Successfully Removed from the Database!",1,"C","Process Complete")
 		                      $brmsg("The assessment will restart now.",2,"W")
                        case 2 rc = $dbread(02, $regid, cans_dstlist)
-                              GetEvent(e.ru,e.start,e.dur,e.loc)
+                              GetEvent(e.ser,e.ru,e.start,e.dur,e.loc)
 		                      Page = "0"	
                        case 3 $dblock()
                               rc = $dbread(02, $regid, cans_dstlist)	       
@@ -76,7 +76,7 @@ start CANS35(parmfile,option,client,retcode)
                                 Page = "0"
                       endselect    
 	case other rc = $dbread(02, $regid, cans_dstlist)
-	           GetEvent(e.ru,e.start,e.dur,e.loc)	
+	           GetEvent(e.ser,e.ru,e.start,e.dur,e.loc)	
 	           Page = "Authorize"
 	case !dp $clear(c.cans.compd,c.cans.type)
 	         Page = "0"
@@ -89,7 +89,7 @@ start CANS35(parmfile,option,client,retcode)
 		   $brmsg("CANS Assessment Successfully Removed from the Database!",1,"C","Process Complete")
 		   $brmsg("The assessment will restart now.",2,"W")
     case 2 rc = $dbread(02, $regid, cans_dstlist)
-           GetEvent(e.ru,e.start,e.dur,e.loc)
+           GetEvent(e.ser,e.ru,e.start,e.dur,e.loc)
 		   Page = "0"	
     case 3 $dblock()
            rc = $dbread(02, $regid, cans_dstlist)	       
@@ -114,7 +114,7 @@ start CANS35(parmfile,option,client,retcode)
 	      $brmsg("CANS Assessment Successfully Removed from the Database!",1,"C","Process Complete")
 	      $brmsg("The assessment will restart now.",2,"W")
    case 2 rc = $dbread(02, $regid, cans_dstlist)
-          GetEvent(e.ru,e.start,e.dur,e.loc)
+          GetEvent(e.ser,e.ru,e.start,e.dur,e.loc)
           Page = "0"	
    case 3 $dblock()
           rc = $dbread(02, $regid, cans_dstlist)	       
@@ -2735,13 +2735,13 @@ function SaveEvent() is x
  SaveEvent = $isnkey
 end SaveEvent
 
-function GetEvent($$isn.ru,$$isn.tm,$$isn.sdur,$$isn.loc) is i
+function GetEvent($$isn.sac,$$isn.ru,$$isn.tm,$$isn.sdur,$$isn.loc) is i
  %include inc_ISN
  rc is i
  if c.cans.isn dp
-  GetEvent = $dbread(9,c.cans.isn,$$isn.ru,$$isn.loc,$$isn.sdur,$$isn.tm)
+  GetEvent = $dbread(9,c.cans.isn,$$isn.ru,$$isn.loc,$$isn.sdur,$$isn.tm, $$isn.sac)
  endif 
- $allowupdate($$isn.ru,$$isn.tm,$$isn.sdur,$$isn.loc)
+ $allowupdate($$isn.sac,$$isn.ru,$$isn.tm,$$isn.sdur,$$isn.loc)
 end GetEvent
 
 function RLOCRpt() is null
