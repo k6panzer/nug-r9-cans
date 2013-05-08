@@ -236,7 +236,11 @@ start CANS35(parmfile,option,client,retcode)
 								    endif 								   
 								   endif	
 					 case "CANCEL" select c.cans.type
-					                case "1" Page = "SAL"
+					                case "1" if UM_StaffYN = "Y" and (c.cans.staff != $operstaffid and c.cans.staff dp)
+									          Page = "Authorize"
+											 else
+									          Page = "SAL"											 
+											 endif 
 									case other if UM_StaffYN = "Y" and (c.cans.staff != $operstaffid and c.cans.staff dp)
 									            Page = "Authorize"
 											   else
@@ -262,7 +266,12 @@ start CANS35(parmfile,option,client,retcode)
    case "Authorize" c.cans.rloc = RLOC()
                     REPORT(RptTitle,ReportID,page)
                     select $endbutton
-					 case "SUBMIT" Page = "ValidateALOC"
+					 case "SUBMIT"  if (c.cans.aloc dp and c.cans.aloc != c.cans.rloc) and c.cans.loc_dev !dp
+                                     $brmsg("Please select the reason for deviation from the Recommended LOC!",1,"W","Deviation Reason") 
+									 Page = "Authorize"
+					                else									
+					                 Page = "ValidateALOC"
+                                    endif
 					 case "CANCEL" if {"lib_COMMON"}ConfirmExit() = "Y"   
                                     return
                                    endif
@@ -2525,6 +2534,10 @@ function OtherQuestionRpt() is null
 end OtherQuestionRpt
 
 function ALOC() is null
+ last_type     is x
+ last_aloc     is x
+ last_alocdate is d
+ {"lib_CANS"}Last_Assessment($regid,last_type,,,,,last_aloc,,last_alocdate) 
  $table($funcname,,"width='100%' cellspacing='0' cellpadding='2' bgcolor='White'  style='border-style: solid; border-width: 1px'")
    $row(,col_color_multi)
     $col("center",,,"2")$text("Authorized Level Of Care","datatag")
@@ -2544,11 +2557,13 @@ function ALOC() is null
              $row()
               $col("right",,"50%")$text(q_text_aloc,"datatag")
 	          $col()$dropboxdct(c.cans.aloc,9705,,,,"Y")
-             $row()
-              $col("right",,"50%")$text(q_text_loc_dev,"datatag")
-	          $col()$dropboxdct(c.cans.loc_dev,9706)
-                    $dropbox(c.cans.loc_dev,"Other","5",,,"OTHER","OTHER")	
-           endif
+             if (c.cans.aloc dp and c.cans.rloc dp) and (c.cans.rloc != c.cans.aloc)
+			  $row()
+               $col("right",,"50%")$text(q_text_loc_dev,"datatag")
+	           $col()$dropboxdct(c.cans.loc_dev,9706)
+                     $dropbox(c.cans.loc_dev,"Other","5",,,"OTHER","OTHER")	
+             endif
+		   endif
            if c.cans.type = "11"
             c.cans.aloc = "100"
              $row()
@@ -2566,6 +2581,14 @@ function ALOC() is null
              $col()$textblock(c.cans.devoth,5,,,"Y",255,"width:100%;")$countbox(c.cans.devoth,"(max chars is 255)")
            $endtable("OTHER")
           $endblock("OTHER","OTHER")
+
+          if (c.cans.aloc != last_aloc and last_aloc dp) and c.cans.type != "3"
+		   $table($funcname,,table_nobgcolor)
+            $row()
+             $col("right",,"50%")$text(q_text_fairhear,"datatag")
+             $col()$radio(c.cans.fairhear,"Yes","Y",,,,,,"Y")$ctag("&nbsp;&nbsp;&nbsp;&nbsp;")$radio(c.cans.fairhear,"No","N",,,,,,"Y")
+           $endtable($funcname)
+		  endif 
 
           $table($funcname,,table_nobgcolor)
            $row()
@@ -2604,10 +2627,25 @@ function ALOCRpt(RptTitle,ReportID) is null
    $row()
     $col("right",,"50%")$text(q_text_aloc,"datatag")
 	$col()$text($dct(9705,c.cans.aloc)) 
+ if c.cans.loc_dev dp
+  $row()
+   $col("right",,"50%")$text(q_text_loc_dev,"datatag")
+   $col()$text($dct(9706,c.cans.loc_dev))
+ endif  
  if c.cans.devoth dp
    $row()
     $col("right",,"50%")$text(q_text_devoth,"datatag")
 	$col()$text(c.cans.devoth)
+ endif
+ if c.cans.fairhear dp
+  $row()
+   $col("right",,"50%")$text(q_text_fairhear,"datatag")
+   $col()$text($dct(29,c.cans.fairhear))
+ endif 
+ if c.cans.acomment dp
+  $row()
+   $col("right",,"50%")$text(q_text_acomment,"datatag")
+   $col()$text(c.cans.acomment) 
  endif
  $endtable($funcname)
  $br()
