@@ -431,5 +431,7 @@ rc = $dstadd(dst,"C.CANS.CR.SFHARM","CANS RISK BEH SELF-HARM"       ,dbfile,"X",
 rc = $dstadd(dst,"C.CANS.CR.AGGBEH","CANS RISK BEH AGGRESSIVE BEH"  ,dbfile,"X",0, 1,   0,recordnum)
 rc = $dstadd(dst,"C.CANS.COMMENT"  ,"CANS Staff Comment"            ,dbfile,"X",0,64,   0,recordnum)
 rc = $dstadd(dst,"C.CANS.ACOMMENT" ,"CANS ALOC Staff Comment"       ,dbfile,"X",0,64,   0,recordnum)
+rc = $dstadd(dst,"C.CANS.CANSTYPE" ,"CANS Assessment Type"          ,dbfile,"X",0, 1,   0,recordnum)
+
 end CANSDST
  
