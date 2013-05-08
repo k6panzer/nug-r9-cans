@@ -13,6 +13,7 @@
 %global c.cans.slate,c.cans.slateoth
 %global c.cans.commdate
 %global c.cans.comment,c.cans.acomment
+%global c.cans.canstype
 
 rc_cans_dstlist   is i
 cans_dstlist      is dstlist
@@ -65,10 +66,8 @@ c.cans.commdate   is d 'Community section date
 c.cans.comment    is dbtext-l 'CANS UA Staff Comment
 c.cans.acomment   is dbtext-l 'Cans ALOC Staff Comment
 
-'remove these?
-'c.cans.resv3 is X      'CLIENT CANS RESERVED 3
-'c.cans.resv4 is X      'CLIENT CANS RESERVED 4
-'c.cans.resv5 is X      'CLIENT CANS RESERVED 5
+
+c.cans.canstype is X
 'c.cans.resv6 is X      'CLIENT CANS RESERVED 6
 'c.cans.resv7 is X      'CLIENT CANS RESERVED 7
 'c.cans.resv8 is X      'CLIENT CANS RESERVED 8
@@ -442,7 +441,8 @@ c.cans.isn,
 c.cans.slate,c.cans.slateoth,
 c.cans.commdate,
 c.cans.comment,c.cans.acomment,
-'c.cans.resv3,c.cans.resv4,c.cans.resv5,c.cans.resv6,c.cans.resv7,c.cans.resv8,c.cans.resv9,
+c.cans.canstype,
+'c.cans.resv6,c.cans.resv7,c.cans.resv8,c.cans.resv9,
 c.cans.ld.family,c.cans.ld.livsit,c.cans.ld.preday,c.cans.ld.socFun,c.cans.ld.recret,c.cans.ld.develp,c.cans.ld.motor,c.cans.ld.commun,c.cans.ld.medicl,c.cans.ld.physcl,c.cans.ld.sleep ,c.cans.ld.relper, 
 c.cans.cs.family,c.cans.cs.extfam,c.cans.cs.intper,c.cans.cs.adapt,c.cans.cs.persis,c.cans.cs.curios,
 c.cans.ac.langua,c.cans.ac.identy,c.cans.ac.ritual,c.cans.ac.culstr,c.cans.ac.culdif,
