@@ -182,11 +182,12 @@ c.cans.fc.motive   is X      'CAMS FAM CARE MOTIVATION CARE
 c.cans.fc.finres   is X      'CAMS FAM CARE FINANCIAL RES
 c.cans.fc.transp   is X      'CAMS FAM CARE TRANSPORTATION
 
-%global c.cans.tr.sexabs,c.cans.tr.phyabs,c.cans.tr.emoabs,c.cans.tr.medtrm,c.cans.tr.natdis,c.cans.tr.wtofam,c.cans.tr.wtocom,c.cans.tr.wcrime,c.cans.tr.waraff,c.cans.tr.teraff,c.cans.tr.emclos,c.cans.tr.freq,c.cans.tr.durat,c.cans.tr.force
-%global c.cans.tr.react
+%global c.cans.tr.sexabs,c.cans.tr.phyabs,c.cans.tr.emoabs,c.cans.tr.victim,c.cans.tr.medtrm,c.cans.tr.natdis,c.cans.tr.wtofam,c.cans.tr.wtocom,c.cans.tr.wcrime,c.cans.tr.waraff,c.cans.tr.teraff,c.cans.tr.emclos,c.cans.tr.freq,c.cans.tr.durat
+%global c.cans.tr.force, c.cans.tr.react
 c.cans.tr.sexabs   is X      'CANS TRAUMA SEXUAL ABUSE
 c.cans.tr.phyabs   is X      'CANS TRAUMA PHYSICAL ABUSE
 c.cans.tr.emoabs   is X      'CANS TRAUMA EMOTIONAL ABUSE
+c.cans.tr.victim   is X      'CANS TRAUMA VICTIMIZATION
 c.cans.tr.medtrm   is X      'CANS TRAUMA MEDICAL TRAUMA
 c.cans.tr.natdis   is X      'CANS TRAUMA NATURAL DISASTER
 c.cans.tr.wtofam   is X      'CANS TRAUMA WIT FAM VIOLENCE
@@ -390,6 +391,7 @@ c.cans.sr.firear   is x      'CANS SR Accessible Firearm/Lethal Medication
 %define q_text_tr_sexabs  "Sexual Abuse (if 1-3, Complete 1.a-1.e. next page)"
 %define q_text_tr_phyabs  "Physical Abuse"
 %define q_text_tr_emoabs  "Emotional Abuse"
+%define q_text_tr_victim  "Victimization"
 %define q_text_tr_medtrm  "Medical Trauma"
 %define q_text_tr_natdis  "Natural Disaster"
 %define q_text_tr_wtofam  "Witness To Family Violence"
@@ -611,7 +613,8 @@ c.cans.cr.suicid,c.cans.cr.smutil,c.cans.cr.oslfhr,c.cans.cr.dangot,c.cans.cr.se
 c.cans.sc.behavr,c.cans.sc.achiev,c.cans.sc.attend,c.cans.sc.reltch,
 c.cans.dv.cognit,c.cans.dv.develp,c.cans.dv.selfcr,
 c.cans.fc.selfcr,c.cans.fc.culstr,c.cans.fc.empedu,c.cans.fc.eduatt,c.cans.fc.legal,c.cans.fc.motive,c.cans.fc.finres,c.cans.fc.transp,
-c.cans.tr.sexabs,c.cans.tr.phyabs,c.cans.tr.emoabs,c.cans.tr.medtrm,c.cans.tr.natdis,c.cans.tr.wtofam,c.cans.tr.wtocom,c.cans.tr.wcrime,c.cans.tr.waraff,c.cans.tr.teraff,c.cans.tr.emclos,c.cans.tr.freq ,c.cans.tr.durat,c.cans.tr.force,c.cans.tr.react,
+c.cans.tr.sexabs,c.cans.tr.phyabs,c.cans.tr.victim,c.cans.tr.emoabs,c.cans.tr.medtrm,c.cans.tr.natdis,c.cans.tr.wtofam,c.cans.tr.wtocom,c.cans.tr.wcrime,c.cans.tr.waraff,c.cans.tr.teraff,c.cans.tr.emclos,c.cans.tr.freq ,c.cans.tr.durat,
+c.cans.tr.force,c.cans.tr.react,
 c.cans.ad.affreg,c.cans.ad.intrus,c.cans.ad.attach,c.cans.ad.dissoc,c.cans.ad.timb4t,
 c.cans.sa.severe,c.cans.sa.durati,c.cans.sa.stgrec,c.cans.sa.perinf,c.cans.sa.parinf,c.cans.sa.envinf,
 c.cans.vi.hxpabs,c.cans.vi.hxviol,c.cans.vi.wdomab,c.cans.vi.wenvab,
