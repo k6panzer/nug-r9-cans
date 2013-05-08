@@ -1,3 +1,11 @@
+'change log
+'----------
+'
+' tim 0.1 5/8/2012
+' ~ removed staff db edit from c.cans.snapid dst
+
+%version 0.1
+
 start CANSDST()
  rc        is i
  dbfile    is i
@@ -20,7 +28,7 @@ start CANSDST()
 '''''''Change These Values for your system'''''''''
  $nextavdst = 28000           
  recordnum = 28000
- $trace("path.on", `"/c0/EXPORT/trace/PV_" + $scriptid`)
+ '$trace("path.on", `"/c0/EXPORT/trace/PV_" + $scriptid`)
 '''''''''''''''''''''''''''''''''''''''''''''''''''
 
 'This section will create the Data Code Tables and Populate them with the necessary values.  
@@ -415,7 +423,7 @@ rc = $dstadd(dst,"C.CANS.RG.EATING","CANS RG Eating"                ,dbfile,"X",
 rc = $dstadd(dst,"C.CANS.RG.ELIM"  ,"CANS RG Elimination"           ,dbfile,"X",0, 1,   0,recordnum)
 rc = $dstadd(dst,"C.CANS.RG.SENSOR","CANS RG Sensor"                ,dbfile,"X",0, 1,   0,recordnum)
 rc = $dstadd(dst,"C.CANS.RG.EMOT"  ,"CANS RG Emotional Control"     ,dbfile,"X",0, 1,   0,recordnum)
-rc = $dstadd(dst,"C.CANS.SNAPID"   ,"CANS SnapID"                   ,dbfile,"X",3,32,   0,recordnum)
+rc = $dstadd(dst,"C.CANS.SNAPID"   ,"CANS SnapID"                   ,dbfile,"X",0,32,   0,recordnum)
 rc = $dstadd(dst,"C.CANS.ISN"      ,"CANS ISN Register"             ,dbfile,"X",0,26,   0,recordnum)
 rc = $dstadd(dst,"C.CANS.ALATE"    ,"CANS Justification Late Auth"  ,dbfile,"X",1, 1,9707,recordnum)
 rc = $dstadd(dst,"C.CANS.ALATEOTH" ,"CANS Justtify Late Auth Other" ,dbfile,"X",0,50,   0,recordnum)
