@@ -23,7 +23,7 @@ start CANS35(parmfile,option,client,retcode)
   return
  endif 
 
- if {"lib_COMMON"}StaffCanDo($scriptid,"Y") = 1
+ if {"lib_UACOMMON"}StaffCanDo($scriptid,"Y") = 1
   return
  endif
  
@@ -47,7 +47,7 @@ start CANS35(parmfile,option,client,retcode)
  Page is x
  %global UM_StaffYN
  UM_StaffYN is x
- UM_StaffYN = {"lib_COMMON"}UMStaff()
+ UM_StaffYN = {"lib_UACOMMON"}UMStaff()
 
  if UM_StaffYN = "Y"
   rc = $dbread(02, $regid, c.cans.rec,c.cans.compd,c.cans.type,c.cans.staff)
@@ -136,7 +136,7 @@ start CANS35(parmfile,option,client,retcode)
    case "0" Page0()
             select $endbutton
 			 case "SUBMIT" Page = "Validate0"
-			 case other if {"lib_COMMON"}ConfirmExit() = "Y"
+			 case other if {"lib_UACOMMON"}ConfirmExit() = "Y"
                          return
                         endif
 			endselect
@@ -272,7 +272,7 @@ start CANS35(parmfile,option,client,retcode)
 					                else									
 					                 Page = "ValidateALOC"
                                     endif
-					 case "CANCEL" if {"lib_COMMON"}ConfirmExit() = "Y"   
+					 case "CANCEL" if {"lib_UACOMMON"}ConfirmExit() = "Y"   
                                     return
                                    endif
 					endselect
@@ -321,7 +321,7 @@ function Report(RptTitle,ReportID,mode) is null
  endif
  $cancelopt("off", "Back")
  $form($funcname)
-  {"lib_COMMON"}ClientPageHeader($regid,"Y")
+  {"lib_UACOMMON"}ClientPageHeader($regid)
   
   if c.cans.isn dp
    {"lib_EVENTS"}report(e.ser, e.ru, e.start, e.dur, e.loc)
@@ -352,7 +352,7 @@ end Report
 
 function SaveData() is i
  mode is x
- c.cans.age = {"lib_COMMON"}ClientAge($regid, c.cans.date)
+ c.cans.age = {"lib_UACOMMON"}ClientAge($regid, c.cans.date)
  if c.cans.compd !dp
   mode = "ADD"
  else
@@ -1883,12 +1883,12 @@ function Page0() is null
  $submitopt("off", "Submit")
  $cancelopt("off", "Back")
  $form($funcname)
-  {"lib_COMMON"}ClientPageHeader($regid,"Y")
+  {"lib_UACOMMON"}ClientPageHeader($regid)
   $br()AssessmentDate()
   $br()AssessmentType()
   $tag(hr)
   $br()OtherQuestions()
-  select {"lib_COMMON"}CurrentDX($regid,c.cans.date)
+  select {"lib_UACOMMON"}CurrentDX($regid,c.cans.date)
    case "N" $br()$tag(hr)
             $br()$text(diag_errortxt,"error")
   endselect
@@ -1899,7 +1899,7 @@ function Page1() is null
   $submitopt("off", "Submit")
   $cancelopt("off", "Back")
   $form($funcname)
-   {"lib_COMMON"}ClientPageHeader($regid,"Y")
+   {"lib_UACOMMON"}ClientPageHeader($regid)
    $br()ReportHdr()
    OtherQuestionRpt()
    $tag(hr)
@@ -1961,7 +1961,7 @@ function Page2() is null
  $submitopt("off", "Submit")
  $cancelopt("off", "Back")
  $form($funcname)    
-  {"lib_COMMON"}ClientPageHeader($regid,"Y")
+  {"lib_UACOMMON"}ClientPageHeader($regid)
   $br()ReportHdr()
   OtherQuestionRpt()
   $tag(hr)
@@ -2036,7 +2036,7 @@ function Page3() is null
  $submitopt("off","Submit")
  $cancelopt("off","Back")
  $form($funcname)
-  {"lib_COMMON"}ClientPageHeader($regid,"Y")
+  {"lib_UACOMMON"}ClientPageHeader($regid)
   $br()ReportHdr()
   OtherQuestionRpt()
   $tag(hr)  
@@ -2052,7 +2052,7 @@ function Page4() is null
  $submitopt("off","Submit")
  $cancelopt("off","Back")
  $form($funcname)    
-  {"lib_COMMON"}ClientPageHeader($regid,"Y")
+  {"lib_UACOMMON"}ClientPageHeader($regid)
   $br()ReportHdr()
   if c.cans.type != "11" and (c.cans.type != "3" and c.cans.disreas != "9")
    OtherQuestionRpt()
@@ -2373,7 +2373,7 @@ end ChildRiskFacRpt
 'Initial Validations before starting the assessment
 function Validate() is i
  $clear(errors[])
- c.cans.age = {"lib_COMMON"}ClientAge($regid)
+ c.cans.age = {"lib_UACOMMON"}ClientAge($regid)
  if c.cans.age > 17
   (void)$arrpush(errors[],age_errortxt)
  elseif c.cans.age < 3
@@ -2541,7 +2541,7 @@ function ALOC() is null
  $table($funcname,,"width='100%' cellspacing='0' cellpadding='2' bgcolor='White'  style='border-style: solid; border-width: 1px'")
    $row(,col_color_multi)
     $col("center",,,"2")$text("Authorized Level Of Care","datatag")
-  select {"lib_COMMON"}CurrentDX($regid,c.cans.date)
+  select {"lib_UACOMMON"}CurrentDX($regid,c.cans.date)
    case "Y" $row()
              $col("right",,"50%")$text(q_text_alocdate,"datatag")
 	         $col()$textbox(c.cans.alocdate,"CAL",10,6,"Y","normal")
@@ -2712,7 +2712,7 @@ function ValidateALOC() is i
   (void)$arrpush(errors[],aloc5_errortxt)  
  endif
  
- if {"lib_COMMON"}CurrentDX($regid,c.cans.date) = "N"
+ if {"lib_UACOMMON"}CurrentDX($regid,c.cans.date) = "N"
   (void)$arrpush(errors[],diag_errortxt)  
  endif
  
@@ -2751,7 +2751,7 @@ function DisplayErrors() is null
  $submitopt("off", "")
  $cancelopt("off", "BACK")
   $form("errors")
-  {"lib_COMMON"}ClientPageHeader($regid,"Y")
+  {"lib_UACOMMON"}ClientPageHeader($regid)
   $text("{H1}Errors Were Found{/H1}")
   $br()
   $tag("<CENTER>")
