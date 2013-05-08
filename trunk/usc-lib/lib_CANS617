@@ -21,73 +21,6 @@ library lib_CANS617()
   $br()
  end ReportHdr  
  
- function ChildRiskScoring(table_wbgcolor) is null
-  table_wbgcolor is x
-  $table($funcname,,`table_wbgcolor`)  
-   $row()
-    $col(,,"50%")$text("0 = no evidence","hdrdata")
-    $col()$text("1 = history, watch/prevent","hdrdata")
-   $row()
-    $col()$text("2 = recent, act","hdrdata")
-    $col()$text("3 = acute, act immediately","hdrdata")
-   $row()
-    $col("center",,,"2")$tag("<hr/>")
-  $endtable($funcname)
- end ChildRiskScoring
-
- function CBScoring(table_wbgcolor) is null
-  table_wbgcolor is x
-  $table($funcname,,`table_wbgcolor`)
-   $row()
-    $col()$text("0 = no evidence","hdrdata")
-          $br()$text("1 = history or sub-threshold, watch/prevent","hdrdata")
-          $br()$text("2 = causing problems, consistent with diagnosable disorder","hdrdata")
-          $br()$text("3 = causing severe/dangerous problems","hdrdata")
-   $row()
-    $col("center",,,"2")$tag("<hr/>")
-  $endtable($funcname)
- end CBScoring
-
- function LDScoring(table_wbgcolor) is null
-  table_wbgcolor is x
-  $table($funcname,,`table_wbgcolor`)
-   $row()
-    $col(,,"50%")$text("0 = no evidence of problems","hdrdata")
-    $col()$text("1 = history, mild","hdrdata")
-   $row()
-    $col()$text("2 = moderate","hdrdata")
-    $col()$text("3 = severe","hdrdata")
-   $row()
-    $col("center",,,"2")$tag("<hr/>")
-  $endtable($funcname)
- end LDScoring
-
- function CareGiverScoring(table_wbgcolor) is null
-  table_wbgcolor is x
-  $table($funcname,,`table_wbgcolor`)  
-   $row()
-    $col(,,"50%")$text("0 = no evidence","hdrdata")
-    $col()$text("1 = minimal needs","hdrdata")
-   $row()
-    $col()$text("2 = moderate needs","hdrdata")
-    $col()$text("3 = severe needs","hdrdata")
-   $row()
-    $col("center",,,"2")$tag("<hr/>")
-  $endtable($funcname)
- end CareGiverScoring
-
- function PHScoring(table_wbgcolor) is null
-  table_wbgcolor is x
-  $table($funcname,,`table_wbgcolor`)  
-   $row()
-    $col()$text("NA = Not Applicable","hdrdata")
-    $col()$text("0 = No","hdrdata")
-    $col()$text("1 = Yes","hdrdata")
-   $row()
-    $col("center",,,"3")$tag("<hr/>")
-  $endtable($funcname)
- end PHScoring 
-
  function OtherQuestionRpt(q_text_sped,c.cans.sped,q_text_extdrev,c.cans.extdrev,q_text_foster,c.cans.foster,q_text_riskplc,c.cans.riskplc) is null
   q_text_sped    is x
   c.cans.sped    is x
@@ -2057,3 +1990,128 @@ function RLOC(c.cans.ac.sexgen,c.cans.ad.affreg,c.cans.ad.dissoc,c.cans.ad.intru
   endif 
  endif
 end RLOC
+
+function StaffComments(q_text_comment,c.cans.comment) is null
+ q_text_comment is x
+ c.cans.comment is x
+ $table($funcname,,"width='100%' cellspacing='0' cellpadding='2' bgcolor='White'  style='border-style: solid; border-width: 1px'")
+  $row(,col_color_multi)
+   $col("center",,,"2")$text("Staff Comments:","datatag")
+  $row()
+   $col("right",,"50%")$text(q_text_comment,"datatag")
+   $col() if c.cans.comment dp
+           $text(c.cans.comment)   
+		  else
+		   $text("No Comments Provided by Staff")
+		  endif 
+ $endtable($funcname)
+end StaffComments 
+
+function ChildRiskScoring(table_wbgcolor) is null
+ table_wbgcolor is x
+ $table($funcname,,`table_wbgcolor`)  
+  $row()
+   $col(,,"50%")$text("0 = no evidence","hdrdata")
+   $col()$text("1 = history, watch/prevent","hdrdata")
+  $row()
+   $col()$text("2 = recent, act","hdrdata")
+   $col()$text("3 = acute, act immediately","hdrdata")
+  $row()
+   $col("center",,,"2")$tag("<hr/>")
+ $endtable($funcname)
+end ChildRiskScoring
+
+function CBScoring(table_wbgcolor) is null
+ table_wbgcolor is x
+ $table($funcname,,`table_wbgcolor`)
+  $row()
+   $col()$text("0 = no evidence","hdrdata")
+         $br()$text("1 = history or sub-threshold, watch/prevent","hdrdata")
+         $br()$text("2 = causing problems, consistent with diagnosable disorder","hdrdata")
+         $br()$text("3 = causing severe/dangerous problems","hdrdata")
+  $row()
+   $col("center",,,"2")$tag("<hr/>")
+ $endtable($funcname)
+end CBScoring
+
+function LDScoring(table_wbgcolor) is null
+ table_wbgcolor is x
+ $table($funcname,,`table_wbgcolor`)
+  $row()
+   $col(,,"50%")$text("0 = no evidence of problems","hdrdata")
+   $col()$text("1 = history, mild","hdrdata")
+  $row()
+   $col()$text("2 = moderate","hdrdata")
+   $col()$text("3 = severe","hdrdata")
+  $row()
+   $col("center",,,"2")$tag("<hr/>")
+ $endtable($funcname)
+end LDScoring
+
+function CareGiverScoring(table_wbgcolor) is null
+ table_wbgcolor is x
+ $table($funcname,,`table_wbgcolor`)  
+  $row()
+   $col(,,"50%")$text("0 = no evidence","hdrdata")
+   $col()$text("1 = minimal needs","hdrdata")
+  $row()
+   $col()$text("2 = moderate needs","hdrdata")
+   $col()$text("3 = severe needs","hdrdata")
+  $row()
+   $col("center",,,"2")$tag("<hr/>")
+ $endtable($funcname)
+end CareGiverScoring
+
+function PHScoring(table_wbgcolor) is null
+ table_wbgcolor is x
+ $table($funcname,,`table_wbgcolor`)  
+  $row()
+   $col()$text("NA = Not Applicable","hdrdata")
+   $col()$text("0 = No","hdrdata")
+   $col()$text("1 = Yes","hdrdata")
+  $row()
+   $col("center",,,"3")$tag("<hr/>")
+ $endtable($funcname)
+end PHScoring 
+
+function ChildSRScoring(table_wbgcolor) is null
+ table_wbgcolor is x
+ $table($funcname,,`table_wbgcolor`)
+  $row()
+   $col(,,"50%")$text("0 = centerpiece","hdrdata")
+   $col()$text("1 = useful","hdrdata")
+  $row()
+   $col()$text("2 = identified","hdrdata")
+   $col()$text("3 = not yet identified","hdrdata")
+  $row()
+   $col("center",,,"2")$tag("<hr/>")
+ $endtable($funcname)
+end CHildSRScoring
+
+function CultureScoring(table_wbgcolor) is null
+ table_wbgcolor is x
+ $table($funcname,,`table_wbgcolor`)
+  $row()
+  $col(,,"50%")$text("0 = no evidence","hdrdata")
+  $col()$text("1 = minimal needs","hdrdata")
+  $row()
+  $col()$text("2 = moderate needs","hdrdata")
+  $col()$text("3 = severe needs","hdrdata")
+ $row()
+  $col("center",,,"2")$tag("<hr/>")
+ $endtable($funcname)
+end CultureScoring  
+
+function CrisisHisScoring(table_wbgcolor) is null
+ table_wbgcolor is x
+ $table($funcname,,`table_wbgcolor`)   
+  $row()
+   $col(,,"50%")$text("0 = 0 episodes","hdrdata")
+   $col()$text("1 = 1 crisis episode","hdrdata")
+  $row()
+   $col()$text("2 = 2-3 crisis episodes","hdrdata")
+   $col()$text("3 = 4 or more crisis episodes","hdrdata")
+  $row()
+   $col("center",,,"2")$tag("<hr/>")
+ $endtable($funcname)
+end CrisisHisScoring  
