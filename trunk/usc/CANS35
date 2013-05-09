@@ -2393,47 +2393,45 @@ function ReportHdr() is null
  $table($funcname,,"width='100%' cellspacing='0' cellpadding='2' bgcolor='White' style='border-style: solid; border-width: 1px'")
   $row()
    $col(,,"5%")
-   $col(,,"15%")$text(q_text_date)
+   $col(,,"15%")$text("Assessment Date: ")
    $col(,,"80%")$text(c.cans.date)
   $row()
    $col()
-   $col()$text(q_text_type)
-   $col()$text($dct(9700,c.cans.type))
-  select c.cans.type
-   case "1" $row()
-             $col()
-             $col()$text(q_text_intref)
-             $col()$text($dct(9702,c.cans.intref))
-			if c.cans.intrefoth dp
-			 $row()
-			  $col()$text(q_text_intrefoth)
-			  $col()$text(c.cans.intrefoth)
-			endif
-   case "2"
-   case "3" $row()
-             $col()
-			 $col()$text(q_text_disdt)
-             $col()$text(c.cans.disdt)
-		    $row()
-		     $col()
-			 $col()$text(q_text_disreas)
-			 $col()$text($dct(9703,c.cans.disreas))
-		    $row()
-		     $col()
-			 $col()$text(q_text_disref)
-		     $col()$text($dct(9704,c.cans.disref))
-		    if c.cans.disoth dp
-		     $row()
-		      $col()
-			  $col()$text(q_text_disref)
-		      $col()$text(c.cans.disoth)
-			endif 
-   case "11"
-   case "12"
-  endselect    
+   $col()$text("Assessment Type: ")
+   $col()$text($dct(9700,c.cans.type)) 
+  if c.cans.type = "1"
+   $row()
+    $col()
+    $col()$text("Referral Source: ")
+    $col()$text($dct(9702,c.cans.intref))
+   if c.cans.intrefoth dp
+    $row()
+     $col()
+     $col()$text("Referral Other: ")
+     $col()$text(c.cans.intrefoth)
+   endif
+  endif
+  if c.cans.type = "3"
+   $row()
+    $col()
+    $col()$text("Discharge Date: ")
+    $col()$text(c.cans.disdt)
+   $row()
+    $col()$text("Discharge Reason: ")
+    $col()$text($dct(9703,c.cans.disreas))
+   if c.cans.disoth dp
+    $row()
+     $col()
+     $col()$text("Discharge Other Reason: ")
+     $col()$text(c.cans.disoth)
+   endif
+   $row()
+    $col()
+    $col()$text("Referred To: ")
+    $col()$text($dct(9704,c.cans.disref))
+  endif  
  $endtable($funcname)
- $br()
- $tag(hr)
+ $br()$tag(hr)
  $br()
 end ReportHdr
 

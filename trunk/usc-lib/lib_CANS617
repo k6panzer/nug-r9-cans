@@ -4,9 +4,15 @@ library lib_CANS617()
  %define row_color3 "bgcolor='PaleGreen'"
  %define col_color_multi "bgcolor='LightGrey'"
  
- function ReportHdr(c.cans.date,c.cans.type) is null
-  c.cans.date is d
-  c.cans.type is x
+ function ReportHdr(c.cans.date,c.cans.type,c.cans.intref,c.cans.intrefoth,c.cans.disdt,c.cans.disreas,c.cans.disoth,c.cans.disref) is null
+  c.cans.date      is d
+  c.cans.type      is x
+  c.cans.intref    is x
+  c.cans.intrefoth is x
+  c.cans.disdt     is d
+  c.cans.disreas   is x
+  c.cans.disoth    is x
+  c.cans.disref    is x
   $table($funcname,,"width='100%' cellspacing='0' cellpadding='2' bgcolor='White' style='border-style: solid; border-width: 1px'")
    $row()
     $col(,,"5%")
@@ -15,13 +21,46 @@ library lib_CANS617()
    $row()
     $col()
     $col()$text("Assessment Type: ")
-    $col()$text(c.cans.type) 
+    $col()$text($dct(9700,c.cans.type)) 
+   if c.cans.type = "1"
+    $row()
+     $col()
+	 $col()$text("Referral Source: ")
+	 $col()$text($dct(9702,c.cans.intref))
+    if c.cans.intrefoth dp
+	 $row()
+	  $col()
+	  $col()$text("Referral Other: ")
+	  $col()$text(c.cans.intrefoth)
+	endif
+   endif
+   if c.cans.type = "3"
+    $row()
+	 $col()
+	 $col()$text("Discharge Date: ")
+	 $col()$text(c.cans.disdt)
+	$row()
+	 $col()$text("Discharge Reason: ")
+	 $col()$text($dct(9703,c.cans.disreas))
+	if c.cans.disoth dp
+	 $row()
+	  $col()
+	  $col()$text("Discharge Other Reason: ")
+	  $col()$text(c.cans.disoth)
+    endif
+	$row()
+	 $col()
+	 $col()$text("Referred To: ")
+	 $col()$text($dct(9704,c.cans.disref))
+   endif  
   $endtable($funcname)
   $br()$tag("<hr/>")
   $br()
  end ReportHdr  
  
- function OtherQuestionRpt(q_text_sped,c.cans.sped,q_text_extdrev,c.cans.extdrev,q_text_foster,c.cans.foster,q_text_riskplc,c.cans.riskplc) is null
+ function OtherQuestionRpt(q_text_sped,c.cans.sped,q_text_extdrev,c.cans.extdrev,q_text_foster,c.cans.foster,q_text_riskplc,c.cans.riskplc,c.cans.type,c.cans.disreas,) is null
+  c.cans.type    is x
+  c.cans.disreas is x
   q_text_sped    is x
   c.cans.sped    is x
   q_text_extdrev is x
@@ -131,7 +170,8 @@ function LifeDomainRpt(q_text_ld_family,c.cans.ld.family,q_text_ld_livsit,c.cans
                        q_text_ld_jobfun,c.cans.ld.jobfun,q_text_ld_legal,c.cans.ld.legal,q_text_ld_medicl,c.cans.ld.medicl,q_text_ld_physcl,c.cans.ld.physcl,
                        q_text_ld_sexdev,c.cans.ld.sexdev,q_text_ld_sleep,c.cans.ld.sleep,q_text_ld_indliv,c.cans.ld.indliv,
 					   q_text_sc_behavr,c.cans.sc.behavr,q_text_sc_achiev,c.cans.sc.achiev,q_text_sc_attend,c.cans.sc.attend,q_text_sc_reltch,c.cans.sc.reltch,
-					   q_text_dv_cognit,c.cans.dv.cognit,q_text_dv_develp,c.cans.dv.develp,q_text_dv_selfcr,c.cans.dv.selfcr) is null					   
+					   q_text_dv_cognit,c.cans.dv.cognit,q_text_dv_develp,c.cans.dv.develp,q_text_dv_selfcr,c.cans.dv.selfcr,
+					   c.cans.type,c.cans.disreas) is null					   
  q_text_ld_family is x
  c.cans.ld.family is x
  q_text_ld_livsit is x
@@ -176,79 +216,83 @@ function LifeDomainRpt(q_text_ld_family,c.cans.ld.family,q_text_ld_livsit,c.cans
  c.cans.dv.develp is x
  q_text_dv_selfcr is x
  c.cans.dv.selfcr is x
- $br() 
- $table($funcname,,"width='100%' cellspacing='0' cellpadding='2' bgcolor='White' style='border-style: solid; border-width: 1px'")
-  $row(,col_color_multi)
-   $col("center",,,"3"  )$text("Life Domain","datatag")
-  $row(,row_color2)
-   $col(,,"40%")$text(q_text_ld_family)
-   $col("center",,"10%")$text(c.cans.ld.family)
-   $col(,,"50%")
-  $row()
-   $col()$text(q_text_ld_livsit)
-   $col("center")$text(c.cans.ld.livsit)
-   $col()
-  $row()
-   $col()$text(q_text_ld_school)$text("{sup}10{/sup}")
-   $col("center")$text(c.cans.ld.school)
-	if $num(c.cans.ld.school) > 0
-	 $col()SchoolRpt(q_text_sc_behavr,c.cans.sc.behavr,q_text_sc_achiev,c.cans.sc.achiev,q_text_sc_attend,c.cans.sc.attend,q_text_sc_reltch,c.cans.sc.reltch)
-	else
-	 $col()
-	endif 
-  $row()
-   $col(,,"40%")$text(q_text_ld_socFun)
-   $col("center",,"10%")$text(c.cans.ld.socFun)
-   $col(,,"50%")
-  $row()
-   $col()$text(q_text_ld_recret)
-   $col("center")$text(c.cans.ld.recret)
-   $col()
-  $row()
-   $col()$text(q_text_ld_develp)$text("{sup}11{/sup}")
-   $col("center")$text(c.cans.ld.develp)
-	if $num(c.cans.ld.develp) > 0
-	 $col()DevNeedsRpt(q_text_dv_cognit,c.cans.dv.cognit,q_text_dv_develp,c.cans.dv.develp,q_text_dv_selfcr,c.cans.dv.selfcr)
-	else
-	 $col()
-	endif 
-  $row()
-   $col()$text(q_text_ld_commun)
-   $col("center")$text(c.cans.ld.commun)
-   $col()
-  $row()
-   $col()$text(q_text_ld_judgmt)
-   $col("center")$text(c.cans.ld.judgmt)
-   $col()
-  $row()
-   $col()$text(q_text_ld_jobfun)
-   $col("center")$text(c.cans.ld.jobfun)
-   $col()
-  $row()
-   $col()$text(q_text_ld_legal) 
-   $col("center")$text(c.cans.ld.legal)
-   $col()
-  $row()
-   $col()$text(q_text_ld_medicl)
-   $col("center")$text(c.cans.ld.medicl)
-   $col()
-  $row()
-   $col()$text(q_text_ld_physcl)
-   $col("center")$text(c.cans.ld.physcl)
-   $col()
-  $row()
-   $col()$text(q_text_ld_sexdev)
-   $col("center")$text(c.cans.ld.sexdev)
-   $col()
-  $row()
-   $col()$text(q_text_ld_sleep) 
-   $col("center")$text(c.cans.ld.sleep)
-   $col()
-  $row()
-   $col()$text(q_text_ld_indliv)
-   $col("center")$text(c.cans.ld.indliv)
-   $col()
- $endtable($funcname)
+ c.cans.type      is x
+ c.cans.disreas   is x
+ if c.cans.type != "11" and (c.cans.type != "3" and c.cans.disreas != "9")
+  $br() 
+  $table($funcname,,"width='100%' cellspacing='0' cellpadding='2' bgcolor='White' style='border-style: solid; border-width: 1px'")
+   $row(,col_color_multi)
+    $col("center",,,"3"  )$text("Life Domain","datatag")
+   $row(,row_color2)
+    $col(,,"40%")$text(q_text_ld_family)
+    $col("center",,"10%")$text(c.cans.ld.family)
+    $col(,,"50%")
+   $row()
+    $col()$text(q_text_ld_livsit)
+    $col("center")$text(c.cans.ld.livsit)
+    $col()
+   $row()
+    $col()$text(q_text_ld_school)$text("{sup}10{/sup}")
+    $col("center")$text(c.cans.ld.school)
+	 if $num(c.cans.ld.school) > 0
+	  $col()SchoolRpt(q_text_sc_behavr,c.cans.sc.behavr,q_text_sc_achiev,c.cans.sc.achiev,q_text_sc_attend,c.cans.sc.attend,q_text_sc_reltch,c.cans.sc.reltch)
+	 else
+	  $col()
+	 endif 
+   $row()
+    $col(,,"40%")$text(q_text_ld_socFun)
+    $col("center",,"10%")$text(c.cans.ld.socFun)
+    $col(,,"50%")
+   $row()
+    $col()$text(q_text_ld_recret)
+    $col("center")$text(c.cans.ld.recret)
+    $col()
+   $row()
+    $col()$text(q_text_ld_develp)$text("{sup}11{/sup}")
+    $col("center")$text(c.cans.ld.develp)
+	 if $num(c.cans.ld.develp) > 0
+	  $col()DevNeedsRpt(q_text_dv_cognit,c.cans.dv.cognit,q_text_dv_develp,c.cans.dv.develp,q_text_dv_selfcr,c.cans.dv.selfcr)
+	 else
+	  $col()
+	 endif 
+   $row()
+    $col()$text(q_text_ld_commun)
+    $col("center")$text(c.cans.ld.commun)
+    $col()
+   $row()
+    $col()$text(q_text_ld_judgmt)
+    $col("center")$text(c.cans.ld.judgmt)
+    $col()
+   $row()
+    $col()$text(q_text_ld_jobfun)
+    $col("center")$text(c.cans.ld.jobfun)
+    $col()
+   $row()
+    $col()$text(q_text_ld_legal) 
+    $col("center")$text(c.cans.ld.legal)
+    $col()
+   $row()
+    $col()$text(q_text_ld_medicl)
+    $col("center")$text(c.cans.ld.medicl)
+    $col()
+   $row()
+    $col()$text(q_text_ld_physcl)
+    $col("center")$text(c.cans.ld.physcl)
+    $col()
+   $row()
+    $col()$text(q_text_ld_sexdev)
+    $col("center")$text(c.cans.ld.sexdev)
+    $col()
+   $row()
+    $col()$text(q_text_ld_sleep) 
+    $col("center")$text(c.cans.ld.sleep)
+    $col()
+   $row()
+    $col()$text(q_text_ld_indliv)
+    $col("center")$text(c.cans.ld.indliv)
+    $col()
+  $endtable($funcname)
+ endif
 end LifeDomainRpt
 
 'School Report
@@ -630,7 +674,8 @@ function ChildRiskRpt(c.cans.cr.suicid,q_text_cr_smutil,c.cans.cr.smutil,q_text_
                       q_text_fs_serios,c.cans.fs.serios,q_text_fs_histry,c.cans.fs.histry,q_text_fs_planin,c.cans.fs.planin,q_text_fs_useacc,c.cans.fs.useacc,q_text_fs_inthrm,c.cans.fs.inthrm,q_text_fs_comsaf,c.cans.fs.comsaf,
                       q_text_fs_resacc,c.cans.fs.resacc,q_text_fs_remrse,c.cans.fs.remrse,q_text_fs_futfir,c.cans.fs.futfir,
 					  q_text_vi_hxpabs,c.cans.vi.hxpabs,q_text_vi_hxviol,c.cans.vi.hxviol,q_text_vi_wdomab,c.cans.vi.wdomab,q_text_vi_wenvab,c.cans.vi.wenvab,
-					  q_text_hissui,c.cans.sr.hissui,q_text_hfmsui,c.cans.sr.hfmsui,q_text_firear,c.cans.sr.firear) is null
+					  q_text_hissui,c.cans.sr.hissui,q_text_hfmsui,c.cans.sr.hfmsui,q_text_firear,c.cans.sr.firear,
+					  c.cans.type, c.cans.disreas) is null
  q_text_cr_suicid is x
  c.cans.cr.suicid is x
  q_text_cr_smutil is x
@@ -755,85 +800,88 @@ function ChildRiskRpt(c.cans.cr.suicid,q_text_cr_smutil,c.cans.cr.smutil,q_text_
  c.cans.sr.hfmsui is x
  q_text_firear    is x
  c.cans.sr.firear is x
- 
- $br()        
- $table($funcname,,"width='100%' cellspacing='0' cellpadding='2' bgcolor='White' style='border-style: solid; border-width: 1px'")
-  $row(,col_color_multi)
-   $col("center",,,"3"  )$text("Child Risk Behaviors","datatag")
-  $row(,row_color2)
-   $col(,,"40%")$text(q_text_cr_suicid)$text("{sup}2{/sup}")
-   $col("center",,"10%")$text(c.cans.cr.suicid)
-   $col(,,"50%")if $num(c.cans.cr.suicid) > 0
-                 $br()SuicideRiskRpt(q_text_hissui,c.cans.sr.hissui,q_text_hfmsui,c.cans.sr.hfmsui,q_text_firear,c.cans.sr.firear)
-				endif
-  $row()
-   $col()$text(q_text_cr_smutil)
-   $col("center")$text(c.cans.cr.smutil)
-   $col()
-  $row()
-   $col()$text(q_text_cr_oslfhr)
-   $col("center")$text(c.cans.cr.oslfhr)
-   $col()
-  $row()                         
-   $col()$text(q_text_cr_dangot)$text("{sup}3{/sup}")
-   $col("center")$text(c.cans.cr.dangot)
-  	if $num(c.cans.cr.dangot) > 0
-	 $col()violenceRpt(q_text_vi_hxpabs,c.cans.vi.hxpabs,q_text_vi_hxviol,c.cans.vi.hxviol,q_text_vi_wdomab,c.cans.vi.wdomab,q_text_vi_wenvab,c.cans.vi.wenvab)
-	       $br()EmBehRpt(q_text_eb_frsmgt,c.cans.eb.frsmgt,q_text_eb_hostil,c.cans.eb.hostil,q_text_eb_parand,c.cans.eb.parand,q_text_eb_secgan,c.cans.eb.secgan,q_text_eb_viothk,c.cans.eb.viothk)
-	 	   $br()ResilRpt(q_text_rf_viopot,c.cans.rf.viopot,q_text_rf_rescon,c.cans.rf.rescon,q_text_rf_comsc,c.cans.rf.comsc,q_text_rf_trtinv,c.cans.rf.trtinv)
-	else
-	 $col()
-	endif 
-  $row()                         
-   $col()$text(q_text_cr_sexagr)$text("{sup}4{/sup}")
-   $col("center")$text(c.cans.cr.sexagr)
-	if $num(c.cans.cr.sexagr) > 0
-	 $col()SABRpt(q_text_sb_relton,c.cans.sb.relton,q_text_sb_phyfrc,c.cans.sb.phyfrc,q_text_sb_planin,c.cans.sb.planin,q_text_sb_agedif,c.cans.sb.agedif,q_text_sb_typsex,c.cans.sb.typsex,q_text_sb_resacc,c.cans.sb.resacc,
-                  q_text_sb_temcon,c.cans.sb.temcon,q_text_sb_hxsxbh,c.cans.sb.hxsxbh,q_text_sb_svsxab,c.cans.sb.svsxab,q_text_sb_prirtx,c.cans.sb.prirtx)
-	else
-	 $col()
-	endif 
-  $row()                         
-   $col()$text(q_text_cr_runawy)$text("{sup}5{/sup}")
-   $col("center")$text(c.cans.cr.runawy)
-	if $num(c.cans.cr.runawy) > 0
-	 $col()RunawayRpt(q_text_rn_frqncy,c.cans.rn.frqncy,q_text_rn_condes,c.cans.rn.condes,q_text_rn_safdes,c.cans.rn.safdes,
-	                  q_text_rn_invill,c.cans.rn.invill,q_text_rn_retown,c.cans.rn.retown,q_text_rn_invoth,c.cans.rn.invoth,q_text_rn_relexp,c.cans.rn.relexp,q_text_rn_planin,
-                      c.cans.rn.planin)
-	else
-	 $col()
-	endif 
-  $row()                         
-   $col()$text(q_text_cr_delqcy)$text("{sup}6{/sup}")
-   $col("center")$text(c.cans.cr.delqcy)
-	if $num(c.cans.cr.delqcy) > 0
-	 $col()JJRpt(q_text_jj_serios,c.cans.jj.serios,q_text_jj_histry,c.cans.jj.histry,q_text_jj_arrest,c.cans.jj.arrest,q_text_jj_planin,c.cans.jj.planin,q_text_jj_comsaf,c.cans.jj.comsaf,q_text_jj_lefcom,c.cans.jj.lefcom,
-                 q_text_jj_perinf,c.cans.jj.perinf,q_text_jj_parinf,c.cans.jj.parinf,q_text_jj_envinf,c.cans.jj.envinf)
-	else
-	 $col()
-	endif 
-  $row()                         
-   $col()$text(q_text_cr_firset)$text("{sup}7{/sup}")
-   $col("center")$text(c.cans.cr.firset)
-	if $num(c.cans.cr.firset) > 0
-	 $col() FireSetRpt(q_text_fs_serios,c.cans.fs.serios,q_text_fs_histry,c.cans.fs.histry,q_text_fs_planin,c.cans.fs.planin,q_text_fs_useacc,c.cans.fs.useacc,q_text_fs_inthrm,c.cans.fs.inthrm,q_text_fs_comsaf,c.cans.fs.comsaf,
-                       q_text_fs_resacc,c.cans.fs.resacc,q_text_fs_remrse,c.cans.fs.remrse,q_text_fs_futfir,c.cans.fs.futfir)
-	else
-	 $col()
-	endif 
-  $row()                         
-   $col()$text(q_text_cr_socbeh)
-   $col("center")$text(c.cans.cr.socbeh)
-   $col()                         
-  $row()                         
-   $col()$text(q_text_cr_bully)
-   $col("center")$text(c.cans.cr.bully)
-   $col()                         
- $endtable($funcname)
+ c.cans.type      is x
+ c.cans.disreas   is x
+ if c.cans.type != "11" and (c.cans.type != "3" and c.cans.disreas != "9") 
+  $br()        
+  $table($funcname,,"width='100%' cellspacing='0' cellpadding='2' bgcolor='White' style='border-style: solid; border-width: 1px'")
+   $row(,col_color_multi)
+    $col("center",,,"3"  )$text("Child Risk Behaviors","datatag")
+   $row(,row_color2)
+    $col(,,"40%")$text(q_text_cr_suicid)$text("{sup}2{/sup}")
+    $col("center",,"10%")$text(c.cans.cr.suicid)
+    $col(,,"50%")if $num(c.cans.cr.suicid) > 0
+                  $br()SuicideRiskRpt(q_text_hissui,c.cans.sr.hissui,q_text_hfmsui,c.cans.sr.hfmsui,q_text_firear,c.cans.sr.firear)
+				 endif
+   $row()
+    $col()$text(q_text_cr_smutil)
+    $col("center")$text(c.cans.cr.smutil)
+    $col()
+   $row()
+    $col()$text(q_text_cr_oslfhr)
+    $col("center")$text(c.cans.cr.oslfhr)
+    $col()
+   $row()                         
+    $col()$text(q_text_cr_dangot)$text("{sup}3{/sup}")
+    $col("center")$text(c.cans.cr.dangot)
+  	 if $num(c.cans.cr.dangot) > 0
+	  $col()violenceRpt(q_text_vi_hxpabs,c.cans.vi.hxpabs,q_text_vi_hxviol,c.cans.vi.hxviol,q_text_vi_wdomab,c.cans.vi.wdomab,q_text_vi_wenvab,c.cans.vi.wenvab)
+	        $br()EmBehRpt(q_text_eb_frsmgt,c.cans.eb.frsmgt,q_text_eb_hostil,c.cans.eb.hostil,q_text_eb_parand,c.cans.eb.parand,q_text_eb_secgan,c.cans.eb.secgan,q_text_eb_viothk,c.cans.eb.viothk)
+	 	    $br()ResilRpt(q_text_rf_viopot,c.cans.rf.viopot,q_text_rf_rescon,c.cans.rf.rescon,q_text_rf_comsc,c.cans.rf.comsc,q_text_rf_trtinv,c.cans.rf.trtinv)
+	 else
+	  $col()
+	 endif 
+   $row()                         
+    $col()$text(q_text_cr_sexagr)$text("{sup}4{/sup}")
+    $col("center")$text(c.cans.cr.sexagr)
+	 if $num(c.cans.cr.sexagr) > 0
+	  $col()SABRpt(q_text_sb_relton,c.cans.sb.relton,q_text_sb_phyfrc,c.cans.sb.phyfrc,q_text_sb_planin,c.cans.sb.planin,q_text_sb_agedif,c.cans.sb.agedif,q_text_sb_typsex,c.cans.sb.typsex,q_text_sb_resacc,c.cans.sb.resacc,
+                   q_text_sb_temcon,c.cans.sb.temcon,q_text_sb_hxsxbh,c.cans.sb.hxsxbh,q_text_sb_svsxab,c.cans.sb.svsxab,q_text_sb_prirtx,c.cans.sb.prirtx)
+	 else
+	  $col()
+	 endif 
+   $row()                         
+    $col()$text(q_text_cr_runawy)$text("{sup}5{/sup}")
+    $col("center")$text(c.cans.cr.runawy)
+	 if $num(c.cans.cr.runawy) > 0
+	  $col()RunawayRpt(q_text_rn_frqncy,c.cans.rn.frqncy,q_text_rn_condes,c.cans.rn.condes,q_text_rn_safdes,c.cans.rn.safdes,
+	                   q_text_rn_invill,c.cans.rn.invill,q_text_rn_retown,c.cans.rn.retown,q_text_rn_invoth,c.cans.rn.invoth,q_text_rn_relexp,c.cans.rn.relexp,q_text_rn_planin,
+                       c.cans.rn.planin)
+	 else
+	  $col()
+	 endif 
+   $row()                         
+    $col()$text(q_text_cr_delqcy)$text("{sup}6{/sup}")
+    $col("center")$text(c.cans.cr.delqcy)
+	 if $num(c.cans.cr.delqcy) > 0
+	  $col()JJRpt(q_text_jj_serios,c.cans.jj.serios,q_text_jj_histry,c.cans.jj.histry,q_text_jj_arrest,c.cans.jj.arrest,q_text_jj_planin,c.cans.jj.planin,q_text_jj_comsaf,c.cans.jj.comsaf,q_text_jj_lefcom,c.cans.jj.lefcom,
+                  q_text_jj_perinf,c.cans.jj.perinf,q_text_jj_parinf,c.cans.jj.parinf,q_text_jj_envinf,c.cans.jj.envinf)
+	 else
+	  $col()
+	 endif 
+   $row()                         
+    $col()$text(q_text_cr_firset)$text("{sup}7{/sup}")
+    $col("center")$text(c.cans.cr.firset)
+	 if $num(c.cans.cr.firset) > 0
+	  $col() FireSetRpt(q_text_fs_serios,c.cans.fs.serios,q_text_fs_histry,c.cans.fs.histry,q_text_fs_planin,c.cans.fs.planin,q_text_fs_useacc,c.cans.fs.useacc,q_text_fs_inthrm,c.cans.fs.inthrm,q_text_fs_comsaf,c.cans.fs.comsaf,
+                        q_text_fs_resacc,c.cans.fs.resacc,q_text_fs_remrse,c.cans.fs.remrse,q_text_fs_futfir,c.cans.fs.futfir)
+	 else
+	  $col()
+	 endif 
+   $row()                         
+    $col()$text(q_text_cr_socbeh)
+    $col("center")$text(c.cans.cr.socbeh)
+    $col()                         
+   $row()                         
+    $col()$text(q_text_cr_bully)
+    $col("center")$text(c.cans.cr.bully)
+    $col()                         
+  $endtable($funcname)
+ endif
 end ChildRiskRpt
 
 'Emotional Behavioral Module Report                                                                                                   
-function EmBehRpt(q_text_eb_frsmgt,c.cans.eb.frsmgt,q_text_eb_hostil,c.cans.eb.hostil,q_text_eb_parand,c.cans.eb.parand,q_text_eb_secgan,c.cans.eb.secgan,q_text_eb_viothk,c.cans.eb.viothk) is null
+function EmBehRpt(q_text_eb_frsmgt,c.cans.eb.frsmgt,q_text_eb_hostil,c.cans.eb.hostil,q_text_eb_parand,c.cans.eb.parand,q_text_eb_secgan,c.cans.eb.secgan,q_text_eb_viothk,c.cans.eb.viothk,c.cans.type,c.cans.disreas) is null
  q_text_eb_frsmgt is x
  c.cans.eb.frsmgt is x
  q_text_eb_hostil is x
@@ -844,25 +892,29 @@ function EmBehRpt(q_text_eb_frsmgt,c.cans.eb.frsmgt,q_text_eb_hostil,c.cans.eb.h
  c.cans.eb.secgan is x
  q_text_eb_viothk is x
  c.cans.eb.viothk is x
- $table($funcname,,"width='100%' cellspacing='0' cellpadding='2' bgcolor='White'  style='border-style: solid; border-width: 1px'")
-  $row(,col_color_multi)
-   $col("center",,,"2"  )$text("Emotional Behavioral Risks", "datatag")
-  $row(,row_color2)
-   $col(,, "50%")$text(q_text_eb_frsmgt)
-   $col("center")$text(c.cans.eb.frsmgt)
-  $row()
-   $col()$text(q_text_eb_hostil) 
-   $col("center")$text(c.cans.eb.hostil)
-  $row()
-   $col()$text(q_text_eb_parand)
-   $col("center")$text(c.cans.eb.parand)
-  $row()
-   $col()$text(q_text_eb_secgan)
-   $col("center")$text(c.cans.eb.secgan)
-  $row()
-   $col()$text(q_text_eb_viothk)
-   $col("center")$text(c.cans.eb.viothk)
- $endtable($funcname)
+ c.cans.type      is x
+ c.cans.disreas   is x
+ if c.cans.type != "11" and (c.cans.type != "3" and c.cans.disreas != "9")
+  $table($funcname,,"width='100%' cellspacing='0' cellpadding='2' bgcolor='White'  style='border-style: solid; border-width: 1px'")
+   $row(,col_color_multi)
+    $col("center",,,"2"  )$text("Emotional Behavioral Risks", "datatag")
+   $row(,row_color2)
+    $col(,, "50%")$text(q_text_eb_frsmgt)
+    $col("center")$text(c.cans.eb.frsmgt)
+   $row()
+    $col()$text(q_text_eb_hostil) 
+    $col("center")$text(c.cans.eb.hostil)
+   $row()
+    $col()$text(q_text_eb_parand)
+    $col("center")$text(c.cans.eb.parand)
+   $row()
+    $col()$text(q_text_eb_secgan)
+    $col("center")$text(c.cans.eb.secgan)
+   $row()
+    $col()$text(q_text_eb_viothk)
+    $col("center")$text(c.cans.eb.viothk)
+  $endtable($funcname)
+ endif
 end EmBehRpt
 
 'Resiliency Factors Report                                                                                                   
@@ -1172,7 +1224,8 @@ function CareGiveRpt(c.cans.cg.na,q_text_cg_super,c.cans.cg.super,q_text_cg_invo
                      q_text_fc_selfcr,c.cans.fc.selfcr,q_text_fc_culstr,c.cans.fc.culstr,
                      q_text_fc_empedu,c.cans.fc.empedu,q_text_fc_eduatt,c.cans.fc.eduatt,
                      q_text_fc_legal,c.cans.fc.legal,q_text_fc_motive,c.cans.fc.motive,
-                     q_text_fc_finres,c.cans.fc.finres,q_text_fc_transp,c.cans.fc.transp) is null
+                     q_text_fc_finres,c.cans.fc.finres,q_text_fc_transp,c.cans.fc.transp,
+					 c.cans.type, c.cans.disreas) is null
  c.cans.cg.na     is x 
  q_text_cg_super  is x 
  c.cans.cg.super  is x 
@@ -1218,78 +1271,82 @@ function CareGiveRpt(c.cans.cg.na,q_text_cg_super,c.cans.cg.super,q_text_cg_invo
  c.cans.fc.finres is x
  q_text_fc_transp is x
  c.cans.fc.transp is x
- $br() 
- $table($funcname,,"width='100%' cellspacing='0' cellpadding='2' bgcolor='White' style='border-style: solid; border-width: 1px'")
-  $row(,col_color_multi)
-   $col("center",,,"3"  )$text("Caregiver Strengths and Needs","datatag")
-  if c.cans.cg.na = "Y"
-   $row()
-    $col("center",,,"3")$text("Not Applicable - no caregiver identified")
-  else   
-   $row(,row_color2)
-    $col(,,"40%")$text(q_text_cg_super)
-    $col("center",,"10%")$text(c.cans.cg.super)
-    $col()                               
-   $row()                                      
-    $col()$text(q_text_cg_involv)
-    $col("center")$text(c.cans.cg.involv)
-    $col()                                      
-   $row()                                      
-    $col()$text(q_text_cg_knoldg)
-    $col("center")$text(c.cans.cg.knoldg)
-    $col()                                      
-   $row()                                      
-    $col()$text(q_text_cg_organz)
-    $col("center")$text(c.cans.cg.organz)
-    $col(,,"50%")                               
-   $row()                                      
-    $col()$text(q_text_cg_socres)
-    $col("center")$text(c.cans.cg.socres)
-    $col()                                      
-   $row()                                      
-    $col()$text(q_text_cg_ressbl)
-    $col("center")$text(c.cans.cg.ressbl)
-    $col()                                      
-   $row()                                      
-    $col()$text(q_text_cg_physcl)
-    $col("center")$text(c.cans.cg.physcl)
-    $col()                                      
-   $row()                                      
-    $col()$text(q_text_cg_menhth)
-    $col("center")$text(c.cans.cg.menhth)
-    $col()                                      
-   $row()                                      
-    $col()$text(q_text_cg_subabs)
-    $col("center")$text(c.cans.cg.subabs)
-    $col()                                      
-   $row()                                      
-    $col()$text(q_text_cg_develp)
-    $col("center")$text(c.cans.cg.develp)
-    $col()                                      
-   $row()                                      
-    $col()$text(q_text_cg_chldcr)
-    $col("center")$text(c.cans.cg.chldcr)
-    $col()                                      
-   $row()                                      
-    $col()$text(q_text_cg_miltra)
-    $col("center")$text(c.cans.cg.miltra)
-    $col()                                      
-   $row()                                      
-    $col()$text(q_text_cg_famsts)$text("{sup}11{/sup}")
-    $col("center")$text(c.cans.cg.famsts)
-	    if $num(c.cans.cg.famsts) > 0
-	     $col()SafetyRpt(q_text_fc_selfcr,c.cans.fc.selfcr,q_text_fc_culstr,c.cans.fc.culstr,
-                         q_text_fc_empedu,c.cans.fc.empedu,q_text_fc_eduatt,c.cans.fc.eduatt,
-                         q_text_fc_legal,c.cans.fc.legal,q_text_fc_motive,c.cans.fc.motive,
-                         q_text_fc_finres,c.cans.fc.finres,q_text_fc_transp,c.cans.fc.transp)
-	    else
-	     $col()
-	    endif
-   $row()                                      
-    $col()$text(q_text_cg_safety)
-    $col("center")$text(c.cans.cg.safety)
-  endif
- $endtable($funcname)
+ c.cans.type      is x
+ c.cans.disreas   is x
+ if c.cans.type != "11" and (c.cans.type != "3" and c.cans.disreas != "9")
+  $br() 
+  $table($funcname,,"width='100%' cellspacing='0' cellpadding='2' bgcolor='White' style='border-style: solid; border-width: 1px'")
+   $row(,col_color_multi)
+    $col("center",,,"3"  )$text("Caregiver Strengths and Needs","datatag")
+   if c.cans.cg.na = "Y"
+    $row()
+     $col("center",,,"3")$text("Not Applicable - no caregiver identified")
+   else   
+    $row(,row_color2)
+     $col(,,"40%")$text(q_text_cg_super)
+     $col("center",,"10%")$text(c.cans.cg.super)
+     $col()                               
+    $row()                                      
+     $col()$text(q_text_cg_involv)
+     $col("center")$text(c.cans.cg.involv)
+     $col()                                      
+    $row()                                      
+     $col()$text(q_text_cg_knoldg)
+     $col("center")$text(c.cans.cg.knoldg)
+     $col()                                      
+    $row()                                      
+     $col()$text(q_text_cg_organz)
+     $col("center")$text(c.cans.cg.organz)
+     $col(,,"50%")                               
+    $row()                                      
+     $col()$text(q_text_cg_socres)
+     $col("center")$text(c.cans.cg.socres)
+     $col()                                      
+    $row()                                      
+     $col()$text(q_text_cg_ressbl)
+     $col("center")$text(c.cans.cg.ressbl)
+     $col()                                      
+    $row()                                      
+     $col()$text(q_text_cg_physcl)
+     $col("center")$text(c.cans.cg.physcl)
+     $col()                                      
+    $row()                                      
+     $col()$text(q_text_cg_menhth)
+     $col("center")$text(c.cans.cg.menhth)
+     $col()                                      
+    $row()                                      
+     $col()$text(q_text_cg_subabs)
+     $col("center")$text(c.cans.cg.subabs)
+     $col()                                      
+    $row()                                      
+     $col()$text(q_text_cg_develp)
+     $col("center")$text(c.cans.cg.develp)
+     $col()                                      
+    $row()                                      
+     $col()$text(q_text_cg_chldcr)
+     $col("center")$text(c.cans.cg.chldcr)
+     $col()                                      
+    $row()                                      
+     $col()$text(q_text_cg_miltra)
+     $col("center")$text(c.cans.cg.miltra)
+     $col()                                      
+    $row()                                      
+     $col()$text(q_text_cg_famsts)$text("{sup}11{/sup}")
+     $col("center")$text(c.cans.cg.famsts)
+	     if $num(c.cans.cg.famsts) > 0
+	      $col()SafetyRpt(q_text_fc_selfcr,c.cans.fc.selfcr,q_text_fc_culstr,c.cans.fc.culstr,
+                          q_text_fc_empedu,c.cans.fc.empedu,q_text_fc_eduatt,c.cans.fc.eduatt,
+                          q_text_fc_legal,c.cans.fc.legal,q_text_fc_motive,c.cans.fc.motive,
+                          q_text_fc_finres,c.cans.fc.finres,q_text_fc_transp,c.cans.fc.transp)
+	     else
+	      $col()
+	     endif
+    $row()                                      
+     $col()$text(q_text_cg_safety)
+     $col("center")$text(c.cans.cg.safety)
+   endif
+  $endtable($funcname)
+ endif
 end CareGiveRpt
 
 'Safety Module Report
@@ -1349,7 +1406,8 @@ function ChildStrRpt(q_text_cs_family,c.cans.cs.family,q_text_cs_intper,c.cans.c
                      q_text_cs_vocate,c.cans.cs.vocate,q_text_cs_talint,c.cans.cs.talint,
                      q_text_cs_spirel,c.cans.cs.spirel,q_text_cs_comlif,c.cans.cs.comlif,
                      q_text_cs_permin,c.cans.cs.permin,q_text_cs_youth,c.cans.cs.youth,
-                     q_text_cs_natsup,c.cans.cs.natsup) is null
+                     q_text_cs_natsup,c.cans.cs.natsup,
+					 c.cans.type,c.cans.disreas) is null
  q_text_cs_family is x
  c.cans.cs.family is x
  q_text_cs_intper is x
@@ -1372,55 +1430,59 @@ function ChildStrRpt(q_text_cs_family,c.cans.cs.family,q_text_cs_intper,c.cans.c
  c.cans.cs.youth  is x
  q_text_cs_natsup is x
  c.cans.cs.natsup is x
- $br()
- $table($funcname,,"width='100%' cellspacing='0' cellpadding='2' bgcolor='White' style='border-style: solid; border-width: 1px'")
-  $row(,col_color_multi)
-   $col("center",,,"3"  )$text("ChildStrengths","datatag")
-  $row(,row_color2)
-   $col(,,"40%")$text(q_text_cs_family)
-   $col("center",,"10%")$text(c.cans.cs.family)
-   $col(,,"50%")                               
-  $row()                                      
-   $col()$text(q_text_cs_intper)
-   $col("center")$text(c.cans.cs.intper)
-   $col()                                      
-  $row()                                      
-   $col()$text(q_text_cs_optims)
-   $col("center")$text(c.cans.cs.optims)
-   $col()                                      
-  $row()                                      
-   $col()$text(q_text_cs_educat)
-   $col("center")$text(c.cans.cs.educat)
-   $col(,,"50%")                               
-  $row()                                      
-   $col()$text(q_text_cs_vocate)
-   $col("center")$text(c.cans.cs.vocate)
-   $col()                                      
-  $row()                                      
-   $col()$text(q_text_cs_talint)
-   $col("center")$text(c.cans.cs.talint)
-   $col()                                      
-  $row()                                      
-   $col()$text(q_text_cs_spirel)
-   $col("center")$text(c.cans.cs.spirel)
-   $col()                                      
-  $row()                                      
-   $col()$text(q_text_cs_comlif)
-   $col("center")$text(c.cans.cs.comlif)
-   $col()                                      
-  $row()                                      
-   $col()$text(q_text_cs_permin)
-   $col("center")$text(c.cans.cs.permin)
-   $col()                                      
-  $row()                                      
-   $col()$text(q_text_cs_youth)
-   $col("center")$text(c.cans.cs.youth)
-   $col()                                     
-  $row()                                      
-   $col()$text(q_text_cs_natsup)
-   $col("center")$text(c.cans.cs.natsup)
-   $col()                                      
- $endtable($funcname)
+ c.cans.type      is x
+ c.cans.disreas   is x
+ if c.cans.type != "11" and (c.cans.type != "3" and c.cans.disreas != "9")
+  $br()
+  $table($funcname,,"width='100%' cellspacing='0' cellpadding='2' bgcolor='White' style='border-style: solid; border-width: 1px'")
+   $row(,col_color_multi)
+    $col("center",,,"3"  )$text("ChildStrengths","datatag")
+   $row(,row_color2)
+    $col(,,"40%")$text(q_text_cs_family)
+    $col("center",,"10%")$text(c.cans.cs.family)
+    $col(,,"50%")                               
+   $row()                                      
+    $col()$text(q_text_cs_intper)
+    $col("center")$text(c.cans.cs.intper)
+    $col()                                      
+   $row()                                      
+    $col()$text(q_text_cs_optims)
+    $col("center")$text(c.cans.cs.optims)
+    $col()                                      
+   $row()                                      
+    $col()$text(q_text_cs_educat)
+    $col("center")$text(c.cans.cs.educat)
+    $col(,,"50%")                               
+   $row()                                      
+    $col()$text(q_text_cs_vocate)
+    $col("center")$text(c.cans.cs.vocate)
+    $col()                                      
+   $row()                                      
+    $col()$text(q_text_cs_talint)
+    $col("center")$text(c.cans.cs.talint)
+    $col()                                      
+   $row()                                      
+    $col()$text(q_text_cs_spirel)
+    $col("center")$text(c.cans.cs.spirel)
+    $col()                                      
+   $row()                                      
+    $col()$text(q_text_cs_comlif)
+    $col("center")$text(c.cans.cs.comlif)
+    $col()                                      
+   $row()                                      
+    $col()$text(q_text_cs_permin)
+    $col("center")$text(c.cans.cs.permin)
+    $col()                                      
+   $row()                                      
+    $col()$text(q_text_cs_youth)
+    $col("center")$text(c.cans.cs.youth)
+    $col()                                     
+   $row()                                      
+    $col()$text(q_text_cs_natsup)
+    $col("center")$text(c.cans.cs.natsup)
+    $col()                                      
+  $endtable($funcname)
+ endif
 end ChildStrRpt
 
 'Culture Report
@@ -1428,7 +1490,8 @@ function CultureRpt(q_text_ac_langua,c.cans.ac.langua,
                     q_text_ac_identy,c.cans.ac.identy,
                     q_text_ac_sexgen,c.cans.ac.sexgen,
                     q_text_ac_ritual,c.cans.ac.ritual,
-                    q_text_ac_culstr,c.cans.ac.culstr) is null
+                    q_text_ac_culstr,c.cans.ac.culstr,
+					c.cans.type,c.cans.disreas) is null
  q_text_ac_langua  is x
  c.cans.ac.langua  is x
  q_text_ac_identy  is x
@@ -1439,44 +1502,52 @@ function CultureRpt(q_text_ac_langua,c.cans.ac.langua,
  c.cans.ac.ritual  is x
  q_text_ac_culstr  is x
  c.cans.ac.culstr  is x
- $table($funcname,,"width='100%' cellspacing='0' cellpadding='2' bgcolor='White' style='border-style: solid; border-width: 1px'")
-  $row(,col_color_multi)
-   $col("center",,,"3"  )$text("Culture","datatag")
-  $row(,row_color2)
-   $col(,,"40%")$text(q_text_ac_langua)
-   $col("center",,"10%")$text(c.cans.ac.langua)
-   $col(,,"50%")                               
-  $row()                                      
-   $col()$text(q_text_ac_identy)
-   $col("center")$text(c.cans.ac.identy)
-   $col()                                      
-  $row()                                      
-   $col()$text(q_text_ac_sexgen)
-   $col("center")$text(c.cans.ac.sexgen)
-   $col()                                      
-  $row()                                      
-   $col()$text(q_text_ac_ritual)
-   $col("center")$text(c.cans.ac.ritual)
-   $col()                                      
-  $row()                                      
-   $col()$text(q_text_ac_culstr)
-   $col("center")$text(c.cans.ac.culstr)
-   $col(,,"50%")                               
- $endtable($funcname)
+ c.cans.type       is x
+ c.cans.disreas    is x
+ if c.cans.type != "11" and (c.cans.type != "3" and c.cans.disreas != "9")
+  $table($funcname,,"width='100%' cellspacing='0' cellpadding='2' bgcolor='White' style='border-style: solid; border-width: 1px'")
+   $row(,col_color_multi)
+    $col("center",,,"3"  )$text("Culture","datatag")
+   $row(,row_color2)
+    $col(,,"40%")$text(q_text_ac_langua)
+    $col("center",,"10%")$text(c.cans.ac.langua)
+    $col(,,"50%")                               
+   $row()                                      
+    $col()$text(q_text_ac_identy)
+    $col("center")$text(c.cans.ac.identy)
+    $col()                                      
+   $row()                                      
+    $col()$text(q_text_ac_sexgen)
+    $col("center")$text(c.cans.ac.sexgen)
+    $col()                                      
+   $row()                                      
+    $col()$text(q_text_ac_ritual)
+    $col("center")$text(c.cans.ac.ritual)
+    $col()                                      
+   $row()                                      
+    $col()$text(q_text_ac_culstr)
+    $col("center")$text(c.cans.ac.culstr)
+    $col(,,"50%")                               
+  $endtable($funcname)
+ endif
 end CultureRpt
 
 'Crisis History Report
-function CrisisRpt(q_text_cr_episds,c.cans.cr.episds) is null
+function CrisisRpt(q_text_cr_episds,c.cans.cr.episds,c.cans.type,c.cans.disreas) is null
  q_text_cr_episds is x
  c.cans.cr.episds is x
- $table($funcname,,"width='100%' cellspacing='0' cellpadding='2' bgcolor='White' style='border-style: solid; border-width: 1px'")
-  $row(,col_color_multi)
-   $col("center",,,"3"  )$text("Crisis History, # of Crisis Episodes Past 90 Days","datatag")
-  $row(,row_color2)
-   $col(,,"40%")$text(q_text_cr_episds)
-   $col("center",,"10%")$text(c.cans.cr.episds)
-   $col(,,"50%")                               
- $endtable($funcname)
+ c.cans.type      is x
+ c.cans.disreas   is x
+ if c.cans.type != "11" and (c.cans.type != "3" and c.cans.disreas != "9")
+  $table($funcname,,"width='100%' cellspacing='0' cellpadding='2' bgcolor='White' style='border-style: solid; border-width: 1px'")
+   $row(,col_color_multi)
+    $col("center",,,"3"  )$text("Crisis History, # of Crisis Episodes Past 90 Days","datatag")
+   $row(,row_color2)
+    $col(,,"40%")$text(q_text_cr_episds)
+    $col("center",,"10%")$text(c.cans.cr.episds)
+    $col(,,"50%")                               
+  $endtable($funcname)
+ endif
 end CrisisRpt
 
 'Psychiatric Hospitalization Report
@@ -1484,7 +1555,8 @@ function PsyHospRpt(q_text_ps_hosptl,c.cans.ps.hosptl,
                     q_text_hs_numprr,c.cans.hs.numprr,
                     q_text_hs_longst,c.cans.hs.longst,
                     q_text_hs_durrec,c.cans.hs.durrec,
-                    q_text_hs_timlst,c.cans.hs.timlst) is null
+                    q_text_hs_timlst,c.cans.hs.timlst,
+					c.cans.type,c.cans.disreas) is null
  q_text_ps_hosptl is x
  c.cans.ps.hosptl is x
  q_text_hs_numprr is x
@@ -1495,18 +1567,22 @@ function PsyHospRpt(q_text_ps_hosptl,c.cans.ps.hosptl,
  c.cans.hs.durrec is x
  q_text_hs_timlst is x
  c.cans.hs.timlst is x
- $table($funcname,,"width='100%' cellspacing='0' cellpadding='2' bgcolor='White' style='border-style: solid; border-width: 1px'")
-  $row(,col_color_multi)
-   $col("center",,,"3"  )$text("Psychiatric Hospitalizations","datatag")$text("{sup}12{/sup}")
-  $row(,row_color2)
-   $col(,,"40%")$text(q_text_ps_hosptl)
-   $col("center",,"10%")$text(c.cans.ps.hosptl)
-	  if c.cans.ps.hosptl = "1"
-	   $col()HospHxRpt()
-	  else
-	   $col()                               
-	  endif
- $endtable($funcname)
+ c.cans.type      is x
+ c.cans.disreas   is x
+ if c.cans.type != "11" and (c.cans.type != "3" and c.cans.disreas != "9")
+  $table($funcname,,"width='100%' cellspacing='0' cellpadding='2' bgcolor='White' style='border-style: solid; border-width: 1px'")
+   $row(,col_color_multi)
+    $col("center",,,"3"  )$text("Psychiatric Hospitalizations","datatag")$text("{sup}12{/sup}")
+   $row(,row_color2)
+    $col(,,"40%")$text(q_text_ps_hosptl)
+    $col("center",,"10%")$text(c.cans.ps.hosptl)
+	   if c.cans.ps.hosptl = "1"
+	    $col()HospHxRpt()
+	   else
+	    $col()                               
+	   endif
+  $endtable($funcname)
+ endif
 end PsyHospRpt
 
 'Psychiatric Hospitalization History Module Report
