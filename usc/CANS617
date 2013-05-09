@@ -454,7 +454,7 @@ end Report
 
 function SaveData() is i
  mode is x
- (void)$dbread(02, $regid, cans_dstlist)
+ c.cans.age = {"lib_UACOMMON"}ClientAge($regid, c.cans.date)
  if c.cans.compd !dp
   mode = "ADD"
  else
@@ -462,11 +462,7 @@ function SaveData() is i
  endif
  $dblock()
  SaveData = $dbpoint(02, $regid, c.cans.rec) 
- c.cans.staff = $operstaffid
- c.cans.ver   = "1.00"
- c.cans.age   = {"lib_UACOMMON"}ClientAge($regid, c.cans.date)
  if c.cans.aloc dp
-  c.cans.compd = $today
   c.cans.snapid = {"l_snapLibSC"}sn_GetSnapID()	                           
  endif 
  if c.cans.resother1 dp
@@ -483,14 +479,14 @@ function SaveData() is i
   c.cans.devR5 = $seg(c.cans.devoth,253,3)
  else
   $clear(c.cans.devR1,c.cans.devR2,c.cans.devR3,c.cans.devR4,c.cans.devR5)
- endif
+ endif 
  select mode
   case "ADD" select c.cans.type
               case "1" c.cans.isn = SaveEvent()
               case other
              endselect
 			 c.cans.rec[effd] = $today
-			 c.cans.canstype = "1"
+			 c.cans.canstype = "2"
              SaveData = $dbadddst(02, $regid, cans_dstlist)
   case "UPDATE" if (c.cans.dloc = c.cans.rloc) and (c.cans.dloc = c.cans.aloc)
                  $clear(c.cans.dloc)
