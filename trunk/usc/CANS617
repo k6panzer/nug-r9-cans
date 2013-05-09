@@ -2875,9 +2875,6 @@ function ValidateALOC() is i
   if c.cans.rloc = "100" and c.cans.aloc != c.cans.rloc
    (void)$arrpush(errors[],aloc1_errortxt)  
   endif
-  if c.cans.aloc != "100" and c.cans.aloc != "105"
-   (void)$arrpush(errors[],aloc2_errortxt)
-  endif
   if c.cans.aloc != c.cans.rloc and c.cans.loc_dev !dp
    (void)$arrpush(errors[],aloc3_errortxt)
   endif  
