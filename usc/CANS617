@@ -486,7 +486,7 @@ function SaveData() is i
               case other
              endselect
 			 c.cans.rec[effd] = $today
-			 c.cans.canstype = "2"
+			 c.cans.canstype = "1"
              SaveData = $dbadddst(02, $regid, cans_dstlist)
   case "UPDATE" if (c.cans.dloc = c.cans.rloc) and (c.cans.dloc = c.cans.aloc)
                  $clear(c.cans.dloc)
