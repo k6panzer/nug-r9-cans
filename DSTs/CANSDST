@@ -184,6 +184,19 @@ start CANSDST()
 			rc = $adddcv(9708,"4","Other")
 		endif				
 
+	rc = $adddct(9709,"CANS/ANSA Credentials")
+		if rc = 0
+			rc = $adddcv(9709,"1","RN-APN")
+			rc = $adddcv(9709,"12","LMFT")
+			rc = $adddcv(9709,"13","LCSW")
+			rc = $adddcv(9709,"2","RN")
+			rc = $adddcv(9709,"21","QMHP-CS")
+			rc = $adddcv(9709,"4","PA")
+			rc = $adddcv(9709,"5","MD")
+			rc = $adddcv(9709,"6","LVN")
+			rc = $adddcv(9709,"8","LPC")
+		endif				
+
 'Now create the DST's.
 
 rc = $dstadd(dst,"C.CANS.REC"      ,"CLIENT CANS RECORD HEADER"     ,dbfile,"H",0, 0,   0,recordnum)
