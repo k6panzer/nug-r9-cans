@@ -2535,11 +2535,16 @@ function ALOC() is null
  last_type     is x
  last_aloc     is x
  last_alocdate is d
+ CurrentDX     is x
+ CurrentDX = {"lib_UACOMMON"}CurrentDX($regid,c.cans.date)
+ if c.cans.rloc = "100" or c.cans.type != "11" or (c.cans.type = "3" and c.cans.disreas != "9")
+  CurrentDX = "Y"
+ endif
  {"lib_CANS"}Last_Assessment($regid,last_type,,,,,last_aloc,,last_alocdate) 
  $table($funcname,,"width='100%' cellspacing='0' cellpadding='2' bgcolor='White'  style='border-style: solid; border-width: 1px'")
    $row(,col_color_multi)
     $col("center",,,"2")$text("Authorized Level Of Care","datatag")
-  select {"lib_UACOMMON"}CurrentDX($regid,c.cans.date)
+  select CurrentDX
    case "Y" $row()
              $col("right",,"50%")$text(q_text_alocdate,"datatag")
 	         $col()$textbox(c.cans.alocdate,"CAL",10,6,"Y","normal")
@@ -2562,7 +2567,7 @@ function ALOC() is null
                      $dropbox(c.cans.loc_dev,"Other","5",,,"OTHER","OTHER")	
              endif
 		   endif
-           if c.cans.type = "11"
+           if c.cans.type = "11" or c.cans.rloc = "100"
             c.cans.aloc = "100"
              $row()
               $col("right",,"50%")$text(q_text_rloc,"datatag")
@@ -2670,10 +2675,12 @@ function RLOC() is x
 end RLOC
 
 function ValidateALOC() is i
+ CurrentDX     is x
  last_type     is x
  last_aloc     is x
  last_alocdate is d
  datediff      is i
+ 
  $clear(errors[],last_type)
 ' {"lib_CANS"}Last_Assessment($regid,last_type,,,,,last_aloc,,last_alocdate) 
  if c.cans.aloc dp 
@@ -2710,9 +2717,13 @@ function ValidateALOC() is i
   (void)$arrpush(errors[],aloc5_errortxt)  
  endif
  
- if {"lib_UACOMMON"}CurrentDX($regid,c.cans.date) = "N"
-  (void)$arrpush(errors[],diag_errortxt)  
+ CurrentDX = {"lib_UACOMMON"}CurrentDX($regid,c.cans.date)
+ if CurrentDX = "N"
+  if c.cans.rloc = "100" or c.cans.type != "11" or (c.cans.type = "3" and c.cans.disreas != "9")
+   CurrentDX = "Y"
+  endif
  endif
+
  
  if errors[1] dp	
   ValidateALOC = 1
