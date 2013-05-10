@@ -11,7 +11,8 @@ CLLIST CANS617
 PQOUT N                                                                         
 SEQOUT /c4/EXPORT2/BatchTest/TXBATCH6                                           
 CURECHDR 28000                                                                  
-CUDATE 28181                                                                    
+CUDATE 28174   *Must look at CANS COMPLETE DATE DST
+*CUDATE 28181  *The LOCA Date will not work on Unplanned Discharges                                                                  
 CUFLAG 28005                                                                    
 *CUEXCLUDE 25677                                                                
 *CUFORCE 25678                                                                  
