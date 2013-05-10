@@ -1,0 +1,61 @@
+start CALL_CANS(parmfile,option,client,retcode)
+ %include c_incmaps
+ %allow_nonmapped_io
+ %maptest
+ %include c_cldefLL
+ %include c_clgetLL
+ datediff      is n
+ eighteenth_bd is d   'Clients 18th birthday
+ age           is n   'Age variable
+ cans35_btn    is x
+ cans617_btn   is x
+ 
+ c.cans.rec      is h
+ c.cans.canstype is x
+ c.cans.staff    is x
+ c.cans.compd    is d
+
+
+ if c.bd !dp
+  $brmsg("Please update the Clients Birthdate", 1, "W", "Error")
+  return
+ else
+  rc = $datediff(c.bd, $today, age)
+  eighteenth_bd = $dateoffset(c.bd,,,18)
+  datediff = ($today - c.bd)   ' compute age in days
+ endif
+ (void)$dbread(2,client,c.cans.rec,c.cans.canstype,c.cans.staff,c.cans.compd)
+'if over 17 and age is 18 by 120 days
+'18*365.25+120=6694.50 days or 18 and 3 months
+ if age > 17 and datediff > 6694.50
+  $brmsg("Client is over 17. The CANS can only be completed for persons under 17", 1, "W", "Error")
+  return
+ elseif age = 6
+  if c.cans.canstype !dp
+   $submitopt("off", "")
+   $cancelopt("off", "Exit")
+   $form($scriptid)
+    $tag("<center>")
+     $br(3)$text("Due to the clients age, please select if you would like to complete an assessment for age greoup 3-5 or 6-17")
+     $br(2)$submit(cans35_btn,"3-5 Form")$ctag("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;")$submit(cans617_btn,"6-17 Form")
+    $tag("</center>")   
+   $sendform($scriptid)
+   if cans35_btn = "Y"
+     call "CANS35"(parmfile,option,client,retcode)
+   else
+    call "CANS617"(parmfile,option,client,retcode)   
+   endif 
+  else
+   if c.cans.canstype = "1"
+    call "CANS617"(parmfile,option,client,retcode)
+   else
+    call "CANS35"(parmfile,option,client,retcode)
+   endif
+  endif
+ elseif age < 6
+  call "CANS35"(parmfile,option,client,retcode)
+ elseif age > 6 and age < 18
+  call "CANS617"(parmfile,option,client,retcode)
+ endif
+ $clear(datediff)
+end CALL_CANS 
