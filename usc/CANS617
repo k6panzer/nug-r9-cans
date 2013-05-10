@@ -57,281 +57,364 @@ start CANS617(parmfile,option,client,retcode)
  %global UM_StaffYN
  UM_StaffYN is x
  UM_StaffYN = {"lib_UACOMMON"}UMStaff()
+ PromptNED is x
  
  if UM_StaffYN = "Y"
   rc = $dbread(02, $regid, c.cans.rec,c.cans.compd,c.cans.type,c.cans.staff)
   if c.cans.compd !dp and c.cans.type dp
-   select c.cans.staff
-    case $operstaffid select {"lib_CANS"}PromptNewEditDel($regid)
-                       case 1 $dblock()
-                              rc = $dbread(02, $regid, cans_dstlist)	
-                              rc = $dbremovedst(02, $regid, cans_dstlist)
-		                      $brmsg("CANS Assessment Successfully Removed from the Database!",1,"C","Process Complete")
-		                      $brmsg("The assessment will restart now.",2,"W")
-                       case 2 rc = $dbread(02, $regid, cans_dstlist)
-                              {"lib_UACOMMON"}GetEvent(c.cans.isn,e.ser,e.ru,e.start,e.dur,e.loc)
-		                      Page = "0"	
-                       case 3 $dblock()
-                              rc = $dbread(02, $regid, cans_dstlist)	       
-		                      rc = $dbremovedst(02, $regid, cans_dstlist)
-		                      $brmsg("CANS Assessment Successfully Removed from the Database!",1,"C","Process Complete")
-		                      $brmsg("The assessment will exit now.",2,"W")
-		                      return
-                       case 4 return
-                       case 5 $brmsg("CANS Assessment Currently Being Entered by Another Staff Member!",1,"C","In Progress")
-		                      $brmsg("The assessment will exit now.",2,"W")
-		                      return	
-                       case !dp $clear(c.cans.compd,c.cans.type)
-                                Page = "0"
-                      endselect    
-	case !dp $clear(c.cans.compd,c.cans.type)
-	         Page = "0"
-	case other rc = $dbread(02, $regid, cans_dstlist)
-	           {"lib_UACOMMON"}GetEvent(c.cans.isn,e.ser,e.ru,e.start,e.dur,e.loc)	
-	           Page = "Authorize"
-   endselect
+   if c.cans.staff = $operstaffid
+    PromptNED = {"lib_CANS"}PromptNewEditDel($regid)    
+    if PromptNED = 1
+     $dblock()
+     rc = $dbread(02, $regid, cans_dstlist)	
+     rc = $dbremovedst(02, $regid, cans_dstlist)
+     $brmsg("CANS Assessment Successfully Removed from the Database!",1,"C","Process Complete")
+     $brmsg("The assessment will restart now.",2,"W")
+	elseif PromptNED = 2
+     rc = $dbread(02, $regid, cans_dstlist)
+     {"lib_UACOMMON"}GetEvent(c.cans.isn,e.ser,e.ru,e.start,e.dur,e.loc)
+     Page = "0"	
+	elseif PromptNED = 3
+     $dblock()
+     rc = $dbread(02, $regid, cans_dstlist)	       
+     rc = $dbremovedst(02, $regid, cans_dstlist)
+     $brmsg("CANS Assessment Successfully Removed from the Database!",1,"C","Process Complete")
+     $brmsg("The assessment will exit now.",2,"W")
+     return
+	elseif PromptNED = 4
+	 return
+	elseif PromptNED = 5
+     $brmsg("CANS Assessment Currently Being Entered by Another Staff Member!",1,"C","In Progress")
+     $brmsg("The assessment will exit now.",2,"W")
+     return	
+	else
+     $clear(c.cans.compd,c.cans.type)
+     Page = "0"
+    endif
+   elseif c.cans.staff !dp
+    $clear(c.cans.compd,c.cans.type)
+	Page = "0"
+   else
+    rc = $dbread(02, $regid, cans_dstlist)
+    {"lib_UACOMMON"}GetEvent(c.cans.isn,e.ser,e.ru,e.start,e.dur,e.loc)	
+    Page = "Authorize"
+   endif
   else
-   select {"lib_CANS"}PromptNewEditDel($regid)
-    case 1 $dblock()
-           rc = $dbread(02, $regid, cans_dstlist)	
-           rc = $dbremovedst(02, $regid, cans_dstlist)
-		   $brmsg("CANS Assessment Successfully Removed from the Database!",1,"C","Process Complete")
-		   $brmsg("The assessment will restart now.",2,"W")
-    case 2 rc = $dbread(02, $regid, cans_dstlist)
-           {"lib_UACOMMON"}GetEvent(c.cans.isn,e.ser,e.ru,e.start,e.dur,e.loc)
-		   Page = "0"	
-    case 3 $dblock()
-           rc = $dbread(02, $regid, cans_dstlist)	       
-		   rc = $dbremovedst(02, $regid, cans_dstlist)
-		   $brmsg("CANS Assessment Successfully Removed from the Database!",1,"C","Process Complete")
-		   $brmsg("The assessment will exit now.",2,"W")
-		   return
-    case 4 return
-    case 5 $brmsg("CANS Assessment Currently Being Entered by Another Staff Member!",1,"C","In Progress")
-		   $brmsg("The assessment will exit now.",2,"W")
-		   return	
-    case !dp $clear(c.cans.compd,c.cans.type)
-             Page = "0"
-   endselect    
+   PromptNED = {"lib_CANS"}PromptNewEditDel($regid)
+    if PromptNED = 1
+     $dblock()
+     rc = $dbread(02, $regid, cans_dstlist)	
+     rc = $dbremovedst(02, $regid, cans_dstlist)
+     $brmsg("CANS Assessment Successfully Removed from the Database!",1,"C","Process Complete")
+     $brmsg("The assessment will restart now.",2,"W")
+	elseif PromptNED = 2
+     rc = $dbread(02, $regid, cans_dstlist)
+     {"lib_UACOMMON"}GetEvent(c.cans.isn,e.ser,e.ru,e.start,e.dur,e.loc)
+     Page = "0"	
+	elseif PromptNED = 3
+     $dblock()
+     rc = $dbread(02, $regid, cans_dstlist)	       
+     rc = $dbremovedst(02, $regid, cans_dstlist)
+     $brmsg("CANS Assessment Successfully Removed from the Database!",1,"C","Process Complete")
+     $brmsg("The assessment will exit now.",2,"W")
+     return
+	elseif PromptNED = 4
+	 return
+	elseif PromptNED = 5
+     $brmsg("CANS Assessment Currently Being Entered by Another Staff Member!",1,"C","In Progress")
+     $brmsg("The assessment will exit now.",2,"W")
+     return	
+	else
+     $clear(c.cans.compd,c.cans.type)
+     Page = "0"
+    endif
   endif
  else
   rc = $dbread(02, $regid, c.cans.rec,c.cans.compd,c.cans.type,c.cans.staff)
-  select {"lib_CANS"}PromptNewEditDel($regid)
-   case 1 $dblock()
-          rc = $dbread(02, $regid, cans_dstlist)	
-          rc = $dbremovedst(02, $regid, cans_dstlist)
-	      $brmsg("CANS Assessment Successfully Removed from the Database!",1,"C","Process Complete")
-	      $brmsg("The assessment will restart now.",2,"W")
-   case 2 rc = $dbread(02, $regid, cans_dstlist)
-          {"lib_UACOMMON"}GetEvent(c.cans.isn,e.ser,e.ru,e.start,e.dur,e.loc)
-          Page = "0"	
-   case 3 $dblock()
-          rc = $dbread(02, $regid, cans_dstlist)	       
-		  rc = $dbremovedst(02, $regid, cans_dstlist)
-		  $brmsg("CANS Assessment Successfully Removed from the Database!",1,"C","Process Complete")
-		  $brmsg("The assessment will exit now.",2,"W")
-		  return
-   case 4 return
-   case 5 $brmsg("CANS Assessment Currently Being Entered by Another Staff Member!",1,"C","In Progress")
-		  $brmsg("The assessment will exit now.",2,"W")
-		  return
-   case !dp $clear(c.cans.compd,c.cans.type)
-            Page = "0"
-  endselect    
+  if PromptNED = 1
+   $dblock()
+   rc = $dbread(02, $regid, cans_dstlist)	
+   rc = $dbremovedst(02, $regid, cans_dstlist)
+   $brmsg("CANS Assessment Successfully Removed from the Database!",1,"C","Process Complete")
+   $brmsg("The assessment will restart now.",2,"W")
+  elseif PromptNED = 2
+   rc = $dbread(02, $regid, cans_dstlist)
+   {"lib_UACOMMON"}GetEvent(c.cans.isn,e.ser,e.ru,e.start,e.dur,e.loc)
+   Page = "0"	
+  elseif PromptNED = 3
+   $dblock()
+   rc = $dbread(02, $regid, cans_dstlist)	       
+   rc = $dbremovedst(02, $regid, cans_dstlist)
+   $brmsg("CANS Assessment Successfully Removed from the Database!",1,"C","Process Complete")
+   $brmsg("The assessment will exit now.",2,"W")
+   return
+  elseif PromptNED = 4
+   return
+  elseif PromptNED = 5
+   $brmsg("CANS Assessment Currently Being Entered by Another Staff Member!",1,"C","In Progress")
+   $brmsg("The assessment will exit now.",2,"W")
+   return	
+  else
+   $clear(c.cans.compd,c.cans.type)
+   Page = "0"
+  endif
  endif
  
  do while 1 = 1
-  select Page
-   case "0" Page0()
-            select $endbutton
-			 case "SUBMIT" Page = "Validate0"
-			 case other if {"lib_UACOMMON"}ConfirmExit() = "Y"
-                         return
-                        endif
-			endselect
-   case "1" Page1()
-            select $endbutton
-			 case "SUBMIT" Page = "Validate1"
-			 case other Page = "0"
-			endselect			
-   case "2" Page2()
-			select $endbutton
-			 case "SUBMIT" Page = "Validate2"
-			 case other Page = "1"
-			endselect			
-   case "3" Page3()  			
-			select $endbutton
-			 case "SUBMIT" Page = "Validate3"
-			 case other Page = "2"
-			endselect					
-   case "4" Page4()
-			select $endbutton
-			 case "SUBMIT" Page = "Validate4"
-			 case other select CanSkipPage3() 
-					     case "Y" select CanSkipPage2()
-								   case "Y" select CanSkipPage1()
-								             case "Y" Page = "0"
-											 case "N" Page = "1"
-											endselect
-								   case "N" Page = "2"
-								  endselect
-						 case "N" Page = "3"
-						endselect
-			endselect			  
-   case "Validate0" select Validate0()
-                     case 0 select CanSkipPage1()
-					         case "Y" select CanSkipPage4()
-							           case "Y" Page = "Report"							 
-									   case "N" Page = "4" 
-									  endselect
-							 case "N" Page = "1"
-							endselect
-					 case 1 Page = 0
-					        DisplayErrors()
-                    endselect
-   case "Validate1" select Validate1()
-					 case 0 select CanSkipPage2()
-					         case "Y" select CanSkipPage4()
-							           case "Y" Page = "Report"
-									   case "N" Page = "4"
-									  endselect
-					         case "N" Page = "2"
-							endselect
-					 case 1 Page = "1"
-					        DisplayErrors()
-					endselect					 
-   case "Validate2" select Validate2()
-					 case 0 select CanSkipPage3()
-					         case "Y" Page = "4"
-					         case "N" Page = "3"
-							endselect
-					 case 1 Page = "2"
-					        DisplayErrors()
-					endselect					
-   case "Validate3" select Validate3()
-					 case 0 Page = "4"
-					 case 1 Page = "3"
-					        DisplayErrors()  
-					endselect					
-   case "Validate4" select Validate4() 
-                     case 0 c.cans.rloc = {"lib_CANS617"}RLOC(c.cans.ac.sexgen,c.cans.ad.affreg,c.cans.ad.dissoc,c.cans.ad.intrus,c.cans.cb.adjtrm,c.cans.cb.angctr,c.cans.cb.anxity,c.cans.cb.condct,
-                                                              c.cans.cb.depres,c.cans.cb.eatdst,c.cans.cb.implsv,c.cans.cb.mania,c.cans.cb.oppdef,c.cans.cb.psychs,c.cans.cb.subabs,c.cans.cr.bully,
-                                                              c.cans.cr.dangot,c.cans.cr.delqcy,c.cans.cr.episds,c.cans.cr.firset,c.cans.cr.oslfhr,c.cans.cr.runawy,c.cans.cr.sexagr,c.cans.cr.smutil,
-                                                              c.cans.cr.socbeh,c.cans.cr.suicid,c.cans.dv.cognit,c.cans.dv.develp,c.cans.fs.inthrm,c.cans.fs.planin,c.cans.hs.durrec,c.cans.hs.timlst,
-                                                              c.cans.jj.comsaf,c.cans.jj.histry,c.cans.jj.serios,c.cans.ld.commun,c.cans.ld.develp,c.cans.ld.family,c.cans.ld.indliv,c.cans.ld.jobfun,
-                                                              c.cans.ld.judgmt,c.cans.ld.legal,c.cans.ld.livsit,c.cans.ld.medicl,c.cans.ld.physcl,c.cans.ld.recret,c.cans.ld.school,c.cans.ld.sexdev,
-                                                              c.cans.ld.sleep,c.cans.ld.socfun,c.cans.ps.hosptl,c.cans.rf.comsc,c.cans.rf.rescon,c.cans.rn.frqncy,c.cans.rn.invill,c.cans.sa.envinf,
-                                                              c.cans.sa.parinf,c.cans.sa.perinf,c.cans.sa.severe,c.cans.sa.stgrec,c.cans.sc.attend,c.cans.sc.behavr,c.cans.sr.hissui,c.cans.type,c.cans.vi.hxviol)
-					        select c.cans.rloc
-							 case "100" Page = "Report"
-							 case other Page = "SAL"
-						    endselect																		         
-					 case 1 Page = "4"
-					        DisplayErrors()
-					endselect 				
-   case "ValidateReport" select ValidateReport()
-                          case 0 if SaveData() = 0
-					             Page = "Exit"
-								endif 
-                          case 1 Page = "Report"
-						         DisplayErrors()
-                         endselect			
-   case "ValidateALOC" select ValidateALOC()
-                        case 0 Page = "Report"
-						case 1 Page = "Authorize"
-					           DisplayErrors()
-					   endselect
-   case "Report"    c.cans.rloc = {"lib_CANS617"}RLOC(c.cans.ac.sexgen,c.cans.ad.affreg,c.cans.ad.dissoc,c.cans.ad.intrus,c.cans.cb.adjtrm,c.cans.cb.angctr,c.cans.cb.anxity,c.cans.cb.condct,
-                                                      c.cans.cb.depres,c.cans.cb.eatdst,c.cans.cb.implsv,c.cans.cb.mania,c.cans.cb.oppdef,c.cans.cb.psychs,c.cans.cb.subabs,c.cans.cr.bully,
-                                                      c.cans.cr.dangot,c.cans.cr.delqcy,c.cans.cr.episds,c.cans.cr.firset,c.cans.cr.oslfhr,c.cans.cr.runawy,c.cans.cr.sexagr,c.cans.cr.smutil,
-                                                      c.cans.cr.socbeh,c.cans.cr.suicid,c.cans.dv.cognit,c.cans.dv.develp,c.cans.fs.inthrm,c.cans.fs.planin,c.cans.hs.durrec,c.cans.hs.timlst,
-                                                      c.cans.jj.comsaf,c.cans.jj.histry,c.cans.jj.serios,c.cans.ld.commun,c.cans.ld.develp,c.cans.ld.family,c.cans.ld.indliv,c.cans.ld.jobfun,
-                                                      c.cans.ld.judgmt,c.cans.ld.legal,c.cans.ld.livsit,c.cans.ld.medicl,c.cans.ld.physcl,c.cans.ld.recret,c.cans.ld.school,c.cans.ld.sexdev,
-                                                      c.cans.ld.sleep,c.cans.ld.socfun,c.cans.ps.hosptl,c.cans.rf.comsc,c.cans.rf.rescon,c.cans.rn.frqncy,c.cans.rn.invill,c.cans.sa.envinf,
-                                                      c.cans.sa.parinf,c.cans.sa.perinf,c.cans.sa.severe,c.cans.sa.stgrec,c.cans.sc.attend,c.cans.sc.behavr,c.cans.sr.hissui,c.cans.type,c.cans.vi.hxviol)
-                    Report(RptTitle,ReportID,page)
-					select $endbutton
-					 case "SUBMIT" if UM_StaffYN = "Y" and (c.cans.staff != $operstaffid and c.cans.staff dp) 
-					                Page = "ValidateReport"
-								   else
-                                    if SaveData() = 0
-								     Page = "Exit"
-								    endif 								   
-								   endif	
-					 case "CANCEL" select c.cans.type
-                                    case "1" if UM_StaffYN = "Y" and (c.cans.staff != $operstaffid and c.cans.staff dp)
-									          Page = "Authorize"
-											 else
-									          Page = "SAL"											 
-											 endif 
-									case other if UM_StaffYN = "Y" and (c.cans.staff != $operstaffid and c.cans.staff dp)
-									            Page = "Authorize"
-											   else
-											    select CanSkipPage4
-												 case "Y" select CanSkipPage3()
-												           case "Y" select CanSkipPage2()
-														             case "Y" select CanSkipPage1()
-																	           case "Y" Page = "0"
-																			   case "N" Page = "1"
-																			  endselect
-																	 case "N" Page = "2"
-																	endselect
-														   case "N" Page = "3"
-														  endselect
-												 case "N" Page = "4"
-												endselect
-											   endif	
-								   endselect
-					 case other if SaveData() = 0
-								 Page = "Exit"
-								endif 
-					endselect
-   case "Authorize" c.cans.rloc = {"lib_CANS617"}RLOC(c.cans.ac.sexgen,c.cans.ad.affreg,c.cans.ad.dissoc,c.cans.ad.intrus,c.cans.cb.adjtrm,c.cans.cb.angctr,c.cans.cb.anxity,c.cans.cb.condct,
-                                                      c.cans.cb.depres,c.cans.cb.eatdst,c.cans.cb.implsv,c.cans.cb.mania,c.cans.cb.oppdef,c.cans.cb.psychs,c.cans.cb.subabs,c.cans.cr.bully,
-                                                      c.cans.cr.dangot,c.cans.cr.delqcy,c.cans.cr.episds,c.cans.cr.firset,c.cans.cr.oslfhr,c.cans.cr.runawy,c.cans.cr.sexagr,c.cans.cr.smutil,
-                                                      c.cans.cr.socbeh,c.cans.cr.suicid,c.cans.dv.cognit,c.cans.dv.develp,c.cans.fs.inthrm,c.cans.fs.planin,c.cans.hs.durrec,c.cans.hs.timlst,
-                                                      c.cans.jj.comsaf,c.cans.jj.histry,c.cans.jj.serios,c.cans.ld.commun,c.cans.ld.develp,c.cans.ld.family,c.cans.ld.indliv,c.cans.ld.jobfun,
-                                                      c.cans.ld.judgmt,c.cans.ld.legal,c.cans.ld.livsit,c.cans.ld.medicl,c.cans.ld.physcl,c.cans.ld.recret,c.cans.ld.school,c.cans.ld.sexdev,
-                                                      c.cans.ld.sleep,c.cans.ld.socfun,c.cans.ps.hosptl,c.cans.rf.comsc,c.cans.rf.rescon,c.cans.rn.frqncy,c.cans.rn.invill,c.cans.sa.envinf,
-                                                      c.cans.sa.parinf,c.cans.sa.perinf,c.cans.sa.severe,c.cans.sa.stgrec,c.cans.sc.attend,c.cans.sc.behavr,c.cans.sr.hissui,c.cans.type,c.cans.vi.hxviol)
-                    REPORT(RptTitle,ReportID,page)
-                    select $endbutton
-                     case "SUBMIT"  if (c.cans.aloc dp and c.cans.aloc != c.cans.rloc) and c.cans.loc_dev !dp
-                                     $brmsg("Please select the reason for deviation from the Recommended LOC!",1,"W","Deviation Reason") 
-									 Page = "Authorize"
-					                else									
-					                 Page = "ValidateALOC"
-                                    endif
-					 case "CANCEL" if {"lib_UACOMMON"}ConfirmExit() = "Y"   
-                                    return
-                                   endif
-					endselect
-   case "SAL" select c.cans.type
-               case "1" if c.cans.isn !dp
-			             e.ser = 10
-						 {"lib_EVENTS"}event(e.ser, e.ru, e.start, e.dur, e.loc, addsal)
-                         select $endbutton
-						  case "SUBMIT" select addsal
-						                 case "YES" {"lib_EVENTS"}overlap(errors[],e.ser,e.start,e.dur,c.cans.date,$operstaffid)
-                                                    if $maxarray(errors[]) = 0
-						                             Page = "Report"
-						                            else
-						                             DisplayErrors()
-						                            endif
-										 case "NO" $clear(e.ser,e.ru,e.start,e.dur,e.loc)
-												   Page = "4"
-										 case !dp $clear(e.ser,e.ru,e.start,e.dur,e.loc)
-			                                      Page = "4"
-										endselect
-						  case "CANCEL" Page = "4"
-						 endselect
-						else 
-						 Page = "Report"
-						endif 
-			   case other Page = "Report"
-              endselect
-   case "Exit" return					
-  endselect 
+  if Page = "0"
+   Page0()
+   if $endbutton = "SUBMIT"
+    Page = "Validate0"
+   else
+    if {"lib_UACOMMON"}ConfirmExit() = "Y"
+     return
+    endif
+   endif
+  elseif Page = "1" 
+   Page1()
+   if $endbutton = "SUBMIT"
+    Page = "Validate1"
+   else
+    Page = "0"
+   endif
+  elseif Page = "2"  
+   Page2()
+   if $endbutton = "SUBMIT"
+    Page = "Validate2"
+   else
+    Page = "1"
+   endif
+  elseif Page = "3"
+   Page3()  			
+   if $endbutton = "SUBMIT"
+    Page = "Validate3"
+   else
+    Page = "2"
+   endif
+  elseif Page = "4"
+   Page4()
+   if $endbutton = "SUBMIT"
+    Page = "Validate4"
+   else
+    if CanSkipPage3() = "Y"
+     if CanSkipPage2()= "Y"
+	  if CanSkipPage1() = "Y"
+	   Page = "0"
+	  else
+	   Page = "1"
+	  endif
+	 else
+	  Page = "2"
+	 endif
+    else
+     Page = "3"
+    endif  
+   endif			   
+  elseif Page = "Validate0"
+   if Validate0() = 0
+    if CanSkipPage1() = "Y"
+     if CanSkipPage4() = "Y"
+	  Page = "Report"
+	 else
+	  Page = "4"
+	 endif
+    else
+     Page = "1"
+    endif  
+   else
+    Page = "0"
+    DisplayErrors()
+   endif  
+  elseif Page = "Validate1"
+   if Validate1() = 0
+    if CanSkipPage2() = "Y"
+     if CanSkipPage4() = "Y"
+      Page = "Report"
+     else
+      Page = "4"
+     endif
+    else
+     Page = "2"
+    endif
+   else
+    Page = "1"
+    DisplayErrors()
+   endif
+  elseif Page = "Validate2"
+   if Validate2() = 0
+    if CanSkipPage3() = "Y"
+     Page = "4"
+    else
+     Page = "3"
+    endif
+   else
+    Page = "2"
+    DisplayErrors()
+   endif 
+  elseif Page = "Validate3"
+   if Validate3() = 0
+    Page = "4"
+   else
+    Page = "3"
+    DisplayErrors()
+   endif
+  elseif Page = "Validate4"
+   if Validate4() = 0
+    c.cans.rloc = {"lib_CANS617"}RLOC(c.cans.ac.sexgen,c.cans.ad.affreg,c.cans.ad.dissoc,c.cans.ad.intrus,c.cans.cb.adjtrm,c.cans.cb.angctr,c.cans.cb.anxity,c.cans.cb.condct,
+                                      c.cans.cb.depres,c.cans.cb.eatdst,c.cans.cb.implsv,c.cans.cb.mania,c.cans.cb.oppdef,c.cans.cb.psychs,c.cans.cb.subabs,c.cans.cr.bully,
+                                      c.cans.cr.dangot,c.cans.cr.delqcy,c.cans.cr.episds,c.cans.cr.firset,c.cans.cr.oslfhr,c.cans.cr.runawy,c.cans.cr.sexagr,c.cans.cr.smutil,
+                                      c.cans.cr.socbeh,c.cans.cr.suicid,c.cans.dv.cognit,c.cans.dv.develp,c.cans.fs.inthrm,c.cans.fs.planin,c.cans.hs.durrec,c.cans.hs.timlst,
+                                      c.cans.jj.comsaf,c.cans.jj.histry,c.cans.jj.serios,c.cans.ld.commun,c.cans.ld.develp,c.cans.ld.family,c.cans.ld.indliv,c.cans.ld.jobfun,
+                                      c.cans.ld.judgmt,c.cans.ld.legal,c.cans.ld.livsit,c.cans.ld.medicl,c.cans.ld.physcl,c.cans.ld.recret,c.cans.ld.school,c.cans.ld.sexdev,
+                                      c.cans.ld.sleep,c.cans.ld.socfun,c.cans.ps.hosptl,c.cans.rf.comsc,c.cans.rf.rescon,c.cans.rn.frqncy,c.cans.rn.invill,c.cans.sa.envinf,
+                                      c.cans.sa.parinf,c.cans.sa.perinf,c.cans.sa.severe,c.cans.sa.stgrec,c.cans.sc.attend,c.cans.sc.behavr,c.cans.sr.hissui,c.cans.type,c.cans.vi.hxviol)
+    if c.cans.rloc = "100"
+     Page = "Report"
+    else
+     Page = "SAL"
+    endif
+   else
+    Page = "4"
+    DisplayErrors()
+   endif
+  elseif Page = "ValidateReport"
+   if ValidateReport() = 0
+    if SaveData() = 0
+     Page = "Exit"
+    endif
+   else
+    Page = "Report"
+    DisplayErrors()
+   endif
+  elseif Page = "ValidateALOC"
+   if ValidateALOC() = 0
+    Page = "Report"
+   else
+    Page = "Authorize"
+    DisplayErrors()
+   endif
+  elseif Page = "Report"
+   c.cans.rloc = {"lib_CANS617"}RLOC(c.cans.ac.sexgen,c.cans.ad.affreg,c.cans.ad.dissoc,c.cans.ad.intrus,c.cans.cb.adjtrm,c.cans.cb.angctr,c.cans.cb.anxity,c.cans.cb.condct,
+                                     c.cans.cb.depres,c.cans.cb.eatdst,c.cans.cb.implsv,c.cans.cb.mania,c.cans.cb.oppdef,c.cans.cb.psychs,c.cans.cb.subabs,c.cans.cr.bully,
+                                     c.cans.cr.dangot,c.cans.cr.delqcy,c.cans.cr.episds,c.cans.cr.firset,c.cans.cr.oslfhr,c.cans.cr.runawy,c.cans.cr.sexagr,c.cans.cr.smutil,
+                                     c.cans.cr.socbeh,c.cans.cr.suicid,c.cans.dv.cognit,c.cans.dv.develp,c.cans.fs.inthrm,c.cans.fs.planin,c.cans.hs.durrec,c.cans.hs.timlst,
+                                     c.cans.jj.comsaf,c.cans.jj.histry,c.cans.jj.serios,c.cans.ld.commun,c.cans.ld.develp,c.cans.ld.family,c.cans.ld.indliv,c.cans.ld.jobfun,
+                                     c.cans.ld.judgmt,c.cans.ld.legal,c.cans.ld.livsit,c.cans.ld.medicl,c.cans.ld.physcl,c.cans.ld.recret,c.cans.ld.school,c.cans.ld.sexdev,
+                                     c.cans.ld.sleep,c.cans.ld.socfun,c.cans.ps.hosptl,c.cans.rf.comsc,c.cans.rf.rescon,c.cans.rn.frqncy,c.cans.rn.invill,c.cans.sa.envinf,
+                                     c.cans.sa.parinf,c.cans.sa.perinf,c.cans.sa.severe,c.cans.sa.stgrec,c.cans.sc.attend,c.cans.sc.behavr,c.cans.sr.hissui,c.cans.type,c.cans.vi.hxviol)
+   Report(RptTitle,ReportID,page)									
+   if $endbutton = "SUBMIT"
+    if UM_StaffYN = "Y" and (c.cans.staff != $operstaffid and c.cans.staff dp) 
+     Page = "ValidateReport"
+    else
+     if SaveData() = 0
+     Page = "Exit"
+     endif 								   
+    endif
+   elseif $endbutton = "CANCEL"
+    if c.cans.type = "1"
+     if UM_StaffYN = "Y" and (c.cans.staff != $operstaffid and c.cans.staff dp)
+      Page = "Authorize"
+     else
+      if c.cans.rloc = "100"
+       if CanSkipPage4() = "Y"
+	    if CanSkipPage3() = "Y"
+	     if CanSkipPage2() = "Y"
+	      if CanSkipPage1() = "Y"
+		   Page = "0"
+		  else
+		   Page = "1"
+		  endif
+	     else
+	      Page = "2"
+	     endif
+	    else
+	     Page = "3"
+	    endif
+	   else
+	    Page = "4"
+	   endif   	      
+	  else
+	   Page = "SAL"											 
+	  endif 
+     endif
+    else
+     if UM_StaffYN = "Y" and (c.cans.staff != $operstaffid and c.cans.staff dp)
+      Page = "Authorize"
+     else
+      if CanSkipPage4() = "Y"
+	   if CanSkipPage3() = "Y"
+	    if CanSkipPage2() = "Y"
+	     if CanSkipPage1() = "Y"
+		  Page = "0"
+		 else
+		  Page = "1"
+		 endif
+	    else
+	     Page = "2"
+	    endif
+	   else
+	    Page = "3"
+	   endif
+	  else
+	   Page = "4"
+	  endif   	      
+	 endif  
+    endif
+   else
+    if SaveData() = 0
+     Page = "Exit"
+    endif
+   endif
+  elseif Page = "Authorize" 
+   c.cans.rloc = {"lib_CANS617"}RLOC(c.cans.ac.sexgen,c.cans.ad.affreg,c.cans.ad.dissoc,c.cans.ad.intrus,c.cans.cb.adjtrm,c.cans.cb.angctr,c.cans.cb.anxity,c.cans.cb.condct,
+                                     c.cans.cb.depres,c.cans.cb.eatdst,c.cans.cb.implsv,c.cans.cb.mania,c.cans.cb.oppdef,c.cans.cb.psychs,c.cans.cb.subabs,c.cans.cr.bully,
+                                     c.cans.cr.dangot,c.cans.cr.delqcy,c.cans.cr.episds,c.cans.cr.firset,c.cans.cr.oslfhr,c.cans.cr.runawy,c.cans.cr.sexagr,c.cans.cr.smutil,
+                                     c.cans.cr.socbeh,c.cans.cr.suicid,c.cans.dv.cognit,c.cans.dv.develp,c.cans.fs.inthrm,c.cans.fs.planin,c.cans.hs.durrec,c.cans.hs.timlst,
+                                     c.cans.jj.comsaf,c.cans.jj.histry,c.cans.jj.serios,c.cans.ld.commun,c.cans.ld.develp,c.cans.ld.family,c.cans.ld.indliv,c.cans.ld.jobfun,
+                                     c.cans.ld.judgmt,c.cans.ld.legal,c.cans.ld.livsit,c.cans.ld.medicl,c.cans.ld.physcl,c.cans.ld.recret,c.cans.ld.school,c.cans.ld.sexdev,
+                                     c.cans.ld.sleep,c.cans.ld.socfun,c.cans.ps.hosptl,c.cans.rf.comsc,c.cans.rf.rescon,c.cans.rn.frqncy,c.cans.rn.invill,c.cans.sa.envinf,
+                                     c.cans.sa.parinf,c.cans.sa.perinf,c.cans.sa.severe,c.cans.sa.stgrec,c.cans.sc.attend,c.cans.sc.behavr,c.cans.sr.hissui,c.cans.type,c.cans.vi.hxviol)
+   REPORT(RptTitle,ReportID,page)
+   if $endbutton = "SUBMIT"
+    if (c.cans.aloc dp and c.cans.aloc != c.cans.rloc) and c.cans.loc_dev !dp
+     $brmsg("Please select the reason for deviation from the Recommended LOC!",1,"W","Deviation Reason") 
+     Page = "Authorize"
+    else									
+     Page = "ValidateALOC"
+    endif  
+   else
+    if {"lib_UACOMMON"}ConfirmExit() = "Y"   
+     return
+    endif
+   endif 
+  elseif Page = "SAL"
+   if c.cans.type = "1"
+    if c.cans.isn !dp
+     e.ser = 10
+	 {"lib_EVENTS"}event(e.ser, e.ru, e.start, e.dur, e.loc, addsal)
+     if $endbutton = "SUBMIT"
+	  if addsal = "YES"
+       {"lib_EVENTS"}overlap(errors[],e.ser,e.start,e.dur,c.cans.date,$operstaffid)
+       if $maxarray(errors[]) = 0
+        Page = "Report"
+       else
+        DisplayErrors()
+       endif	 
+	  else 
+	   $clear(e.ser,e.ru,e.start,e.dur,e.loc)
+	    Page = "4"
+	  endif	
+	 else
+	  Page = "4"
+	 endif
+    endif
+   else
+    Page = "Report"
+   endif
+  elseif Page = "Exit"
+   return					 
+  endif
  enddo
 end CANS617
 %include c_func-lib
@@ -343,10 +426,11 @@ function Report(RptTitle,ReportID,mode) is null
  staffsig is x
 
  if UM_StaffYN = "Y" and (c.cans.staff != $operstaffid and c.cans.staff dp)
-  select mode
-   case "Report"    $submitopt("off", "")
-   case "Authorize" $submitopt("off", "Authorize")
-  endselect
+  if mode = "Report"
+   $submitopt("off", "")
+  else
+   $submitopt("off", "Authorize")
+  endif
  else
   $submitopt("off", "Send to UM")
  endif
@@ -359,7 +443,7 @@ function Report(RptTitle,ReportID,mode) is null
   endif
   
   $style("siginfotag")
-  {"lib_CANS617"}ReportHdr(c.cans.date,c.cans.type)
+    {"lib_CANS617"}ReportHdr(c.cans.date,c.cans.type,c.cans.intref,c.cans.intrefoth,c.cans.disdt,c.cans.disreas,c.cans.disoth,c.cans.disref)
   {"lib_CANS617"}OtherQuestionRpt(q_text_sped,c.cans.sped,q_text_extdrev,c.cans.extdrev,q_text_foster,c.cans.foster,q_text_riskplc,c.cans.riskplc)
   {"lib_CANS617"}ChildRiskRpt(c.cans.cr.suicid,q_text_cr_smutil,c.cans.cr.smutil,q_text_cr_oslfhr,c.cans.cr.oslfhr,
                               q_text_cr_dangot,c.cans.cr.dangot,q_text_cr_sexagr,c.cans.cr.sexagr,
@@ -432,23 +516,24 @@ function Report(RptTitle,ReportID,mode) is null
                             q_text_hs_durrec,c.cans.hs.durrec,
                             q_text_hs_timlst,c.cans.hs.timlst)
   {"lib_CANS617"}CrisisRpt(q_text_cr_episds,c.cans.cr.episds)
-  select mode
-   case "Report"  if UM_StaffYN = "Y" and (c.cans.staff != $operstaffid and c.cans.staff dp)
-                   $br(){"lib_CANS617"}StaffComments(q_text_comment,c.cans.comment)
-				   staffsig = $dct(2071, `fn.get-by-id(c.cans.alocstaff)`, "D")
-				   $br(){"lib_CANS617"}ALOCRpt(RptTitle,ReportID,q_text_alocstaff,c.cans.alocstaff,q_text_alocdate,c.cans.alocdate,q_text_alocedate,c.cans.alocedate,
-                                               q_text_rloc,c.cans.rloc,q_text_dloc,c.cans.dloc,q_text_aloc,c.cans.aloc,
-                                               q_text_loc_dev,c.cans.loc_dev,
-                                               q_text_devoth,c.cans.devoth,
-                                               q_text_fairhear,c.cans.fairhear,
-				                               q_text_acomment,c.cans.acomment,
-                                               staffsig)
-				  else
-				   $br()RLOCRpt()
-				  endif
-   case "Authorize" $br(){"lib_CANS617"}StaffComments(q_text_comment,c.cans.comment)
-                    $br()ALOC()
-  endselect
+  if mode = "Report"
+   if UM_StaffYN = "Y" and (c.cans.staff != $operstaffid and c.cans.staff dp)
+    $br(){"lib_CANS617"}StaffComments(q_text_comment,c.cans.comment)
+    staffsig = $dct(2071, `fn.get-by-id(c.cans.alocstaff)`, "D")
+    $br(){"lib_CANS617"}ALOCRpt(RptTitle,ReportID,q_text_alocstaff,c.cans.alocstaff,q_text_alocdate,c.cans.alocdate,q_text_alocedate,c.cans.alocedate,
+    q_text_rloc,c.cans.rloc,q_text_dloc,c.cans.dloc,q_text_aloc,c.cans.aloc,
+    q_text_loc_dev,c.cans.loc_dev,
+    q_text_devoth,c.cans.devoth,
+    q_text_fairhear,c.cans.fairhear,
+    q_text_acomment,c.cans.acomment,
+    staffsig)
+   else
+    $br()RLOCRpt()
+   endif  
+  else
+   $br(){"lib_CANS617"}StaffComments(q_text_comment,c.cans.comment)
+   $br()ALOC()
+  endif
  $sendform("Report")
 end Report
 
@@ -480,23 +565,27 @@ function SaveData() is i
  else
   $clear(c.cans.devR1,c.cans.devR2,c.cans.devR3,c.cans.devR4,c.cans.devR5)
  endif 
- select mode
-  case "ADD" select c.cans.type
-              case "1" c.cans.isn = SaveEvent()
-              case other
-             endselect
-			 c.cans.rec[effd] = $today
-			 c.cans.canstype = "1"
-             SaveData = $dbadddst(02, $regid, cans_dstlist)
-  case "UPDATE" if (c.cans.dloc = c.cans.rloc) and (c.cans.dloc = c.cans.aloc)
-                 $clear(c.cans.dloc)
-				endif 
-                SaveData = $dbupdate(02, $regid, cans_dstlist)
- endselect
-  select SaveData
-   case 0     $brmsg("CANS Assessment Successfully saved to Database!",1,"W","Process Complete")
-   case other $brmsg(`"Error Saving Data,  RC=" + SaveData`,1,"W","Error Saving")
-  endselect
+ if c.cans.aloc = "100"
+  $clear(c.cans.intref,c.cans.intrefoth)
+ endif
+ if mode = "ADD"
+  if c.cans.type = "1"
+   c.cans.isn = SaveEvent()
+  endif
+  c.cans.rec[effd] = $today
+  c.cans.canstype = "1"
+  SaveData = $dbadddst(02, $regid, cans_dstlist) 
+ else
+  if (c.cans.dloc = c.cans.rloc) and (c.cans.dloc = c.cans.aloc)
+   $clear(c.cans.dloc)
+  endif 
+  SaveData = $dbupdate(02, $regid, cans_dstlist)
+ endif
+ if SaveData = 0
+  $brmsg("CANS Assessment Successfully saved to Database!",1,"W","Process Complete")
+ else
+  $brmsg(`"Error Saving Data,  RC=" + SaveData`,1,"W","Error Saving")
+ endif
 end SaveData
 
 'Life Domain
@@ -2140,66 +2229,92 @@ end Validate
 
 function Validate0() is i
  $clear(errors[])
-
- select c.cans.type
-  case "3" select c.cans.disreas
-             case "9" if c.cans.tcoommi !dp
-                       (void)$arrpush(errors[],oth_tc_errortxt)   
-                      endif
-                      if c.cans.sped !dp
-                       (void)$arrpush(errors[],oth_ed_errortxt)   
-                      endif  
-                      if c.cans.extdrev !dp
-                       (void)$arrpush(errors[],oth_ex_errortxt)
-                      endif
-                      if c.cans.foster !dp
-                       (void)$arrpush(errors[],oth_fc_errortxt)
-                      endif  
-                      if c.cans.riskplc !dp
-                       (void)$arrpush(errors[],oth_rp_errortxt)
-                      endif 
-			endselect
-  case "11"
-  case other if c.cans.tcoommi !dp
-              (void)$arrpush(errors[],oth_tc_errortxt)   
-             endif
-             if c.cans.sped !dp
-              (void)$arrpush(errors[],oth_ed_errortxt)   
-             endif  
-             if c.cans.extdrev !dp
-              (void)$arrpush(errors[],oth_ex_errortxt)
-             endif
-             if c.cans.foster !dp
-              (void)$arrpush(errors[],oth_fc_errortxt)
-             endif  
-             if c.cans.riskplc !dp
-              (void)$arrpush(errors[],oth_rp_errortxt)
-             endif 
- endselect   
-  
-   
-
- select c.cans.type
-  case "1"  $clear(c.cans.disdt,c.cans.disreas,c.cans.disref,c.cans.disoth)
-            if c.cans.intref != "5"
-	         $clear(c.cans.intrefoth)
-		    endif			   
-  case "2"  $clear(c.cans.intref,c.cans.intrefoth,c.cans.disdt,c.cans.disreas,c.cans.disref,c.cans.disoth)
-  case "3"  $clear(c.cans.intref,c.cans.intrefoth)
-            select c.cans.disreas
-			 case "9" 
-			 case other ClearPage1()
-			            ClearPage2()
-						ClearPage3()
-						ClearPage4()
-			endselect
-  case "11" $clear(c.cans.intref,c.cans.intrefoth,c.cans.disdt,c.cans.disreas,c.cans.disref,c.cans.disoth)
-            ClearPage1()
-            ClearPage2()
-            ClearPage3()
-            ClearPage4()
-  case "12" $clear(c.cans.disdt,c.cans.disreas,c.cans.disref,c.cans.disoth)
- endselect 
+ 
+ if c.cans.type = "1"
+  $clear(c.cans.disdt,c.cans.disreas,c.cans.disref,c.cans.disoth)
+  if c.cans.intref != "5"
+   $clear(c.cans.intrefoth)
+  endif
+  if c.cans.tcoommi !dp
+   (void)$arrpush(errors[],oth_tc_errortxt)   
+  endif
+  if c.cans.sped !dp
+   (void)$arrpush(errors[],oth_ed_errortxt)   
+  endif  
+  if c.cans.extdrev !dp
+   (void)$arrpush(errors[],oth_ex_errortxt)
+  endif
+  if c.cans.foster !dp
+   (void)$arrpush(errors[],oth_fc_errortxt)
+  endif  
+  if c.cans.riskplc !dp
+   (void)$arrpush(errors[],oth_rp_errortxt)
+  endif 
+ elseif c.cans.type = "2"
+  $clear(c.cans.intref,c.cans.intrefoth,c.cans.disdt,c.cans.disreas,c.cans.disref,c.cans.disoth)
+  if c.cans.tcoommi !dp
+   (void)$arrpush(errors[],oth_tc_errortxt)   
+  endif
+  if c.cans.sped !dp
+   (void)$arrpush(errors[],oth_ed_errortxt)   
+  endif  
+  if c.cans.extdrev !dp
+   (void)$arrpush(errors[],oth_ex_errortxt)
+  endif
+  if c.cans.foster !dp
+   (void)$arrpush(errors[],oth_fc_errortxt)
+  endif  
+  if c.cans.riskplc !dp
+   (void)$arrpush(errors[],oth_rp_errortxt)
+  endif 
+ elseif c.cans.type = "3"
+  $clear(c.cans.intref,c.cans.intrefoth)
+  if c.cans.disreas = "9"
+   if c.cans.tcoommi !dp
+    (void)$arrpush(errors[],oth_tc_errortxt)   
+   endif
+   if c.cans.sped !dp
+    (void)$arrpush(errors[],oth_ed_errortxt)   
+   endif  
+   if c.cans.extdrev !dp
+    (void)$arrpush(errors[],oth_ex_errortxt)
+   endif
+   if c.cans.foster !dp
+    (void)$arrpush(errors[],oth_fc_errortxt)
+   endif  
+   if c.cans.riskplc !dp
+    (void)$arrpush(errors[],oth_rp_errortxt)
+   endif
+  else
+   ClearPage1()
+   ClearPage2()
+   ClearPage3()
+   ClearPage4()      
+  endif
+ elseif c.cans.type = "11"
+  $clear(c.cans.intref,c.cans.intrefoth,c.cans.disdt,c.cans.disreas,c.cans.disref,c.cans.disoth)
+  ClearPage1()
+  ClearPage2()
+  ClearPage3()
+  ClearPage4()
+ elseif c.cans.type = "12"
+  $clear(c.cans.disdt,c.cans.disreas,c.cans.disref,c.cans.disoth)
+  if c.cans.tcoommi !dp
+   (void)$arrpush(errors[],oth_tc_errortxt)   
+  endif
+  if c.cans.sped !dp
+   (void)$arrpush(errors[],oth_ed_errortxt)   
+  endif  
+  if c.cans.extdrev !dp
+   (void)$arrpush(errors[],oth_ex_errortxt)
+  endif
+  if c.cans.foster !dp
+   (void)$arrpush(errors[],oth_fc_errortxt)
+  endif  
+  if c.cans.riskplc !dp
+   (void)$arrpush(errors[],oth_rp_errortxt)
+  endif 
+ endif  
 
  if errors[1] dp	
   Validate0 = 1
@@ -2251,19 +2366,23 @@ function Validate1() is i
   endif
  endif
 
-   select c.cans.type
-    case "1"  $clear(c.cans.disdt,c.cans.disreas,c.cans.disref)
-	case "2"  $clear(c.cans.intref,c.cans.disdt,c.cans.disreas,c.cans.disref)
-	case "3"  $clear(c.cans.intref)
-	case "11" $clear(c.cans.intref,c.cans.disdt,c.cans.disreas,c.cans.disref)
-	case "12" $clear(c.cans.disdt,c.cans.disreas,c.cans.disref)
-   endselect
+ if c.cans.type = "1"
+  $clear(c.cans.disdt,c.cans.disreas,c.cans.disref)
+ elseif c.cans.type = "2"
+  $clear(c.cans.intref,c.cans.disdt,c.cans.disreas,c.cans.disref)
+ elseif c.cans.type = "3"
+  $clear(c.cans.intref)
+ elseif c.cans.type = "11"
+  $clear(c.cans.intref,c.cans.disdt,c.cans.disreas,c.cans.disref) 
+ elseif c.cans.type = "12"
+  $clear(c.cans.disdt,c.cans.disreas,c.cans.disref) 
+ endif 
 
-   if errors[1] dp	
-    Validate1 = 1
-   else
-    Validate1 = 0	
-   endif
+ if errors[1] dp	
+  Validate1 = 1
+ else
+  Validate1 = 0	
+ endif
 end Validate1
 
 function Validate2() is i
@@ -2429,10 +2548,10 @@ function Page0() is null
   $br()AssessmentType()
   $tag(hr)
   $br()OtherQuestions()
-  select {"lib_UACOMMON"}CurrentDX($regid,c.cans.date)
-   case "N" $br()$tag(hr)
-            $br()$text(diag_errortxt,"error")
-  endselect
+  if {"lib_UACOMMON"}CurrentDX($regid,c.cans.date) = "N"
+   $br()$tag(hr)
+   $br()$text(diag_errortxt,"error")
+  endif
  $sendform($funcname)  
 end Page0
 
@@ -2441,7 +2560,7 @@ function Page1() is null
   $cancelopt("off", "BACK")
   $form("PAGE1")
    {"lib_UACOMMON"}ClientPageHeader($regid)
-   $br(){"lib_CANS617"}ReportHdr(c.cans.date,c.cans.type)
+   $br()  {"lib_CANS617"}ReportHdr(c.cans.date,c.cans.type,c.cans.intref,c.cans.intrefoth,c.cans.disdt,c.cans.disreas,c.cans.disoth,c.cans.disref)
    {"lib_CANS617"}OtherQuestionRpt(q_text_sped,c.cans.sped,q_text_extdrev,c.cans.extdrev,q_text_foster,c.cans.foster,q_text_riskplc,c.cans.riskplc)
    $tag(hr)
    $br()   
@@ -2504,7 +2623,7 @@ function Page2() is null
  $cancelopt("off", "BACK")
  $form($funcname)    
   {"lib_UACOMMON"}ClientPageHeader($regid)
-  $br(){"lib_CANS617"}ReportHdr(c.cans.date,c.cans.type)
+  $br()  {"lib_CANS617"}ReportHdr(c.cans.date,c.cans.type,c.cans.intref,c.cans.intrefoth,c.cans.disdt,c.cans.disreas,c.cans.disoth,c.cans.disref)
   {"lib_CANS617"}OtherQuestionRpt(q_text_sped,c.cans.sped,q_text_extdrev,c.cans.extdrev,q_text_foster,c.cans.foster,q_text_riskplc,c.cans.riskplc)
   $tag(hr)  
   $table($funcname,,table_nobgcolor)
@@ -2616,7 +2735,7 @@ function Page3() is null
  $cancelopt("off", "BACK")
  $form($funcname)
   {"lib_UACOMMON"}ClientPageHeader($regid)
-  $br(){"lib_CANS617"}ReportHdr(c.cans.date,c.cans.type)
+  $br()  {"lib_CANS617"}ReportHdr(c.cans.date,c.cans.type,c.cans.intref,c.cans.intrefoth,c.cans.disdt,c.cans.disreas,c.cans.disoth,c.cans.disref)
   {"lib_CANS617"}OtherQuestionRpt(q_text_sped,c.cans.sped,q_text_extdrev,c.cans.extdrev,q_text_foster,c.cans.foster,q_text_riskplc,c.cans.riskplc)
   $tag(hr)
   $table($funcname,,table_nobgcolor)
@@ -2632,7 +2751,7 @@ function Page4() is null
  $cancelopt("off","Back")
  $form($funcname)    
   {"lib_UACOMMON"}ClientPageHeader($regid)
-  $br(){"lib_CANS617"}ReportHdr(c.cans.date,c.cans.type)
+  $br()  {"lib_CANS617"}ReportHdr(c.cans.date,c.cans.type,c.cans.intref,c.cans.intrefoth,c.cans.disdt,c.cans.disreas,c.cans.disoth,c.cans.disref)
   if c.cans.type != "11" and (c.cans.type != "3" and c.cans.disreas != "9")
    {"lib_CANS617"}OtherQuestionRpt(q_text_sped,c.cans.sped,q_text_extdrev,c.cans.extdrev,q_text_foster,c.cans.foster,q_text_riskplc,c.cans.riskplc)
    $tag(hr)  
@@ -2683,12 +2802,11 @@ end Page4
 
 function CanSkipPage1() is x
  CanSkipPage1 = "N"
- select c.cans.type
-  case "3" select c.cans.disreas
-             case "9"
-			 case other CanSkipPage1 = "Y"
-			endselect
- endselect 
+ if c.cans.type = "3" 
+  if c.cans.disreas !=  "9"
+   CanSkipPage1 = "Y"
+  endif
+ endif 
 end CanSkipPage1
 
 function CanSkipPage2() is x
@@ -2717,13 +2835,16 @@ end CanSkipPage3
 
 function CanSkipPage4() is x
  CanSkipPage4 = "N"
- select c.cans.type
-  case "3" select c.cans.disreas
-             case "9"
-			 case other CanSkipPage4 = "Y"
-			endselect
-  case "11"  CanSkipPage4 = "Y"
- endselect   
+ if c.cans.type = "3"
+  if c.cans.disreas != "9"
+   CanSkipPage4 = "Y"
+  endif
+ elseif c.cans.type = "11"
+  CanSkipPage4 = "Y"
+ endif
+ if c.cans.rloc = "100"
+  CanSkipPage4 = "Y" 
+ endif 
  if `$today - c.cans.date` > 30 
   CanSkipPage4 = "N" 
  endif 
@@ -2801,70 +2922,78 @@ function ALOC() is null
  last_type     is x
  last_aloc     is x
  last_alocdate is d
+ CurrentDX     is x
+ CurrentDX = {"lib_UACOMMON"}CurrentDX($regid,c.cans.date)
+ if c.cans.rloc = "100" or c.cans.type != "11" or (c.cans.type = "3" and c.cans.disreas != "9")
+  CurrentDX = "Y"
+ endif
  {"lib_CANS"}Last_Assessment($regid,last_type,,,,,last_aloc,,last_alocdate) 
  $table($funcname,,"width='100%' cellspacing='0' cellpadding='2' bgcolor='White'  style='border-style: solid; border-width: 1px'")
    $row(,col_color_multi)
     $col("center",,,"2")$text("Authorized Level Of Care","datatag")
-  select {"lib_UACOMMON"}CurrentDX($regid,c.cans.date)
-   case "Y" $row()
-             $col("right",,"50%")$text(q_text_alocdate,"datatag")
-	         $col()$textbox(c.cans.alocdate,"CAL",10,6,"Y","normal")
-            if c.cans.type != "11" and (c.cans.type != "3" and c.cans.disreas != "9")
-             $row()
-              $col("right",,"50%")$text(q_text_rloc,"datatag")
-	          $col()$text($dct(9705,c.cans.rloc))
-             if c.cans.dloc dp
-               $row()
-                $col("right",,"50%")$text(q_text_dloc,"error")
-	            $col()$text($dct(9705,c.cans.dloc)) 
-             endif	
-             $row()
-              $col("right",,"50%")$text(q_text_aloc,"datatag")
-	          $col()$dropboxdct(c.cans.aloc,9705,,,,"Y")
-             if (c.cans.aloc dp and c.cans.rloc dp) and (c.cans.rloc != c.cans.aloc)
-			  $row()
-               $col("right",,"50%")$text(q_text_loc_dev,"datatag")
-	           $col()$dropboxdct(c.cans.loc_dev,9706)
-                     $dropbox(c.cans.loc_dev,"Other","5",,,"OTHER","OTHER")	
-             endif	
-           endif
-           if c.cans.type = "11"
-            c.cans.aloc = "100"
-             $row()
-              $col("right",,"50%")$text(q_text_rloc,"datatag")
-	          $col()$text($dct(9705,c.cans.rloc))  
-             $row()
-              $col("right",,"50%")$text(q_text_aloc,"datatag")
-	          $col()$text($dct(9705,c.cans.aloc))  
-           endif
-          $endtable($funcname)
-          $block("OTHER","OTHER")
-           $table("OTHER",,table_nobgcolor)
-            $row()
-             $col("right",,"50%")$text(q_text_devoth,"datatag")
-             $col()$textblock(c.cans.devoth,5,,,"Y",255,"width:100%;")$countbox(c.cans.devoth,"(max chars is 255)")
-           $endtable("OTHER")
-          $endblock("OTHER","OTHER")
+  if CurrentDX = "Y"
+   $row()
+    $col("right",,"50%")$text(q_text_alocdate,"datatag")
+    $col()$textbox(c.cans.alocdate,"CAL",10,6,"Y","normal")
+    if c.cans.type != "11" and (c.cans.type != "3" and c.cans.disreas != "9")
+     $row()
+      $col("right",,"50%")$text(q_text_rloc,"datatag")
+      $col()$text($dct(9705,c.cans.rloc))
+     if c.cans.dloc dp
+      $row()
+       $col("right",,"50%")$text(q_text_dloc,"error")
+	   $col()$text($dct(9705,c.cans.dloc)) 
+     endif	
+     $row()
+      $col("right",,"50%")$text(q_text_aloc,"datatag")
+	  $col()$dropboxdct(c.cans.aloc,9705,,,,"Y")
+     if (c.cans.aloc dp and c.cans.rloc dp) and (c.cans.rloc != c.cans.aloc)
+	  $row()
+       $col("right",,"50%")$text(q_text_loc_dev,"datatag")
+	   $col()$dropboxdct(c.cans.loc_dev,9706)
+             $dropbox(c.cans.loc_dev,"Other","5",,,"OTHER","OTHER")	
+     endif
+     if c.cans.type = "11" or c.cans.rloc = "100"
+      c.cans.aloc = "100"
+      $row()
+       $col("right",,"50%")$text(q_text_rloc,"datatag")
+       $col()$text($dct(9705,c.cans.rloc))  
+      $row()
+       $col("right",,"50%")$text(q_text_aloc,"datatag")
+       $col()$text($dct(9705,c.cans.aloc))  
+     endif	 	
+    endif
+  $endtable($funcname)
+  $block("OTHER","OTHER")
+   $table("OTHER",,table_nobgcolor)
+    $row()
+     $col("right",,"50%")$text(q_text_devoth,"datatag")
+     $col()$textblock(c.cans.devoth,5,,,"Y",255,"width:100%;")$countbox(c.cans.devoth,"(max chars is 255)")
+   $endtable("OTHER")
+  $endblock("OTHER","OTHER")
 
-          if (c.cans.aloc != last_aloc and last_aloc dp) and c.cans.type != "3"
-		   $table($funcname,,table_nobgcolor)
-            $row()
-             $col("right",,"50%")$text(q_text_fairhear,"datatag")
-             $col()$radio(c.cans.fairhear,"Yes","Y",,,,,,"Y")$ctag("&nbsp;&nbsp;&nbsp;&nbsp;")$radio(c.cans.fairhear,"No","N",,,,,,"Y")
-           $endtable($funcname)
-		  endif 		  
+  if (c.cans.aloc != last_aloc and last_aloc dp) and c.cans.type != "3"
+   $table($funcname,,table_nobgcolor)
+    $row()
+     $col("right",,"50%")$text(q_text_fairhear,"datatag")
+     $col()$radio(c.cans.fairhear,"Yes","Y",,,,,,"Y")$ctag("&nbsp;&nbsp;&nbsp;&nbsp;")$radio(c.cans.fairhear,"No","N",,,,,,"Y")
+  $endtable($funcname)
+  endif 		  
 
-          $table($funcname,,table_nobgcolor)
-           $row()
-            $col("right",,"50%")$text(q_text_acomment,"datatag")
-            $col()$textblock(c.cans.acomment,5,,,,255,"width:100%;")$countbox(c.cans.acomment,"(max chars is 255)")  
-          $endtable($funcname)
-   case "N" $row()
-             $col("center",,"100%","2")$text(diag_errortxt,"error")
-  endselect
+  $table($funcname,,table_nobgcolor)
+   $row()
+    $col("right",,"50%")$text(q_text_acomment,"datatag")
+    $col()$textblock(c.cans.acomment,5,,,,255,"width:100%;")$countbox(c.cans.acomment,"(max chars is 255)")  
+  $endtable($funcname)
+
+  else
+   $row()
+   $col("center",,"100%","2")$text(diag_errortxt,"error")
+  endif
 end ALOC
 
 function ValidateALOC() is i
+ CurrentDX     is x
  last_type     is x
  last_aloc     is x
  last_alocdate is d
@@ -2902,10 +3031,13 @@ function ValidateALOC() is i
   (void)$arrpush(errors[],aloc5_errortxt)  
  endif
 
- if {"lib_UACOMMON"}CurrentDX($regid,c.cans.date) = "N"
-  (void)$arrpush(errors[],diag_errortxt)  
+ CurrentDX = {"lib_UACOMMON"}CurrentDX($regid,c.cans.date)
+ if CurrentDX = "N"
+  if c.cans.rloc = "100" or c.cans.type != "11" or (c.cans.type = "3" and c.cans.disreas != "9")
+   CurrentDX = "Y"
+  endif
  endif
- 
+
  if errors[1] dp	
   ValidateALOC = 1
  else
@@ -2914,12 +3046,13 @@ function ValidateALOC() is i
  c.cans.alocedate = {"lib_CANS"}EndDate(c.cans.aloc,c.cans.alocdate)
  c.cans.alocstaff = $operstaffid
  c.cans.compd = $today
- select c.cans.aloc
-  case "100" c.cans.type = "11"
-  case "110" select c.cans.type
-              case "1" c.cans.type = "12"
-			 endselect  
- endselect
+ if c.cans.aloc = "100"
+  c.cans.type = "11"
+ elseif c.cans.aloc = "110"
+  if c.cans.type = "1"
+   c.cans.type = "12"
+  endif
+ endif
 end ValidateALOC
 
 function ValidateReport() is i
