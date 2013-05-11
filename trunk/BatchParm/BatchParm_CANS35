@@ -150,9 +150,9 @@ STAFFCRED 1516 *****Will need to fix this*****
 *92  065 28056                                        Safety                     
 *92  066 28037                                        Language                   
 *Child & Adolescent Uniform Assmt 8 - TX Number 29                              
-*93  001 00000   29                                   Transaction code           
-*93  002 00000   A                                    Format version             
-*93  003 00000   08                                   Physical record number     
+93  001 00000   29                                   Transaction code           
+93  002 00000   A                                    Format version             
+93  003 00000   08                                   Physical record number     
 *93  004 28038                                        identity                   
 *93  005 28172                                        Sexual/Gender identify     
 *93  006 28039                                        Ritual                     
