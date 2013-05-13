@@ -18,15 +18,25 @@ library lib_CANS()
   $allowupdate(assessments[])
   Last_Assessment(clientid,c.cans.type,c.cans.staff,c.cans.ver,c.cans.date,c.cans.age,c.cans.aloc,c.cans.rloc,c.cans.dloc,c.cans.compd,c.cans.alocdate)
   select c.cans.type
+   'no prior assessment
    case !dp  (void)$arrpush(assessments[],"1")
              (void)$arrpush(assessments[],"11")
-   case "1"  (void)$arrpush(assessments[],"2")
+   'Initial
+   case "1"  
+     or "I"  (void)$arrpush(assessments[],"2")
              (void)$arrpush(assessments[],"3")
-   case "2"  (void)$arrpush(assessments[],"3")
-   case "3"  (void)$arrpush(assessments[],"1")
+   'Update
+   case "2"
+     or "U"  (void)$arrpush(assessments[],"3")
+   'Discharge
+   case "3"  
+     or "D"  (void)$arrpush(assessments[],"1")
              (void)$arrpush(assessments[],"11")   
-   case "11" (void)$arrpush(assessments[],"1")
+   'Crisis
+   case "11" 
+     or "E"  (void)$arrpush(assessments[],"1")
              (void)$arrpush(assessments[],"11")   
+   'Initial Non Admission
    case "12" (void)$arrpush(assessments[],"1")
              (void)$arrpush(assessments[],"11")   
   endselect 
@@ -50,6 +60,40 @@ library lib_CANS()
   do until c.cans.compd dp or rc = 2
    rc = $dbreadnextdst(02,clientid,c.cans.rec,c.cans.type,c.cans.staff,c.cans.ver,c.cans.date,c.cans.age,c.cans.aloc,c.cans.rloc,c.cans.dloc,c.cans.compd,c.cans.alocdate)
   enddo
+  
+  if rc = 2 then     'check the ua record
+   'rc = 0
+   $setvarname(c.cans.rec,      "C.CABD.REC")
+   $setvarname(c.cans.staff,    "C.CABD.STAFF")
+   '$setvarname(c.cans.ver,      "C.CABD.REC")
+   $setvarname(c.cans.date,     "C.CABD.ASDT")
+   '$setvarname(c.cans.age,      "C.CABD.REC")
+   $setvarname(c.cans.aloc,     "C.CABD.ALOC")
+   $setvarname(c.cans.rloc,     "C.CABD.LOCR")
+   '$setvarname(c.cans.dloc,     "C.CABD.REC")
+   $setvarname(c.cans.compd,    "C.CABD.COMPD")
+   $setvarname(c.cans.type,     "C.CABD.ASS")
+   $setvarname(c.cans.alocdate, "C.CABD.DATE3")
+   rc = $dbread(02,clientid,c.cans.rec,c.cans.type,c.cans.staff,
+                           'c.cans.ver,
+                           c.cans.date,
+                           'c.cans.age,c.cans.aloc,
+                           c.cans.rloc,
+                           'c.cans.dloc,
+                           c.cans.compd,c.cans.alocdate)
+     do until c.cans.compd dp or rc = 2
+      rc = $dbreadnextdst(02,clientid,c.cans.rec,c.cans.type,c.cans.staff,
+                           'c.cans.ver,
+                           c.cans.date,
+                           'c.cans.age,c.cans.aloc,
+                           c.cans.rloc,
+                           'c.cans.dloc,
+                           c.cans.compd,c.cans.alocdate)
+     enddo
+     if c.cans.aloc = "8" or c.cans.aloc = "9" then 'clear any previous inital non admit assessments
+      $clear(c.cans.type)
+     endif
+  endif
  end Last_Assessment
  
  function EndDate(c.cans.aloc,c.cans.alocdate) is d
@@ -90,7 +134,7 @@ library lib_CANS()
     $submitopt("off")
     $cancelopt("off","Exit")
     $form($funcname)
-     {"lib_COMMON"}ClientPageHeader($regid,"Y")
+     {"lib_UACOMMON"}ClientPageHeader($regid,"Y")
 	 $tag("<center>")
 	  $br(3)$text("There is a current CANS assessment that has not yet been authorized. How do you wish to proceed?","datatag")
 	  $br(2)$submit(choice_btn[1],"Restart Current")
