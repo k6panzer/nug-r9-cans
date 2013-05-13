@@ -2077,7 +2077,7 @@ endif
     RLOC = targeted
    endif 
   endif 
- else
+ elseif c.cans.type = "3" and c.cans.disreas = "9"
   $clear(RLOC)
  endif
 end RLOC
