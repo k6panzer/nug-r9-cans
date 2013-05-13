@@ -1,8 +1,8 @@
    <Transaction>
       <TransactionType>29</TransactionType>
-      <ComponentCode>100</ComponentCode>
+      <ComponentCode>YOUR_COMPONENT_CODE</ComponentCode>
       <LocalCaseNbr>%C.ID%</LocalCaseNbr>
-      <LocalUnitNbr>UNITID</LocalUnitNbr>
+      <LocalUnitNbr></LocalUnitNbr>
       <Age>%C.AGE.Y%</Age>
       <AssessmentType>%C.CANS.TYPE%</AssessmentType>
       <JustificationForLateSubmission>%C.CANS.SLATE%</JustificationForLateSubmission>
@@ -13,7 +13,7 @@
       <LevelRecommendation>%C.CANS.RLOC%</LevelRecommendation>
       <LevelDeviation>%C.CANS.DLOC%</LevelDeviation>
       <DischargeDate>%C.CANS.DISDT%</DischargeDate>
-      <DischargeReason>%C.CANS.REAS%</DischargeReason>
+      <DischargeReason>%C.CANS.DISREAS%</DischargeReason>
       <DischargeReasonOther>%C.CANS.DISOTH%</DischargeReasonOther>
       <ReferralSource>%C.CANS.INTREF%</ReferralSource>
       <ReferralSourceOther>%C.CANS.INTREFOTH%</ReferralSourceOther>
@@ -136,7 +136,7 @@
          <LevelAuthorized>%C.CANS.ALOC%</LevelAuthorized>
          <DeviationReason>%C.CANS.LOC_DEV%</DeviationReason>
          <DeviationReasonOther>%C.CANS.DEVOTH%</DeviationReasonOther>
-         <DeviationJustification></DeviationJustification> <!-- #THUMB WHAT FIELD? -->
+         <DeviationJustification>%C.CANS.DEVR1%</DeviationJustification>
          <AuthorizationDate>%C.CANS.ALOCDATE%</AuthorizationDate>
          <JustificationForLateAuthorization>%C.CANS.ALATE%</JustificationForLateAuthorization>
          <OtherJustificationForLateAuthorization>%C.CANS.ALATEOTH%</OtherJustificationForLateAuthorization>
