@@ -206,6 +206,9 @@ start CANS35(parmfile,option,client,retcode)
 					endselect					
    case "Validate4" select Validate4() 
                      case 0 c.cans.rloc = RLOC()
+                            if c.cans.type = "3" and c.cans.disreas != "9"
+                             $clear(c.cans.rloc)
+                            endif									 					 
 					        select c.cans.rloc
 							 case "100" Page = "Report"
 							 case other Page = "SAL"
@@ -226,6 +229,9 @@ start CANS35(parmfile,option,client,retcode)
 					           DisplayErrors()
 					   endselect
    case "Report"    c.cans.rloc = RLOC()
+                    if c.cans.type = "3" and c.cans.disreas != "9"
+                     $clear(c.cans.rloc)
+                    endif									 
                     Report(RptTitle,ReportID,page)
 					select $endbutton
 					 case "SUBMIT" if UM_StaffYN = "Y" and (c.cans.staff != $operstaffid and c.cans.staff dp) 
@@ -264,6 +270,9 @@ start CANS35(parmfile,option,client,retcode)
 								endif 
 					endselect
    case "Authorize" c.cans.rloc = RLOC()
+                    if c.cans.type = "3" and c.cans.disreas != "9"
+                     $clear(c.cans.rloc)
+                    endif									 
                     REPORT(RptTitle,ReportID,page)
                     select $endbutton
 					 case "SUBMIT"  if (c.cans.aloc dp and c.cans.aloc != c.cans.rloc) and c.cans.loc_dev !dp
@@ -2666,7 +2675,7 @@ function RLOC() is x
 		   endif	
   case "3" select c.cans.disreas
             case "9" RLOC = "105"
-			case other RLOC = "110"
+			case other $clear(RLOC)
 		   endselect
   case "11" RLOC = "100"
   case "12" RLOC = "110"		   

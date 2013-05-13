@@ -267,7 +267,11 @@ start CANS617(parmfile,option,client,retcode)
                                       c.cans.jj.comsaf,c.cans.jj.histry,c.cans.jj.serios,c.cans.ld.commun,c.cans.ld.develp,c.cans.ld.family,c.cans.ld.indliv,c.cans.ld.jobfun,
                                       c.cans.ld.judgmt,c.cans.ld.legal,c.cans.ld.livsit,c.cans.ld.medicl,c.cans.ld.physcl,c.cans.ld.recret,c.cans.ld.school,c.cans.ld.sexdev,
                                       c.cans.ld.sleep,c.cans.ld.socfun,c.cans.ps.hosptl,c.cans.rf.comsc,c.cans.rf.rescon,c.cans.rn.frqncy,c.cans.rn.invill,c.cans.sa.envinf,
-                                      c.cans.sa.parinf,c.cans.sa.perinf,c.cans.sa.severe,c.cans.sa.stgrec,c.cans.sc.attend,c.cans.sc.behavr,c.cans.sr.hissui,c.cans.type,c.cans.vi.hxviol)
+                                      c.cans.sa.parinf,c.cans.sa.perinf,c.cans.sa.severe,c.cans.sa.stgrec,c.cans.sc.attend,c.cans.sc.behavr,c.cans.sr.hissui,c.cans.type,c.cans.vi.hxviol,
+									  c.cans.disreas)
+    if c.cans.type = "3" and c.cans.disreas != "9"
+     $clear(c.cans.rloc)
+    endif									 
     if c.cans.rloc = "100"
      Page = "Report"
     else
@@ -301,7 +305,11 @@ start CANS617(parmfile,option,client,retcode)
                                      c.cans.jj.comsaf,c.cans.jj.histry,c.cans.jj.serios,c.cans.ld.commun,c.cans.ld.develp,c.cans.ld.family,c.cans.ld.indliv,c.cans.ld.jobfun,
                                      c.cans.ld.judgmt,c.cans.ld.legal,c.cans.ld.livsit,c.cans.ld.medicl,c.cans.ld.physcl,c.cans.ld.recret,c.cans.ld.school,c.cans.ld.sexdev,
                                      c.cans.ld.sleep,c.cans.ld.socfun,c.cans.ps.hosptl,c.cans.rf.comsc,c.cans.rf.rescon,c.cans.rn.frqncy,c.cans.rn.invill,c.cans.sa.envinf,
-                                     c.cans.sa.parinf,c.cans.sa.perinf,c.cans.sa.severe,c.cans.sa.stgrec,c.cans.sc.attend,c.cans.sc.behavr,c.cans.sr.hissui,c.cans.type,c.cans.vi.hxviol)
+                                     c.cans.sa.parinf,c.cans.sa.perinf,c.cans.sa.severe,c.cans.sa.stgrec,c.cans.sc.attend,c.cans.sc.behavr,c.cans.sr.hissui,c.cans.type,c.cans.vi.hxviol,
+									 c.cans.disreas)
+   if c.cans.type = "3" and c.cans.disreas != "9"
+    $clear(c.cans.rloc)
+   endif									 
    Report(RptTitle,ReportID,page)									
    if $endbutton = "SUBMIT"
     if UM_StaffYN = "Y" and (c.cans.staff != $operstaffid and c.cans.staff dp) 
@@ -374,7 +382,8 @@ start CANS617(parmfile,option,client,retcode)
                                      c.cans.jj.comsaf,c.cans.jj.histry,c.cans.jj.serios,c.cans.ld.commun,c.cans.ld.develp,c.cans.ld.family,c.cans.ld.indliv,c.cans.ld.jobfun,
                                      c.cans.ld.judgmt,c.cans.ld.legal,c.cans.ld.livsit,c.cans.ld.medicl,c.cans.ld.physcl,c.cans.ld.recret,c.cans.ld.school,c.cans.ld.sexdev,
                                      c.cans.ld.sleep,c.cans.ld.socfun,c.cans.ps.hosptl,c.cans.rf.comsc,c.cans.rf.rescon,c.cans.rn.frqncy,c.cans.rn.invill,c.cans.sa.envinf,
-                                     c.cans.sa.parinf,c.cans.sa.perinf,c.cans.sa.severe,c.cans.sa.stgrec,c.cans.sc.attend,c.cans.sc.behavr,c.cans.sr.hissui,c.cans.type,c.cans.vi.hxviol)
+                                     c.cans.sa.parinf,c.cans.sa.perinf,c.cans.sa.severe,c.cans.sa.stgrec,c.cans.sc.attend,c.cans.sc.behavr,c.cans.sr.hissui,c.cans.type,c.cans.vi.hxviol,
+									 c.cans.rloc)
    REPORT(RptTitle,ReportID,page)
    if $endbutton = "SUBMIT"
     if (c.cans.aloc dp and c.cans.aloc != c.cans.rloc) and c.cans.loc_dev !dp
@@ -443,7 +452,7 @@ function Report(RptTitle,ReportID,mode) is null
   endif
   
   $style("siginfotag")
-    {"lib_CANS617"}ReportHdr(c.cans.date,c.cans.type,c.cans.intref,c.cans.intrefoth,c.cans.disdt,c.cans.disreas,c.cans.disoth,c.cans.disref)
+  {"lib_CANS617"}ReportHdr(c.cans.date,c.cans.type,c.cans.intref,c.cans.intrefoth,c.cans.disdt,c.cans.disreas,c.cans.disoth,c.cans.disref)
   {"lib_CANS617"}OtherQuestionRpt(q_text_sped,c.cans.sped,q_text_extdrev,c.cans.extdrev,q_text_foster,c.cans.foster,q_text_riskplc,c.cans.riskplc)
   {"lib_CANS617"}ChildRiskRpt(c.cans.cr.suicid,q_text_cr_smutil,c.cans.cr.smutil,q_text_cr_oslfhr,c.cans.cr.oslfhr,
                               q_text_cr_dangot,c.cans.cr.dangot,q_text_cr_sexagr,c.cans.cr.sexagr,
@@ -477,8 +486,6 @@ function Report(RptTitle,ReportID,mode) is null
 				           q_text_tr_sexabs,c.cans.tr.sexabs,q_text_tr_emclos,c.cans.tr.emclos,q_text_tr_freq,c.cans.tr.freq,q_text_tr_durat,c.cans.tr.durat,q_text_tr_force,c.cans.tr.force,q_text_tr_react,c.cans.tr.react,
                            q_text_tr_phyabs,c.cans.tr.phyabs,q_text_tr_victim,c.cans.tr.victim,q_text_tr_emoabs,c.cans.tr.emoabs,q_text_tr_medtrm,c.cans.tr.medtrm,q_text_tr_natdis,c.cans.tr.natdis,q_text_tr_wtofam,c.cans.tr.wtofam,
 						   q_text_tr_wtocom,c.cans.tr.wtocom,
-
-
 				           q_text_tr_wcrime,c.cans.tr.wcrime,q_text_tr_waraff,c.cans.tr.waraff,q_text_tr_teraff,c.cans.tr.teraff,
 				           q_text_ad_affreg,c.cans.ad.affreg,q_text_ad_intrus,c.cans.ad.intrus,q_text_ad_attach,c.cans.ad.attach,q_text_ad_dissoc,c.cans.ad.dissoc,q_text_ad_timb4t,c.cans.ad.timb4t,
 				           q_text_sa_severe,c.cans.sa.severe,q_text_sa_durati,c.cans.sa.durati,q_text_sa_stgrec,c.cans.sa.stgrec,q_text_sa_perinf,c.cans.sa.perinf,q_text_sa_parinf,c.cans.sa.parinf,q_text_sa_envinf,c.cans.sa.envinf)
@@ -1180,7 +1187,6 @@ function PsyHosp() is null
   $table($funcname,,`table_wbgcolor`)
    $row()
     $col("center",,"50%")
-    $col("center",,"10%")$text("NA")
     $col("center",,"10%")$text("0")
     $col("center",,"10%")$text("1")
    $row()
@@ -1190,7 +1196,6 @@ function PsyHosp() is null
     $col()$tag(hr)
    $row(,row_color1)
     $col()$text(q_text_ps_hosptl)$text("{sup}12{/sup}")
-'    $col("center")$radio(c.cans.ps.hosptl,"","N")
     $col("center")$radio(c.cans.ps.hosptl,"","0")
     $col("center",,,,,col_color_multi) $radio(c.cans.ps.hosptl,"","1")
   $endtable($funcname)
@@ -1684,9 +1689,9 @@ function suiciderisk() is null
    $row(,row_color3)	
     $col()$text(q_text_firear)
     $col("center")$radio(c.cans.sr.firear,"","0")
-    $col("center")$radio(c.cans.sr.hissui,"","1")
-    $col("center")$radio(c.cans.sr.hissui,"","2")
-    $col("center")$radio(c.cans.sr.hissui,"","3")
+    $col("center")$radio(c.cans.sr.firear,"","1")
+    $col("center")$radio(c.cans.sr.firear,"","2")
+    $col("center")$radio(c.cans.sr.firear,"","3")
   $endtable($funcname)
  $endfieldset()
 end suiciderisk
