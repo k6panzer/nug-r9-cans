@@ -1,0 +1,20 @@
+start cans_wrap()
+
+list[]   is x
+option   is x
+
+list[1] = "YOUR_CLIENT_ID"
+'list[2] = "000100"
+'list[3] = "000101"
+
+option = "FileOut`/tmp/"
+   + $fmt($today,"YYYYMMDD_") + $fmt($timenow,"HHMM")
+   + ".xml"
+
+option = $replace(" ","_",option)   'fix time -> ' 930' for 9:30a
+option += ";Template`/c0/forms/cansbaby.xml"
+
+  
+call "xml_build2" (,option,list[])
+
+end cans_wrap
