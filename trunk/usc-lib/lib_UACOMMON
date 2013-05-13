@@ -145,3 +145,17 @@ function CurrentDX(client,compare_date) is x
   CurrentDX = "Y"
  endif
 end CurrentDX
+
+function GetEvent(c.cans.isn,$$isn.sac,$$isn.ru,$$isn.tm,$$isn.sdur,$$isn.loc) is i
+ c.cans.isn is x
+ $$isn.sac  is b
+ $$isn.ru   is b
+ $$isn.tm   is t
+ $$isn.sdur is t
+ $$isn.loc  is x
+ rc is i
+ if c.cans.isn dp
+  GetEvent = $dbread(9,c.cans.isn,$$isn.ru,$$isn.loc,$$isn.sdur,$$isn.tm, $$isn.sac)
+ endif 
+ $allowupdate($$isn.sac,$$isn.ru,$$isn.tm,$$isn.sdur,$$isn.loc)
+end GetEvent
