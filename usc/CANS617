@@ -531,6 +531,7 @@ function Report(RptTitle,ReportID,mode) is null
     q_text_rloc,c.cans.rloc,q_text_dloc,c.cans.dloc,q_text_aloc,c.cans.aloc,
     q_text_loc_dev,c.cans.loc_dev,
     q_text_devoth,c.cans.devoth,
+	q_text_devjust,c.cans.devjust,
     q_text_fairhear,c.cans.fairhear,
     q_text_acomment,c.cans.acomment,
     staffsig)
@@ -2957,6 +2958,9 @@ function ALOC() is null
        $col("right",,"50%")$text(q_text_loc_dev,"datatag")
 	   $col()$dropboxdct(c.cans.loc_dev,9706)
              $dropbox(c.cans.loc_dev,"Other","5",,,"OTHER","OTHER")	
+      $row()
+       $col("right",,"50%")$text(q_text_devjust,"datatag")
+       $col()$textblock(c.cans.devjust,5,,,"Y",255,"width:100%;")$countbox(c.cans.devjust,"(max chars is 255)")			 
      endif
      if c.cans.type = "11" or c.cans.rloc = "100"
       c.cans.aloc = "100"
@@ -3016,7 +3020,7 @@ function ValidateALOC() is i
     (void)$arrpush(errors[],aloc9_errortxt)  
   endif
   if c.cans.aloc = c.cans.rloc and c.cans.loc_dev dp
-   $clear(c.cans.loc_dev,c.cans.devoth,c.cans.devR1,c.cans.devR2,c.cans.devR3,c.cans.devR4,c.cans.devR5)   
+   $clear(c.cans.loc_dev,c.cans.devoth,c.cans.devR1,c.cans.devR2,c.cans.devR3,c.cans.devR4,c.cans.devR5, c.cans.devjust)   
   endif
  else
   if (c.cans.type != "3" and c.cans.disreas != "9")
