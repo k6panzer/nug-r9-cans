@@ -7,15 +7,26 @@
 '    eg: skipping a <transaction> node, so don't process anything else under it
 '    *** AGAIN MAY NOT BE NEEDED WITH A WRAPPER SCRIPT ONLY PASSING IN CLIENTS
 '    *** THAT IT SHOULD PROCESS
-
+'TJM 20130513 v.001
+'  + add d_rootnode constant as default (<batch>)
+'  + add rootnode var
+'RLE 20130513
+'  .002:
+'  + logic to read DST's specified in $EDIT and $DBREAD
+'  - cleanup unnecessary vars
+'  + check DST type and format dates as YYYY-MM-DD
+'  .003:
+'  + Processing in __DST to check for invalid DST names
+'  + format files to DOS (windows) format
+'  - remove parmfile processing, not using it at the moment
 
 %define lf x"0a"
-%define d_parmfile "CANSXML"
+'%define d_parmfile "CANSXML"
 %define d_fileout "/tmp/2.xml"
 %define d_tpl "/c0/forms/cans.xml"
 %define d_rootnode "batch"
 
-%version 01.0.002 05/13/13 GCC
+%version 01.0.003 05/13/13 GCC
 
 start xml_build2(parmfile,option,clients[],retcode)
 
@@ -58,6 +69,8 @@ $looplimit = 32000
 ''''''''''''''''''''''''''''''
 gosub __INIT
 gosub __MAIN
+gosub __CLEANUP
+
 return
 
 __MAIN:
@@ -152,8 +165,8 @@ __INIT:
    Template = d_tpl
    rootnode = d_rootnode
 
-   if parmfile !dp then parmfile = d_parmfile endif
-   GetParm(parmfile)
+   'if parmfile !dp then parmfile = d_parmfile endif
+   'GetParm(parmfile)
    GetOption(option)
 
    if clients[] dp then
@@ -187,7 +200,7 @@ __DST:
          endif
       endif
 
-      if $find("$EDIT",tplData[i]) > 0 OR 
+      if $find("$EDIT",tplData[i]) > 0 OR
          $find("$DBREAD",tplData[i]) > 0 then
          T = xml_content(tplData[i])
          $parsem(T,1,"|",tmp[])
@@ -197,6 +210,16 @@ __DST:
          endif
       endif
 
+   enddo
+
+   i = 0
+   do while i++ < $maxarray(dst[])
+      rc = $dstinfo(dst[i],dstinfo[])
+      if rc > 0 then
+         $errmsg1 = $fmt(rc,"DSTINFO ERROR - VERIFY TEMPLATE!! RC=99")
+         $errmsg2 = "DST: " + dst[i]
+         return
+      endif
    enddo
 goback
 
@@ -213,9 +236,21 @@ __READTPL:
    endif
 goback
 
+__CLEANUP:
+   if $checkfile(FileOut) = 0 then
+      T = "perl -pi -e 's/\n/\r\n/g' " + FileOut
+      rc = $unix(T)
+      if rc > 0 then
+         $errmsg1 = $fmt(rc,"UNIX CMD ERROR DOSIFYING FILE. RC=99")
+         $errmsg2 = "File: " + FileOut
+         return
+      endif
+   endif
+goback
+
 end xml_build2
 
-%include inc_GetParm
+'%include inc_GetParm
 %include inc_GetOption
 
 dynamic FUNCTION xml_content(str) is x
