@@ -243,7 +243,11 @@ start CANS617(parmfile,option,client,retcode)
   elseif Page = "Validate2"
    if Validate2() = 0
     if CanSkipPage3() = "Y"
-     Page = "4"
+	 if CanSkipPage4() = "Y"
+      Page = "Report"
+	 else
+      Page = "4"	 
+	 endif 
     else
      Page = "3"
     endif
@@ -481,48 +485,50 @@ function Report(RptTitle,ReportID,mode) is null
                               q_text_fs_resacc,c.cans.fs.resacc,q_text_fs_remrse,c.cans.fs.remrse,q_text_fs_futfir,c.cans.fs.futfir,
 					          q_text_vi_hxpabs,c.cans.vi.hxpabs,q_text_vi_hxviol,c.cans.vi.hxviol,q_text_vi_wdomab,c.cans.vi.wdomab,q_text_vi_wenvab,c.cans.vi.wenvab,
 							  q_text_hissui,c.cans.sr.hissui,q_text_hfmsui,c.cans.sr.hfmsui,q_text_firear,c.cans.sr.firear)
-  {"lib_CANS617"}BehEmoRpt(q_text_cb_psychs,c.cans.cb.psychs,q_text_cb_mania,c.cans.cb.mania,q_text_cb_implsv,c.cans.cb.implsv,q_text_cb_depres,c.cans.cb.depres,q_text_cb_anxity,c.cans.cb.anxity,q_text_cb_oppdef,c.cans.cb.oppdef,
-                           q_text_cb_condct,c.cans.cb.condct,q_text_cb_adjtrm,c.cans.cb.adjtrm,q_text_cb_angctr,c.cans.cb.angctr,q_text_cb_subabs,c.cans.cb.subabs,q_text_cb_eatdst,c.cans.cb.eatdst,
-				           q_text_tr_sexabs,c.cans.tr.sexabs,q_text_tr_emclos,c.cans.tr.emclos,q_text_tr_freq,c.cans.tr.freq,q_text_tr_durat,c.cans.tr.durat,q_text_tr_force,c.cans.tr.force,q_text_tr_react,c.cans.tr.react,
-                           q_text_tr_phyabs,c.cans.tr.phyabs,q_text_tr_victim,c.cans.tr.victim,q_text_tr_emoabs,c.cans.tr.emoabs,q_text_tr_medtrm,c.cans.tr.medtrm,q_text_tr_natdis,c.cans.tr.natdis,q_text_tr_wtofam,c.cans.tr.wtofam,
-						   q_text_tr_wtocom,c.cans.tr.wtocom,
-				           q_text_tr_wcrime,c.cans.tr.wcrime,q_text_tr_waraff,c.cans.tr.waraff,q_text_tr_teraff,c.cans.tr.teraff,
-				           q_text_ad_affreg,c.cans.ad.affreg,q_text_ad_intrus,c.cans.ad.intrus,q_text_ad_attach,c.cans.ad.attach,q_text_ad_dissoc,c.cans.ad.dissoc,q_text_ad_timb4t,c.cans.ad.timb4t,
-				           q_text_sa_severe,c.cans.sa.severe,q_text_sa_durati,c.cans.sa.durati,q_text_sa_stgrec,c.cans.sa.stgrec,q_text_sa_perinf,c.cans.sa.perinf,q_text_sa_parinf,c.cans.sa.parinf,q_text_sa_envinf,c.cans.sa.envinf)
-  {"lib_CANS617"}LifeDomainRpt(q_text_ld_family,c.cans.ld.family,q_text_ld_livsit,c.cans.ld.livsit,q_text_ld_school,c.cans.ld.school,
-                     q_text_ld_socFun,c.cans.ld.socFun,q_text_ld_recret,c.cans.ld.recret,q_text_ld_develp,c.cans.ld.develp,q_text_ld_commun,c.cans.ld.commun,q_text_ld_judgmt,c.cans.ld.judgmt,
-                     q_text_ld_jobfun,c.cans.ld.jobfun,q_text_ld_legal,c.cans.ld.legal,q_text_ld_medicl,c.cans.ld.medicl,q_text_ld_physcl,c.cans.ld.physcl,
-                     q_text_ld_sexdev,c.cans.ld.sexdev,q_text_ld_sleep,c.cans.ld.sleep,q_text_ld_indliv,c.cans.ld.indliv,
-	   		         q_text_sc_behavr,c.cans.sc.behavr,q_text_sc_achiev,c.cans.sc.achiev,q_text_sc_attend,c.cans.sc.attend,q_text_sc_reltch,c.cans.sc.reltch,
-					 q_text_dv_cognit,c.cans.dv.cognit,q_text_dv_develp,c.cans.dv.develp,q_text_dv_selfcr,c.cans.dv.selfcr)
-  {"lib_CANS617"}CareGiveRpt(c.cans.cg.na,q_text_cg_super,c.cans.cg.super,q_text_cg_involv,
-                             c.cans.cg.involv,q_text_cg_knoldg,c.cans.cg.knoldg,q_text_cg_organz,
-                             c.cans.cg.organz,q_text_cg_socres,c.cans.cg.socres,q_text_cg_ressbl,
-                             c.cans.cg.ressbl,q_text_cg_physcl,c.cans.cg.physcl,q_text_cg_menhth,
-                             c.cans.cg.menhth,q_text_cg_subabs,c.cans.cg.subabs,q_text_cg_develp,
-                             c.cans.cg.develp,q_text_cg_chldcr,c.cans.cg.chldcr,q_text_cg_miltra,
-                             c.cans.cg.miltra,q_text_cg_famsts,c.cans.cg.famsts,q_text_cg_safety,c.cans.cg.safety,
-                             q_text_fc_selfcr,c.cans.fc.selfcr,q_text_fc_culstr,c.cans.fc.culstr,
-                             q_text_fc_empedu,c.cans.fc.empedu,q_text_fc_eduatt,c.cans.fc.eduatt,
-                             q_text_fc_legal,c.cans.fc.legal,q_text_fc_motive,c.cans.fc.motive,
-                             q_text_fc_finres,c.cans.fc.finres,q_text_fc_transp,c.cans.fc.transp)
-  {"lib_CANS617"}ChildStrRpt(q_text_cs_family,c.cans.cs.family,q_text_cs_intper,c.cans.cs.intper,
-                             q_text_cs_optims,c.cans.cs.optims,q_text_cs_educat,c.cans.cs.educat,
-                             q_text_cs_vocate,c.cans.cs.vocate,q_text_cs_talint,c.cans.cs.talint,
-                             q_text_cs_spirel,c.cans.cs.spirel,q_text_cs_comlif,c.cans.cs.comlif,
-                             q_text_cs_permin,c.cans.cs.permin,q_text_cs_youth,c.cans.cs.youth,
-                             q_text_cs_natsup,c.cans.cs.natsup)
-  {"lib_CANS617"}CultureRpt(q_text_ac_langua,c.cans.ac.langua,
-                            q_text_ac_identy,c.cans.ac.identy,
-                            q_text_ac_sexgen,c.cans.ac.sexgen,
-                            q_text_ac_ritual,c.cans.ac.ritual,
-                            q_text_ac_culstr,c.cans.ac.culstr)
-  {"lib_CANS617"}PsyHospRpt(q_text_ps_hosptl,c.cans.ps.hosptl,
-                            q_text_hs_numprr,c.cans.hs.numprr,
-                            q_text_hs_longst,c.cans.hs.longst,
-                            q_text_hs_durrec,c.cans.hs.durrec,
-                            q_text_hs_timlst,c.cans.hs.timlst)
-  {"lib_CANS617"}CrisisRpt(q_text_cr_episds,c.cans.cr.episds)
+  if c.cans.type != "11" and (c.cans.type != "3" and c.cans.disreas != "9")
+   {"lib_CANS617"}BehEmoRpt(q_text_cb_psychs,c.cans.cb.psychs,q_text_cb_mania,c.cans.cb.mania,q_text_cb_implsv,c.cans.cb.implsv,q_text_cb_depres,c.cans.cb.depres,q_text_cb_anxity,c.cans.cb.anxity,q_text_cb_oppdef,c.cans.cb.oppdef,
+                            q_text_cb_condct,c.cans.cb.condct,q_text_cb_adjtrm,c.cans.cb.adjtrm,q_text_cb_angctr,c.cans.cb.angctr,q_text_cb_subabs,c.cans.cb.subabs,q_text_cb_eatdst,c.cans.cb.eatdst,
+				            q_text_tr_sexabs,c.cans.tr.sexabs,q_text_tr_emclos,c.cans.tr.emclos,q_text_tr_freq,c.cans.tr.freq,q_text_tr_durat,c.cans.tr.durat,q_text_tr_force,c.cans.tr.force,q_text_tr_react,c.cans.tr.react,
+                            q_text_tr_phyabs,c.cans.tr.phyabs,q_text_tr_victim,c.cans.tr.victim,q_text_tr_emoabs,c.cans.tr.emoabs,q_text_tr_medtrm,c.cans.tr.medtrm,q_text_tr_natdis,c.cans.tr.natdis,q_text_tr_wtofam,c.cans.tr.wtofam,
+						    q_text_tr_wtocom,c.cans.tr.wtocom,
+				            q_text_tr_wcrime,c.cans.tr.wcrime,q_text_tr_waraff,c.cans.tr.waraff,q_text_tr_teraff,c.cans.tr.teraff,
+				            q_text_ad_affreg,c.cans.ad.affreg,q_text_ad_intrus,c.cans.ad.intrus,q_text_ad_attach,c.cans.ad.attach,q_text_ad_dissoc,c.cans.ad.dissoc,q_text_ad_timb4t,c.cans.ad.timb4t,
+				            q_text_sa_severe,c.cans.sa.severe,q_text_sa_durati,c.cans.sa.durati,q_text_sa_stgrec,c.cans.sa.stgrec,q_text_sa_perinf,c.cans.sa.perinf,q_text_sa_parinf,c.cans.sa.parinf,q_text_sa_envinf,c.cans.sa.envinf)
+   {"lib_CANS617"}LifeDomainRpt(q_text_ld_family,c.cans.ld.family,q_text_ld_livsit,c.cans.ld.livsit,q_text_ld_school,c.cans.ld.school,
+                      q_text_ld_socFun,c.cans.ld.socFun,q_text_ld_recret,c.cans.ld.recret,q_text_ld_develp,c.cans.ld.develp,q_text_ld_commun,c.cans.ld.commun,q_text_ld_judgmt,c.cans.ld.judgmt,
+                      q_text_ld_jobfun,c.cans.ld.jobfun,q_text_ld_legal,c.cans.ld.legal,q_text_ld_medicl,c.cans.ld.medicl,q_text_ld_physcl,c.cans.ld.physcl,
+                      q_text_ld_sexdev,c.cans.ld.sexdev,q_text_ld_sleep,c.cans.ld.sleep,q_text_ld_indliv,c.cans.ld.indliv,
+	   		          q_text_sc_behavr,c.cans.sc.behavr,q_text_sc_achiev,c.cans.sc.achiev,q_text_sc_attend,c.cans.sc.attend,q_text_sc_reltch,c.cans.sc.reltch,
+					  q_text_dv_cognit,c.cans.dv.cognit,q_text_dv_develp,c.cans.dv.develp,q_text_dv_selfcr,c.cans.dv.selfcr)
+   {"lib_CANS617"}CareGiveRpt(c.cans.cg.na,q_text_cg_super,c.cans.cg.super,q_text_cg_involv,
+                              c.cans.cg.involv,q_text_cg_knoldg,c.cans.cg.knoldg,q_text_cg_organz,
+                              c.cans.cg.organz,q_text_cg_socres,c.cans.cg.socres,q_text_cg_ressbl,
+                              c.cans.cg.ressbl,q_text_cg_physcl,c.cans.cg.physcl,q_text_cg_menhth,
+                              c.cans.cg.menhth,q_text_cg_subabs,c.cans.cg.subabs,q_text_cg_develp,
+                              c.cans.cg.develp,q_text_cg_chldcr,c.cans.cg.chldcr,q_text_cg_miltra,
+                              c.cans.cg.miltra,q_text_cg_famsts,c.cans.cg.famsts,q_text_cg_safety,c.cans.cg.safety,
+                              q_text_fc_selfcr,c.cans.fc.selfcr,q_text_fc_culstr,c.cans.fc.culstr,
+                              q_text_fc_empedu,c.cans.fc.empedu,q_text_fc_eduatt,c.cans.fc.eduatt,
+                              q_text_fc_legal,c.cans.fc.legal,q_text_fc_motive,c.cans.fc.motive,
+                              q_text_fc_finres,c.cans.fc.finres,q_text_fc_transp,c.cans.fc.transp)
+   {"lib_CANS617"}ChildStrRpt(q_text_cs_family,c.cans.cs.family,q_text_cs_intper,c.cans.cs.intper,
+                              q_text_cs_optims,c.cans.cs.optims,q_text_cs_educat,c.cans.cs.educat,
+                              q_text_cs_vocate,c.cans.cs.vocate,q_text_cs_talint,c.cans.cs.talint,
+                              q_text_cs_spirel,c.cans.cs.spirel,q_text_cs_comlif,c.cans.cs.comlif,
+                              q_text_cs_permin,c.cans.cs.permin,q_text_cs_youth,c.cans.cs.youth,
+                              q_text_cs_natsup,c.cans.cs.natsup)
+   {"lib_CANS617"}CultureRpt(q_text_ac_langua,c.cans.ac.langua,
+                             q_text_ac_identy,c.cans.ac.identy,
+                             q_text_ac_sexgen,c.cans.ac.sexgen,
+                             q_text_ac_ritual,c.cans.ac.ritual,
+                             q_text_ac_culstr,c.cans.ac.culstr)
+   {"lib_CANS617"}PsyHospRpt(q_text_ps_hosptl,c.cans.ps.hosptl,
+                             q_text_hs_numprr,c.cans.hs.numprr,
+                             q_text_hs_longst,c.cans.hs.longst,
+                             q_text_hs_durrec,c.cans.hs.durrec,
+                             q_text_hs_timlst,c.cans.hs.timlst)
+   {"lib_CANS617"}CrisisRpt(q_text_cr_episds,c.cans.cr.episds)
+  endif
   if mode = "Report"
    if UM_StaffYN = "Y" and (c.cans.staff != $operstaffid and c.cans.staff dp)
     $br(){"lib_CANS617"}StaffComments(q_text_comment,c.cans.comment)
@@ -2372,6 +2378,16 @@ function Validate1() is i
   endif
  endif
 
+ if c.cans.type = "11"
+  if c.cans.cr.smutil !dp or c.cans.cr.oslfhr !dp or c.cans.cr.dangot !dp or c.cans.cr.sexagr !dp or c.cans.cr.runawy !dp or c.cans.cr.delqcy !dp or c.cans.cr.firset !dp or c.cans.cr.socbeh !dp or c.cans.cr.bully !dp
+   (void)$arrpush(errors[],cr_errortxt)
+  endif
+ endif
+ 
+ if c.cans.type = "2" and (c.cans.cr.suicid = "3" or c.cans.cr.smutil = "3" or c.cans.cr.oslfhr = "3" or c.cans.cr.dangot = "3" or c.cans.cb.psychs = "3") or (c.cans.cr.firset = "3" and c.cans.fs.planin = "3")
+  (void)$arrpush(errors[],crisis_errortxt)
+ endif 
+
  if c.cans.type = "1"
   $clear(c.cans.disdt,c.cans.disreas,c.cans.disref)
  elseif c.cans.type = "2"
@@ -2827,6 +2843,7 @@ function CanSkipPage2() is x
 	$num(c.cans.ld.school) > 0 or 
 	$num(c.cans.ld.develp) > 0 or 
 	$num(c.cans.cg.safety) > 0 or 
+	$num(c.cans.cr.suicid) > 0 or
 	c.cans.ps.hosptl = "1"
   CanSkipPage2 = "N"
  endif	
@@ -2962,16 +2979,16 @@ function ALOC() is null
        $col("right",,"50%")$text(q_text_devjust,"datatag")
        $col()$textblock(c.cans.devjust,5,,,"Y",255,"width:100%;")$countbox(c.cans.devjust,"(max chars is 255)")			 
      endif
-     if c.cans.type = "11" or c.cans.rloc = "100"
-      c.cans.aloc = "100"
-      $row()
-       $col("right",,"50%")$text(q_text_rloc,"datatag")
-       $col()$text($dct(9705,c.cans.rloc))  
-      $row()
-       $col("right",,"50%")$text(q_text_aloc,"datatag")
-       $col()$text($dct(9705,c.cans.aloc))  
-     endif	 	
     endif
+    if c.cans.type = "11" or c.cans.rloc = "100"
+     c.cans.aloc = "100"
+     $row()
+      $col("right",,"50%")$text(q_text_rloc,"datatag")
+      $col()$text($dct(9705,c.cans.rloc))  
+     $row()
+      $col("right",,"50%")$text(q_text_aloc,"datatag")
+      $col()$text($dct(9705,c.cans.aloc))  
+    endif	 	
   $endtable($funcname)
   $block("OTHER","OTHER")
    $table("OTHER",,table_nobgcolor)

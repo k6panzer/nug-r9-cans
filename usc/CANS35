@@ -193,7 +193,10 @@ start CANS35(parmfile,option,client,retcode)
 					endselect					 
    case "Validate2" select Validate2()
 					 case 0 select CanSkipPage3()
-					         case "Y" Page = "4"
+					         case "Y" select CanSkipPage4()
+							           case "Y" Page = "Report"
+									   case "N" Page = "4"
+									  endselect
 					         case "N" Page = "3"
 							endselect
 					 case 1 Page = "2"
@@ -1785,6 +1788,10 @@ function Validate1() is i
     if c.cans.cf.birthw !dp or c.cans.cf.pica !dp or c.cans.cf.prenat !dp or c.cans.cf.labdel !dp or c.cans.cf.subexp !dp or c.cans.cf.psprob !dp or c.cans.cf.matava !dp or c.cans.cf.abuse !dp
      (void)$arrpush(errors[],cf_errortxt)
     endif
+   endif
+   
+   if c.cans.type = "2" and c.cans.cr.sfharm = "3"   
+    (void)$arrpush(errors[],crisis_errortxt)
    endif
    
    if c.cans.cr.sfharm !dp or c.cans.cr.aggbeh !dp or c.cans.cr.socbeh !dp
