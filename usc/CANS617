@@ -3083,7 +3083,7 @@ end ValidateALOC
 
 function ValidateReport() is i
  $clear(errors[])
- if c.cans.dloc = c.cans.rloc
+ if c.cans.dloc = c.cans.rloc and c.cans.dloc dp
   (void)$arrpush(errors[],dloc_errortxt)
   $clear(c.cans.dloc)
  endif 
