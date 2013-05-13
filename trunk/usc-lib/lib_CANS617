@@ -89,6 +89,7 @@ library lib_CANS617()
                   q_text_rloc,c.cans.rloc,q_text_dloc,c.cans.dloc,q_text_aloc,c.cans.aloc,
                   q_text_loc_dev,c.cans.loc_dev,
                   q_text_devoth,c.cans.devoth,
+				  q_text_devjust, c.cans.devjust
                   q_text_fairhear,c.cans.fairhear,
 				  q_text_acomment,c.cans.acomment,
                   staffsig) is null
@@ -110,6 +111,8 @@ library lib_CANS617()
   c.cans.loc_dev   is x
   q_text_devoth    is x
   c.cans.devoth    is x
+  q_text_devjust   is x
+  c.cans.devjust   is x
   q_text_fairhear  is x
   c.cans.fairhear  is x
   q_text_acomment  is x
@@ -149,6 +152,11 @@ library lib_CANS617()
      $col("right",,"50%")$text(q_text_devoth,"datatag")
 	 $col()$text(c.cans.devoth)
   endif
+  if c.cans.devjust dp
+    $row()
+     $col("right",,"50%")$text(q_text_devjust,"datatag")
+	 $col()$text(c.cans.devjust)
+  endif  
   if c.cans.fairhear dp
    $row()
     $col("right",,"50%")$text(q_text_fairhear,"datatag")
