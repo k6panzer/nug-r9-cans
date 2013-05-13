@@ -1624,7 +1624,7 @@ function RLOC(c.cans.ac.sexgen,c.cans.ad.affreg,c.cans.ad.dissoc,c.cans.ad.intru
               c.cans.jj.comsaf,c.cans.jj.histry,c.cans.jj.serios,c.cans.ld.commun,c.cans.ld.develp,c.cans.ld.family,c.cans.ld.indliv,c.cans.ld.jobfun,
               c.cans.ld.judgmt,c.cans.ld.legal,c.cans.ld.livsit,c.cans.ld.medicl,c.cans.ld.physcl,c.cans.ld.recret,c.cans.ld.school,c.cans.ld.sexdev,
               c.cans.ld.sleep,c.cans.ld.socfun,c.cans.ps.hosptl,c.cans.rf.comsc,c.cans.rf.rescon,c.cans.rn.frqncy,c.cans.rn.invill,c.cans.sa.envinf,
-              c.cans.sa.parinf,c.cans.sa.perinf,c.cans.sa.severe,c.cans.sa.stgrec,c.cans.sc.attend,c.cans.sc.behavr,c.cans.sr.hissui,c.cans.type,c.cans.vi.hxviol) is x
+              c.cans.sa.parinf,c.cans.sa.perinf,c.cans.sa.severe,c.cans.sa.stgrec,c.cans.sc.attend,c.cans.sc.behavr,c.cans.sr.hissui,c.cans.type,c.cans.vi.hxviol,c.cans.disreas) is x
  c.cans.ac.sexgen is x
  c.cans.ad.affreg is x
  c.cans.ad.dissoc is x
@@ -1690,6 +1690,7 @@ function RLOC(c.cans.ac.sexgen,c.cans.ad.affreg,c.cans.ad.dissoc,c.cans.ad.intru
  c.cans.sr.hissui is x
  c.cans.type      is x
  c.cans.vi.hxviol is x
+ c.cans.disreas   is x
 
  crisis           is x
  med_management   is x
@@ -1741,7 +1742,7 @@ function RLOC(c.cans.ac.sexgen,c.cans.ad.affreg,c.cans.ad.dissoc,c.cans.ad.intru
 endif  
 
 'At this point any other LOC could be recommended
- if RLOC !dp
+ if RLOC !dp and (c.cans.type != "3" and c.cans.disreas != "9")
 'Medication Management
   if $num(c.cans.ld.develp) > 0
    if $num(c.cans.dv.cognit) > 1 or $num(c.cans.dv.develp) > 1
@@ -2046,7 +2047,7 @@ endif
   endif
 
  'MedicationManagement or TargetedServices
-  if $num(c.cans.cr.bully) < 2
+  if $num(c.cans.cr.bully) < 2 and c.cans.cr.bully dp
    if 
     (
      $num(c.cans.cr.dangot) < 2 and $num(c.cans.cr.delqcy) < 2 and $num(c.cans.cr.firset) < 2 and $num(c.cans.cr.oslfhr) < 2 and
@@ -2064,6 +2065,8 @@ endif
     RLOC = targeted
    endif 
   endif 
+ else
+  $clear(RLOC)
  endif
 end RLOC
 
