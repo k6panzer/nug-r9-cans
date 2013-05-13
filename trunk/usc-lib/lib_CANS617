@@ -1728,8 +1728,12 @@ function RLOC(c.cans.ac.sexgen,c.cans.ad.affreg,c.cans.ad.dissoc,c.cans.ad.intru
  if c.cans.type = "1" or c.cans.type = "11"
   if (c.cans.cr.suicid = "3" or c.cans.cr.smutil = "3" or c.cans.cr.oslfhr = "3" or c.cans.cr.dangot = "3" or c.cans.cb.psychs = "3")
    RLOC = crisis
+   c.cans.type = "11"
+   $allowupdate(c.cans.type)
   endif	 
   if (c.cans.cr.firset = "3" and c.cans.fs.planin = "3")
+   c.cans.type = "11"
+   $allowupdate(c.cans.type)
    RLOC = crisis
   endif
  endif 			
