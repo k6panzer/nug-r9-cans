@@ -42,7 +42,7 @@ library lib_CANS()
   endselect 
  end Allow_Assesment
 
- function Last_Assessment(clientid,c.cans.type,c.cans.staff,c.cans.ver,c.cans.date,c.cans.age,c.cans.aloc,c.cans.rloc,c.cans.dloc,c.cans.compd,c.cans.alocdate) is null
+ dynamic function Last_Assessment(clientid,c.cans.type,c.cans.staff,c.cans.ver,c.cans.date,c.cans.age,c.cans.aloc,c.cans.rloc,c.cans.dloc,c.cans.compd,c.cans.alocdate) is null
   clientid        is x
   c.cans.rec      is h
   c.cans.staff    is x
@@ -56,7 +56,21 @@ library lib_CANS()
   c.cans.type     is x
   c.cans.alocdate is d  
   rc              is i 
-  $allowupdate(c.cans.type,c.cans.staff,c.cans.ver,c.cans.date,c.cans.age,c.cans.aloc,c.cans.rloc,c.cans.dloc,c.cans.compd) 
+
+'have to set these variable names incase the library doesn't get unloaded / reloaded and the names where changed previously
+$setvarname(c.cans.rec,      "C.CANS.REC")
+$setvarname(c.cans.staff,    "C.CANS.STAFF")
+'$setvarname(c.cans.ver,      "C.CABD.REC")
+$setvarname(c.cans.date,     "C.CANS.DATE")
+'$setvarname(c.cans.age,      "C.CABD.REC")
+$setvarname(c.cans.aloc,     "C.CANS.ALOC")
+$setvarname(c.cans.rloc,     "C.CANS.RLOC")
+'$setvarname(c.cans.dloc,     "C.CABD.REC")
+$setvarname(c.cans.compd,    "C.CANS.COMPD")
+$setvarname(c.cans.type,     "C.CANS.TYPE")
+$setvarname(c.cans.alocdate, "C.CANS.ALOCDATE")
+
+$allowupdate(c.cans.type,c.cans.staff,c.cans.ver,c.cans.date,c.cans.age,c.cans.aloc,c.cans.rloc,c.cans.dloc,c.cans.compd) 
   do until c.cans.compd dp or rc = 2
    rc = $dbreadnextdst(02,clientid,c.cans.rec,c.cans.type,c.cans.staff,c.cans.ver,c.cans.date,c.cans.age,c.cans.aloc,c.cans.rloc,c.cans.dloc,c.cans.compd,c.cans.alocdate)
   enddo
