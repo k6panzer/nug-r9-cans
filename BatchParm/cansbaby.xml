@@ -3,7 +3,7 @@
       <ComponentCode>YOUR_COMPONENT_CODE</ComponentCode>
       <LocalCaseNbr>%C.ID%</LocalCaseNbr>
       <LocalUnitNbr></LocalUnitNbr>
-      <Age>%C.AGE.Y%</Age>
+      <Age>%C.CANS.AGE%</Age>
       <AssessmentType>%C.CANS.TYPE%</AssessmentType>
       <JustificationForLateSubmission>%C.CANS.SLATE%</JustificationForLateSubmission>
       <OtherJustificationForLateSubmission>%C.CANS.SLATEOTH%</OtherJustificationForLateSubmission>
