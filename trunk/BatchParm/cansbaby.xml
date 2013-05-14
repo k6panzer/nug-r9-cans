@@ -5,6 +5,7 @@
       <LocalUnitNbr></LocalUnitNbr>
       <Age>%C.CANS.AGE%</Age>
       <AssessmentType>%C.CANS.TYPE%</AssessmentType>
+      <CansAssessmentType>%C.CANS.CANSTYPE%</CansAssessmentType>
       <JustificationForLateSubmission>%C.CANS.SLATE%</JustificationForLateSubmission>
       <OtherJustificationForLateSubmission>%C.CANS.SLATEOTH%</OtherJustificationForLateSubmission>
       <SpecialEducation>%C.CANS.SPED%</SpecialEducation>
