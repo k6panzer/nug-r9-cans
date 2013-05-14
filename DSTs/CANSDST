@@ -457,6 +457,7 @@ rc = $dstadd(dst,"C.CANS.TR.VICTIM","CANS TRAUMA VICTIMIZATION"     ,dbfile,"X",
 rc = $dstadd(dst,"C.CANS.SR.HISSUI","CANS SR Hist of Suicide attemp",dbfile,"X",0, 1,   0,recordnum)
 rc = $dstadd(dst,"C.CANS.SR.HFMSUI","CANS SR Hist of Fam Suicide"   ,dbfile,"X",0, 1,   0,recordnum)
 rc = $dstadd(dst,"C.CANS.SR.FIREAR","CANS SR Accessible Firearme"   ,dbfile,"X",0, 1,   0,recordnum)
+rc = $dstadd(dst,"C.CANS.DEVJUST"  ,"CANS Deviation Justification"  ,dbfile,"X",0,64,   0,recordnum)
 
 
 end CANSDST
