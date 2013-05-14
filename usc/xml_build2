@@ -19,14 +19,16 @@
 '  + Processing in __DST to check for invalid DST names
 '  + format files to DOS (windows) format
 '  - remove parmfile processing, not using it at the moment
+'RLE 20130514 .004
+'  ~ rename default rootnode to 'Batch' per CMBHS it's case sensitive
 
 %define lf x"0a"
 '%define d_parmfile "CANSXML"
 %define d_fileout "/tmp/2.xml"
 %define d_tpl "/c0/forms/cans.xml"
-%define d_rootnode "batch"
+%define d_rootnode "Batch"
 
-%version 01.0.003 05/13/13 GCC
+%version 01.0.004 05/14/13 GCC
 
 start xml_build2(parmfile,option,clients[],retcode)
 
