@@ -21,7 +21,7 @@ i = 1
 
 
 
-do until i = 345
+do until i = 347
 
 if $seg(parmline[i],1,1) = "8" or $seg(parmline[i],1,1) = "9" or $seg(parmline[i],1,1) = "1"
 	
@@ -377,18 +377,20 @@ parmline[329] =   "111 003 00000   26                                   Physical
 parmline[330] =   "*111 004 28798                                        Number arrests - B-type   " 
 parmline[331] =   "111 004 C.CANS.ARREST                                        Number arrests - X-" 
 parmline[332] =   "111 005 C.CANS.COMMDATE                                        Comm data assess " 
-parmline[333] =   "111 006 C.CANS.SCHOOL3M                                        School last 3 mon" 
-parmline[334] =   "111 007 C.CANS.GRADE                                        Current/highest grad" 
-parmline[335] =   "111 008 C.CANS.RESTYPE                                        Primary residence " 
-parmline[336] =   "111 009 C.CANS.RESOTHER1                                        Primary res. (Pa" 
-parmline[337] =   "*Optionally program generated using CUTEXT3 parameter logic                     " 
-parmline[338] =   "*                                                                               " 
-parmline[339] =   "*Child & Adolescent Uniform Assmt 27 - TX Number 29                             " 
-parmline[340] =   "112 001 00000   29                                   Transaction code           " 
-parmline[341] =   "112 002 00000   A                                    Format version             " 
-parmline[342] =   "112 003 00000   27                                   Physical record number     " 
-parmline[343] =   "112 004 C.CANS.RESOTHER2                                        Primary res (Par" 
-parmline[344] =   "*Optionally program generated using CUTEXT3 parameter logic                     " 
+parmline[333] =   "111 006 00000   2                                    School Last 3 Mon"
+parmline[334] =   "111 006 C.CANS.SCHOOL3M   0         N                          School Last 3 Mon"
+parmline[335] =   "111 006 C.CANS.SCHOOL3M   1         Y                          School Last 3 Mon"
+parmline[336] =   "111 007 C.CANS.GRADE                                        Current/highest grad" 
+parmline[337] =   "111 008 C.CANS.RESTYPE                                        Primary residence " 
+parmline[338] =   "111 009 C.CANS.RESOTHER1                                        Primary res. (Pa" 
+parmline[339] =   "*Optionally program generated using CUTEXT3 parameter logic                     " 
+parmline[340] =   "*                                                                               " 
+parmline[341] =   "*Child & Adolescent Uniform Assmt 27 - TX Number 29                             " 
+parmline[342] =   "112 001 00000   29                                   Transaction code           " 
+parmline[343] =   "112 002 00000   A                                    Format version             " 
+parmline[344] =   "112 003 00000   27                                   Physical record number     " 
+parmline[345] =   "112 004 C.CANS.RESOTHER2                                        Primary res (Par" 
+parmline[346] =   "*Optionally program generated using CUTEXT3 parameter logic                     " 
 
 
 $allowupdate(parmline[])
