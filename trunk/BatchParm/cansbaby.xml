@@ -29,7 +29,7 @@
 
       <CansBabyType>
          <AssessmentDate>%C.CANS.DATE%</AssessmentDate>
-         <CrbSelfHarm>%C.CANS.CR.SLFHR%</CrbSelfHarm>
+         <CrbSelfHarm>%C.CANS.CR.SFHARM%</CrbSelfHarm>
          <CrbAggressiveBehavior>%C.CANS.CR.AGGBEH%</CrbAggressiveBehavior>
          <CrbSocialBehavior>%C.CANS.CR.SOCBEH%</CrbSocialBehavior>
          <CrfBirthWeight>%C.CANS.CF.BIRTHW%</CrfBirthWeight>
@@ -150,7 +150,7 @@
       <CommunityData>
          <NumberOfArrest>%C.CANS.ARREST%</NumberOfArrest>
          <AssessmentDate>%C.CANS.COMMDATE%</AssessmentDate>
-         <SchoolAttendance>%C.CANS.SCHOOL3M%</SchoolAttendance>
+         <SchoolAttendance>$DCT|29|C.CANS.SCHOOL3M|1</SchoolAttendance>
          <Grade>%C.CANS.GRADE%</Grade>
          <PrimaryResidence>%C.CANS.RESTYPE%</PrimaryResidence>
          <PrimaryResidenceOther>%C.CANS.RESOTHER1%</PrimaryResidenceOther>
