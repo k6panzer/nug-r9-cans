@@ -1,4 +1,4 @@
-library lib_CANS617()
+ library lib_CANS617()
  %define row_color1 "bgcolor='LightSkyBlue'"
  %define row_color2 "bgcolor='White'"
  %define row_color3 "bgcolor='PaleGreen'"
@@ -1286,7 +1286,7 @@ function CareGiveRpt(c.cans.cg.na,q_text_cg_super,c.cans.cg.super,q_text_cg_invo
   $table($funcname,,"width='100%' cellspacing='0' cellpadding='2' bgcolor='White' style='border-style: solid; border-width: 1px'")
    $row(,col_color_multi)
     $col("center",,,"3"  )$text("Caregiver Strengths and Needs","datatag")
-   if c.cans.cg.na = "Y"
+   if c.cans.cg.na != "Y"
     $row()
      $col("center",,,"3")$text("Not Applicable - no caregiver identified")
    else   
@@ -1624,6 +1624,31 @@ function HospHxRpt(q_text_hs_numprr,c.cans.hs.numprr,
  $endtable($funcname)
 end HospHxRpt
 
+'CANS 6-17 Crisis RLOC
+function Crisis_RLOC(c.cans.type,c.cans.cr.suicid,c.cans.cr.smutil,c.cans.cr.oslfhr,c.cans.cr.dangot,c.cans.cb.psychs,c.cans.cr.firset,c.cans.fs.planin) is x
+c.cans.type      is x
+c.cans.cr.suicid is x
+c.cans.cr.smutil is x
+c.cans.cr.oslfhr is x
+c.cans.cr.dangot is x
+c.cans.cb.psychs is x
+c.cans.cr.firset is x
+c.cans.fs.planin is x
+' LevelOfCarePackage: CrisisServices
+ if c.cans.type = "1" or c.cans.type = "11"
+  if (c.cans.cr.suicid = "3" or c.cans.cr.smutil = "3" or c.cans.cr.oslfhr = "3" or c.cans.cr.dangot = "3" or c.cans.cb.psychs = "3")
+   Crisis_RLOC = "100"
+   c.cans.type = "11"
+   $allowupdate(c.cans.type)
+  endif	 
+  if (c.cans.cr.firset = "3" and c.cans.fs.planin = "3")
+   c.cans.type = "11"
+   $allowupdate(c.cans.type)
+   Crisis_RLOC = "100"
+  endif
+ endif 			
+end Crisis_RLOC
+
 'CANS 6-17 RLOC
 function RLOC(c.cans.ac.sexgen,c.cans.ad.affreg,c.cans.ad.dissoc,c.cans.ad.intrus,c.cans.cb.adjtrm,c.cans.cb.angctr,c.cans.cb.anxity,c.cans.cb.condct,
               c.cans.cb.depres,c.cans.cb.eatdst,c.cans.cb.implsv,c.cans.cb.mania,c.cans.cb.oppdef,c.cans.cb.psychs,c.cans.cb.subabs,c.cans.cr.bully,
@@ -1745,9 +1770,9 @@ function RLOC(c.cans.ac.sexgen,c.cans.ad.affreg,c.cans.ad.dissoc,c.cans.ad.intru
   (c.cans.cb.psychs = "0" and c.cans.cb.mania = "0" and c.cans.cb.implsv = "0" and c.cans.cb.depres = "0" and c.cans.cb.anxity = "0" and c.cans.cb.oppdef = "0" and 
    c.cans.cb.condct = "0" and c.cans.cb.adjtrm = "0" and c.cans.cb.angctr = "0" and c.cans.cb.subabs = "0" and c.cans.cb.eatdst = "0")
  and
-  ((c.cans.ld.family = "0" or c.cans.ld.family = "N") and c.cans.ld.livsit = "0" and c.cans.ld.school = "0" and c.cans.ld.socFun = "0" and c.cans.ld.recret = "0" and c.cans.ld.develp = "0" and 
-    c.cans.ld.commun = "0" and c.cans.ld.judgmt = "0" and (c.cans.ld.jobfun = "0" or c.cans.ld.jobfun = "N") and c.cans.ld.legal = "0" and c.cans.ld.medicl = "0" and c.cans.ld.physcl = "0" and 
-    c.cans.ld.sexdev = "0" and c.cans.ld.sleep = "0" and (c.cans.ld.indliv = "0" or c.cans.ld.indliv = "N"))
+  ((c.cans.ld.family = "0" or c.cans.ld.family = "9") and c.cans.ld.livsit = "0" and c.cans.ld.school = "0" and c.cans.ld.socFun = "0" and c.cans.ld.recret = "0" and c.cans.ld.develp = "0" and 
+    c.cans.ld.commun = "0" and c.cans.ld.judgmt = "0" and (c.cans.ld.jobfun = "0" or c.cans.ld.jobfun = "9") and c.cans.ld.legal = "0" and c.cans.ld.medicl = "0" and c.cans.ld.physcl = "0" and 
+    c.cans.ld.sexdev = "0" and c.cans.ld.sleep = "0" and (c.cans.ld.indliv = "0" or c.cans.ld.indliv = "9"))
  and
   (c.cans.ps.hosptl = "0" or (c.cans.ps.hosptl = "1" and ((c.cans.hs.durrec = "0" or c.cans.hs.durrec = "1") or c.cans.hs.timlst = "0")))
   RLOC = Ineligible
@@ -2077,7 +2102,7 @@ endif
     RLOC = targeted
    endif 
   endif 
- elseif c.cans.type = "3" and c.cans.disreas = "9"
+ elseif c.cans.type = "3" and c.cans.disreas != "9"
   $clear(RLOC)
  endif
 end RLOC

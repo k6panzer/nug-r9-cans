@@ -405,7 +405,7 @@ errors[] is x  'array for capturing errors by section
 %define disch1_errortxt "If the Assessment Type is Discharge then the Discharge Date must be selected"
 %define disch2_errortxt "The Discharge Date must cannot be more than ___ days in the future"
 %define disch3_errortxt "The Discharge Date must cannot be more than ___ days in the past"
-%define diag_errortxt "A current diagnosis is required to complete this assessment"
+%define diag_errortxt "A current diagnosis is required to complete this assessment for an Intake, Update or Discharge for Services Complete"
 %define age_errortxt "This client is older than 18, please complete the ANSA assessment"
 %define age1_errortxt "This client is younger than 3, there is no current assessment for this age"
 %define age2_errortxt "This client does not have a current birth date entered, please correct and retry"

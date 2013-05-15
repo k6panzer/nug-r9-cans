@@ -1,9 +1,5 @@
 start CANS617(parmfile,option,client,retcode)
- %include c_incmaps
- %allow_nonmapped_io
- %maptest
- %include c_cldefLL
- %include c_clgetLL
+ $looplimit = 0
  %include inc_CANS617
  e.ser     is b
  e.ru      is b
@@ -16,14 +12,34 @@ start CANS617(parmfile,option,client,retcode)
  e.cl.dur  is t
  %global e.ser, e.ru, e.start, e.dur, e.loc, e.case.no, e.staff, e.date, e.cl.dur
  addsal is x  
+ 
+ %global parmfile,option,client,retcode, rc
+ parmfile is x
+ option   is x
+ client   is x
+ retcode  is i
+ rc       is i
+
+ Title     is x
+ RptTitle is x
+ ReportID  is x
 
  Title = "CANS (6-17) Report" 
  RptTitle = Title
  ReportID = "CANS"  
  
+ if $regid !dp and client !dp
+  $regid = {"lib_UACOMMON"}GetClientID() 
+  if $regid !dp
+   return
+  endif
+ else
+  $regid = client
+ endif 
+ 
  if $lc(option) = "reportonly" or $lc(option) = "bigreport"
-  if $dbread(ClientDB, $regid, c.cans.rec, c.cans.date) < 2
-   if snap_handle:sn_viewLatest(ReportID,Parmfile,$regid,ClientDB,$ScriptID) = 0
+  if $dbread(2, $regid, c.cans.rec, c.cans.date) < 2
+   if {"l_snapLibSC"}sn_viewLatest(ReportID,Parmfile,$regid,2,$ScriptID) = 0
     retcode = "0"
    endif
   endif
@@ -37,7 +53,7 @@ start CANS617(parmfile,option,client,retcode)
 
  if Validate() = 1
   DisplayErrors()
- ' return
+  return
  endif
  
  %global assessments
@@ -52,7 +68,7 @@ start CANS617(parmfile,option,client,retcode)
  %define row_color2 "bgcolor='White'"
  %define row_color3 "bgcolor='PaleGreen'"
  %define col_color_multi "bgcolor='LightGrey'"
- c.cans.cg.na = "N"
+ c.cans.cg.na = "Y"
  Page is x
  %global UM_StaffYN
  UM_StaffYN is x
@@ -60,8 +76,13 @@ start CANS617(parmfile,option,client,retcode)
  PromptNED is x
  
  if UM_StaffYN = "Y"
-  rc = $dbread(02, $regid, c.cans.rec,c.cans.compd,c.cans.type,c.cans.staff)
+  rc = $dbread(02, $regid, c.cans.rec,c.cans.compd,c.cans.type,c.cans.staff,c.cans.canstype)
   if c.cans.compd !dp and c.cans.type dp
+   if c.cans.canstype != "1"
+    $brmsg("A CANS 3-5 Assessment is Currently Being Entered!",1,"C","In Progress")
+    $brmsg("The assessment will exit now.",2,"W")
+    return
+   endif	
    if c.cans.staff = $operstaffid
     PromptNED = {"lib_CANS"}PromptNewEditDel($regid)    
     if PromptNED = 1
@@ -264,19 +285,8 @@ start CANS617(parmfile,option,client,retcode)
    endif
   elseif Page = "Validate4"
    if Validate4() = 0
-    c.cans.rloc = {"lib_CANS617"}RLOC(c.cans.ac.sexgen,c.cans.ad.affreg,c.cans.ad.dissoc,c.cans.ad.intrus,c.cans.cb.adjtrm,c.cans.cb.angctr,c.cans.cb.anxity,c.cans.cb.condct,
-                                      c.cans.cb.depres,c.cans.cb.eatdst,c.cans.cb.implsv,c.cans.cb.mania,c.cans.cb.oppdef,c.cans.cb.psychs,c.cans.cb.subabs,c.cans.cr.bully,
-                                      c.cans.cr.dangot,c.cans.cr.delqcy,c.cans.cr.episds,c.cans.cr.firset,c.cans.cr.oslfhr,c.cans.cr.runawy,c.cans.cr.sexagr,c.cans.cr.smutil,
-                                      c.cans.cr.socbeh,c.cans.cr.suicid,c.cans.dv.cognit,c.cans.dv.develp,c.cans.fs.inthrm,c.cans.fs.planin,c.cans.hs.durrec,c.cans.hs.timlst,
-                                      c.cans.jj.comsaf,c.cans.jj.histry,c.cans.jj.serios,c.cans.ld.commun,c.cans.ld.develp,c.cans.ld.family,c.cans.ld.indliv,c.cans.ld.jobfun,
-                                      c.cans.ld.judgmt,c.cans.ld.legal,c.cans.ld.livsit,c.cans.ld.medicl,c.cans.ld.physcl,c.cans.ld.recret,c.cans.ld.school,c.cans.ld.sexdev,
-                                      c.cans.ld.sleep,c.cans.ld.socfun,c.cans.ps.hosptl,c.cans.rf.comsc,c.cans.rf.rescon,c.cans.rn.frqncy,c.cans.rn.invill,c.cans.sa.envinf,
-                                      c.cans.sa.parinf,c.cans.sa.perinf,c.cans.sa.severe,c.cans.sa.stgrec,c.cans.sc.attend,c.cans.sc.behavr,c.cans.sr.hissui,c.cans.type,c.cans.vi.hxviol,
-									  c.cans.disreas)
-    if c.cans.type = "3" and c.cans.disreas != "9"
-     $clear(c.cans.rloc)
-    endif									 
-    if c.cans.rloc = "100"
+    c.cans.rloc = {"lib_CANS617"}Crisis_RLOC(c.cans.type,c.cans.cr.suicid,c.cans.cr.smutil,c.cans.cr.oslfhr,c.cans.cr.dangot,c.cans.cb.psychs,c.cans.cr.firset,c.cans.fs.planin)		
+	if c.cans.rloc = "100"
      Page = "Report"
     else
      Page = "SAL"
@@ -302,92 +312,49 @@ start CANS617(parmfile,option,client,retcode)
     DisplayErrors()
    endif
   elseif Page = "Report"
-   c.cans.rloc = {"lib_CANS617"}RLOC(c.cans.ac.sexgen,c.cans.ad.affreg,c.cans.ad.dissoc,c.cans.ad.intrus,c.cans.cb.adjtrm,c.cans.cb.angctr,c.cans.cb.anxity,c.cans.cb.condct,
-                                     c.cans.cb.depres,c.cans.cb.eatdst,c.cans.cb.implsv,c.cans.cb.mania,c.cans.cb.oppdef,c.cans.cb.psychs,c.cans.cb.subabs,c.cans.cr.bully,
-                                     c.cans.cr.dangot,c.cans.cr.delqcy,c.cans.cr.episds,c.cans.cr.firset,c.cans.cr.oslfhr,c.cans.cr.runawy,c.cans.cr.sexagr,c.cans.cr.smutil,
-                                     c.cans.cr.socbeh,c.cans.cr.suicid,c.cans.dv.cognit,c.cans.dv.develp,c.cans.fs.inthrm,c.cans.fs.planin,c.cans.hs.durrec,c.cans.hs.timlst,
-                                     c.cans.jj.comsaf,c.cans.jj.histry,c.cans.jj.serios,c.cans.ld.commun,c.cans.ld.develp,c.cans.ld.family,c.cans.ld.indliv,c.cans.ld.jobfun,
-                                     c.cans.ld.judgmt,c.cans.ld.legal,c.cans.ld.livsit,c.cans.ld.medicl,c.cans.ld.physcl,c.cans.ld.recret,c.cans.ld.school,c.cans.ld.sexdev,
-                                     c.cans.ld.sleep,c.cans.ld.socfun,c.cans.ps.hosptl,c.cans.rf.comsc,c.cans.rf.rescon,c.cans.rn.frqncy,c.cans.rn.invill,c.cans.sa.envinf,
-                                     c.cans.sa.parinf,c.cans.sa.perinf,c.cans.sa.severe,c.cans.sa.stgrec,c.cans.sc.attend,c.cans.sc.behavr,c.cans.sr.hissui,c.cans.type,c.cans.vi.hxviol,
-									 c.cans.disreas)
-   if c.cans.type = "3" and c.cans.disreas != "9"
-    $clear(c.cans.rloc)
-   endif									 
    Report(RptTitle,ReportID,page)									
    if $endbutton = "SUBMIT"
-    if UM_StaffYN = "Y" and (c.cans.staff != $operstaffid and c.cans.staff dp) 
+    if UM_StaffYN = "Y"
+	 if (c.cans.staff = $operstaffid and c.cans.staff dp)
+	  Page = "ValidateReport"
+	 else
+	  Page = "Exit"
+	 endif
+	else
      Page = "ValidateReport"
-    else
-     if SaveData() = 0
-     Page = "Exit"
-     endif 								   
-    endif
+	endif
    elseif $endbutton = "CANCEL"
-    if c.cans.type = "1"
-     if UM_StaffYN = "Y" and (c.cans.staff != $operstaffid and c.cans.staff dp)
-      Page = "Authorize"
-     else
-      if c.cans.rloc = "100"
-       if CanSkipPage4() = "Y"
-	    if CanSkipPage3() = "Y"
-	     if CanSkipPage2() = "Y"
-	      if CanSkipPage1() = "Y"
-		   Page = "0"
-		  else
-		   Page = "1"
-		  endif
-	     else
-	      Page = "2"
-	     endif
-	    else
-	     Page = "3"
-	    endif
-	   else
-	    Page = "4"
-	   endif   	      
-	  else
-	   Page = "SAL"											 
-	  endif 
-     endif
-    else
-     if UM_StaffYN = "Y" and (c.cans.staff != $operstaffid and c.cans.staff dp)
-      Page = "Authorize"
-     else
-      if CanSkipPage4() = "Y"
+    if UM_StaffYN = "Y" and (c.cans.staff != $operstaffid and c.cans.staff dp)
+     Page = "Authorize"
+	else
+	 if c.cans.type = "1" and c.cans.isn !dp
+	  Page = "SAL"
+	 else
+	  if CanSkipPage4() = "Y"	  
 	   if CanSkipPage3() = "Y"
 	    if CanSkipPage2() = "Y"
-	     if CanSkipPage1() = "Y"
+		 if CanSkipPage1() = "Y"
 		  Page = "0"
 		 else
 		  Page = "1"
 		 endif
-	    else
-	     Page = "2"
-	    endif
+		else
+		 Page = "2"
+		endif 
 	   else
 	    Page = "3"
-	   endif
-	  else
+	   endif	
+      else
 	   Page = "4"
-	  endif   	      
-	 endif  
-    endif
-   else
+	  endif
+	 endif
+	endif 
+   else	
     if SaveData() = 0
      Page = "Exit"
     endif
    endif
   elseif Page = "Authorize" 
-   c.cans.rloc = {"lib_CANS617"}RLOC(c.cans.ac.sexgen,c.cans.ad.affreg,c.cans.ad.dissoc,c.cans.ad.intrus,c.cans.cb.adjtrm,c.cans.cb.angctr,c.cans.cb.anxity,c.cans.cb.condct,
-                                     c.cans.cb.depres,c.cans.cb.eatdst,c.cans.cb.implsv,c.cans.cb.mania,c.cans.cb.oppdef,c.cans.cb.psychs,c.cans.cb.subabs,c.cans.cr.bully,
-                                     c.cans.cr.dangot,c.cans.cr.delqcy,c.cans.cr.episds,c.cans.cr.firset,c.cans.cr.oslfhr,c.cans.cr.runawy,c.cans.cr.sexagr,c.cans.cr.smutil,
-                                     c.cans.cr.socbeh,c.cans.cr.suicid,c.cans.dv.cognit,c.cans.dv.develp,c.cans.fs.inthrm,c.cans.fs.planin,c.cans.hs.durrec,c.cans.hs.timlst,
-                                     c.cans.jj.comsaf,c.cans.jj.histry,c.cans.jj.serios,c.cans.ld.commun,c.cans.ld.develp,c.cans.ld.family,c.cans.ld.indliv,c.cans.ld.jobfun,
-                                     c.cans.ld.judgmt,c.cans.ld.legal,c.cans.ld.livsit,c.cans.ld.medicl,c.cans.ld.physcl,c.cans.ld.recret,c.cans.ld.school,c.cans.ld.sexdev,
-                                     c.cans.ld.sleep,c.cans.ld.socfun,c.cans.ps.hosptl,c.cans.rf.comsc,c.cans.rf.rescon,c.cans.rn.frqncy,c.cans.rn.invill,c.cans.sa.envinf,
-                                     c.cans.sa.parinf,c.cans.sa.perinf,c.cans.sa.severe,c.cans.sa.stgrec,c.cans.sc.attend,c.cans.sc.behavr,c.cans.sr.hissui,c.cans.type,c.cans.vi.hxviol,
-									 c.cans.rloc)
    REPORT(RptTitle,ReportID,page)
    if $endbutton = "SUBMIT"
     if (c.cans.aloc dp and c.cans.aloc != c.cans.rloc) and c.cans.loc_dev !dp
@@ -418,9 +385,12 @@ start CANS617(parmfile,option,client,retcode)
 	   $clear(e.ser,e.ru,e.start,e.dur,e.loc)
 	    Page = "4"
 	  endif	
+'No escape without the event info
 	 else
 	  Page = "4"
 	 endif
+	else
+	 Page = "Report"
     endif
    else
     Page = "Report"
@@ -430,7 +400,7 @@ start CANS617(parmfile,option,client,retcode)
   endif
  enddo
 end CANS617
-%include c_func-lib
+'%include c_func-lib
 
 function Report(RptTitle,ReportID,mode) is null
  RptTitle is x
@@ -438,6 +408,16 @@ function Report(RptTitle,ReportID,mode) is null
  mode     is x
  staffsig is x
 
+ c.cans.rloc = {"lib_CANS617"}RLOC(c.cans.ac.sexgen,c.cans.ad.affreg,c.cans.ad.dissoc,c.cans.ad.intrus,c.cans.cb.adjtrm,c.cans.cb.angctr,c.cans.cb.anxity,c.cans.cb.condct,
+                                   c.cans.cb.depres,c.cans.cb.eatdst,c.cans.cb.implsv,c.cans.cb.mania,c.cans.cb.oppdef,c.cans.cb.psychs,c.cans.cb.subabs,c.cans.cr.bully,
+                                   c.cans.cr.dangot,c.cans.cr.delqcy,c.cans.cr.episds,c.cans.cr.firset,c.cans.cr.oslfhr,c.cans.cr.runawy,c.cans.cr.sexagr,c.cans.cr.smutil,
+                                   c.cans.cr.socbeh,c.cans.cr.suicid,c.cans.dv.cognit,c.cans.dv.develp,c.cans.fs.inthrm,c.cans.fs.planin,c.cans.hs.durrec,c.cans.hs.timlst,
+                                   c.cans.jj.comsaf,c.cans.jj.histry,c.cans.jj.serios,c.cans.ld.commun,c.cans.ld.develp,c.cans.ld.family,c.cans.ld.indliv,c.cans.ld.jobfun,
+                                   c.cans.ld.judgmt,c.cans.ld.legal,c.cans.ld.livsit,c.cans.ld.medicl,c.cans.ld.physcl,c.cans.ld.recret,c.cans.ld.school,c.cans.ld.sexdev,
+                                   c.cans.ld.sleep,c.cans.ld.socfun,c.cans.ps.hosptl,c.cans.rf.comsc,c.cans.rf.rescon,c.cans.rn.frqncy,c.cans.rn.invill,c.cans.sa.envinf,
+                                   c.cans.sa.parinf,c.cans.sa.perinf,c.cans.sa.severe,c.cans.sa.stgrec,c.cans.sc.attend,c.cans.sc.behavr,c.cans.sr.hissui,c.cans.type,c.cans.vi.hxviol,
+						           c.cans.disreas) 
+								   
  if UM_StaffYN = "Y" and (c.cans.staff != $operstaffid and c.cans.staff dp)
   if mode = "Report"
    $submitopt("off", "")
@@ -532,7 +512,7 @@ function Report(RptTitle,ReportID,mode) is null
   if mode = "Report"
    if UM_StaffYN = "Y" and (c.cans.staff != $operstaffid and c.cans.staff dp)
     $br(){"lib_CANS617"}StaffComments(q_text_comment,c.cans.comment)
-    staffsig = $dct(2071, `fn.get-by-id(c.cans.alocstaff)`, "D")
+    staffsig = $dct(2071, $oper, "D")
     $br(){"lib_CANS617"}ALOCRpt(RptTitle,ReportID,q_text_alocstaff,c.cans.alocstaff,q_text_alocdate,c.cans.alocdate,q_text_alocedate,c.cans.alocedate,
     q_text_rloc,c.cans.rloc,q_text_dloc,c.cans.dloc,q_text_aloc,c.cans.aloc,
     q_text_loc_dev,c.cans.loc_dev,
@@ -561,7 +541,7 @@ function SaveData() is i
  endif
  $dblock()
  SaveData = $dbpoint(02, $regid, c.cans.rec) 
- if c.cans.aloc dp
+ if c.cans.compd dp
   c.cans.snapid = {"l_snapLibSC"}sn_GetSnapID()	                           
  endif 
  if c.cans.resother1 dp
@@ -583,11 +563,16 @@ function SaveData() is i
   $clear(c.cans.intref,c.cans.intrefoth)
  endif
  if mode = "ADD"
-  if c.cans.type = "1"
+  if c.cans.type = "1" and c.cans.isn !dp
    c.cans.isn = SaveEvent()
+  elseif c.cans.type = "3" and c.cans.disreas != "9"
+   $clear(c.cans.rloc,c.cans.aloc)
   endif
   c.cans.rec[effd] = $today
   c.cans.canstype = "1"
+  if c.cans.cg.na != "9"
+   $clear(c.cans.cg.na)
+  endif
   SaveData = $dbadddst(02, $regid, cans_dstlist) 
  else
   if (c.cans.dloc = c.cans.rloc) and (c.cans.dloc = c.cans.aloc)
@@ -619,15 +604,15 @@ function LifeDomain() is null
     $col("center",,"10%")$text("2")
     $col("center",,"10%")$text("3")
    $row()
-    $col()$tag(hr)
-    $col()$tag(hr)
-    $col()$tag(hr)
-    $col()$tag(hr)
-    $col()$tag(hr)
-    $col()$tag(hr)
+    $col()$tag("<hr/>")
+    $col()$tag("<hr/>")
+    $col()$tag("<hr/>")
+    $col()$tag("<hr/>")
+    $col()$tag("<hr/>")
+    $col()$tag("<hr/>")
    $row(,row_color1)
     $col()$text(q_text_ld_family)
-    $col("center")$radio(c.cans.ld.family,"","N")
+    $col("center")$radio(c.cans.ld.family,"","9")
     $col("center")$radio(c.cans.ld.family,"","0")
     $col("center")$radio(c.cans.ld.family,"","1")
     $col("center")$radio(c.cans.ld.family,"","2")
@@ -683,7 +668,7 @@ function LifeDomain() is null
     $col("center")$radio(c.cans.ld.judgmt,"","3")
    $row(,row_color1)
     $col()$text(q_text_ld_jobfun)
-    $col("center")$radio(c.cans.ld.jobfun,"","N")
+    $col("center")$radio(c.cans.ld.jobfun,"","9")
     $col("center")$radio(c.cans.ld.jobfun,"","0")
     $col("center")$radio(c.cans.ld.jobfun,"","1")
     $col("center")$radio(c.cans.ld.jobfun,"","2")
@@ -725,7 +710,7 @@ function LifeDomain() is null
     $col("center")$radio(c.cans.ld.sleep,"","3")
    $row(,row_color1)
     $col()$text(q_text_ld_indliv)
-    $col("center")$radio(c.cans.ld.indliv,"","N")
+    $col("center")$radio(c.cans.ld.indliv,"","9")
     $col("center")$radio(c.cans.ld.indliv,"","0")
     $col("center")$radio(c.cans.ld.indliv,"","1")
     $col("center")$radio(c.cans.ld.indliv,"","2")
@@ -740,7 +725,7 @@ function CareGive() is null
   bgcolor = "red"
  endif
  $fieldset("Caregiver Strengths and Needs",,"datatag")
-  $text("Not Applicable - no caregiver identified","error")$radio(c.cans.cg.na,"True", "Y",,,"CG","N")$radio(c.cans.cg.na,"False", "N",,,"CG","Y")
+  $text("Caregiver identified?","error")$radio(c.cans.cg.na,"Yes", "Y",,,"CG","Y")$radio(c.cans.cg.na,"No or N/A", "9",,,"CG","N")
   $block("CG","Y") 
    {"lib_CANS617"}CareGiverScoring(`table_wbgcolor`)
    $table($funcname,,`table_wbgcolor`)
@@ -752,110 +737,110 @@ function CareGive() is null
      $col("center",,"10%")$text("2")
      $col("center",,"10%")$text("3")
     $row()
-     $col()$tag(hr)
-     $col()$tag(hr)
-     $col()$tag(hr)
-     $col()$tag(hr)
-     $col()$tag(hr)
-     $col()$tag(hr)
+     $col()$tag("<hr/>")
+     $col()$tag("<hr/>")
+     $col()$tag("<hr/>")
+     $col()$tag("<hr/>")
+     $col()$tag("<hr/>")
+     $col()$tag("<hr/>")
     $row(,row_color1)
      $col()$text(q_text_cg_super)
-     $col("center")$radio(c.cans.cg.super,"","N")
+     $col("center")$radio(c.cans.cg.super,"","9")
      $col("center")$radio(c.cans.cg.super,"","0")
      $col("center")$radio(c.cans.cg.super,"","1")
      $col("center")$radio(c.cans.cg.super,"","2")
      $col("center")$radio(c.cans.cg.super,"","3")
     $row(,row_color2)
      $col()$text(q_text_cg_involv)
-     $col("center")$radio(c.cans.cg.involv,"","N")
+     $col("center")$radio(c.cans.cg.involv,"","9")
      $col("center")$radio(c.cans.cg.involv,"","0")
      $col("center")$radio(c.cans.cg.involv,"","1")
      $col("center")$radio(c.cans.cg.involv,"","2")
      $col("center")$radio(c.cans.cg.involv,"","3")
     $row(,row_color1)
      $col()$text(q_text_cg_knoldg) 
-     $col("center")$radio(c.cans.cg.knoldg,"","N")
+     $col("center")$radio(c.cans.cg.knoldg,"","9")
      $col("center")$radio(c.cans.cg.knoldg,"","0")
      $col("center")$radio(c.cans.cg.knoldg,"","1")
      $col("center")$radio(c.cans.cg.knoldg,"","2")
      $col("center")$radio(c.cans.cg.knoldg,"","3")
     $row(,row_color2)
     $col()$text(q_text_cg_organz)
-     $col("center")$radio(c.cans.cg.organz,"","N")
+     $col("center")$radio(c.cans.cg.organz,"","9")
      $col("center")$radio(c.cans.cg.organz,"","0")
      $col("center")$radio(c.cans.cg.organz,"","1")
      $col("center")$radio(c.cans.cg.organz,"","2")
      $col("center")$radio(c.cans.cg.organz,"","3")
     $row(,row_color1)
      $col()$text(q_text_cg_socres)
-     $col("center")$radio(c.cans.cg.socres,"","N")
+     $col("center")$radio(c.cans.cg.socres,"","9")
      $col("center")$radio(c.cans.cg.socres,"","0")
      $col("center")$radio(c.cans.cg.socres,"","1")
      $col("center")$radio(c.cans.cg.socres,"","2")
      $col("center")$radio(c.cans.cg.socres,"","3")
     $row(,row_color2)
      $col()$text(q_text_cg_ressbl)
-     $col("center")$radio(c.cans.cg.ressbl,"","N")
+     $col("center")$radio(c.cans.cg.ressbl,"","9")
      $col("center")$radio(c.cans.cg.ressbl,"","0")
      $col("center")$radio(c.cans.cg.ressbl,"","1")
      $col("center")$radio(c.cans.cg.ressbl,"","2")
      $col("center")$radio(c.cans.cg.ressbl,"","3")
     $row(,row_color1)
      $col()$text(q_text_cg_physcl)
-     $col("center")$radio(c.cans.cg.physcl,"","N")
+     $col("center")$radio(c.cans.cg.physcl,"","9")
      $col("center")$radio(c.cans.cg.physcl,"","0")
      $col("center")$radio(c.cans.cg.physcl,"","1")
      $col("center")$radio(c.cans.cg.physcl,"","2")
      $col("center")$radio(c.cans.cg.physcl,"","3")
     $row(,row_color2)
      $col()$text(q_text_cg_menhth)
-     $col("center")$radio(c.cans.cg.menhth,"","N")
+     $col("center")$radio(c.cans.cg.menhth,"","9")
      $col("center")$radio(c.cans.cg.menhth,"","0")
      $col("center")$radio(c.cans.cg.menhth,"","1")
      $col("center")$radio(c.cans.cg.menhth,"","2")
      $col("center")$radio(c.cans.cg.menhth,"","3")
     $row(,row_color1)
      $col()$text(q_text_cg_subabs)
-     $col("center")$radio(c.cans.cg.subabs,"","N")
+     $col("center")$radio(c.cans.cg.subabs,"","9")
      $col("center")$radio(c.cans.cg.subabs,"","0")
      $col("center")$radio(c.cans.cg.subabs,"","1")
      $col("center")$radio(c.cans.cg.subabs,"","2")
      $col("center")$radio(c.cans.cg.subabs,"","3")
     $row(,row_color2)
      $col()$text(q_text_cg_develp) 
-     $col("center")$radio(c.cans.cg.develp,"","N")
+     $col("center")$radio(c.cans.cg.develp,"","9")
      $col("center")$radio(c.cans.cg.develp,"","0")
      $col("center")$radio(c.cans.cg.develp,"","1")
      $col("center")$radio(c.cans.cg.develp,"","2")
      $col("center")$radio(c.cans.cg.develp,"","3")
     $row(,row_color1)
      $col()$text(q_text_cg_chldcr)
-     $col("center")$radio(c.cans.cg.chldcr,"","N")
+     $col("center")$radio(c.cans.cg.chldcr,"","9")
      $col("center")$radio(c.cans.cg.chldcr,"","0")
      $col("center")$radio(c.cans.cg.chldcr,"","1")
      $col("center")$radio(c.cans.cg.chldcr,"","2")
      $col("center")$radio(c.cans.cg.chldcr,"","3")
     $row(,row_color2)
      $col()$text(q_text_cg_miltra)
-     $col("center")$radio(c.cans.cg.miltra,"","N")
+     $col("center")$radio(c.cans.cg.miltra,"","9")
      $col("center")$radio(c.cans.cg.miltra,"","0")
      $col("center")$radio(c.cans.cg.miltra,"","1")
      $col("center")$radio(c.cans.cg.miltra,"","2")
      $col("center")$radio(c.cans.cg.miltra,"","3")
     $row(,row_color1)
      $col()$text(q_text_cg_famsts)
-     $col("center")$radio(c.cans.cg.famsts,"","N")
+     $col("center")$radio(c.cans.cg.famsts,"","9")
      $col("center")$radio(c.cans.cg.famsts,"","0")
      $col("center")$radio(c.cans.cg.famsts,"","1")
      $col("center")$radio(c.cans.cg.famsts,"","2")
      $col("center")$radio(c.cans.cg.famsts,"","3")
     $row(,row_color2)
      $col()$text(q_text_cg_safety)$text("{sup}10{/sup}")
-     $col("center")$radio(c.cans.cg.safety,"","N")
+     $col("center")$radio(c.cans.cg.safety,"","9")
      $col("center")$radio(c.cans.cg.safety,"","0")
-     $col("center",,,,,col_color_multi) $radio(c.cans.cg.safety,"","1")
-     $col("center",,,,,col_color_multi) $radio(c.cans.cg.safety,"","2")
-     $col("center",,,,,col_color_multi) $radio(c.cans.cg.safety,"","3")
+     $col("center",,,,,col_color_multi)$radio(c.cans.cg.safety,"","1")
+     $col("center",,,,,col_color_multi)$radio(c.cans.cg.safety,"","2")
+     $col("center",,,,,col_color_multi)$radio(c.cans.cg.safety,"","3")
    $endtable($funcname)
   $endfieldset()
  $endblock("CG","Y" )
@@ -877,11 +862,11 @@ function ChildStrength() is null
     $col("center",,"10%")$text("2")
     $col("center",,"10%")$text("3")
    $row()
-    $col()$tag(hr)
-    $col()$tag(hr)
-    $col()$tag(hr)
-    $col()$tag(hr)
-    $col()$tag(hr)
+    $col()$tag("<hr/>")
+    $col()$tag("<hr/>")
+    $col()$tag("<hr/>")
+    $col()$tag("<hr/>")
+    $col()$tag("<hr/>")
    $row(,row_color1)
     $col()$text(q_text_cs_family)
     $col("center")$radio(c.cans.cs.family,"","0")
@@ -968,11 +953,11 @@ function ChildBehave() is null
     $col("center",,"10%")$text("2")
     $col("center",,"10%")$text("3")
    $row()
-    $col()$tag(hr)
-    $col()$tag(hr)
-    $col()$tag(hr)
-    $col()$tag(hr)
-    $col()$tag(hr)
+    $col()$tag("<hr/>")
+    $col()$tag("<hr/>")
+    $col()$tag("<hr/>")
+    $col()$tag("<hr/>")
+    $col()$tag("<hr/>")
    $row(,row_color1)
     $col()$text(q_text_cb_psychs)
     $col("center")$radio(c.cans.cb.psychs,"","0")
@@ -1059,11 +1044,11 @@ function Culture() is null
    $col("center",,"10%")$text("2")
    $col("center",,"10%")$text("3")
   $row()
-   $col()$tag(hr)
-   $col()$tag(hr)
-   $col()$tag(hr)
-   $col()$tag(hr)
-   $col()$tag(hr)
+   $col()$tag("<hr/>")
+   $col()$tag("<hr/>")
+   $col()$tag("<hr/>")
+   $col()$tag("<hr/>")
+   $col()$tag("<hr/>")
   $row(,row_color1)
    $col()$text(q_text_ac_langua)
    $col("center")$radio(c.cans.ac.langua,"","0")
@@ -1114,11 +1099,11 @@ function ChildRisk() is null
     $col("center",,"10%")$text("2")
     $col("center",,"10%")$text("3")
    $row()
-    $col()$tag(hr)
-    $col()$tag(hr)
-    $col()$tag(hr)
-    $col()$tag(hr)
-    $col()$tag(hr)
+    $col()$tag("<hr/>")
+    $col()$tag("<hr/>")
+    $col()$tag("<hr/>")
+    $col()$tag("<hr/>")
+    $col()$tag("<hr/>")
    $row(,row_color1)
     $col()$text(q_text_cr_suicid)$text("{sup}1{/sup}")
     $col("center")$radio(c.cans.cr.suicid,"","0")
@@ -1197,10 +1182,9 @@ function PsyHosp() is null
     $col("center",,"10%")$text("0")
     $col("center",,"10%")$text("1")
    $row()
-    $col()$tag(hr)
-    $col()$tag(hr)
-    $col()$tag(hr)
-    $col()$tag(hr)
+    $col()$tag("<hr/>")
+    $col()$tag("<hr/>")
+    $col()$tag("<hr/>")
    $row(,row_color1)
     $col()$text(q_text_ps_hosptl)$text("{sup}12{/sup}")
     $col("center")$radio(c.cans.ps.hosptl,"","0")
@@ -1225,11 +1209,11 @@ function CrisisHistory() is null
     $col("center",,"10%")$text("2")
     $col("center",,"10%")$text("3")
    $row()
-    $col()$tag(hr)
-    $col()$tag(hr)
-    $col()$tag(hr)
-    $col()$tag(hr)
-    $col()$tag(hr)
+    $col()$tag("<hr/>")
+    $col()$tag("<hr/>")
+    $col()$tag("<hr/>")
+    $col()$tag("<hr/>")
+    $col()$tag("<hr/>")
    $row(,row_color1)
     $col()$text(q_text_cr_episds)
     $col("center")$radio(c.cans.cr.episds,"","0")
@@ -1255,11 +1239,11 @@ function School() is null
     $col("center",,"10%")$text("2")
     $col("center",,"10%")$text("3")
    $row()
-    $col()$tag(hr)
-    $col()$tag(hr)
-    $col()$tag(hr)
-    $col()$tag(hr)
-    $col()$tag(hr)
+    $col()$tag("<hr/>")
+    $col()$tag("<hr/>")
+    $col()$tag("<hr/>")
+    $col()$tag("<hr/>")
+    $col()$tag("<hr/>")
    $row(,row_color3)
     $col()$text(q_text_sc_behavr)
     $col("center")$radio(c.cans.sc.behavr,"","0")
@@ -1303,11 +1287,11 @@ function DevNeeds() is null
     $col("center",,"10%")$text("2")
     $col("center",,"10%")$text("3")
    $row()
-    $col()$tag(hr)
-    $col()$tag(hr)
-    $col()$tag(hr)
-    $col()$tag(hr)
-    $col()$tag(hr)
+    $col()$tag("<hr/>")
+    $col()$tag("<hr/>")
+    $col()$tag("<hr/>")
+    $col()$tag("<hr/>")
+    $col()$tag("<hr/>")
    $row(,row_color3)
     $col()$text(q_text_dv_cognit)
     $col("center")$radio(c.cans.dv.cognit,"","0")
@@ -1345,11 +1329,11 @@ function FamilyCareGive() is null
    $col("center",,"10%")$text("2")
    $col("center",,"10%")$text("3")
   $row()
-   $col()$tag(hr)
-   $col()$tag(hr)
-   $col()$tag(hr)
-   $col()$tag(hr)
-   $col()$tag(hr)
+   $col()$tag("<hr/>")
+   $col()$tag("<hr/>")
+   $col()$tag("<hr/>")
+   $col()$tag("<hr/>")
+   $col()$tag("<hr/>")
   $row(,row_color3)
    $col()$text(q_text_fc_selfcr)
    $col("center")$radio(c.cans.fc.selfcr,"","0")
@@ -1417,11 +1401,11 @@ function trauma() is null
     $col("center",,"10%")$text("2")
     $col("center",,"10%")$text("3")
    $row()
-    $col()$tag(hr)
-    $col()$tag(hr)
-    $col()$tag(hr)
-    $col()$tag(hr)
-    $col()$tag(hr)
+    $col()$tag("<hr/>")
+    $col()$tag("<hr/>")
+    $col()$tag("<hr/>")
+    $col()$tag("<hr/>")
+    $col()$tag("<hr/>")
    $row(,row_color3)
     $col()$text(q_text_tr_sexabs)
     $col("center")$radio(c.cans.tr.sexabs,"","0")
@@ -1509,11 +1493,11 @@ function sexab1() is null
     $col("center",,"10%")$text("2")
     $col("center",,"10%")$text("3")
    $row()
-    $col()$tag(hr)
-    $col()$tag(hr)
-    $col()$tag(hr)
-    $col()$tag(hr)
-    $col()$tag(hr)  
+    $col()$tag("<hr/>")
+    $col()$tag("<hr/>")
+    $col()$tag("<hr/>")
+    $col()$tag("<hr/>")
+    $col()$tag("<hr/>")  
    $row(,row_color3)
     $col()$text(q_text_tr_emclos)
     $col("center")$radio(c.cans.tr.emclos,"","0")
@@ -1563,11 +1547,11 @@ function adjust() is null
     $col("center",,"10%")$text("2")
     $col("center",,"10%")$text("3")
    $row()
-    $col()$tag(hr)
-    $col()$tag(hr)
-    $col()$tag(hr)
-    $col()$tag(hr)
-    $col()$tag(hr)
+    $col()$tag("<hr/>")
+    $col()$tag("<hr/>")
+    $col()$tag("<hr/>")
+    $col()$tag("<hr/>")
+    $col()$tag("<hr/>")
    $row(,row_color3)
     $col()$text(q_text_ad_affreg)
     $col("center")$radio(c.cans.ad.affreg,"","0")
@@ -1617,11 +1601,11 @@ function subab() is null
     $col("center",,"10%")$text("2")
     $col("center",,"10%")$text("3")
    $row()
-    $col()$tag(hr)
-    $col()$tag(hr)
-    $col()$tag(hr)
-    $col()$tag(hr)
-    $col()$tag(hr)
+    $col()$tag("<hr/>")
+    $col()$tag("<hr/>")
+    $col()$tag("<hr/>")
+    $col()$tag("<hr/>")
+    $col()$tag("<hr/>")
    $row(,row_color3)
     $col()$text(q_text_sa_severe)
     $col("center")$radio(c.cans.sa.severe,"","0")
@@ -1676,11 +1660,11 @@ function suiciderisk() is null
     $col("center",,"10%")$text("2")
     $col("center",,"10%")$text("3")
    $row()
-    $col()$tag(hr)
-    $col()$tag(hr)
-    $col()$tag(hr)
-    $col()$tag(hr)
-    $col()$tag(hr)
+    $col()$tag("<hr/>")
+    $col()$tag("<hr/>")
+    $col()$tag("<hr/>")
+    $col()$tag("<hr/>")
+    $col()$tag("<hr/>")
    $row(,row_color3) 
     $col()$text(q_text_hissui)
     $col("center")$radio(c.cans.sr.hissui,"","0")
@@ -1719,11 +1703,11 @@ function violence() is null
     $col("center",,"10%")$text("2")
     $col("center",,"10%")$text("3")
    $row()
-    $col()$tag(hr)
-    $col()$tag(hr)
-    $col()$tag(hr)
-    $col()$tag(hr)
-    $col()$tag(hr)
+    $col()$tag("<hr/>")
+    $col()$tag("<hr/>")
+    $col()$tag("<hr/>")
+    $col()$tag("<hr/>")
+    $col()$tag("<hr/>")
    $row(,row_color3)
     $col()$text(q_text_vi_hxpabs)
     $col("center")$radio(c.cans.vi.hxpabs,"","0")
@@ -1767,11 +1751,11 @@ function embeh() is null
     $col("center",,"10%")$text("2")                                                                                 
     $col("center",,"10%")$text("3")                                                                                 
    $row()                                                                                                           
-    $col()$tag(hr)                                                                                                  
-    $col()$tag(hr)                                                                                                  
-    $col()$tag(hr)                                                                                                  
-    $col()$tag(hr)                                                                                                  
-    $col()$tag(hr)                                                                                                  
+    $col()$tag("<hr/>")                                                                                                  
+    $col()$tag("<hr/>")                                                                                                  
+    $col()$tag("<hr/>")                                                                                                  
+    $col()$tag("<hr/>")                                                                                                  
+    $col()$tag("<hr/>")                                                                                                  
    $row(,row_color3)                                                                                 
     $col()$text(q_text_eb_frsmgt)                                                                          
     $col("center")$radio(c.cans.eb.frsmgt,"","0")                                                                
@@ -1821,11 +1805,11 @@ function resiliency() is null
     $col("center",,"10%")$text("2")                                                                                 
     $col("center",,"10%")$text("3")                                                                                 
    $row()                                                                                                           
-    $col()$tag(hr)                                                                                                  
-    $col()$tag(hr)                                                                                                  
-    $col()$tag(hr)                                                                                                  
-    $col()$tag(hr)                                                                                                  
-    $col()$tag(hr)                                                                                                  
+    $col()$tag("<hr/>")                                                                                                  
+    $col()$tag("<hr/>")                                                                                                  
+    $col()$tag("<hr/>")                                                                                                  
+    $col()$tag("<hr/>")                                                                                                  
+    $col()$tag("<hr/>")                                                                                                  
    $row(,row_color3)                                                                                 
     $col()$text(q_text_rf_viopot)                                                                          
     $col("center")$radio(c.cans.rf.viopot,"","0")                                                                
@@ -1869,11 +1853,11 @@ function sexagg() is null
     $col("center",,"10%")$text("2")                                                                                 
     $col("center",,"10%")$text("3")                                                                                 
    $row()                                                                                                           
-    $col()$tag(hr)                                                                                                  
-    $col()$tag(hr)                                                                                                  
-    $col()$tag(hr)                                                                                                  
-    $col()$tag(hr)                                                                                                  
-    $col()$tag(hr)                                                                                                  
+    $col()$tag("<hr/>")                                                                                                  
+    $col()$tag("<hr/>")                                                                                                  
+    $col()$tag("<hr/>")                                                                                                  
+    $col()$tag("<hr/>")                                                                                                  
+    $col()$tag("<hr/>")                                                                                                  
    $row(,row_color3)                                                                                 
     $col()$text(q_text_sb_relton)                                                                          
     $col("center")$radio(c.cans.sb.relton,"","0")                                                                
@@ -1954,11 +1938,11 @@ function Runaway() is null
     $col("center",,"10%")$text("2")                                                                                 
     $col("center",,"10%")$text("3")                                                                                 
    $row()                                                                                                           
-    $col()$tag(hr)                                                                                                  
-    $col()$tag(hr)                                                                                                  
-    $col()$tag(hr)                                                                                                  
-    $col()$tag(hr)                                                                                                  
-    $col()$tag(hr)                                                                                                  
+    $col()$tag("<hr/>")                                                                                                  
+    $col()$tag("<hr/>")                                                                                                  
+    $col()$tag("<hr/>")                                                                                                  
+    $col()$tag("<hr/>")                                                                                                  
+    $col()$tag("<hr/>")                                                                                                  
    $row(,row_color3)                                                                                 
     $col()$text(q_text_rn_frqncy)                                                                          
     $col("center")$radio(c.cans.rn.frqncy,"","0")                                                                
@@ -2026,11 +2010,11 @@ function jjustice() is null
     $col("center",,"10%")$text("2")                                                                                 
     $col("center",,"10%")$text("3")                                                                                 
    $row()                                                                                                           
-    $col()$tag(hr)                                                                                                  
-    $col()$tag(hr)                                                                                                  
-    $col()$tag(hr)                                                                                                  
-    $col()$tag(hr)                                                                                                  
-    $col()$tag(hr)                                                                                                  
+    $col()$tag("<hr/>")                                                                                                  
+    $col()$tag("<hr/>")                                                                                                  
+    $col()$tag("<hr/>")                                                                                                  
+    $col()$tag("<hr/>")                                                                                                  
+    $col()$tag("<hr/>")                                                                                                  
    $row(,row_color3)                                                                                 
     $col()$text(q_text_jj_serios)                                                                          
     $col("center")$radio(c.cans.jj.serios,"","0")                                                                
@@ -2104,11 +2088,11 @@ function fire() is null
     $col("center",,"10%")$text("2")                                                                                 
     $col("center",,"10%")$text("3")                                                                                 
    $row()                                                                                                           
-    $col()$tag(hr)                                                                                                  
-    $col()$tag(hr)                                                                                                  
-    $col()$tag(hr)                                                                                                  
-    $col()$tag(hr)                                                                                                  
-    $col()$tag(hr)                                                                                                  
+    $col()$tag("<hr/>")                                                                                                  
+    $col()$tag("<hr/>")                                                                                                  
+    $col()$tag("<hr/>")                                                                                                  
+    $col()$tag("<hr/>")                                                                                                  
+    $col()$tag("<hr/>")                                                                                                  
    $row(,row_color3)                                                                                 
     $col()$text(q_text_fs_serios)                                                                          
     $col("center")$radio(c.cans.fs.serios,"","0")                                                                
@@ -2182,11 +2166,11 @@ function PsyHospHx() is null
     $col("center",,"10%")$text("2")                                                                                 
     $col("center",,"10%")$text("3")                                                                                 
    $row()                                                                                                           
-    $col()$tag(hr)                                                                                                  
-    $col()$tag(hr)                                                                                                  
-    $col()$tag(hr)                                                                                                  
-    $col()$tag(hr)                                                                                                  
-    $col()$tag(hr)                                                                                                  
+    $col()$tag("<hr/>")                                                                                                  
+    $col()$tag("<hr/>")                                                                                                  
+    $col()$tag("<hr/>")                                                                                                  
+    $col()$tag("<hr/>")                                                                                                  
+    $col()$tag("<hr/>")                                                                                                  
    $row(,row_color3)                                                                                 
     $col()$text(q_text_hs_numprr)                                                                          
     $col("center")$radio(c.cans.hs.numprr,"","0")                                                                
@@ -2363,7 +2347,7 @@ function Validate1() is i
    (void)$arrpush(errors[],ps_errortxt)
   endif
    
-  if c.cans.cg.na = "N" and (c.cans.cg.super  !dp or c.cans.cg.involv !dp or c.cans.cg.knoldg !dp or c.cans.cg.organz !dp or c.cans.cg.socres !dp or c.cans.cg.ressbl !dp or c.cans.cg.physcl !dp or c.cans.cg.menhth !dp or 
+  if c.cans.cg.na = "Y" and (c.cans.cg.super  !dp or c.cans.cg.involv !dp or c.cans.cg.knoldg !dp or c.cans.cg.organz !dp or c.cans.cg.socres !dp or c.cans.cg.ressbl !dp or c.cans.cg.physcl !dp or c.cans.cg.menhth !dp or 
      c.cans.cg.subabs !dp or c.cans.cg.develp !dp or c.cans.cg.chldcr !dp or c.cans.cg.miltra !dp or c.cans.cg.famsts !dp or c.cans.cg.safety !dp)
    (void)$arrpush(errors[],cg_errortxt)
   endif   
@@ -2478,7 +2462,7 @@ function Validate2() is i
  else
   Validate2 = 0	
 'Clear dependant fields
-  if c.cans.cg.na = "Y"
+  if c.cans.cg.na = "9"
    $clear(c.cans.cg.super,c.cans.cg.involv,c.cans.cg.knoldg,c.cans.cg.organz,c.cans.cg.socres,c.cans.cg.ressbl,c.cans.cg.physcl,c.cans.cg.menhth,c.cans.cg.subabs,c.cans.cg.develp,c.cans.cg.chldcr,c.cans.cg.miltra,c.cans.cg.famsts,c.cans.cg.safety)
   endif 
   if $num(c.cans.ps.hosptl) != 1
@@ -2568,10 +2552,10 @@ function Page0() is null
   {"lib_UACOMMON"}ClientPageHeader($regid)
   $br()AssessmentDate()
   $br()AssessmentType()
-  $tag(hr)
+  $tag("<hr/>")
   $br()OtherQuestions()
   if {"lib_UACOMMON"}CurrentDX($regid,c.cans.date) = "N"
-   $br()$tag(hr)
+   $br()$tag("<hr/>")
    $br()$text(diag_errortxt,"error")
   endif
  $sendform($funcname)  
@@ -2584,7 +2568,7 @@ function Page1() is null
    {"lib_UACOMMON"}ClientPageHeader($regid)
    $br()  {"lib_CANS617"}ReportHdr(c.cans.date,c.cans.type,c.cans.intref,c.cans.intrefoth,c.cans.disdt,c.cans.disreas,c.cans.disoth,c.cans.disref)
    {"lib_CANS617"}OtherQuestionRpt(q_text_sped,c.cans.sped,q_text_extdrev,c.cans.extdrev,q_text_foster,c.cans.foster,q_text_riskplc,c.cans.riskplc)
-   $tag(hr)
+   $tag("<hr/>")
    $br()   
    $table("1",,table_nobgcolor)
     $row()
@@ -2593,7 +2577,7 @@ function Page1() is null
    $endtable("1")
    $br()
    if c.cans.type != "11" and (c.cans.type != "3" and c.cans.disreas != "9")
-    $tag(hr)
+    $tag("<hr/>")
     $br()
     $table("2",,table_nobgcolor)
      $row()
@@ -2601,7 +2585,7 @@ function Page1() is null
       $col()
     $endtable("2")
     $br()
-    $tag(hr)
+    $tag("<hr/>")
     $br()
     $table("3",,table_nobgcolor)
      $row()
@@ -2609,7 +2593,7 @@ function Page1() is null
 	  $col()
     $endtable("3")
     $br()
-    $tag(hr)
+    $tag("<hr/>")
     $br()
     $table("4",,table_nobgcolor)
      $row()
@@ -2617,7 +2601,7 @@ function Page1() is null
 	  $col()
     $endtable("4")
     $br()
-    $tag(hr)
+    $tag("<hr/>")
     $br()
     $table("5",,table_nobgcolor)
      $row()
@@ -2626,7 +2610,7 @@ function Page1() is null
 	        $br()CrisisHistory()
     $endtable("5")
     $br()
-    $tag(hr)
+    $tag("<hr/>")
     $br()
     $table("6",,table_nobgcolor)
      $row()
@@ -2634,7 +2618,7 @@ function Page1() is null
 	  $col()
     $endtable("6")
     $br()
-    $tag(hr)
+    $tag("<hr/>")
     $br()
   endif
   $sendform("PAGE1")
@@ -2647,7 +2631,7 @@ function Page2() is null
   {"lib_UACOMMON"}ClientPageHeader($regid)
   $br()  {"lib_CANS617"}ReportHdr(c.cans.date,c.cans.type,c.cans.intref,c.cans.intrefoth,c.cans.disdt,c.cans.disreas,c.cans.disoth,c.cans.disref)
   {"lib_CANS617"}OtherQuestionRpt(q_text_sped,c.cans.sped,q_text_extdrev,c.cans.extdrev,q_text_foster,c.cans.foster,q_text_riskplc,c.cans.riskplc)
-  $tag(hr)  
+  $tag("<hr/>")  
   $table($funcname,,table_nobgcolor)
    if $num(c.cans.cr.suicid) > 0 or
       $num(c.cans.cr.dangot) > 0 or 
@@ -2759,7 +2743,7 @@ function Page3() is null
   {"lib_UACOMMON"}ClientPageHeader($regid)
   $br()  {"lib_CANS617"}ReportHdr(c.cans.date,c.cans.type,c.cans.intref,c.cans.intrefoth,c.cans.disdt,c.cans.disreas,c.cans.disoth,c.cans.disref)
   {"lib_CANS617"}OtherQuestionRpt(q_text_sped,c.cans.sped,q_text_extdrev,c.cans.extdrev,q_text_foster,c.cans.foster,q_text_riskplc,c.cans.riskplc)
-  $tag(hr)
+  $tag("<hr/>")
   $table($funcname,,table_nobgcolor)
    $row()
    $col(,,"50%")sexab1()
@@ -2776,14 +2760,14 @@ function Page4() is null
   $br()  {"lib_CANS617"}ReportHdr(c.cans.date,c.cans.type,c.cans.intref,c.cans.intrefoth,c.cans.disdt,c.cans.disreas,c.cans.disoth,c.cans.disref)
   if c.cans.type != "11" and (c.cans.type != "3" and c.cans.disreas != "9")
    {"lib_CANS617"}OtherQuestionRpt(q_text_sped,c.cans.sped,q_text_extdrev,c.cans.extdrev,q_text_foster,c.cans.foster,q_text_riskplc,c.cans.riskplc)
-   $tag(hr)  
+   $tag("<hr/>")  
    $table($funcname,,table_nobgcolor)
     $row()
      $col("right",,"50%")$text(q_text_commdate,"datatag")
      $col()$textbox(c.cans.commdate,"CAL",10,6,"Y","normal")
     $row()
      $col("right",,"50%")$text(q_text_school3m,"datatag")
-     $col()$radio(c.cans.school3m,"No","N")$radio(c.cans.school3m,"Yes","Y")
+     $col()$radio(c.cans.school3m,"No","0")$ctag("&nbsp;&nbsp;")$radio(c.cans.school3m,"Yes","1")$ctag("&nbsp;&nbsp;")$radio(c.cans.school3m,"N/A","2")
     $row()
      $col("right")$text(q_text_grade,"datatag")
      $col()$dropboxdct(c.cans.grade,9073,,,,"Y")
@@ -3112,7 +3096,6 @@ function DisplayErrors() is null
 end DisplayErrors
 
 function SaveEvent() is x
- rc is i
  e.case.no = $regid
  e.staff   = $operstaffid
  e.date    = c.cans.date
