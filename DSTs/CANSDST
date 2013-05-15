@@ -3,8 +3,10 @@
 '
 ' tim 0.1 5/8/2012
 ' ~ removed staff db edit from c.cans.snapid dst
+'RLE 20130515 .2
+' ~ updated grade DCT values to match state specs
 
-%version 0.1
+%version 0.2 05/15/13 TxACE
 
 start CANSDST()
  rc        is i
@@ -52,30 +54,30 @@ start CANSDST()
 	
 	rc = $adddct(9073,"UA RDM - Grade Level Attained")
 		if rc = 0
-			rc = $adddcv(9073,"00","No years of Schooling")
-			rc = $adddcv(9073,"01","Grade 1")
-			rc = $adddcv(9073,"02","Grade 2")
-			rc = $adddcv(9073,"03","Grade 3")
-			rc = $adddcv(9073,"04","Grade 4")
-			rc = $adddcv(9073,"05","Grade 5")
-			rc = $adddcv(9073,"06","Grade 6")
-			rc = $adddcv(9073,"07","Grade 7")
-			rc = $adddcv(9073,"08","Grade 8")
-			rc = $adddcv(9073,"09","Grade 9")
-			rc = $adddcv(9073,"10","Grade 10")
-			rc = $adddcv(9073,"11","Grade 11")
-			rc = $adddcv(9073,"12","Grade 12")
-			rc = $adddcv(9073,"13","Nursery, Pre, Head Start")
-			rc = $adddcv(9073,"14","Kindergarten")
-			rc = $adddcv(9073,"15","Self Contained Special Ed.")
-			rc = $adddcv(9073,"16","Vocational")
-			rc = $adddcv(9073,"17","College Undergraduate Freshman")
-			rc = $adddcv(9073,"18","College Undergrad Sophomore")
-			rc = $adddcv(9073,"19","College Undergraduate Junior")
-			rc = $adddcv(9073,"20","College Undergraduate Senior")
-			rc = $adddcv(9073,"21","Graduate or Professional Sch.")
-			rc = $adddcv(9073,"97","Unknown")
-			rc = $adddcv(9073,"99","Not Collected")
+			rc = $adddcv(9073,"1","No years of Schooling")
+			rc = $adddcv(9073,"2","Grade 1")
+			rc = $adddcv(9073,"3","Grade 2")
+			rc = $adddcv(9073,"4","Grade 3")
+			rc = $adddcv(9073,"5","Grade 4")
+			rc = $adddcv(9073,"6","Grade 5")
+			rc = $adddcv(9073,"7","Grade 6")
+			rc = $adddcv(9073,"8","Grade 7")
+			rc = $adddcv(9073,"9","Grade 8")
+			rc = $adddcv(9073,"10","Grade 9")
+			rc = $adddcv(9073,"11","Grade 10")
+			rc = $adddcv(9073,"12","Grade 11")
+			rc = $adddcv(9073,"13","Grade 12 or GED")
+			rc = $adddcv(9073,"14","Nursery, Pre, Head Start")
+			rc = $adddcv(9073,"15","Kindergarten")
+			rc = $adddcv(9073,"16","Self Contained Special Ed.")
+			rc = $adddcv(9073,"17","Vocational")
+			rc = $adddcv(9073,"18","College Undergraduate Freshman")
+			rc = $adddcv(9073,"19","College Undergrad Sophomore")
+			rc = $adddcv(9073,"20","College Undergraduate Junior")
+			rc = $adddcv(9073,"21","College Undergraduate Senior")
+			rc = $adddcv(9073,"22","Graduate or Professional Sch.")
+			'rc = $adddcv(9073,"97","Unknown")
+			'rc = $adddcv(9073,"99","Not Collected")
 		endif
 		
 	rc = $adddct(9700,"CANS/ANSA Assessment Type")
