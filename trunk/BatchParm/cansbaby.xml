@@ -127,7 +127,7 @@
          <AccGenderSexualIdentity>%C.CANS.AC.SEXGEN%</AccGenderSexualIdentity>
          <AccRitual>%C.CANS.AC.RITUAL%</AccRitual>
          <AccCultureStress>%C.CANS.AC.CULSTR%</AccCultureStress>
-         <AccCulturalDifferences>%C.CANS.AC.CULDIF%</AccCulturalDifferences>
+         <AccCultureDifferences>%C.CANS.AC.CULDIF%</AccCultureDifferences>
          <PerformedBy>$EDIT|DB``03|C.CANS.STAFF</PerformedBy>
          <PerformedByCredential>$DBREAD|03|C.CANS.STAFF|S.UA.CRED</PerformedByCredential>
          <CansBabyNotes>%C.CANS.COMMENT%</CansBabyNotes>
