@@ -159,3 +159,20 @@ function GetEvent(c.cans.isn,$$isn.sac,$$isn.ru,$$isn.tm,$$isn.sdur,$$isn.loc) i
  endif 
  $allowupdate($$isn.sac,$$isn.ru,$$isn.tm,$$isn.sdur,$$isn.loc)
 end GetEvent
+
+function GetClientID() is x
+ c.id is x
+ $clear(c.id) 
+ $submitopt("off", "NEXT")
+ $cancelopt("off", "CANCEL")
+ $form()
+  $text("{H1}Enter Client ID{/H1}")
+  $table("t1",,"width='100%'")
+   $row()$col("right",,"50%") $text("ENTER CLIENT ID: ","datatag")  
+         $col() $textbox(c.id,"DB``02",6,4,"Y") $editmsg(c.id)
+  $endtable("t1")
+ $sendform()
+ if $endbutton = "SUBMIT"
+  GetClientID = c.id
+ endif
+end GetClientID

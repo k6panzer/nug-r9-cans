@@ -1,21 +1,37 @@
 start CANS35(parmfile,option,client,retcode)
- %include c_incmaps
- %allow_nonmapped_io
- %maptest
- %include c_cldefLL
- %include c_clgetLL
+ $looplimit = 0
  %include inc_CANS35
  %include inc_ER
  %global e.ser, e.ru, e.start, e.dur, e.loc, e.case.no, e.staff, e.date, e.cl.dur
  addsal is x
 
- Title = "CANS (3-5) Report" 
- RptTitle = Title 
+ %global parmfile,option,client,retcode, rc
+ parmfile is x
+ option   is x
+ client   is x
+ retcode  is i
+ rc       is i
+
+ Title     is x
+ RptTitle is x
+ ReportID  is x
+
+ Title = "CANS (6-17) Report" 
+ RptTitle = Title
  ReportID = "CANS"  
  
+ if $regid !dp and client !dp
+  $regid = {"lib_UACOMMON"}GetClientID() 
+  if $regid !dp
+   return
+  endif
+ else
+  $regid = client
+ endif  
+ 
  if $lc(option) = "reportonly" or $lc(option) = "bigreport"
-  if $dbread(ClientDB, $regid, c.cans.rec, c.cans.date) < 2
-   if snap_handle:sn_viewLatest(ReportID,Parmfile,$regid,ClientDB,$ScriptID) = 0
+  if $dbread(2, $regid, c.cans.rec, c.cans.date) < 2
+   if {"l_snapLibSC"}sn_viewLatest(ReportID,Parmfile,$regid,2,$ScriptID) = 0
     retcode = "0"
    endif
   endif
@@ -29,7 +45,7 @@ start CANS35(parmfile,option,client,retcode)
  
  if Validate() = 1
   DisplayErrors()
- ' return
+  return
  endif
  
  %global assessments
@@ -50,8 +66,13 @@ start CANS35(parmfile,option,client,retcode)
  UM_StaffYN = {"lib_UACOMMON"}UMStaff()
 
  if UM_StaffYN = "Y"
-  rc = $dbread(02, $regid, c.cans.rec,c.cans.compd,c.cans.type,c.cans.staff)
+  rc = $dbread(02, $regid, c.cans.rec,c.cans.compd,c.cans.type,c.cans.staff,c.cans.canstype)
   if c.cans.compd !dp and c.cans.type dp
+   if c.cans.canstype != "2"
+    $brmsg("A CANS 6-17 Assessment is Currently Being Entered!",1,"C","In Progress")
+    $brmsg("The assessment will exit now.",2,"W")
+    return
+   endif	    
    select c.cans.staff
     case $operstaffid select {"lib_CANS"}PromptNewEditDel($regid)
                        case 1 $dblock()
@@ -210,7 +231,7 @@ start CANS35(parmfile,option,client,retcode)
    case "Validate4" select Validate4() 
                      case 0 c.cans.rloc = RLOC()
                             if c.cans.type = "3" and c.cans.disreas != "9"
-                             $clear(c.cans.rloc)
+                             $clear(c.cans.rloc,c.cans.aloc)
                             endif									 					 
 					        select c.cans.rloc
 							 case "100" Page = "Report"
@@ -233,7 +254,7 @@ start CANS35(parmfile,option,client,retcode)
 					   endselect
    case "Report"    c.cans.rloc = RLOC()
                     if c.cans.type = "3" and c.cans.disreas != "9"
-                     $clear(c.cans.rloc)
+                     $clear(c.cans.rloc,c.cans.aloc)
                     endif									 
                     Report(RptTitle,ReportID,page)
 					select $endbutton
@@ -244,37 +265,34 @@ start CANS35(parmfile,option,client,retcode)
 								     Page = "Exit"
 								    endif 								   
 								   endif	
-					 case "CANCEL" select c.cans.type
-					                case "1" if UM_StaffYN = "Y" and (c.cans.staff != $operstaffid and c.cans.staff dp)
-									          Page = "Authorize"
-											 else
-									          Page = "SAL"											 
-											 endif 
-									case other if UM_StaffYN = "Y" and (c.cans.staff != $operstaffid and c.cans.staff dp)
-									            Page = "Authorize"
-											   else
-											    select CanSkipPage4
-												 case "Y" select CanSkipPage3()
-												           case "Y" select CanSkipPage2()
-														             case "Y" select CanSkipPage1()
-																	           case "Y" Page = "0"
-																			   case "N" Page = "1"
-																			  endselect
-																	 case "N" Page = "2"
-																	endselect
-														   case "N" Page = "3"
+					 case "CANCEL" if UM_StaffYN = "Y" and (c.cans.staff != $operstaffid and c.cans.staff dp)
+						            Page = "Authorize"
+								   else
+						            if c.cans.isn !dp
+								     Page = "SAL"
+								    else
+								     select CanSkipPage4
+									  case "Y" select CanSkipPage3()
+									             case "Y" select CanSkipPage2()
+											               case "Y" select CanSkipPage1()
+														             case "Y" Page = "0"
+																     case "N" Page = "1"
+																    endselect
+														   case "N" Page = "2"
 														  endselect
-												 case "N" Page = "4"
-												endselect
-											   endif	
-								   endselect
+											     case "N" Page = "3"
+											    endselect
+									   case "N" Page = "4"
+									 endselect
+								    endif 
+								   endif 
 					 case other if SaveData() = 0
 								 Page = "Exit"
 								endif 
 					endselect
    case "Authorize" c.cans.rloc = RLOC()
                     if c.cans.type = "3" and c.cans.disreas != "9"
-                     $clear(c.cans.rloc)
+                     $clear(c.cans.rloc,c.cans.aloc)
                     endif									 
                     REPORT(RptTitle,ReportID,page)
                     select $endbutton
@@ -316,7 +334,6 @@ start CANS35(parmfile,option,client,retcode)
   endselect 
  enddo
 end CANS35
-%include c_func-lib
 
 function Report(RptTitle,ReportID,mode) is null
  RptTitle is x
@@ -372,7 +389,7 @@ function SaveData() is i
  endif
  $dblock()
  SaveData = $dbpoint(02, $regid, c.cans.rec) 
- if c.cans.aloc dp
+ if c.cans.compd dp
   c.cans.snapid = {"l_snapLibSC"}sn_GetSnapID()	                           
  endif 
  if c.cans.resother1 dp
@@ -392,7 +409,9 @@ function SaveData() is i
  endif 
  select mode
   case "ADD" select c.cans.type
-              case "1" c.cans.isn = SaveEvent()
+              case "1" if c.cans.isn !dp
+			            c.cans.isn = SaveEvent()
+					   endif	
               case other
              endselect
 			 c.cans.rec[effd] = $today
@@ -426,15 +445,15 @@ function LifeDomain() is null
     $col("center",,"10%")$text("2")
     $col("center",,"10%")$text("3")
    $row()
-    $col()$tag(hr)
-    $col()$tag(hr)
-    $col()$tag(hr)
-    $col()$tag(hr)
-    $col()$tag(hr)
-    $col()$tag(hr)
+    $col()$tag("<hr/>")
+    $col()$tag("<hr/>")
+    $col()$tag("<hr/>")
+    $col()$tag("<hr/>")
+    $col()$tag("<hr/>")
+    $col()$tag("<hr/>")
    $row(,row_color1)
     $col()$text(q_text_ld_family)
-    $col("center")$radio(c.cans.ld.family,"","N")
+    $col("center")$radio(c.cans.ld.family,"","9")
     $col("center")$radio(c.cans.ld.family,"","0")
     $col("center")$radio(c.cans.ld.family,"","1")
     $col("center")$radio(c.cans.ld.family,"","2")
@@ -505,13 +524,13 @@ function LifeDomain() is null
    $row(,row_color1)
     $col()$text(q_text_ld_sleep) 
     $col()
+    $col("center")$radio(c.cans.ld.sleep,"","9")
     $col("center")$radio(c.cans.ld.sleep,"","0")
     $col("center")$radio(c.cans.ld.sleep,"","1")
     $col("center")$radio(c.cans.ld.sleep,"","2")
     $col("center")$radio(c.cans.ld.sleep,"","3")
    $row(,row_color2)
     $col()$text(q_text_ld_relper)
-    $col("center")$radio(c.cans.ld.relper,"","N")
     $col("center")$radio(c.cans.ld.relper,"","0")
     $col("center")$radio(c.cans.ld.relper,"","1")
     $col("center")$radio(c.cans.ld.relper,"","2")
@@ -535,11 +554,11 @@ function CareGive() is null
     $col("center",,"10%")$text("2")
     $col("center",,"10%")$text("3")
    $row()
-    $col()$tag(hr)
-    $col()$tag(hr)
-    $col()$tag(hr)
-    $col()$tag(hr)
-    $col()$tag(hr)
+    $col()$tag("<hr/>")
+    $col()$tag("<hr/>")
+    $col()$tag("<hr/>")
+    $col()$tag("<hr/>")
+    $col()$tag("<hr/>")
    $row(,row_color1)
     $col()$text(q_text_cg_super)
     $col("center")$radio(c.cans.cg.super,"","0")
@@ -655,7 +674,7 @@ function ChildStrength() is null
     $col()$text("2 = identified","hdrdata")
     $col()$text("3 = not yet identified","hdrdata")
    $row()
-    $col("center",,,"2") $tag(hr)
+    $col("center",,,"2") $tag("<hr/>")
   $endtable($funcname)
   $table($funcname,,`table_wbgcolor`)
    $row()
@@ -665,11 +684,11 @@ function ChildStrength() is null
     $col("center",,"10%")$text("2")
     $col("center",,"10%")$text("3")
    $row()
-    $col()$tag(hr)
-    $col()$tag(hr)
-    $col()$tag(hr)
-    $col()$tag(hr)
-    $col()$tag(hr)
+    $col()$tag("<hr/>")
+    $col()$tag("<hr/>")
+    $col()$tag("<hr/>")
+    $col()$tag("<hr/>")
+    $col()$tag("<hr/>")
    $row(,row_color1)
     $col()$text(q_text_cs_family)
     $col("center")$radio(c.cans.cs.family,"","0")
@@ -726,11 +745,11 @@ function ChildBehave() is null
     $col("center",,"10%")$text("2")
     $col("center",,"10%")$text("3")
    $row()
-    $col()$tag(hr)
-    $col()$tag(hr)
-    $col()$tag(hr)
-    $col()$tag(hr)
-    $col()$tag(hr)
+    $col()$tag("<hr/>")
+    $col()$tag("<hr/>")
+    $col()$tag("<hr/>")
+    $col()$tag("<hr/>")
+    $col()$tag("<hr/>")
    $row(,row_color1)
     $col()$text(q_text_cb_attach)
 	$col("center")$radio(c.cans.cb.attach,"","0")
@@ -769,12 +788,14 @@ function ChildBehave() is null
     $col("center")$radio(c.cans.cb.atypic,"","3")
    $row(,row_color1)
     $col()$text(q_text_cb_implsv) 
+	$col("center")$radio(c.cans.cb.implsv,"","9")
 	$col("center")$radio(c.cans.cb.implsv,"","0")
     $col("center")$radio(c.cans.cb.implsv,"","1")
     $col("center")$radio(c.cans.cb.implsv,"","2")
     $col("center")$radio(c.cans.cb.implsv,"","3")
    $row(,row_color2)
     $col()$text(q_text_cb_oppdef)
+    $col("center")$radio(c.cans.cb.oppdef,"","9")
     $col("center")$radio(c.cans.cb.oppdef,"","0")
     $col("center")$radio(c.cans.cb.oppdef,"","1")
     $col("center")$radio(c.cans.cb.oppdef,"","2")
@@ -804,7 +825,7 @@ function Culture() is null
     $col()$text("2 = moderate needs","hdrdata")
     $col()$text("3 = severe needs","hdrdata")
    $row()
-    $col("center",,,"2") $tag(hr)
+    $col("center",,,"2") $tag("<hr/>")
   $endtable($funcname)
  $table($funcname,,`table_wbgcolor`)
   $row()
@@ -814,11 +835,11 @@ function Culture() is null
    $col("center",,"10%")$text("2")
    $col("center",,"10%")$text("3")
   $row()
-   $col()$tag(hr)
-   $col()$tag(hr)
-   $col()$tag(hr)
-   $col()$tag(hr)
-   $col()$tag(hr)
+   $col()$tag("<hr/>")
+   $col()$tag("<hr/>")
+   $col()$tag("<hr/>")
+   $col()$tag("<hr/>")
+   $col()$tag("<hr/>")
   $row(,row_color1)
    $col()$text(q_text_ac_langua)
    $col("center")$radio(c.cans.ac.langua,"","0")
@@ -870,12 +891,12 @@ function ChildRisk() is null
     $col("center",,"10%")$text("2")
     $col("center",,"10%")$text("3")
    $row()
-    $col()$tag(hr)
-    $col()$tag(hr)
-    $col()$tag(hr)
-    $col()$tag(hr)
-    $col()$tag(hr)
-    $col()$tag(hr)
+    $col()$tag("<hr/>")
+    $col()$tag("<hr/>")
+    $col()$tag("<hr/>")
+    $col()$tag("<hr/>")
+    $col()$tag("<hr/>")
+    $col()$tag("<hr/>")
    $row(,row_color1)
     $col()$text(q_text_cr_sfharm)
 	$col("center")
@@ -892,7 +913,7 @@ function ChildRisk() is null
     $col("center")$radio(c.cans.cr.aggbeh,"","3")
    $row(,row_color1)
     $col()$text(q_text_cr_socbeh)
-    $col("center")$radio(c.cans.cr.socbeh,"","N")
+    $col("center")$radio(c.cans.cr.socbeh,"","9")
     $col("center")$radio(c.cans.cr.socbeh,"","0")
     $col("center")$radio(c.cans.cr.socbeh,"","1")
     $col("center")$radio(c.cans.cr.socbeh,"","2")
@@ -916,11 +937,11 @@ function School() is null
     $col("center",,"10%")$text("2")
     $col("center",,"10%")$text("3")
    $row()
-    $col()$tag(hr)
-    $col()$tag(hr)
-    $col()$tag(hr)
-    $col()$tag(hr)
-    $col()$tag(hr)
+    $col()$tag("<hr/>")
+    $col()$tag("<hr/>")
+    $col()$tag("<hr/>")
+    $col()$tag("<hr/>")
+    $col()$tag("<hr/>")
    $row(,row_color3)
     $col()$text(q_text_sc_prequa) 
     $col("center")$radio(c.cans.sc.prequa,"","0")
@@ -964,11 +985,11 @@ function DevNeeds() is null
     $col("center",,"10%")$text("2")
     $col("center",,"10%")$text("3")
    $row()
-    $col()$tag(hr)
-    $col()$tag(hr)
-    $col()$tag(hr)
-    $col()$tag(hr)
-    $col()$tag(hr)
+    $col()$tag("<hr/>")
+    $col()$tag("<hr/>")
+    $col()$tag("<hr/>")
+    $col()$tag("<hr/>")
+    $col()$tag("<hr/>")
    $row(,row_color3)
     $col()$text(q_text_dv_cognit)
     $col("center")$radio(c.cans.dv.cognit,"","0")
@@ -1000,11 +1021,11 @@ function FamilyCareGive() is null
    $col("center",,"10%")$text("2")
    $col("center",,"10%")$text("3")
   $row()
-   $col()$tag(hr)
-   $col()$tag(hr)
-   $col()$tag(hr)
-   $col()$tag(hr)
-   $col()$tag(hr)
+   $col()$tag("<hr/>")
+   $col()$tag("<hr/>")
+   $col()$tag("<hr/>")
+   $col()$tag("<hr/>")
+   $col()$tag("<hr/>")
   $row(,row_color3)
    $col()          $text(q_text_fc_selfcr)
    $col("center")$radio(c.cans.fc.selfcr,"","0")
@@ -1072,11 +1093,11 @@ function trauma() is null
     $col("center",,"10%")$text("2")
     $col("center",,"10%")$text("3")
    $row()
-    $col()$tag(hr)
-    $col()$tag(hr)
-    $col()$tag(hr)
-    $col()$tag(hr)
-    $col()$tag(hr)
+    $col()$tag("<hr/>")
+    $col()$tag("<hr/>")
+    $col()$tag("<hr/>")
+    $col()$tag("<hr/>")
+    $col()$tag("<hr/>")
    $row(,row_color3)
     $col()$text(q_text_tr_sexabs)
     $col("center")$radio(c.cans.tr.sexabs,"","0")
@@ -1158,11 +1179,11 @@ function sexab1() is null
     $col("center",,"10%")$text("2")
     $col("center",,"10%")$text("3")
    $row()
-    $col()$tag(hr)
-    $col()$tag(hr)
-    $col()$tag(hr)
-    $col()$tag(hr)
-    $col()$tag(hr)  
+    $col()$tag("<hr/>")
+    $col()$tag("<hr/>")
+    $col()$tag("<hr/>")
+    $col()$tag("<hr/>")
+    $col()$tag("<hr/>")  
    $row(,row_color3)
     $col()   $text(q_text_tr_emclos)
     $col("center")$radio(c.cans.tr.emclos,"","0")
@@ -1212,11 +1233,11 @@ function adjust() is null
     $col("center",,"10%")$text("2")
     $col("center",,"10%")$text("3")
    $row()
-    $col()$tag(hr)
-    $col()$tag(hr)
-    $col()$tag(hr)
-    $col()$tag(hr)
-    $col()$tag(hr)
+    $col()$tag("<hr/>")
+    $col()$tag("<hr/>")
+    $col()$tag("<hr/>")
+    $col()$tag("<hr/>")
+    $col()$tag("<hr/>")
    $row(,row_color3)
     $col()$text(q_text_ad_affreg)
     $col("center")$radio(c.cans.ad.affreg,"","0")
@@ -1902,10 +1923,10 @@ function Page0() is null
   {"lib_UACOMMON"}ClientPageHeader($regid)
   $br()AssessmentDate()
   $br()AssessmentType()
-  $tag(hr)
+  $tag("<hr/>")
   $br()OtherQuestions()
   select {"lib_UACOMMON"}CurrentDX($regid,c.cans.date)
-   case "N" $br()$tag(hr)
+   case "N" $br()$tag("<hr/>")
             $br()$text(diag_errortxt,"error")
   endselect
  $sendform($funcname)  
@@ -1918,7 +1939,7 @@ function Page1() is null
    {"lib_UACOMMON"}ClientPageHeader($regid)
    $br()ReportHdr()
    OtherQuestionRpt()
-   $tag(hr)
+   $tag("<hr/>")
     $br()
     $table("1",,table_nobgcolor)
      $row()
@@ -1927,7 +1948,7 @@ function Page1() is null
     $endtable("1")
     $br()
    if c.cans.type != "11" and (c.cans.type != "3" and c.cans.disreas != "9")
-    $tag(hr)
+    $tag("<hr/>")
     $br()
     $table("2",,table_nobgcolor)
      $row()
@@ -1935,7 +1956,7 @@ function Page1() is null
 	  $col()
     $endtable("2")
     $br()
-    $tag(hr)
+    $tag("<hr/>")
     $br()
     $table("3",,table_nobgcolor)
      $row()
@@ -1943,7 +1964,7 @@ function Page1() is null
       $col()
     $endtable("3")
     $br()
-    $tag(hr)
+    $tag("<hr/>")
     $br()
     $table("4",,table_nobgcolor)
      $row()
@@ -1951,7 +1972,7 @@ function Page1() is null
 	  $col()
     $endtable("4")
     $br()
-    $tag(hr)
+    $tag("<hr/>")
     $br()
     $table("5",,table_nobgcolor)
      $row()
@@ -1959,7 +1980,7 @@ function Page1() is null
 	  $col()
     $endtable("5")
     $br()
-    $tag(hr)
+    $tag("<hr/>")
     $br()
     $table("6",,table_nobgcolor)
      $row()
@@ -1967,7 +1988,7 @@ function Page1() is null
       $col()Culture()
     $endtable("6")
     $br()
-    $tag(hr)
+    $tag("<hr/>")
     $br()
    endif
   $sendform($funcname)
@@ -1980,7 +2001,7 @@ function Page2() is null
   {"lib_UACOMMON"}ClientPageHeader($regid)
   $br()ReportHdr()
   OtherQuestionRpt()
-  $tag(hr)
+  $tag("<hr/>")
   $table($funcname,,table_nobgcolor)
    if $num(c.cans.cb.regula) > 0
     $row()
@@ -1993,7 +2014,7 @@ function Page2() is null
 	 $col()
 	$row()
 	 $col()$br()
-	       $tag(hr)
+	       $tag("<hr/>")
            $br()
     endif	   
    if $num(c.cans.cb.adjtrm) > 0 
@@ -2008,7 +2029,7 @@ function Page2() is null
      $col()
     $row()
 	 $col()$br()
-           $tag(hr)
+           $tag("<hr/>")
            $br()	 
    endif
    if $num(c.cans.ld.preday) > 0 or $num(c.cans.ld.develp) > 0
@@ -2031,7 +2052,7 @@ function Page2() is null
    if $num(c.cans.ld.preday) > 0 or $num(c.cans.ld.develp) > 0
     $row()
 	 $col()$br()
-           $tag(hr)
+           $tag("<hr/>")
            $br()
    endif
    if $num(c.cans.cg.famsts) > 0
@@ -2055,7 +2076,7 @@ function Page3() is null
   {"lib_UACOMMON"}ClientPageHeader($regid)
   $br()ReportHdr()
   OtherQuestionRpt()
-  $tag(hr)  
+  $tag("<hr/>")  
    $table($funcname,,table_nobgcolor)
     $row()
 	 $col(,,"50%")sexab1()
@@ -2072,14 +2093,14 @@ function Page4() is null
   $br()ReportHdr()
   if c.cans.type != "11" and (c.cans.type != "3" and c.cans.disreas != "9")
    OtherQuestionRpt()
-   $tag(hr)  
+   $tag("<hr/>")  
    $table($funcname,,table_nobgcolor)
     $row()
      $col("right",,"50%")$text(q_text_commdate,"datatag")
      $col()$textbox(c.cans.commdate,"CAL",10,6,"Y","normal")
     $row()
      $col("right",,"50%")$text(q_text_school3m,"datatag")
-     $col()$radio(c.cans.school3m,"No","N")$radio(c.cans.school3m,"Yes","Y")
+     $col()$radio(c.cans.school3m,"No","0")$ctag("&nbsp;&nbsp;")$radio(c.cans.school3m,"Yes","1")$ctag("&nbsp;&nbsp;")$radio(c.cans.school3m,"NA","2")
     $row()
      $col("right")$text(q_text_grade,"datatag")
      $col()$dropboxdct(c.cans.grade,9073,,,,"Y")
@@ -2169,7 +2190,7 @@ function ChildRiskScoring() is null
    $col()$text("2 = recent; action item","hdrdata")
    $col()$text("3 = acute; immediate action","hdrdata")
   $row()
-   $col("center",,,"2") $tag(hr)
+   $col("center",,,"2") $tag("<hr/>")
  $endtable($funcname)
 end ChildRiskScoring
 
@@ -2186,7 +2207,7 @@ function LDScoring() is null
   $col()$text("2 = moderate needs","hdrdata")
    $col()$text("3 = severe needs","hdrdata")
   $row()
-   $col("center",,,"2") $tag(hr)
+   $col("center",,,"2") $tag("<hr/>")
  $endtable($funcname)
 end LDScoring
 
@@ -2199,7 +2220,7 @@ function CareGiverScoring() is null
    $col()$text("2 = moderate needs","hdrdata")
    $col()$text("3 = severe needs","hdrdata")
   $row()
-    $col("center",,,"2") $tag(hr)
+    $col("center",,,"2") $tag("<hr/>")
  $endtable($funcname)
 end CareGiverScoring
 
@@ -2240,11 +2261,11 @@ function Regulatory() is null
     $col("center",,"10%")$text("2")
     $col("center",,"10%")$text("3")
    $row()
-    $col()$tag(hr)
-    $col()$tag(hr)
-    $col()$tag(hr)
-    $col()$tag(hr)
-    $col()$tag(hr)
+    $col()$tag("<hr/>")
+    $col()$tag("<hr/>")
+    $col()$tag("<hr/>")
+    $col()$tag("<hr/>")
+    $col()$tag("<hr/>")
    $row(,row_color3)
     $col()$text(q_text_rg_eating)
 	$col("center")$radio(c.cans.rg.eating,"","0")
@@ -2287,11 +2308,11 @@ function ChildRiskFactor() is null
     $col("center",,"10%")$text("2")
     $col("center",,"10%")$text("3")
    $row()
-    $col()$tag(hr)
-    $col()$tag(hr)
-    $col()$tag(hr)
-    $col()$tag(hr)
-    $col()$tag(hr)
+    $col()$tag("<hr/>")
+    $col()$tag("<hr/>")
+    $col()$tag("<hr/>")
+    $col()$tag("<hr/>")
+    $col()$tag("<hr/>")
    $row(,row_color1)
     $col()$text(q_text_cf_birthw)
     $col("center")$radio(c.cans.cf.birthw,"","0")
@@ -2447,7 +2468,7 @@ function ReportHdr() is null
     $col()$text($dct(9704,c.cans.disref))
   endif  
  $endtable($funcname)
- $br()$tag(hr)
+ $br()$tag("<hr/>")
  $br()
 end ReportHdr
 
@@ -2631,7 +2652,7 @@ function ALOCRpt(RptTitle,ReportID) is null
    $col("center",,,"2")$text("Authorized Level Of Care","datatag")
    $row()
     $col("right",,"50%")$text(q_text_alocstaff,"datatag")
-	$col()$text($dct(2071, `fn.get-by-id(c.cans.alocstaff)`, "D"))
+	$col()$text($dct(2071, $oper, "D"))
    $row()
     $col("right",,"50%")$text(q_text_alocdate,"datatag")
 	$col()$text(c.cans.alocdate)
@@ -2759,6 +2780,9 @@ function ValidateALOC() is i
  c.cans.alocedate = {"lib_CANS"}EndDate(c.cans.aloc,c.cans.alocdate)
  c.cans.alocstaff = $operstaffid
  c.cans.compd = $today
+ if c.cans.type = "3" and  c.cans.disreas != "9"
+  $clear(c.cans.rloc,c.cans.aloc)
+ endif
  select c.cans.aloc
   case "100" c.cans.type = "11"
   case "110" select c.cans.type
@@ -2798,7 +2822,6 @@ function DisplayErrors() is null
 end DisplayErrors
 
 function SaveEvent() is x
- rc is i
  e.case.no = $regid
  e.staff   = $operstaffid									    
  e.date    = c.cans.date
@@ -2810,7 +2833,6 @@ end SaveEvent
 
 function GetEvent($$isn.sac,$$isn.ru,$$isn.tm,$$isn.sdur,$$isn.loc) is i
  %include inc_ISN
- rc is i
  if c.cans.isn dp
   GetEvent = $dbread(9,c.cans.isn,$$isn.ru,$$isn.loc,$$isn.sdur,$$isn.tm, $$isn.sac)
  endif 
