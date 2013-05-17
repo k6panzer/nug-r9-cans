@@ -27,7 +27,8 @@ library lib_CANS()
              (void)$arrpush(assessments[],"3")
    'Update
    case "2"
-     or "U"  (void)$arrpush(assessments[],"3")
+     or "U"  (void)$arrpush(assessments[],"2")
+	         (void)$arrpush(assessments[],"3")
    'Discharge
    case "3"  
      or "D"  (void)$arrpush(assessments[],"1")
@@ -148,7 +149,7 @@ $allowupdate(c.cans.type,c.cans.staff,c.cans.ver,c.cans.date,c.cans.age,c.cans.a
     $submitopt("off")
     $cancelopt("off","Exit")
     $form($funcname)
-     {"lib_UACOMMON"}ClientPageHeader($regid,"Y")
+     {"lib_UACOMMON"}ClientPageHeader($regid)
 	 $tag("<center>")
 	  $br(3)$text("There is a current CANS assessment that has not yet been authorized. How do you wish to proceed?","datatag")
 	  $br(2)$submit(choice_btn[1],"Restart Current")
