@@ -2554,7 +2554,7 @@ end Page0
 function Page1() is null
   $submitopt("off", "SUBMIT")
   $cancelopt("off", "BACK")
-  $form($funcname, , "/c0/EXPORT/page.html", "/c0/EXPORT/page.xml")  
+  $form($funcname)  
    {"lib_UACOMMON"}ClientPageHeader($regid)
    $br()  {"lib_CANS617"}ReportHdr(c.cans.date,c.cans.type,c.cans.intref,c.cans.intrefoth,c.cans.disdt,c.cans.disreas,c.cans.disoth,c.cans.disref)
    {"lib_CANS617"}OtherQuestionRpt(q_text_sped,c.cans.sped,q_text_extdrev,c.cans.extdrev,q_text_foster,c.cans.foster,q_text_riskplc,c.cans.riskplc)
