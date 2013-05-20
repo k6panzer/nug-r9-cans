@@ -219,7 +219,7 @@
          <NumberOfArrest>%C.CANS.ARREST%</NumberOfArrest>
          <AssessmentDate>%C.CANS.COMMDATE%</AssessmentDate>
          <SchoolAttendance>$DCT|29|C.CANS.SCHOOL3M|1</SchoolAttendance>
-         <Grade>%C.CANS.GRADE%</Grade>
+         <Grade>$DCT|9073|C.CANS.GRADE|1</Grade>
          <PrimaryResidence>%C.CANS.RESTYPE%</PrimaryResidence>
          <PrimaryResidenceOther>%C.CANS.RESOTHER1%</PrimaryResidenceOther>
       </CommunityData>
