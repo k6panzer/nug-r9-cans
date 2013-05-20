@@ -2191,11 +2191,6 @@ end PsyHospHx
 
 'Initial Validations before starting the assessment
 function Validate() is i
- c.dsmiiir is h
- c.dxdate  is d
- c.diag    is x
- dx_age    is i
- 
  $clear(errors[])
  c.cans.age = {"lib_UACOMMON"}ClientAge($regid)
  if c.cans.age > 17
