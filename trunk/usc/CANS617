@@ -375,10 +375,10 @@ start CANS617(parmfile,option,client,retcode)
    if c.cans.type = "1"
     if c.cans.isn !dp
      e.ser = 10
-	 {"lib_EVENTS"}event(e.ser, e.ru, e.start, e.dur, e.loc, addsal)
+	 {"lib_UAEVENTS"}event(e.ser, e.ru, e.start, e.dur, e.loc, addsal)
      if $endbutton = "SUBMIT"
 	  if addsal = "YES"
-       {"lib_EVENTS"}overlap(errors[],e.ser,e.start,e.dur,c.cans.date,$operstaffid)
+       {"lib_UAEVENTS"}overlap(errors[],e.ser,e.start,e.dur,c.cans.date,$operstaffid)
        if $maxarray(errors[]) = 0
         Page = "Report"
        else
@@ -435,7 +435,7 @@ function Report(RptTitle,ReportID,mode) is null
   {"lib_UACOMMON"}ClientPageHeader($regid)
   
   if c.cans.isn dp
-   {"lib_EVENTS"}report(e.ser, e.ru, e.start, e.dur, e.loc)
+   {"lib_UAEVENTS"}report(e.ser, e.ru, e.start, e.dur, e.loc)
   endif
   
   $style("siginfotag")
