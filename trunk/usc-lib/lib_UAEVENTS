@@ -1,7 +1,7 @@
 'THIS LIBRARY CONTAINS FUNCTIONS THAT ARE USED BY CALLING SCRIPTS TO ENTER AND VALIDATE 
 'EVENTS.
 
-library lib_EVENTS()
+library lib_UAEVENTS()
 
 '********************************************************************************************
 'THIS FUNCTION PROMPTS THE USER TO SELECT WHETHER THEY WISH TO CREATE AN EVENT.  IF SO,
