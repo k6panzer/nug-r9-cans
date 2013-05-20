@@ -231,6 +231,7 @@ parmline[183] =   "99  048 C.CANS.TR.FORCE                                      
 parmline[184] =   "99  049 C.CANS.TR.REACT                                        Reaction to discl" 
 parmline[185] =   "99  050 C.CANS.LD.FAMILY                                        Family          " 
 parmline[186] =   "99  051 C.CANS.LD.LIVSIT                                        Living situation" 
+'**Corrected Below** parmline[187] =   "99  052 C.CANS.LD.SCHOOL                                        Preschool daycar" 
 parmline[187] =   "99  052 C.CANS.LD.PREDAY                                        Preschool daycar" 
 parmline[188] =   "99  053 C.CANS.LD.SOCFUN                                        Social functioni" 
 parmline[189] =   "99  054 C.CANS.LD.RECRET                                        Recreation play " 
