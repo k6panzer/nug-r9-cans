@@ -1,4 +1,21 @@
 'Include file for the CANS (Children's Assessment of Needs and Strengths) 3-5
+
+%global CansTypeDCT,CansIntRefDCT,CansDisReasDCT,CansDisRefDCT,CansAuthLevelDCT,CansDeviationDCT
+CansTypeDCT      is b
+CansIntRefDCT    is b
+CansDisReasDCT   is b
+CansDisRefDCT    is b
+CansAuthLevelDCT is b
+CansDeviationDCT is b
+
+'*********Datacode Tables, Change These*****************
+CansTypeDCT      = 9700
+CansIntRefDCT    = 9702
+CansDisReasDCT   = 9703
+CansDisRefDCT    = 9704
+CansAuthLevelDCT = 9705
+CansDeviationDCT = 9706
+'*******************************************************
    
 %global cans_dstlist
 %global c.cans.rec,c.cans.staff,c.cans.ver,c.cans.date,c.cans.caredt,c.cans.title,c.cans.title35,c.cans.age,c.cans.aloc,c.cans.rloc,c.cans.dloc,c.cans.compd,c.cans.type
@@ -7,10 +24,9 @@
 %global c.cans.disdt,c.cans.disreas,c.cans.disref,c.cans.disoth
 %global c.cans.intref,c.cans.intrefoth
 %global c.cans.loc_dev,c.cans.devoth,c.cans.devr1,c.cans.devr2,c.cans.devr2,c.cans.devr3,c.cans.devr4,c.cans.devr5
-%global c.cans.alocstaff,c.cans.alocdate,c.cans.alocedate,c.cans.alate,c.cans.alateoth,c.cans.fairhear
+%global c.cans.alocstaff,c.cans.alocdate,c.cans.alocedate,c.cans.fairhear
 %global c.cans.snapid
 %global c.cans.isn
-%global c.cans.slate,c.cans.slateoth
 %global c.cans.commdate
 %global c.cans.comment,c.cans.acomment
 %global c.cans.canstype
@@ -56,13 +72,9 @@ c.cans.devR5      is x 'Reason for Deviation 5 253-255
 c.cans.alocstaff  is x 'Authorization staff
 c.cans.alocdate   is d 'Authorization date
 c.cans.alocedate  is d 'Authorization End date
-c.cans.alate      is x 'Justification for late auth
-c.cans.alateoth   is x 'Justification for late auth other
 c.cans.fairhear   is x 'Subject to Medicaid Fair Hearing
 c.cans.snapid     is x
 c.cans.isn        is x
-c.cans.slate      is x 'Justification for late submission
-c.cans.slateoth   is x 'Justification for late submission other
 c.cans.commdate   is d 'Community section date
 c.cans.comment    is dbtext-l 'CANS UA Staff Comment
 c.cans.acomment   is dbtext-l 'Cans ALOC Staff Comment
@@ -341,8 +353,6 @@ c.cans.rg.emot     is x      'CANS REGULATORY FUNCTIONING EMOTIONAL CONTROL
 %define q_text_grade "Current grade level or highest grade level completed?: "
 %define q_text_restype "Primary Residence Type (Last 90 Days): "
 %define q_text_resother1 "Primary Residence Other: "
-%define q_text_slate "Justification for Late Submission of Uniform Assessment: "
-%define q_text_slateoth "Justification for Late Submission of Uniform Assessment if Other was Selected: "
 
 'Other Questions
 %define q_text_sped "Special Education: "
@@ -370,8 +380,6 @@ c.cans.rg.emot     is x      'CANS REGULATORY FUNCTIONING EMOTIONAL CONTROL
 %define q_text_alocstaff "Authorization Staff: "
 %define q_text_alocdate "Authorization Date: "
 %define q_text_alocedate "Authorization End Date: "
-%define q_text_alate "Justification for Late Authorization of Uniform Assessment: "
-%define q_text_alateoth "Justification for Late Authorization of Uniform Assessment if Other was Selected: "
 %define q_text_fairhear "Subject to Medicaid Fair Hearing: "
 %define q_text_comment "Staff Comment: "
 %define q_text_acomment "Authorization Staff Comment: "
@@ -439,10 +447,9 @@ c.cans.sped,c.cans.extdrev,c.cans.foster,c.cans.riskplc,c.cans.tcoommi,
 c.cans.disdt,c.cans.disreas,c.cans.disref,c.cans.disoth,
 c.cans.intref,c.cans.intrefoth,
 c.cans.loc_dev,c.cans.devoth,c.cans.devr1,c.cans.devr2,c.cans.devr2,c.cans.devr3,c.cans.devr4,c.cans.devr5,
-c.cans.alocstaff,c.cans.alocdate,c.cans.alocedate,c.cans.alate,c.cans.alateoth,c.cans.fairhear,
+c.cans.alocstaff,c.cans.alocdate,c.cans.alocedate,c.cans.fairhear,
 c.cans.snapid,
 c.cans.isn,
-c.cans.slate,c.cans.slateoth,
 c.cans.commdate,
 c.cans.comment,c.cans.acomment,
 c.cans.devjust,
