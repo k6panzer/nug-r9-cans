@@ -76,7 +76,7 @@
          <CsRelationshipPermanence>%C.CANS.CS.PERMIN%</CsRelationshipPermanence>
          <CsYouthInvolvement>%C.CANS.CS.YOUTH%</CsYouthInvolvement>
          <CsNaturalSupports>%C.CANS.CS.NATSUP%</CsNaturalSupports>
-         <CsnNoCaregiver></CsnNoCaregiver>
+         <CsnNoCaregiver>%C.CANS.CG.NA%</CsnNoCaregiver>
          <CsnSupervision>%C.CANS.CG.SUPER%</CsnSupervision>
          <CsnInvolvement>%C.CANS.CG.INVOLV%</CsnInvolvement>
          <CsnKnowledge>%C.CANS.CG.KNOLDG%</CsnKnowledge>
@@ -218,7 +218,7 @@
       <CommunityData>
          <NumberOfArrest>%C.CANS.ARREST%</NumberOfArrest>
          <AssessmentDate>%C.CANS.COMMDATE%</AssessmentDate>
-         <SchoolAttendance>$DCT|29|C.CANS.SCHOOL3M|1</SchoolAttendance>
+         <SchoolAttendance>%C.CANS.SCHOOL3M%</SchoolAttendance>
          <Grade>$DCT|9073|C.CANS.GRADE|1</Grade>
          <PrimaryResidence>%C.CANS.RESTYPE%</PrimaryResidence>
          <PrimaryResidenceOther>%C.CANS.RESOTHER1%</PrimaryResidenceOther>
