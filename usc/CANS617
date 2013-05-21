@@ -2438,8 +2438,21 @@ function Validate2() is i
  else
   Validate2 = 0	
 'Clear dependant fields
-  if c.cans.cg.na = "9"
-   $clear(c.cans.cg.super,c.cans.cg.involv,c.cans.cg.knoldg,c.cans.cg.organz,c.cans.cg.socres,c.cans.cg.ressbl,c.cans.cg.physcl,c.cans.cg.menhth,c.cans.cg.subabs,c.cans.cg.develp,c.cans.cg.chldcr,c.cans.cg.miltra,c.cans.cg.famsts,c.cans.cg.safety)
+  if c.cans.cg.na = "9"  
+  c.cans.cg.super = "9"  
+  c.cans.cg.involv = "9"  
+  c.cans.cg.knoldg = "9"  
+  c.cans.cg.organz = "9"  
+  c.cans.cg.socres = "9"  
+  c.cans.cg.ressbl = "9"  
+  c.cans.cg.physcl = "9"  
+  c.cans.cg.menhth = "9"  
+  c.cans.cg.subabs = "9"  
+  c.cans.cg.develp = "9"  
+  c.cans.cg.chldcr = "9"  
+  c.cans.cg.miltra = "9"  
+  c.cans.cg.famsts = "9"  
+  c.cans.cg.safety = "9"  
   endif 
   if $num(c.cans.ps.hosptl) != 1
    $clear(q_text_hs_numprr, q_text_hs_longst, q_text_hs_durrec, q_text_hs_timlst)
