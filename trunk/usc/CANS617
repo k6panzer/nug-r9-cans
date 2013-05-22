@@ -2970,9 +2970,9 @@ function ALOC() is null
  {"lib_CANS"}Last_Assessment($regid,last_type,,,,,last_aloc,,last_alocdate) 
  $table($funcname,,"width='100%' cellspacing='0' cellpadding='2' bgcolor='White'  style='border-style: solid; border-width: 1px'")
    $row(,col_color_multi)
-    if c.cans.type = "1" or c.cans.type = "2" or (c.cans.type = "3" and c.cans.disreas = "9") or c.cans.type = "12"
+    if c.cans.type = "1" or c.cans.type = "2" or c.cans.type = "12"
 	 $col("center",,,"2")$text("Authorized Level Of Care","datatag")
-	elseif (c.cans.type = "3" and c.cans.disreas != "9") 
+	elseif c.cans.type = "3"
 	 $col("center",,,"2")$text("Discharge","datatag")	
 	elseif c.cans.type = "11"
 	 $col("center",,,"2")$text("Authorized Level Of Care: Crisis","datatag")
@@ -2981,7 +2981,7 @@ function ALOC() is null
    $row()
     $col("right",,"50%")$text(q_text_alocdate,"datatag")
     $col()$textbox(c.cans.alocdate,"CAL",10,6,"Y","normal")
-    if c.cans.type = "1" or c.cans.type = "2" or (c.cans.type = "3" and c.cans.disreas = "9") or c.cans.type = "12"
+    if c.cans.type = "1" or c.cans.type = "2" or c.cans.type = "12"
      $row()
       $col("right",,"50%")$text(q_text_rloc,"datatag")
       $col()$text($dct(CansAuthLevelDCT,c.cans.rloc))
@@ -3046,9 +3046,9 @@ function ALOCRpt(RptTitle,ReportID) is null
  ReportID is x
  $table($funcname,,"width='100%' cellspacing='0' cellpadding='2' bgcolor='White'  style='border-style: solid; border-width: 1px'")
   $row(,col_color_multi)
-   if c.cans.type = "1" or c.cans.type = "2" or (c.cans.type = "3" and c.cans.disreas = "9") or c.cans.type = "12"
+   if c.cans.type = "1" or c.cans.type = "2" or c.cans.type = "12"
     $col("center",,,"2")$text("Authorized Level Of Care","datatag")
-   elseif (c.cans.type = "3" and c.cans.disreas != "9")
+   elseif c.cans.type = "3"
     $col("center",,,"2")$text("Discharge","datatag")
    elseif c.cans.type = "11"
     $col("center",,,"2")$text("Authorized Level Of Care: Crisis","datatag")
@@ -3059,13 +3059,13 @@ function ALOCRpt(RptTitle,ReportID) is null
   $row()
    $col("right",,"50%")$text(q_text_alocdate,"datatag")
    $col()$text(c.cans.alocdate)
-  if c.cans.type = "1" or c.cans.type = "2" or (c.cans.type = "3" and c.cans.disreas = "9") or c.cans.type = "11"
+  if c.cans.type != "3"
    $row()
     $col("right",,"50%")$text(q_text_alocedate,"datatag")
     $col()$text(c.cans.alocedate)
     $row()
   endif
-  if c.cans.type = "1" or c.cans.type = "2" or (c.cans.type = "3" and c.cans.disreas = "9") or c.cans.type = "11" or c.cans.type = "12"
+  if c.cans.type = "1" or c.cans.type = "2" or c.cans.type = "11" or c.cans.type = "12"
    $row()
     $col("right",,"50%")$text(q_text_rloc,"datatag")
     $col()$text($dct(CansAuthLevelDCT,c.cans.rloc))
@@ -3075,7 +3075,7 @@ function ALOCRpt(RptTitle,ReportID) is null
     $col("right",,"50%")$text(q_text_dloc,"datatag")
     $col()$text($dct(CansAuthLevelDCT,c.cans.dloc))              
   endif	
-  if c.cans.type = "1" or c.cans.type = "2" or (c.cans.type = "3" and c.cans.disreas = "9") or c.cans.type = "11" or c.cans.type = "12"
+  if c.cans.type = "1" or c.cans.type = "2" or c.cans.type = "11" or c.cans.type = "12"
    $row()
     $col("right",,"50%")$text(q_text_aloc,"datatag")
     $col()$text($dct(CansAuthLevelDCT,c.cans.aloc)) 
@@ -3132,11 +3132,9 @@ function ValidateALOC() is i
    $clear(c.cans.loc_dev,c.cans.devoth,c.cans.devR1,c.cans.devR2,c.cans.devR3,c.cans.devR4,c.cans.devR5, c.cans.devjust)   
   endif
  else
-  if c.cans.type = "1" or c.cans.type = "2" or (c.cans.type = "3" and c.cans.disreas = "9") or c.cans.type = "12"
+  if c.cans.type = "1" or c.cans.type = "2" or c.cans.type = "12"
    (void)$arrpush(errors[],aloc4_errortxt)  
-  else
-   c.cans.aloc = "110"
-  endif 
+  endif
  endif
  if c.cans.alocdate dp
   if c.cans.alocdate > $today
@@ -3215,7 +3213,7 @@ end SaveEvent
 
 function RLOCRpt() is null
   $table($funcname,,"width='100%' cellspacing='0' cellpadding='2' bgcolor='White'  style='border-style: solid; border-width: 1px'")
-  if c.cans.type = "1" or c.cans.type = "2" or (c.cans.type = "3" and c.cans.disreas = "9") or c.cans.type = "12"
+  if c.cans.type = "1" or c.cans.type = "2" or c.cans.type = "12"
   $row(,col_color_multi)
    $col("center",,,"2")$text("Recommended Level Of Care","datatag")
    $row()
@@ -3230,7 +3228,7 @@ function RLOCRpt() is null
    $row()
     $col("right",,"50%")$text(q_text_rloc,"datatag")
     $col()$text($dct(CansAuthLevelDCT,c.cans.rloc))  
-  elseif c.cans.type = "3" and c.cans.disreas != "9"
+  elseif c.cans.type = "3"
   $row(,col_color_multi)
    $col("center",,,"2")$text("Discharge","datatag")  
   endif
@@ -3241,7 +3239,7 @@ function RLOCRpt() is null
 end RLOCRpt
 
 function ClearPage1() is null
- if c.cans.type = "1" or c.cans.type = "2" or (c.cans.type = "3" and c.cans.disreas = "9") or c.cans.type = "12"
+ if c.cans.type != "11"
   $clear(c.cans.cr.suicid,c.cans.cr.smutil,c.cans.cr.oslfhr,c.cans.cr.dangot,c.cans.cr.sexagr,c.cans.cr.runawy,c.cans.cr.delqcy,c.cans.cr.firset,c.cans.cr.socbeh,c.cans.cr.bully)
  endif
  $clear(c.cans.cb.psychs,c.cans.cb.mania,c.cans.cb.implsv,c.cans.cb.depres,c.cans.cb.anxity,c.cans.cb.oppdef,c.cans.cb.condct,c.cans.cb.adjtrm,c.cans.cb.angctr,c.cans.cb.subabs,c.cans.cb.eatdst)
