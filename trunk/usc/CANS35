@@ -1293,7 +1293,7 @@ end adjust
                                                              
 'Life Domain Report 
 function LifeDomainRpt() is null
- if c.cans.type != "11" and (c.cans.type != "3" and c.cans.disreas != "9")
+ if c.cans.type = "1" or c.cans.type = "2" or (c.cans.type = "3" and c.cans.disreas = "9") or c.cans.type = "11" or c.cans.type = "12"
   $br()
   $table($funcname,,"width='100%' cellspacing='0' cellpadding='2' bgcolor='White' style='border-style: solid; border-width: 1px'")
    $row(,col_color_multi)
@@ -1394,7 +1394,7 @@ end DevNeedsRpt
 
 'Child Risk Report
 function ChildRiskRpt() is null
- if(c.cans.type != "3" and c.cans.disreas != "9")
+ if c.cans.type = "1" or c.cans.type = "2" or (c.cans.type = "3" and c.cans.disreas = "9") or c.cans.type = "11" or c.cans.type = "12"
   $br()
   $table($funcname,,"width='100%' cellspacing='0' cellpadding='2' bgcolor='White' style='border-style: solid; border-width: 1px'")
    $row(,col_color_multi)
@@ -1417,7 +1417,7 @@ end ChildRiskRpt
 
 'Emotional Behaviroal Needs Report
 function BehEmoRpt() is null
- if c.cans.type != "11" and (c.cans.type != "3" and c.cans.disreas != "9")
+ if c.cans.type = "1" or c.cans.type = "2" or (c.cans.type = "3" and c.cans.disreas = "9") or c.cans.type = "11" or c.cans.type = "12"
   $br()
   $table($funcname,,"width='100%' cellspacing='0' cellpadding='2' bgcolor='White' style='border-style: solid; border-width: 1px'")
    $row(,col_color_multi)
@@ -1553,7 +1553,7 @@ end AdjustRpt
 
 'CARE Give Giver Strengths & Needs Report
 function CareGiveRpt() is null
- if c.cans.type != "11" and (c.cans.type != "3" and c.cans.disreas != "9")
+ if c.cans.type = "1" or c.cans.type = "2" or (c.cans.type = "3" and c.cans.disreas = "9") or c.cans.type = "11" or c.cans.type = "12"
   $br()
   $table($funcname,,"width='100%' cellspacing='0' cellpadding='2' bgcolor='White' style='border-style: solid; border-width: 1px'")
    $row(,col_color_multi)
@@ -1660,7 +1660,7 @@ end FamCareGiveRpt
 
 'Child Strengths Report
 function ChildStrRpt() is null
- if c.cans.type != "11" and (c.cans.type != "3" and c.cans.disreas != "9")
+ if c.cans.type = "1" or c.cans.type = "2" or (c.cans.type = "3" and c.cans.disreas = "9") or c.cans.type = "11" or c.cans.type = "12"
   $br()
   $table($funcname,,"width='100%' cellspacing='0' cellpadding='2' bgcolor='White' style='border-style: solid; border-width: 1px'")
    $row(,col_color_multi)
@@ -1695,7 +1695,7 @@ end ChildStrRpt
 
 'Culture Report
 function CultureRpt() is null
- if c.cans.type != "11" and (c.cans.type != "3" and c.cans.disreas != "9")
+ if c.cans.type = "1" or c.cans.type = "2" or (c.cans.type = "3" and c.cans.disreas = "9") or c.cans.type = "11" or c.cans.type = "12"
   $br()
   $table($funcname,,"width='100%' cellspacing='0' cellpadding='2' bgcolor='White' style='border-style: solid; border-width: 1px'")
    $row(,col_color_multi)
@@ -1956,7 +1956,7 @@ function Page1() is null
 	  $col()
     $endtable("1")
     $br()
-   if c.cans.type != "11" and (c.cans.type != "3" and c.cans.disreas != "9")
+   if c.cans.type = "1" or c.cans.type = "2" or (c.cans.type = "3" and c.cans.disreas = "9") or c.cans.type = "11" or c.cans.type = "12"
     $tag("<hr/>")
     $br()
     $table("2",,table_nobgcolor)
@@ -2100,7 +2100,7 @@ function Page4() is null
  $form($funcname)    
   {"lib_UACOMMON"}ClientPageHeader($regid)
   $br()ReportHdr()
-  if c.cans.type != "11" and (c.cans.type != "3" and c.cans.disreas != "9")
+  if c.cans.type = "1" or c.cans.type = "2" or (c.cans.type = "3" and c.cans.disreas = "9") or c.cans.type = "11" or c.cans.type = "12"
    OtherQuestionRpt()
    $tag("<hr/>")  
    $table($funcname,,table_nobgcolor)
@@ -2357,7 +2357,7 @@ function ChildRiskFactor() is null
 end ChildRiskFactor
 
 function ChildRiskFacRpt() is null
- if c.cans.type != "11" and (c.cans.type != "3" and c.cans.disreas != "9")
+ if c.cans.type = "1" or c.cans.type = "2" or (c.cans.type = "3" and c.cans.disreas = "9") or c.cans.type = "11" or c.cans.type = "12"
   $br()
   $table($funcname,,"width='100%' cellspacing='0' cellpadding='2' bgcolor='White' style='border-style: solid; border-width: 1px'")
    $row(,col_color_multi)
@@ -2541,7 +2541,7 @@ function OtherQuestions() is null
 end OtherQuestions
 
 function OtherQuestionRpt() is null
- if c.cans.type != "11" and (c.cans.type != "3" and c.cans.disreas != "9")
+ if c.cans.type = "1" or c.cans.type = "2" or (c.cans.type = "3" and c.cans.disreas = "9") or c.cans.type = "11" or c.cans.type = "12"
   $br()
   $table($funcname,,"width='100%' cellspacing='0' cellpadding='2' bgcolor='White' style='border-style: solid; border-width: 1px'")
    $row()
@@ -2566,76 +2566,81 @@ function ALOC() is null
  last_alocdate is d
  CurrentDX     is x
  CurrentDX = {"lib_UACOMMON"}CurrentDX($regid,c.cans.date)
- if c.cans.rloc = "100" or c.cans.type != "11" or (c.cans.type = "3" and c.cans.disreas != "9")
+ if c.cans.rloc = "100" or c.cans.type = "11" or (c.cans.type = "3" and c.cans.disreas != "9")
   CurrentDX = "Y"
  endif
  {"lib_CANS"}Last_Assessment($regid,last_type,,,,,last_aloc,,last_alocdate) 
  $table($funcname,,"width='100%' cellspacing='0' cellpadding='2' bgcolor='White'  style='border-style: solid; border-width: 1px'")
    $row(,col_color_multi)
-    $col("center",,,"2")$text("Authorized Level Of Care","datatag")
-  select CurrentDX
-   case "Y" $row()
-             $col("right",,"50%")$text(q_text_alocdate,"datatag")
-	         $col()$textbox(c.cans.alocdate,"CAL",10,6,"Y","normal")
-            if c.cans.type != "11" and (c.cans.type != "3" and c.cans.disreas != "9")
-             $row()
-              $col("right",,"50%")$text(q_text_rloc,"datatag")
-	          $col()$text($dct(CansAuthLevelDCT,c.cans.rloc))
-             if c.cans.dloc dp
-               $row()
-                $col("right",,"50%")$text(q_text_dloc,"error")
-	            $col()$text($dct(CansAuthLevelDCT,c.cans.dloc)) 
-             endif	
-            if c.cans.type != "11" and (c.cans.type != "3" and c.cans.disreas != "9")
-             $row()
-              $col("right",,"50%")$text(q_text_aloc,"datatag")
-	          $col()$dropboxdct(c.cans.aloc,CansAuthLevelDCT,,,,"Y")
-            endif
-		     if (c.cans.aloc dp and c.cans.rloc dp) and (c.cans.rloc != c.cans.aloc)
-			  $row()
-               $col("right",,"50%")$text(q_text_loc_dev,"datatag")
-	           $col()$dropboxdct(c.cans.loc_dev,CansDeviationDCT)
-                     $dropbox(c.cans.loc_dev,"Other","5",,,"OTHER","OTHER")	
-			  $row()
-               $col("right",,"50%")$text(q_text_devjust,"datatag")
-	           $col()$textblock(c.cans.devjust,5,,,"Y",255,"width:100%;")$countbox(c.cans.devjust,"(max chars is 255)")
-                     
-             endif
-		   endif
-           if c.cans.type = "11" or c.cans.rloc = "100"
-            c.cans.aloc = "100"
-             $row()
-              $col("right",,"50%")$text(q_text_rloc,"datatag")
-	          $col()$text($dct(CansAuthLevelDCT,c.cans.rloc))  
-             $row()
-              $col("right",,"50%")$text(q_text_aloc,"datatag")
-	          $col()$text($dct(CansAuthLevelDCT,c.cans.aloc))  
-           endif
-          $endtable($funcname)
-          $block("OTHER","OTHER")
-           $table("OTHER",,table_nobgcolor)
-            $row()
-             $col("right",,"50%")$text(q_text_devoth,"datatag")
-             $col()$textblock(c.cans.devoth,5,,,"Y",255,"width:100%;")$countbox(c.cans.devoth,"(max chars is 255)")
-           $endtable("OTHER")
-          $endblock("OTHER","OTHER")
+    if c.cans.type = "1" or c.cans.type = "2" or (c.cans.type = "3" and c.cans.disreas = "9") or c.cans.type = "12"
+	 $col("center",,,"2")$text("Authorized Level Of Care","datatag")
+	elseif (c.cans.type = "3" and c.cans.disreas != "9") 
+	 $col("center",,,"2")$text("Discharge","datatag")	
+	elseif c.cans.type = "11"
+	 $col("center",,,"2")$text("Authorized Level Of Care: Crisis","datatag")
+	endif
+  if CurrentDX = "Y"
+   $row()
+    $col("right",,"50%")$text(q_text_alocdate,"datatag")
+    $col()$textbox(c.cans.alocdate,"CAL",10,6,"Y","normal")
+    if c.cans.type = "1" or c.cans.type = "2" or (c.cans.type = "3" and c.cans.disreas = "9") or c.cans.type = "12"
+     $row()
+      $col("right",,"50%")$text(q_text_rloc,"datatag")
+      $col()$text($dct(CansAuthLevelDCT,c.cans.rloc))
+     if c.cans.dloc dp
+      $row()
+       $col("right",,"50%")$text(q_text_dloc,"error")
+	   $col()$text($dct(CansAuthLevelDCT,c.cans.dloc)) 
+     endif	
+     $row()
+      $col("right",,"50%")$text(q_text_aloc,"datatag")
+	  $col()$dropboxdct(c.cans.aloc,CansAuthLevelDCT,,,,"Y")
+     if (c.cans.aloc dp and c.cans.rloc dp) and (c.cans.rloc != c.cans.aloc)
+	  $row()
+       $col("right",,"50%")$text(q_text_loc_dev,"datatag")
+	   $col()$dropboxdct(c.cans.loc_dev,CansDeviationDCT)
+             $dropbox(c.cans.loc_dev,"Other","5",,,"OTHER","OTHER")	
+      $row()
+       $col("right",,"50%")$text(q_text_devjust,"datatag")
+       $col()$textblock(c.cans.devjust,5,,,"Y",255,"width:100%;")$countbox(c.cans.devjust,"(max chars is 255)")			 
+     endif
+    endif
+    if c.cans.type = "11" or c.cans.rloc = "100"
+     c.cans.aloc = "100"
+     $row()
+      $col("right",,"50%")$text(q_text_rloc,"datatag")
+      $col()$text($dct(CansAuthLevelDCT,c.cans.rloc))  
+     $row()
+      $col("right",,"50%")$text(q_text_aloc,"datatag")
+      $col()$text($dct(CansAuthLevelDCT,c.cans.aloc))  
+    endif	 	
+  $endtable($funcname)
+  $block("OTHER","OTHER")
+   $table("OTHER",,table_nobgcolor)
+    $row()
+     $col("right",,"50%")$text(q_text_devoth,"datatag")
+     $col()$textblock(c.cans.devoth,5,,,"Y",255,"width:100%;")$countbox(c.cans.devoth,"(max chars is 255)")
+   $endtable("OTHER")
+  $endblock("OTHER","OTHER")
 
-          if (c.cans.aloc != last_aloc and last_aloc dp) and c.cans.type != "3"
-		   $table($funcname,,table_nobgcolor)
-            $row()
-             $col("right",,"50%")$text(q_text_fairhear,"datatag")
-             $col()$radio(c.cans.fairhear,"Yes","Y",,,,,,"Y")$ctag("&nbsp;&nbsp;&nbsp;&nbsp;")$radio(c.cans.fairhear,"No","N",,,,,,"Y")
-           $endtable($funcname)
-		  endif 
+  if (c.cans.aloc != last_aloc and last_aloc dp) and c.cans.type != "3"
+   $table($funcname,,table_nobgcolor)
+    $row()
+     $col("right",,"50%")$text(q_text_fairhear,"datatag")
+     $col()$radio(c.cans.fairhear,"Yes","Y",,,,,,"Y")$ctag("&nbsp;&nbsp;&nbsp;&nbsp;")$radio(c.cans.fairhear,"No","N",,,,,,"Y")
+  $endtable($funcname)
+  endif 		  
 
-          $table($funcname,,table_nobgcolor)
-           $row()
-            $col("right",,"50%")$text(q_text_acomment,"datatag")
-            $col()$textblock(c.cans.acomment,5,,,,255,"width:100%;")$countbox(c.cans.acomment,"(max chars is 255)")  
-          $endtable($funcname)
-   case "N" $row()
-             $col("center",,"100%","2")$text(diag_errortxt,"error")
-  endselect
+  $table($funcname,,table_nobgcolor)
+   $row()
+    $col("right",,"50%")$text(q_text_acomment,"datatag")
+    $col()$textblock(c.cans.acomment,5,,,,255,"width:100%;")$countbox(c.cans.acomment,"(max chars is 255)")  
+  $endtable($funcname)
+
+  else
+   $row()
+   $col("center",,"100%","2")$text(diag_errortxt,"error")
+  endif
 end ALOC
 
 function ALOCRpt(RptTitle,ReportID) is null
@@ -2643,57 +2648,65 @@ function ALOCRpt(RptTitle,ReportID) is null
  ReportID is x
  $table($funcname,,"width='100%' cellspacing='0' cellpadding='2' bgcolor='White'  style='border-style: solid; border-width: 1px'")
   $row(,col_color_multi)
-   $col("center",,,"2")$text("Authorized Level Of Care","datatag")
-   $row()
-    $col("right",,"50%")$text(q_text_alocstaff,"datatag")
-	$col()$text($dct(2071, $oper, "D"))
-   $row()
-    $col("right",,"50%")$text(q_text_alocdate,"datatag")
-	$col()$text(c.cans.alocdate)
+   if c.cans.type = "1" or c.cans.type = "2" or (c.cans.type = "3" and c.cans.disreas = "9") or c.cans.type = "12"
+    $col("center",,,"2")$text("Authorized Level Of Care","datatag")
+   elseif (c.cans.type = "3" and c.cans.disreas != "9")
+    $col("center",,,"2")$text("Discharge","datatag")
+   elseif c.cans.type = "11"
+    $col("center",,,"2")$text("Authorized Level Of Care: Crisis","datatag")
+   endif
+  $row()
+   $col("right",,"50%")$text(q_text_alocstaff,"datatag")
+   $col()$text($dct(2071, $oper, "D"))
+  $row()
+   $col("right",,"50%")$text(q_text_alocdate,"datatag")
+   $col()$text(c.cans.alocdate)
+  if c.cans.type = "1" or c.cans.type = "2" or (c.cans.type = "3" and c.cans.disreas = "9") or c.cans.type = "11"
    $row()
     $col("right",,"50%")$text(q_text_alocedate,"datatag")
-	$col()$text(c.cans.alocedate)
-   $row()
-  if c.cans.type != "3" and c.cans.disreas != "9"
+    $col()$text(c.cans.alocedate)
+    $row()
+  endif
+  if c.cans.type = "1" or c.cans.type = "2" or (c.cans.type = "3" and c.cans.disreas = "9") or c.cans.type = "11" or c.cans.type = "12"
    $row()
     $col("right",,"50%")$text(q_text_rloc,"datatag")
     $col()$text($dct(CansAuthLevelDCT,c.cans.rloc))
   endif
- if c.cans.dloc dp
+  if c.cans.dloc dp
    $row()
     $col("right",,"50%")$text(q_text_dloc,"datatag")
-	$col()$text($dct(CansAuthLevelDCT,c.cans.dloc))              
- endif	
- if c.cans.type != "3" and c.cans.disreas != "9"
-  $row()
-   $col("right",,"50%")$text(q_text_aloc,"datatag")
-   $col()$text($dct(CansAuthLevelDCT,c.cans.aloc)) 
+    $col()$text($dct(CansAuthLevelDCT,c.cans.dloc))              
+  endif	
+  if c.cans.type = "1" or c.cans.type = "2" or (c.cans.type = "3" and c.cans.disreas = "9") or c.cans.type = "11" or c.cans.type = "12"
+   $row()
+    $col("right",,"50%")$text(q_text_aloc,"datatag")
+    $col()$text($dct(CansAuthLevelDCT,c.cans.aloc)) 
   endif
- if c.cans.loc_dev dp
-  $row()
-   $col("right",,"50%")$text(q_text_loc_dev,"datatag")
-   $col()$text($dct(CansDeviationDCT,c.cans.loc_dev))
- endif  
- if c.cans.devoth dp
+  if c.cans.loc_dev dp
+   $row()
+    $col("right",,"50%")$text(q_text_loc_dev,"datatag")
+    $col()$text($dct(CansDeviationDCT,c.cans.loc_dev))
+  endif  
+  if c.cans.devoth dp
    $row()
     $col("right",,"50%")$text(q_text_devoth,"datatag")
-	$col()$text(c.cans.devoth)
- endif
- if c.cans.devjust dp
+    $col()$text(c.cans.devoth)
+  endif
+  if c.cans.devjust dp
    $row()
     $col("right",,"50%")$text(q_text_devjust,"datatag")
-	$col()$text(c.cans.devjust) 
- endif
- if c.cans.fairhear dp
-  $row()
-   $col("right",,"50%")$text(q_text_fairhear,"datatag")
-   $col()$text($dct(29,c.cans.fairhear))
- endif 
- if c.cans.acomment dp
-  $row()
-   $col("right",,"50%")$text(q_text_acomment,"datatag")
-   $col()$text(c.cans.acomment) 
- endif
+    $col()$text(c.cans.devjust)
+  endif  
+  if c.cans.fairhear dp
+   $row()
+    $col("right",,"50%")$text(q_text_fairhear,"datatag")
+    $col()$text($dct(29,c.cans.fairhear))
+  endif 
+  if c.cans.acomment dp
+   $row()
+    $col("right",,"50%")$text(q_text_acomment,"datatag")
+    $col()$text(c.cans.acomment) 
+  endif
  $endtable($funcname)
  $br()
  {"l_snapLibSC"}sn_CreateReport(RptTitle,,,ReportID)
@@ -2839,17 +2852,24 @@ end GetEvent
 
 function RLOCRpt() is null
   $table($funcname,,"width='100%' cellspacing='0' cellpadding='2' bgcolor='White'  style='border-style: solid; border-width: 1px'")
+  if c.cans.type = "1" or c.cans.type = "2" or (c.cans.type = "3" and c.cans.disreas = "9") or c.cans.type = "12"
   $row(,col_color_multi)
    $col("center",,,"2")$text("Recommended Level Of Care","datatag")
-  if c.cans.type != "3" and c.cans.disreas != "9"
    $row()
     $col("right",,"50%")$text(q_text_rloc,"datatag")
     $col()$text($dct(CansAuthLevelDCT,c.cans.rloc))
-  endif
-  if c.cans.type != "11" and (c.cans.type != "3" and c.cans.disreas != "9")
    $row()
     $col("right",,"50%")$text(q_text_dloc,"datatag")
     $col()$dropboxdct(c.cans.dloc,CansAuthLevelDCT)
+  elseif c.cans.type = "11"
+  $row(,col_color_multi)
+   $col("center",,,"2")$text("Recommended Level Of Care: Crisis","datatag")
+   $row()
+    $col("right",,"50%")$text(q_text_rloc,"datatag")
+    $col()$text($dct(CansAuthLevelDCT,c.cans.rloc))  
+  elseif c.cans.type = "3" and c.cans.disreas != "9"
+  $row(,col_color_multi)
+   $col("center",,,"2")$text("Discharge","datatag")  
   endif
   $row()
    $col("right",,"50%")$text(q_text_comment,"datatag")
