@@ -93,6 +93,7 @@ start CANS617(parmfile,option,client,retcode)
      rc = $dbremovedst(02, $regid, cans_dstlist)
      $brmsg("CANS Assessment Successfully Removed from the Database!",1,"C","Process Complete")
      $brmsg("The assessment will restart now.",2,"W")
+	 Page = "0"
 	elseif PromptNED = 2
      rc = $dbread(02, $regid, cans_dstlist)
      {"lib_UACOMMON"}GetEvent(c.cans.isn,e.ser,e.ru,e.start,e.dur,e.loc)
@@ -130,6 +131,7 @@ start CANS617(parmfile,option,client,retcode)
      rc = $dbremovedst(02, $regid, cans_dstlist)
      $brmsg("CANS Assessment Successfully Removed from the Database!",1,"C","Process Complete")
      $brmsg("The assessment will restart now.",2,"W")
+	 Page = "0"	 
 	elseif PromptNED = 2
      rc = $dbread(02, $regid, cans_dstlist)
      {"lib_UACOMMON"}GetEvent(c.cans.isn,e.ser,e.ru,e.start,e.dur,e.loc)
@@ -160,6 +162,7 @@ start CANS617(parmfile,option,client,retcode)
    rc = $dbremovedst(02, $regid, cans_dstlist)
    $brmsg("CANS Assessment Successfully Removed from the Database!",1,"C","Process Complete")
    $brmsg("The assessment will restart now.",2,"W")
+   Page = "0"   
   elseif PromptNED = 2
    rc = $dbread(02, $regid, cans_dstlist)
    {"lib_UACOMMON"}GetEvent(c.cans.isn,e.ser,e.ru,e.start,e.dur,e.loc)
