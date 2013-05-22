@@ -2359,6 +2359,23 @@ function Validate1() is i
   $clear(c.cans.disdt,c.cans.disreas,c.cans.disref) 
  endif 
 
+ if c.cans.cg.na = "9"  
+  c.cans.cg.super = "9"  
+  c.cans.cg.involv = "9"  
+  c.cans.cg.knoldg = "9"  
+  c.cans.cg.organz = "9"  
+  c.cans.cg.socres = "9"  
+  c.cans.cg.ressbl = "9"  
+  c.cans.cg.physcl = "9"  
+  c.cans.cg.menhth = "9"  
+  c.cans.cg.subabs = "9"  
+  c.cans.cg.develp = "9"  
+  c.cans.cg.chldcr = "9"  
+  c.cans.cg.miltra = "9"  
+  c.cans.cg.famsts = "9"  
+  c.cans.cg.safety = "9"  
+ endif 
+
  if errors[1] dp	
   Validate1 = 1
  else
@@ -2437,56 +2454,40 @@ function Validate2() is i
  else
   Validate2 = 0	
 'Clear dependant fields
-  if c.cans.cg.na = "9"  
-   c.cans.cg.super = "9"  
-   c.cans.cg.involv = "9"  
-   c.cans.cg.knoldg = "9"  
-   c.cans.cg.organz = "9"  
-   c.cans.cg.socres = "9"  
-   c.cans.cg.ressbl = "9"  
-   c.cans.cg.physcl = "9"  
-   c.cans.cg.menhth = "9"  
-   c.cans.cg.subabs = "9"  
-   c.cans.cg.develp = "9"  
-   c.cans.cg.chldcr = "9"  
-   c.cans.cg.miltra = "9"  
-   c.cans.cg.famsts = "9"  
-   c.cans.cg.safety = "9"  
-  endif 
   if $num(c.cans.ps.hosptl) != 1
    $clear(q_text_hs_numprr, q_text_hs_longst, q_text_hs_durrec, q_text_hs_timlst)
   endif
-  if $num(c.cans.cg.famsts) = 0 or c.cans.cg.famsts = "N"
+  if c.cans.cg.famsts = "0" or c.cans.cg.famsts = "9"
    $clear(c.cans.fc.selfcr, c.cans.fc.culstr, c.cans.fc.empedu, c.cans.fc.eduatt, c.cans.fc.legal, c.cans.fc.motive, c.cans.fc.finres, c.cans.fc.transp)	
   endif
-  if $num(c.cans.cb.adjtrm) = 0
+  if c.cans.cb.adjtrm = "0"
    $clear(c.cans.tr.sexabs, c.cans.tr.phyabs, c.cans.tr.emoabs, c.cans.tr.medtrm, c.cans.tr.natdis, c.cans.tr.wtofam, c.cans.tr.wtocom, c.cans.tr.wcrime, c.cans.tr.waraff, c.cans.tr.teraff)    
    $clear(c.cans.ad.affreg, c.cans.ad.intrus, c.cans.ad.attach, c.cans.ad.dissoc, c.cans.ad.timb4t)	
   endif
-  if $num(c.cans.cb.subabs) = 0
+  if c.cans.cb.subabs = "0"
    $clear(c.cans.sa.severe, c.cans.sa.durati, c.cans.sa.stgrec, c.cans.sa.perinf, c.cans.sa.parinf, c.cans.sa.envinf)
   endif
-  if $num(c.cans.cr.dangot) = 0
+  if c.cans.cr.dangot = "0"
    $clear(c.cans.eb.frsmgt, c.cans.eb.hostil, c.cans.eb.parand, c.cans.eb.secgan, c.cans.eb.viothk)	
    $clear(c.cans.vi.hxpabs, c.cans.vi.hxviol, c.cans.vi.wdomab, c.cans.vi.wenvab)
    $clear(c.cans.rf.viopot, c.cans.rf.rescon, c.cans.rf.comsc , c.cans.rf.trtinv)	
   endif
-  if $num(c.cans.cr.sexagr) = 0
+  if c.cans.cr.sexagr = "0"
    $clear(c.cans.sb.relton, c.cans.sb.phyfrc, c.cans.sb.planin, c.cans.sb.agedif, c.cans.sb.typsex, c.cans.sb.resacc, c.cans.sb.temcon, c.cans.sb.hxsxbh, c.cans.sb.svsxab)
   endif
-  if $num(c.cans.cr.runawy) = 0
+  if c.cans.cr.runawy = "0"
    $clear(c.cans.rn.frqncy, c.cans.rn.condes, c.cans.rn.safdes, c.cans.rn.invill, c.cans.rn.retown, c.cans.rn.invoth, c.cans.rn.relexp, c.cans.rn.planin)
   endif
-  if $num(c.cans.cr.delqcy) = 0
+  if c.cans.cr.delqcy = "0"
    $clear(c.cans.jj.serios, c.cans.jj.histry, c.cans.jj.arrest, c.cans.jj.planin, c.cans.jj.comsaf, c.cans.jj.lefcom, c.cans.jj.perinf, c.cans.jj.parinf, c.cans.jj.envinf)
   endif
-  if $num(c.cans.cr.firset) = 0
+  if c.cans.cr.firset = "0"
    $clear(c.cans.fs.serios, c.cans.fs.histry, c.cans.fs.planin, c.cans.fs.useacc, c.cans.fs.inthrm, c.cans.fs.comsaf, c.cans.fs.resacc, c.cans.fs.remrse, c.cans.fs.futfir)	
   endif     
-  if $num(c.cans.ld.school) = 0
+  if c.cans.ld.school = "0"
    $clear(c.cans.sc.behavr, c.cans.sc.achiev, c.cans.sc.attend, c.cans.sc.reltch)
   endif  
-  if $num(c.cans.ld.develp) = 0
+  if c.cans.ld.develp = "0"
    $clear(c.cans.dv.cognit, c.cans.dv.develp, c.cans.dv.selfcr)
   endif      
  endif
@@ -2744,7 +2745,7 @@ function Page2() is null
      $col(,,"50%")DevNeeds()
      $col()
    endif
-   if $num(c.cans.cg.famsts) > 0
+   if $num(c.cans.cg.famsts) > 0 and $num(c.cans.cg.famsts) != 9
     $row()
 	 $col()$fieldset("Care Giver Strengths and Needs",,"datatag")
 	        {"lib_CANS617"}CareGiverScoring(`table_wbgcolor`)
@@ -2842,11 +2843,11 @@ function CanSkipPage2() is x
 	$num(c.cans.cb.subabs) > 0 or
 	$num(c.cans.ld.school) > 0 or 
 	$num(c.cans.ld.develp) > 0 or 
-	$num(c.cans.cg.famsts) > 0 or 
+	(c.cans.cg.famsts != "0" and c.cans.cg.famsts != "9") or 
 	$num(c.cans.cr.suicid) > 0 or
 	c.cans.ps.hosptl = "1"
   CanSkipPage2 = "N"
- endif	
+ endif
 end CanSkipPage2
 
 function CanSkipPage3() is x

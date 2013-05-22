@@ -1257,7 +1257,7 @@ function ChildStrRpt(q_text_cs_family,c.cans.cs.family,q_text_cs_intper,c.cans.c
  $br()
  $table($funcname,,"width='100%' cellspacing='0' cellpadding='2' bgcolor='White' style='border-style: solid; border-width: 1px'")
   $row(,col_color_multi)
-   $col("center",,,"3"  )$text("ChildStrengths","datatag")
+   $col("center",,,"3"  )$text("Child Strengths","datatag")
   $row(,row_color2)
    $col(,,"40%")$text(q_text_cs_family)
    $col("center",,"10%")$text(c.cans.cs.family)
