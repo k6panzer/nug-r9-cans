@@ -1566,7 +1566,9 @@ function RLOC(c.cans.ac.sexgen,c.cans.ad.affreg,c.cans.ad.dissoc,c.cans.ad.intru
   endif
  endif 			
 'All Child Risk Behavior Items = 0
- if c.cans.type = "1" or c.cans.type = "12"
+ if c.cans.type = "1" or c.cans.type = "2" or c.cans.type = "12" 
+'This is commented out for the moment due to causing a batch error. From the manual it is a possibility but cmbhs integration services project kicks it back as an error for type "3"
+' or (c.cans.type = "3" and c.cans.disreas = "9")
   if (c.cans.cr.suicid = "0" and c.cans.cr.smutil = "0" and c.cans.cr.oslfhr = "0" and c.cans.cr.dangot = "0" and c.cans.cr.sexagr = "0" and c.cans.cr.runawy = "0" and c.cans.cr.delqcy = "0" and 
       c.cans.cr.firset = "0" and c.cans.cr.socbeh = "0" and c.cans.cr.bully = "0")
   and
@@ -1902,15 +1904,19 @@ function RLOC(c.cans.ac.sexgen,c.cans.ad.affreg,c.cans.ad.dissoc,c.cans.ad.intru
      $num(c.cans.cr.suicid) < 2 and $num(c.cans.cr.suicid) < 2 and $num(c.cans.cb.adjtrm) < 2 and $num(c.cans.cb.angctr) < 2 and 
      $num(c.cans.cb.anxity) < 2 and $num(c.cans.cb.condct) < 2 and $num(c.cans.cb.depres) < 2 and $num(c.cans.cb.eatdst) < 2 and
      $num(c.cans.cb.implsv) < 2 and $num(c.cans.cb.oppdef) < 2 and $num(c.cans.cb.psychs) < 2 and $num(c.cans.cb.subabs) < 2 and
-     c.cans.ld.family != "2" and c.cans.ld.family != "3" and $num(c.cans.ld.livsit) < 2 and c.cans.ld.school < 2	and
+     c.cans.ld.family != "2" and c.cans.ld.family != "3" and $num(c.cans.ld.livsit) < 2 and $num(c.cans.ld.school) < 2 and
      $num(c.cans.ld.sexdev) < 2 and c.cans.ld.indliv != "2" and c.cans.ld.indliv != "3" and
-     $num(c.cans.ac.sexgen) < 2 and $num(c.cans.cr.episds) < 2 and $num(c.cans.ld.socFun) < 2 and $num(c.cans.ld.judgmt) < 2	and
+     $num(c.cans.ac.sexgen) < 2 and $num(c.cans.cr.episds) < 2 and $num(c.cans.ld.socFun) < 2 and $num(c.cans.ld.judgmt) < 2 and
      c.cans.ld.jobfun != "3" and $num(c.cans.ld.legal) < 3 and (c.cans.ps.hosptl = "0" or (c.cans.ps.hosptl = "1" and $num(c.cans.hs.timlst) < 3))	
     )    
     RLOC = med_management
    else
     RLOC = targeted
    endif 
+  endif 
+'At this point, if there is no RLOC assigned then the assessment is 110-Ineligible
+  if RLOC !dp
+   RLOC = Ineligible
   endif 
  else
   $clear(RLOC)
