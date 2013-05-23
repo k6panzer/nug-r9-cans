@@ -16,6 +16,14 @@ start CANS617(parmfile,option,client,retcode)
  %global radio_index
  radio_index is i  
  
+ %global c_cans_rloc, c_cans_dloc, c_cans_aloc,c_cans_loc_dev,c_cans_fairhear,sigline
+ c_cans_rloc     is x
+ c_cans_dloc     is x
+ c_cans_aloc     is x
+ c_cans_loc_dev  is x
+ c_cans_fairhear is x
+ sigline         is x
+ 
  %global parmfile,option,client,retcode, rc
  parmfile is x
  option   is x
@@ -317,6 +325,15 @@ start CANS617(parmfile,option,client,retcode)
     DisplayErrors()
    endif
   elseif Page = "Report"
+   c.cans.rloc = {"lib_CANS617"}RLOC(c.cans.ac.sexgen,c.cans.ad.affreg,c.cans.ad.dissoc,c.cans.ad.intrus,c.cans.cb.adjtrm,c.cans.cb.angctr,c.cans.cb.anxity,c.cans.cb.condct,
+                                     c.cans.cb.depres,c.cans.cb.eatdst,c.cans.cb.implsv,c.cans.cb.mania,c.cans.cb.oppdef,c.cans.cb.psychs,c.cans.cb.subabs,c.cans.cr.bully,
+                                     c.cans.cr.dangot,c.cans.cr.delqcy,c.cans.cr.episds,c.cans.cr.firset,c.cans.cr.oslfhr,c.cans.cr.runawy,c.cans.cr.sexagr,c.cans.cr.smutil,
+                                     c.cans.cr.socbeh,c.cans.cr.suicid,c.cans.dv.cognit,c.cans.dv.develp,c.cans.fs.inthrm,c.cans.fs.planin,c.cans.hs.durrec,c.cans.hs.timlst,
+                                     c.cans.jj.comsaf,c.cans.jj.histry,c.cans.jj.serios,c.cans.ld.commun,c.cans.ld.develp,c.cans.ld.family,c.cans.ld.indliv,c.cans.ld.jobfun,
+                                     c.cans.ld.judgmt,c.cans.ld.legal,c.cans.ld.livsit,c.cans.ld.medicl,c.cans.ld.physcl,c.cans.ld.recret,c.cans.ld.school,c.cans.ld.sexdev,
+                                     c.cans.ld.sleep,c.cans.ld.socfun,c.cans.ps.hosptl,c.cans.rf.comsc,c.cans.rf.rescon,c.cans.rn.frqncy,c.cans.rn.invill,c.cans.sa.envinf,
+                                     c.cans.sa.parinf,c.cans.sa.perinf,c.cans.sa.severe,c.cans.sa.stgrec,c.cans.sc.attend,c.cans.sc.behavr,c.cans.sr.hissui,c.cans.type,c.cans.vi.hxviol,
+						             c.cans.disreas) 
    Report(RptTitle,ReportID,page)									
    if $endbutton = "SUBMIT"
     if UM_StaffYN = "Y"
@@ -412,16 +429,6 @@ function Report(RptTitle,ReportID,mode) is null
  ReportID is x
  mode     is x
 
- c.cans.rloc = {"lib_CANS617"}RLOC(c.cans.ac.sexgen,c.cans.ad.affreg,c.cans.ad.dissoc,c.cans.ad.intrus,c.cans.cb.adjtrm,c.cans.cb.angctr,c.cans.cb.anxity,c.cans.cb.condct,
-                                   c.cans.cb.depres,c.cans.cb.eatdst,c.cans.cb.implsv,c.cans.cb.mania,c.cans.cb.oppdef,c.cans.cb.psychs,c.cans.cb.subabs,c.cans.cr.bully,
-                                   c.cans.cr.dangot,c.cans.cr.delqcy,c.cans.cr.episds,c.cans.cr.firset,c.cans.cr.oslfhr,c.cans.cr.runawy,c.cans.cr.sexagr,c.cans.cr.smutil,
-                                   c.cans.cr.socbeh,c.cans.cr.suicid,c.cans.dv.cognit,c.cans.dv.develp,c.cans.fs.inthrm,c.cans.fs.planin,c.cans.hs.durrec,c.cans.hs.timlst,
-                                   c.cans.jj.comsaf,c.cans.jj.histry,c.cans.jj.serios,c.cans.ld.commun,c.cans.ld.develp,c.cans.ld.family,c.cans.ld.indliv,c.cans.ld.jobfun,
-                                   c.cans.ld.judgmt,c.cans.ld.legal,c.cans.ld.livsit,c.cans.ld.medicl,c.cans.ld.physcl,c.cans.ld.recret,c.cans.ld.school,c.cans.ld.sexdev,
-                                   c.cans.ld.sleep,c.cans.ld.socfun,c.cans.ps.hosptl,c.cans.rf.comsc,c.cans.rf.rescon,c.cans.rn.frqncy,c.cans.rn.invill,c.cans.sa.envinf,
-                                   c.cans.sa.parinf,c.cans.sa.perinf,c.cans.sa.severe,c.cans.sa.stgrec,c.cans.sc.attend,c.cans.sc.behavr,c.cans.sr.hissui,c.cans.type,c.cans.vi.hxviol,
-						           c.cans.disreas) 
-								   
  if UM_StaffYN = "Y" and (c.cans.staff != $operstaffid and c.cans.staff dp)
   if mode = "Report"
    $submitopt("off", "")
@@ -432,7 +439,7 @@ function Report(RptTitle,ReportID,mode) is null
   $submitopt("off", "Send to UM")
  endif
  $cancelopt("off", "Back") 
- $form("Report")
+ $form($funcname)
   {"lib_UACOMMON"}ClientPageHeader($regid)
   
   if c.cans.isn dp
@@ -440,7 +447,7 @@ function Report(RptTitle,ReportID,mode) is null
   endif
   
   $style("siginfotag")
-  ReportHdr()
+  $br()ReportHdr()
   if c.cans.type = "1" or c.cans.type = "2" or (c.cans.type = "3" and c.cans.disreas = "9") or c.cans.type = "12"
    OtherQuestionRpt()
   endif 
@@ -527,7 +534,7 @@ function Report(RptTitle,ReportID,mode) is null
    $br(){"lib_CANS617"}StaffComments(q_text_comment,c.cans.comment)
    $br()ALOC()
   endif
- $sendform("Report")
+ $sendform($funcname)
 end Report
 
 function SaveData() is i
@@ -2184,7 +2191,6 @@ end PsyHospHx
 
 'Initial Validations before starting the assessment
 function Validate() is i
- $clear(errors[])
  c.cans.age = {"lib_UACOMMON"}ClientAge($regid)
  if c.cans.age > 17
   (void)$arrpush(errors[],age_errortxt)
@@ -2202,8 +2208,6 @@ function Validate() is i
 end Validate
 
 function Validate0() is i
- $clear(errors[])
- 
  if c.cans.type = "1"
   $clear(c.cans.disdt,c.cans.disreas,c.cans.disref,c.cans.disoth)
   if c.cans.intref != "5"
@@ -2300,8 +2304,6 @@ function Validate0() is i
 end Validate0
 
 function Validate1() is i
- $clear(errors[])
-
  if c.cans.type = "1" or c.cans.type = "2" or (c.cans.type = "3" and c.cans.disreas = "9") or c.cans.type = "12"
   if c.cans.ld.family !dp or c.cans.ld.livsit !dp or c.cans.ld.school !dp or c.cans.ld.socFun !dp or c.cans.ld.recret !dp or c.cans.ld.develp !dp or c.cans.ld.commun !dp or c.cans.ld.judgmt !dp or 
   c.cans.ld.jobfun !dp or c.cans.ld.legal  !dp or c.cans.ld.medicl !dp or c.cans.ld.physcl !dp or c.cans.ld.sexdev !dp or c.cans.ld.sleep  !dp or c.cans.ld.indliv !dp
@@ -2387,7 +2389,6 @@ function Validate1() is i
 end Validate1
 
 function Validate2() is i
- $clear(errors[])
  if ($num(c.cans.ld.school) > 0) and (c.cans.sc.behavr !dp or c.cans.sc.achiev !dp or c.cans.sc.attend !dp or c.cans.sc.reltch !dp) 
   (void)$arrpush(errors[],sc_errortxt)
  endif  
@@ -2497,7 +2498,6 @@ function Validate2() is i
 end Validate2
 
 function Validate3() is i
- $clear(errors[])
  if c.cans.tr.sexabs != "0" and c.cans.tr.sexabs dp and (c.cans.tr.emclos !dp or c.cans.tr.freq !dp or   c.cans.tr.durat !dp or  c.cans.tr.force !dp or  c.cans.tr.react !dp)    
   (void)$arrpush(errors[],sxab_errortxt)
  endif  	                            
@@ -2512,7 +2512,6 @@ function Validate3() is i
 end Validate3
 
 function Validate4() is i
- $clear(errors[])
  if c.cans.commdate !dp
   (void)$arrpush(errors[],commdt_errortxt)
  endif
@@ -2535,6 +2534,14 @@ function Validate4() is i
 end Validate4
 
 function ReportHdr() is null
+ c_cans_type    is x
+ c_cans_intref  is x
+ c_cans_disreas is x
+ c_cans_disref  is x
+ c_cans_type    = $dct(CansTypeDCT,c.cans.type)
+ c_cans_intref  = $dct(CansIntRefDCT,c.cans.intref)
+ c_cans_disreas = $dct(CansDisReasDCT,c.cans.disreas)
+ c_cans_disref  = $dct(CansDisRefDCT,c.cans.disref) 
  $table($funcname,,"width='100%' cellspacing='0' cellpadding='2' bgcolor='White' style='border-style: solid; border-width: 1px'")
   $row()
    $col(,,"5%")
@@ -2543,12 +2550,12 @@ function ReportHdr() is null
   $row()
    $col()
    $col()$text("Assessment Type: ")
-   $col()$text($dct(CansTypeDCT,c.cans.type)) 
+   $col()$text(c_cans_type) 
   if c.cans.type = "1"
    $row()
     $col()
     $col()$text("Referral Source: ")
-    $col()$text($dct(CansIntRefDCT,c.cans.intref))
+    $col()$text(c_cans_intref)
    if c.cans.intrefoth dp
     $row()
      $col()
@@ -2564,7 +2571,7 @@ function ReportHdr() is null
    $row()
     $col()
     $col()$text("Discharge Reason: ")
-    $col()$text($dct(CansDisReasDCT,c.cans.disreas))
+    $col()$text(c_cans_disreas)
    if c.cans.disoth dp
     $row()
      $col()
@@ -2574,7 +2581,7 @@ function ReportHdr() is null
    $row()
     $col()
     $col()$text("Referred To: ")
-    $col()$text($dct(CansDisRefDCT,c.cans.disref))
+    $col()$text(c_cans_disref)
   endif  
  $endtable($funcname)
  $br()$tag("<hr/>")
@@ -2967,6 +2974,11 @@ function ALOC() is null
  last_aloc     is x
  last_alocdate is d
  CurrentDX     is x
+ 
+ c_cans_rloc = $dct(CansAuthLevelDCT,c.cans.rloc)
+ c_cans_dloc = $dct(CansAuthLevelDCT,c.cans.dloc)
+ c_cans_aloc = $dct(CansAuthLevelDCT,c.cans.aloc) 
+ 
  CurrentDX = {"lib_UACOMMON"}CurrentDX($regid,c.cans.date)
  if c.cans.rloc = "100" or c.cans.type = "11" or (c.cans.type = "3" and c.cans.disreas != "9")
   CurrentDX = "Y"
@@ -2988,11 +3000,11 @@ function ALOC() is null
     if c.cans.type = "1" or c.cans.type = "2" or c.cans.type = "12"
      $row()
       $col("right",,"50%")$text(q_text_rloc,"datatag")
-      $col()$text($dct(CansAuthLevelDCT,c.cans.rloc))
+      $col()$text(c_cans_rloc)
      if c.cans.dloc dp
       $row()
        $col("right",,"50%")$text(q_text_dloc,"error")
-	   $col()$text($dct(CansAuthLevelDCT,c.cans.dloc)) 
+	   $col()$text(c_cans_dloc) 
      endif	
      $row()
       $col("right",,"50%")$text(q_text_aloc,"datatag")
@@ -3011,10 +3023,10 @@ function ALOC() is null
      c.cans.aloc = "100"
      $row()
       $col("right",,"50%")$text(q_text_rloc,"datatag")
-      $col()$text($dct(CansAuthLevelDCT,c.cans.rloc))  
+      $col()$text(c_cans_rloc)  
      $row()
       $col("right",,"50%")$text(q_text_aloc,"datatag")
-      $col()$text($dct(CansAuthLevelDCT,c.cans.aloc))  
+      $col()$text(c_cans_aloc)  
     endif	 	
   $endtable($funcname)
   $block("OTHER","OTHER")
@@ -3048,6 +3060,15 @@ end ALOC
 function ALOCRpt(RptTitle,ReportID) is null
  RptTitle is x
  ReportID is x
+ 
+ sigline         = $dct(2071, $oper, "D")
+ c_cans_rloc     = $dct(CansAuthLevelDCT,c.cans.rloc)
+ c_cans_dloc     = $dct(CansAuthLevelDCT,c.cans.dloc)
+ c_cans_aloc     = $dct(CansAuthLevelDCT,c.cans.aloc)
+ c_cans_loc_dev  = $dct(CansDeviationDCT,c.cans.loc_dev)
+ c_cans_fairhear = $dct(29,c.cans.fairhear)
+ 
+
  $table($funcname,,"width='100%' cellspacing='0' cellpadding='2' bgcolor='White'  style='border-style: solid; border-width: 1px'")
   $row(,col_color_multi)
    if c.cans.type = "1" or c.cans.type = "2" or c.cans.type = "12"
@@ -3059,7 +3080,7 @@ function ALOCRpt(RptTitle,ReportID) is null
    endif
   $row()
    $col("right",,"50%")$text(q_text_alocstaff,"datatag")
-   $col()$text($dct(2071, $oper, "D"))
+   $col()$text(sigline)
   $row()
    $col("right",,"50%")$text(q_text_alocdate,"datatag")
    $col()$text(c.cans.alocdate)
@@ -3072,22 +3093,22 @@ function ALOCRpt(RptTitle,ReportID) is null
   if c.cans.type = "1" or c.cans.type = "2" or c.cans.type = "11" or c.cans.type = "12"
    $row()
     $col("right",,"50%")$text(q_text_rloc,"datatag")
-    $col()$text($dct(CansAuthLevelDCT,c.cans.rloc))
+    $col()$text(c_cans_rloc)
   endif
   if c.cans.dloc dp
    $row()
     $col("right",,"50%")$text(q_text_dloc,"datatag")
-    $col()$text($dct(CansAuthLevelDCT,c.cans.dloc))              
+    $col()$text(c_cans_dloc)              
   endif	
   if c.cans.type = "1" or c.cans.type = "2" or c.cans.type = "11" or c.cans.type = "12"
    $row()
     $col("right",,"50%")$text(q_text_aloc,"datatag")
-    $col()$text($dct(CansAuthLevelDCT,c.cans.aloc)) 
+    $col()$text(c_cans_aloc) 
   endif
   if c.cans.loc_dev dp
    $row()
     $col("right",,"50%")$text(q_text_loc_dev,"datatag")
-    $col()$text($dct(CansDeviationDCT,c.cans.loc_dev))
+    $col()$text(c_cans_loc_dev)
   endif  
   if c.cans.devoth dp
    $row()
@@ -3102,7 +3123,7 @@ function ALOCRpt(RptTitle,ReportID) is null
   if c.cans.fairhear dp
    $row()
     $col("right",,"50%")$text(q_text_fairhear,"datatag")
-    $col()$text($dct(29,c.cans.fairhear))
+    $col()$text(c_cans_fairhear)
   endif 
   if c.cans.acomment dp
    $row()
@@ -3120,8 +3141,6 @@ function ValidateALOC() is i
  last_aloc     is x
  last_alocdate is d
  datediff      is i
- $clear(errors[],last_type)
-'{"lib_CANS"}Last_Assessment($regid,last_type,,,,,last_aloc,,last_alocdate) 
  if c.cans.aloc dp 
   if c.cans.rloc = "100" and c.cans.aloc != c.cans.rloc
    (void)$arrpush(errors[],aloc1_errortxt)  
@@ -3176,7 +3195,9 @@ function ValidateALOC() is i
 end ValidateALOC
 
 function ValidateReport() is i
- $clear(errors[])
+ if c.cans.type = "2" and c.cans.rloc = "110" and c.cans.dloc !dp
+  (void)$arrpush(errors[],loc9_1_errortxt) 
+ endif 
  if c.cans.dloc = c.cans.rloc and c.cans.dloc dp
   (void)$arrpush(errors[],dloc_errortxt)
   $clear(c.cans.dloc)
@@ -3192,17 +3213,18 @@ function DisplayErrors() is null
  index    is i
  $submitopt("off", "")
  $cancelopt("off", "BACK")
-  $form("errors")
+  $form($funcname)
   {"lib_UACOMMON"}ClientPageHeader($regid)
   $text("{H1}Errors Were Found{/H1}")
   $br()
-  $tag("<CENTER>")
+  $tag("<center>")
    index = 0
    do while index++ <= $maxarray(errors[])
     $br()$text(errors[index], "error")
    enddo
-  $tag("</CENTER>")
- $sendform("errors")
+  $tag("</center>")
+ $sendform($funcname)
+ $clear(errors[])
 end DisplayErrors
 
 function SaveEvent() is x
@@ -3215,14 +3237,15 @@ function SaveEvent() is x
  SaveEvent = $isnkey
 end SaveEvent
 
-function RLOCRpt() is null
+function RLOCRpt() is null 
+ c_cans_rloc = $dct(CansAuthLevelDCT,c.cans.rloc)
   $table($funcname,,"width='100%' cellspacing='0' cellpadding='2' bgcolor='White'  style='border-style: solid; border-width: 1px'")
   if c.cans.type = "1" or c.cans.type = "2" or c.cans.type = "12"
   $row(,col_color_multi)
    $col("center",,,"2")$text("Recommended Level Of Care","datatag")
    $row()
     $col("right",,"50%")$text(q_text_rloc,"datatag")
-    $col()$text($dct(CansAuthLevelDCT,c.cans.rloc))
+    $col()$text(c_cans_rloc)
    $row()
     $col("right",,"50%")$text(q_text_dloc,"datatag")
     $col()$dropboxdct(c.cans.dloc,CansAuthLevelDCT)
@@ -3231,7 +3254,7 @@ function RLOCRpt() is null
    $col("center",,,"2")$text("Recommended Level Of Care: Crisis","datatag")
    $row()
     $col("right",,"50%")$text(q_text_rloc,"datatag")
-    $col()$text($dct(CansAuthLevelDCT,c.cans.rloc))  
+    $col()$text(c_cans_rloc)  
   elseif c.cans.type = "3"
   $row(,col_color_multi)
    $col("center",,,"2")$text("Discharge","datatag")  
