@@ -2401,7 +2401,8 @@ function Validate2() is i
   (void)$arrpush(errors[],pshx_errortxt)
  endif
 
- if c.cans.cg.safety != "0" and c.cans.cg.safety dp and (c.cans.fc.selfcr !dp or c.cans.fc.culstr !dp or c.cans.fc.empedu !dp or c.cans.fc.eduatt !dp or c.cans.fc.legal !dp or c.cans.fc.motive !dp or c.cans.fc.finres !dp or c.cans.fc.transp !dp)
+ if (c.cans.cg.safety != "0" and c.cans.cg.safety != "9" and c.cans.cg.safety dp) and (c.cans.fc.selfcr !dp or c.cans.fc.culstr !dp or c.cans.fc.empedu !dp or c.cans.fc.eduatt !dp or c.cans.fc.legal !dp or c.cans.fc.motive !dp or 
+     c.cans.fc.finres !dp or c.cans.fc.transp !dp)
   (void)$arrpush(errors[],fcg_errortxt)
  endif
 
