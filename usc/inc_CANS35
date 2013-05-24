@@ -1,12 +1,14 @@
 'Include file for the CANS (Children's Assessment of Needs and Strengths) 3-5
 
-%global CansTypeDCT,CansIntRefDCT,CansDisReasDCT,CansDisRefDCT,CansAuthLevelDCT,CansDeviationDCT
+%global CansTypeDCT,CansIntRefDCT,CansDisReasDCT,CansDisRefDCT,CansAuthLevelDCT,CansDeviationDCT,CansGradeDCT,CansResTypeDCT
 CansTypeDCT      is b
 CansIntRefDCT    is b
 CansDisReasDCT   is b
 CansDisRefDCT    is b
 CansAuthLevelDCT is b
 CansDeviationDCT is b
+CansGradeDCT     is b
+CansResTypeDCT   is b
 
 '*********Datacode Tables, Change These*****************
 CansTypeDCT      = 9700
@@ -15,6 +17,8 @@ CansDisReasDCT   = 9703
 CansDisRefDCT    = 9704
 CansAuthLevelDCT = 9705
 CansDeviationDCT = 9706
+CansGradeDCT     = 9073
+CansResTypeDCT   = 9012
 '*******************************************************
    
 %global cans_dstlist
@@ -417,7 +421,9 @@ errors[] is x  'array for capturing errors by section
 %define age_errortxt "This client is older than 18, please complete the ANSA assessment"
 %define age1_errortxt "This client is younger than 3, there is no current assessment for this age"
 %define age2_errortxt "This client does not have a current birth date entered, please correct and retry"
-%define commdt_errortxt "The Community Scales Date is required"
+%define commdt1_errortxt "The Community Scales Date is required"
+%define commdt2_errortxt "The Community Scales Date cannot be before the Assessment Date"
+%define commdt3_errortxt "The Community Scales Date cannot be after the Authorization Date"
 %define comm_errortxt "All items in the Community Scales are Required"
 %define comm_ot_errortxt "If Residence type is Other then the Other Description item is required"
 %define oth_ed_errortxt "Special Education must be marked Yes or No"
