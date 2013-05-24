@@ -16,12 +16,14 @@ start CANS35(parmfile,option,client,retcode)
  %global radio_index
  radio_index is i
 
- %global c_cans_rloc, c_cans_dloc, c_cans_aloc,c_cans_loc_dev,c_cans_fairhear,sigline
+ %global c_cans_rloc, c_cans_dloc, c_cans_aloc,c_cans_loc_dev,c_cans_fairhear,c_cans_grade,c_cans_restype,sigline
  c_cans_rloc     is x
  c_cans_dloc     is x
  c_cans_aloc     is x
  c_cans_loc_dev  is x
  c_cans_fairhear is x
+ c_cans_grade    is x
+ c_cans_restype  is x
  sigline         is x
 
  %global parmfile,option,client,retcode, rc
@@ -390,6 +392,7 @@ function Report(RptTitle,ReportID,mode) is null
   CareGiveRpt()
   ChildStrRpt()
   CultureRpt()
+  Page4Rpt()
   select mode
    case "Report"  if UM_StaffYN = "Y" and (c.cans.staff != $operstaffid and c.cans.staff dp)
                    $br()StaffComments()
@@ -405,6 +408,12 @@ end Report
 
 function SaveData() is i
  mode is x
+ 
+ bad_char_index is i
+ bad_char[] is x
+ bad_char[1] = "<"
+ bad_char[2] = ">"
+ 
  c.cans.age = {"lib_UACOMMON"}ClientAge($regid, c.cans.date)
  if c.cans.compd !dp
   mode = "ADD"
@@ -430,7 +439,60 @@ function SaveData() is i
   c.cans.devR5 = $seg(c.cans.devoth,253,3)
  else
   $clear(c.cans.devR1,c.cans.devR2,c.cans.devR3,c.cans.devR4,c.cans.devR5)
- endif 
+ endif
+ if c.cans.aloc = "100"
+  $clear(c.cans.intref,c.cans.intrefoth)
+ endif  
+'replace characters that could cause parsing errors in the batch, textbox/block fields
+'Not sure what to replace them with yet, so for now just an underscore
+ if c.cans.resother1 dp
+  bad_char_index = 0
+  do while bad_char_index++ < $maxarray(bad_char[])
+   c.cans.resother1 = $replace(bad_char[bad_char_index],"_",c.cans.resother1)
+  enddo 
+ endif
+ if c.cans.resother2 dp
+  bad_char_index = 0
+  do while bad_char_index++ < $maxarray(bad_char[])
+   c.cans.resother2 = $replace(bad_char[bad_char_index],"_",c.cans.resother2)
+  enddo
+ endif
+ if c.cans.intrefoth dp
+  bad_char_index = 0
+  do while bad_char_index++ < $maxarray(bad_char[])
+   c.cans.intrefoth = $replace(bad_char[bad_char_index],"_",c.cans.intrefoth)
+  enddo
+ endif
+ if c.cans.disoth dp
+  bad_char_index = 0
+  do while bad_char_index++ < $maxarray(bad_char[])
+   c.cans.disoth = $replace(bad_char[bad_char_index],"_",c.cans.disoth)
+  enddo
+ endif
+ if c.cans.acomment dp
+  bad_char_index = 0
+  do while bad_char_index++ < $maxarray(bad_char[])
+   c.cans.acomment = $replace(bad_char[bad_char_index],"_",c.cans.acomment)
+  enddo
+ endif
+ if c.cans.comment dp
+  bad_char_index = 0
+  do while bad_char_index++ < $maxarray(bad_char[])
+   c.cans.comment = $replace(bad_char[bad_char_index],"_",c.cans.comment)
+  enddo
+ endif
+ if c.cans.devjust dp
+  bad_char_index = 0
+  do while bad_char_index++ < $maxarray(bad_char[])
+   c.cans.devjust = $replace(bad_char[bad_char_index],"_",c.cans.devjust)
+  enddo
+ endif
+ if c.cans.devoth dp
+  bad_char_index = 0
+  do while bad_char_index++ < $maxarray(bad_char[])
+   c.cans.devoth = $replace(bad_char[bad_char_index],"_",c.cans.devoth)
+  enddo 
+ endif
  select mode
   case "ADD" select c.cans.type
               case "1" if c.cans.isn !dp
@@ -1304,7 +1366,7 @@ end adjust
                                                              
 'Life Domain Report 
 function LifeDomainRpt() is null
- if c.cans.type = "1" or c.cans.type = "2" or (c.cans.type = "3" and c.cans.disreas = "9") or c.cans.type = "11" or c.cans.type = "12"
+ if c.cans.type = "1" or c.cans.type = "2" or (c.cans.type = "3" and c.cans.disreas = "9") or c.cans.type = "12"
   $br()
   $table($funcname,,"width='100%' cellspacing='0' cellpadding='2' bgcolor='White' style='border-style: solid; border-width: 1px'")
    $row(,col_color_multi)
@@ -1428,7 +1490,7 @@ end ChildRiskRpt
 
 'Emotional Behaviroal Needs Report
 function BehEmoRpt() is null
- if c.cans.type = "1" or c.cans.type = "2" or (c.cans.type = "3" and c.cans.disreas = "9") or c.cans.type = "11" or c.cans.type = "12"
+ if c.cans.type = "1" or c.cans.type = "2" or (c.cans.type = "3" and c.cans.disreas = "9") or c.cans.type = "12"
   $br()
   $table($funcname,,"width='100%' cellspacing='0' cellpadding='2' bgcolor='White' style='border-style: solid; border-width: 1px'")
    $row(,col_color_multi)
@@ -1564,7 +1626,7 @@ end AdjustRpt
 
 'CARE Give Giver Strengths & Needs Report
 function CareGiveRpt() is null
- if c.cans.type = "1" or c.cans.type = "2" or (c.cans.type = "3" and c.cans.disreas = "9") or c.cans.type = "11" or c.cans.type = "12"
+ if c.cans.type = "1" or c.cans.type = "2" or (c.cans.type = "3" and c.cans.disreas = "9") or c.cans.type = "12"
   $br()
   $table($funcname,,"width='100%' cellspacing='0' cellpadding='2' bgcolor='White' style='border-style: solid; border-width: 1px'")
    $row(,col_color_multi)
@@ -1671,7 +1733,7 @@ end FamCareGiveRpt
 
 'Child Strengths Report
 function ChildStrRpt() is null
- if c.cans.type = "1" or c.cans.type = "2" or (c.cans.type = "3" and c.cans.disreas = "9") or c.cans.type = "11" or c.cans.type = "12"
+ if c.cans.type = "1" or c.cans.type = "2" or (c.cans.type = "3" and c.cans.disreas = "9") or c.cans.type = "12"
   $br()
   $table($funcname,,"width='100%' cellspacing='0' cellpadding='2' bgcolor='White' style='border-style: solid; border-width: 1px'")
    $row(,col_color_multi)
@@ -1706,7 +1768,7 @@ end ChildStrRpt
 
 'Culture Report
 function CultureRpt() is null
- if c.cans.type = "1" or c.cans.type = "2" or (c.cans.type = "3" and c.cans.disreas = "9") or c.cans.type = "11" or c.cans.type = "12"
+ if c.cans.type = "1" or c.cans.type = "2" or (c.cans.type = "3" and c.cans.disreas = "9") or c.cans.type = "12"
   $br()
   $table($funcname,,"width='100%' cellspacing='0' cellpadding='2' bgcolor='White' style='border-style: solid; border-width: 1px'")
    $row(,col_color_multi)
@@ -1909,7 +1971,11 @@ end Validate3
 
 function Validate4() is i
  if c.cans.commdate !dp
-  (void)$arrpush(errors[],commdt_errortxt)
+  (void)$arrpush(errors[],commdt1_errortxt)
+ endif
+ 
+ if c.cans.commdate dp and c.cans.commdate < c.cans.date
+  (void)$arrpush(errors[],commdt2_errortxt) 
  endif
 
  if c.cans.school3m !dp or c.cans.grade !dp or c.cans.restype !dp
@@ -1960,7 +2026,7 @@ function Page1() is null
 	  $col()
     $endtable("1")
     $br()
-   if c.cans.type = "1" or c.cans.type = "2" or (c.cans.type = "3" and c.cans.disreas = "9") or c.cans.type = "11" or c.cans.type = "12"
+   if c.cans.type = "1" or c.cans.type = "2" or (c.cans.type = "3" and c.cans.disreas = "9") or c.cans.type = "12"
     $tag("<hr/>")
     $br()
     $table("2",,table_nobgcolor)
@@ -2104,7 +2170,7 @@ function Page4() is null
  $form($funcname)    
   {"lib_UACOMMON"}ClientPageHeader($regid)
   $br()ReportHdr()
-  if c.cans.type = "1" or c.cans.type = "2" or (c.cans.type = "3" and c.cans.disreas = "9") or c.cans.type = "11" or c.cans.type = "12"
+  if c.cans.type = "1" or c.cans.type = "2" or (c.cans.type = "3" and c.cans.disreas = "9") or c.cans.type = "12"
    OtherQuestionRpt()
    $tag("<hr/>")  
    $table($funcname,,table_nobgcolor)
@@ -2116,13 +2182,13 @@ function Page4() is null
      $col()$radio(c.cans.school3m,"No","0")$ctag("&nbsp;&nbsp;")$radio(c.cans.school3m,"Yes","1")$ctag("&nbsp;&nbsp;")$radio(c.cans.school3m,"NA","2")
     $row()
      $col("right")$text(q_text_grade,"datatag")
-     $col()$dropboxdct(c.cans.grade,9073,,,,"Y")
+     $col()$dropboxdct(c.cans.grade,CansGradeDCT,,,,"Y")
     $row()
      $col("right")$text(q_text_arrest,"datatag")
      $col()$textbox(c.cans.arrest,,2,2,"Y")
     $row()
      $col("right")$text(q_text_restype,"datatag")
-     $col()$dropboxdct(c.cans.restype,9012,,,,"Y")
+     $col()$dropboxdct(c.cans.restype,CansResTypeDCT,,,,"Y")
 	       $dropbox(c.cans.restype,"Other","9",,,"OTHER","OTHER","Y")       
    $endtable($funcname)
    $block("OTHER","OTHER")
@@ -2135,6 +2201,41 @@ function Page4() is null
   endif
  $sendform($funcname)
 end Page4
+
+function Page4Rpt() is null
+ if c.cans.type = "1" or c.cans.type = "2" or (c.cans.type = "3" and c.cans.disreas = "9") or c.cans.type = "12"
+  c_cans_grade = $dct(CansGradeDCT,c.cans.grade)
+  c_cans_restype = $dct(CansResTypeDCT,c.cans.restype)
+  $table($funcname,,"width='100%' cellspacing='0' cellpadding='2' bgcolor='White'  style='border-style: solid; border-width: 1px'")
+   $row(,col_color_multi)
+    $col("center",,,"2")$text("Community Scales","datatag")
+   $row()
+    $col("right",,"50%")$text(q_text_commdate)
+    $col()$text(c.cans.commdate)
+   $row()
+    $col("right")$text(q_text_school3m)
+    $col()select c.cans.school3m
+           case "0" $text("No")
+	       case "1" $text("Yes")
+	       case "2" $text("NA")
+	      endselect 
+   $row()
+    $col("right")$text(q_text_grade)
+    $col()$text(c_cans_grade)
+   $row()
+    $col("right")$text(q_text_arrest)
+    $col()$text(c.cans.arrest)
+   $row()
+    $col("right")$text(q_text_restype,"datatag")
+    $col()$text(c_cans_restype)       
+  if c.cans.resother1 dp
+   $row()
+    $col("right")$text(q_text_resother1)
+    $col()$text(c.cans.resother1)
+  endif 
+  $endtable($funcname)   
+ endif
+end Page4Rpt
 
 function CanSkipPage1() is x
  CanSkipPage1 = "N"
@@ -2361,7 +2462,7 @@ function ChildRiskFactor() is null
 end ChildRiskFactor
 
 function ChildRiskFacRpt() is null
- if c.cans.type = "1" or c.cans.type = "2" or (c.cans.type = "3" and c.cans.disreas = "9") or c.cans.type = "11" or c.cans.type = "12"
+ if c.cans.type = "1" or c.cans.type = "2" or (c.cans.type = "3" and c.cans.disreas = "9") or c.cans.type = "12"
   $br()
   $table($funcname,,"width='100%' cellspacing='0' cellpadding='2' bgcolor='White' style='border-style: solid; border-width: 1px'")
    $row(,col_color_multi)
@@ -2552,7 +2653,7 @@ function OtherQuestions() is null
 end OtherQuestions
 
 function OtherQuestionRpt() is null
- if c.cans.type = "1" or c.cans.type = "2" or (c.cans.type = "3" and c.cans.disreas = "9") or c.cans.type = "11" or c.cans.type = "12"
+ if c.cans.type = "1" or c.cans.type = "2" or (c.cans.type = "3" and c.cans.disreas = "9") or c.cans.type = "12"
   $br()
   $table($funcname,,"width='100%' cellspacing='0' cellpadding='2' bgcolor='White' style='border-style: solid; border-width: 1px'")
    $row()
@@ -2764,8 +2865,8 @@ function ValidateALOC() is i
  last_alocdate is d
  datediff      is i
  
- $clear(last_type)
-' {"lib_CANS"}Last_Assessment($regid,last_type,,,,,last_aloc,,last_alocdate) 
+ $clear(last_type, last_aloc, last_alocdate)
+ {"lib_CANS"}Last_Assessment($regid,last_type,,,,,last_aloc,,last_alocdate) 
  if c.cans.aloc dp 
   if c.cans.rloc = "100" and c.cans.aloc != c.cans.rloc
    (void)$arrpush(errors[],aloc1_errortxt)  
@@ -2793,6 +2894,9 @@ function ValidateALOC() is i
   endif
   if c.cans.alocdate <= last_alocdate
    (void)$arrpush(errors[],aloc8_errortxt)    
+  endif
+  if c.cans.alocdate < c.cans.commdate
+   (void)$arrpush(errors[],commdt3_errortxt)      
   endif
  else
   (void)$arrpush(errors[],aloc5_errortxt)  
