@@ -8,6 +8,11 @@
 'RLE 20130520 .3
 '  ~ revert to changes from v0.1 and restore Grade DCT
 '  + add ALT1 values in 9073/grade for XML batching
+'Ralph 05/24/2013
+' ~  Added DCT 9710 for grade so that we don't have to use DCT Alt values to get to the state codes.
+' ~  RLE and Ralph have confirmed that both the XML and 80 Byte batch have the same requirement.
+' ~  Need to have data the same so that either batch method works.
+' ~  Commented out the DCT 9073 for now.  Moved the old values in 9073 to Alt 1 value in DCT 9710
 
 %version 0.3 05/20/13 TxACE
 
@@ -41,6 +46,7 @@ start CANSDST()
 'Make sure that the DCT tables ID's are available.  If not, modify the script below to an available DST
 'number.  Make sure you go further down in the script and adjust the DCT table used for the DST's too.
 
+
 	rc = $adddct(9012,"C & A PRIMARY RESIDENCE TYPE")
 		if rc = 0
 			rc = $adddcv(9012,"1" ,"PRIVATE RESIDENCE")
@@ -55,33 +61,33 @@ start CANSDST()
 			rc = $adddcv(9012,"9" ,"OTHER")
 		endif
 	
-	rc = $adddct(9073,"UA RDM - Grade Level Attained")
-		if rc = 0
-			rc = $adddcv(9073,"00","No years of Schooling","1")
-			rc = $adddcv(9073,"01","Grade 1","2")
-			rc = $adddcv(9073,"02","Grade 2","3")
-			rc = $adddcv(9073,"03","Grade 3","4")
-			rc = $adddcv(9073,"04","Grade 4","5")
-			rc = $adddcv(9073,"05","Grade 5","6")
-			rc = $adddcv(9073,"06","Grade 6","7")
-			rc = $adddcv(9073,"07","Grade 7","8")
-			rc = $adddcv(9073,"08","Grade 8","9")
-			rc = $adddcv(9073,"09","Grade 9","10")
-			rc = $adddcv(9073,"10","Grade 10","11")
-			rc = $adddcv(9073,"11","Grade 11","12")
-			rc = $adddcv(9073,"12","Grade 12 or Ged","13")
-			rc = $adddcv(9073,"13","Nursery, Pre, Head Start","14")
-			rc = $adddcv(9073,"14","Kindergarten","15")
-			rc = $adddcv(9073,"15","Self Contained Special Ed.","16")
-			rc = $adddcv(9073,"16","Vocational","17")
-			rc = $adddcv(9073,"17","College Undergraduate Freshman","18")
-			rc = $adddcv(9073,"18","College Undergrad Sophomore","19")
-			rc = $adddcv(9073,"19","College Undergraduate Junior","20")
-			rc = $adddcv(9073,"20","College Undergraduate Senior","21")
-			rc = $adddcv(9073,"21","Graduate or Professional Sch.","22")
-			rc = $adddcv(9073,"97","Unknown")
-			rc = $adddcv(9073,"99","Not Collected")
-		endif
+'	rc = $adddct(9073,"UA RDM - Grade Level Attained")
+'		if rc = 0
+'			rc = $adddcv(9073,"00","No years of Schooling","1")
+'			rc = $adddcv(9073,"01","Grade 1","2")
+'			rc = $adddcv(9073,"02","Grade 2","3")
+'			rc = $adddcv(9073,"03","Grade 3","4")
+'			rc = $adddcv(9073,"04","Grade 4","5")
+'			rc = $adddcv(9073,"05","Grade 5","6")
+'			rc = $adddcv(9073,"06","Grade 6","7")
+'			rc = $adddcv(9073,"07","Grade 7","8")
+'			rc = $adddcv(9073,"08","Grade 8","9")
+'			rc = $adddcv(9073,"09","Grade 9","10")
+'			rc = $adddcv(9073,"10","Grade 10","11")
+'			rc = $adddcv(9073,"11","Grade 11","12")
+'			rc = $adddcv(9073,"12","Grade 12 or Ged","13")
+'			rc = $adddcv(9073,"13","Nursery, Pre, Head Start","14")
+'			rc = $adddcv(9073,"14","Kindergarten","15")
+'			rc = $adddcv(9073,"15","Self Contained Special Ed.","16")
+'			rc = $adddcv(9073,"16","Vocational","17")
+'			rc = $adddcv(9073,"17","College Undergraduate Freshman","18")
+'			rc = $adddcv(9073,"18","College Undergrad Sophomore","19")
+'			rc = $adddcv(9073,"19","College Undergraduate Junior","20")
+'			rc = $adddcv(9073,"20","College Undergraduate Senior","21")
+'			rc = $adddcv(9073,"21","Graduate or Professional Sch.","22")
+'			rc = $adddcv(9073,"97","Unknown")
+'			rc = $adddcv(9073,"99","Not Collected")
+'		endif
 		
 	rc = $adddct(9700,"CANS/ANSA Assessment Type")
 		if rc = 0
@@ -201,6 +207,34 @@ start CANSDST()
 			rc = $adddcv(9709,"6","LVN")
 			rc = $adddcv(9709,"8","LPC")
 		endif				
+
+	rc = $adddct(9010,"UA RDM - Grade Level Attained")
+		if rc = 0
+			rc = $adddcv(9710,"1","No years of Schooling","00")
+			rc = $adddcv(9710,"2","Grade 1","01")
+			rc = $adddcv(9710,"3","Grade 2","02")
+			rc = $adddcv(9710,"4","Grade 3","03")
+			rc = $adddcv(9710,"5","Grade 4","04")
+			rc = $adddcv(9710,"6","Grade 5","05")
+			rc = $adddcv(9710,"7","Grade 6","06")
+			rc = $adddcv(9710,"8","Grade 7","07")
+			rc = $adddcv(9710,"9","Grade 8","08")
+			rc = $adddcv(9710,"10","Grade 9","09")
+			rc = $adddcv(9710,"11","Grade 10","10")
+			rc = $adddcv(9710,"12","Grade 11","11")
+			rc = $adddcv(9710,"13","Grade 12 or Ged","12")
+			rc = $adddcv(9710,"14","Nursery, Pre, Head Start","13")
+			rc = $adddcv(9710,"15","Kindergarten","14")
+			rc = $adddcv(9710,"16","Self Contained Special Ed.","15")
+			rc = $adddcv(9710,"17","Vocational","16")
+			rc = $adddcv(9710,"18","College Undergraduate Freshman","17")
+			rc = $adddcv(9710,"19","College Undergrad Sophomore","18")
+			rc = $adddcv(9710,"20","College Undergraduate Junior","19")
+			rc = $adddcv(9710,"21","College Undergraduate Senior","20")
+			rc = $adddcv(9710,"22","Graduate or Professional Sch.","21")
+		endif
+
+
 
 'Now create the DST's.
 
