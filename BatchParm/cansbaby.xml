@@ -22,7 +22,7 @@
       <RiskOfPlacement>%C.CANS.RISKPLC%</RiskOfPlacement>
       <TCOOMMIConsumer>%C.CANS.TCOOMMI%</TCOOMMIConsumer>
       <DocumentStatus>3</DocumentStatus>
-      <DocumentStatusDate>%C.CANS.ALOCDATE%</DocumentStatusDate>
+      <DocumentStatusDate>%C.CANS.COMPD%</DocumentStatusDate>
       <BHOProviderId/>
       <NPI/>
       <VendorNbr/>
