@@ -1,4 +1,11 @@
+'xml template parsing script. replaces template items with dst values
+'
+'author: Robert Edeker
+'date: 5/13/2013
+'version 1.0
+'
 ' TODO:
+'------
 '  - node display criteria.
 '    ** MAY NOT BE NEEDED IF WE SPLIT BABY VS 6-17CANS IN SEPARATE TEMPLATES ***
 '     eg: CansBabyType vs CansType
@@ -7,6 +14,10 @@
 '    eg: skipping a <transaction> node, so don't process anything else under it
 '    *** AGAIN MAY NOT BE NEEDED WITH A WRAPPER SCRIPT ONLY PASSING IN CLIENTS
 '    *** THAT IT SHOULD PROCESS
+'  - options for reading multiple layers??
+'
+' Updates:
+'---------
 'TJM 20130513 v.001
 '  + add d_rootnode constant as default (<batch>)
 '  + add rootnode var
@@ -24,6 +35,14 @@
 '  .005
 '  + add support for recoding values via $RT tag
 '  + add $DCT tag for datacode description and alt1-3 values
+'TJM 20130519 .006
+'  + new options
+'     fileheader to override default file head (use "!NONE" for no header)
+'     filefooter to override default file foot (use "!NONE" for no foot)
+'     appendfile to open file in 'extend' mode and append instead of override
+'     noemptyfile to skip building file if clients[] is !dp
+'        only applies when appendfile option != "Y"
+'     
 
 %define lf x"0a"
 '%define d_parmfile "CANSXML"
@@ -31,7 +50,7 @@
 %define d_tpl "/c0/forms/cans.xml"
 %define d_rootnode "Batch"
 
-%version 01.0.005 05/14/13 GCC
+%version 01.0.006 05/29/2013 GCC
 
 start xml_build2(parmfile,option,clients[],retcode)
 
@@ -42,6 +61,10 @@ $looplimit = 32000
    clients[]      is x
    retcode        is x
 
+   appendfile     is x
+   fileheader     is x
+   filefooter     is x
+   noEmptyFile    is x
    rootnode       is x
    Template       is x
    tplData[]      is x
@@ -79,8 +102,14 @@ gosub __CLEANUP
 return
 
 __MAIN:
-   buf = "<?xml version='1.0'?>" + lf
-   buf += "<" + d_rootNode + ">" + lf
+   if fileheader dp then
+      if fileheader != "!NONE" then
+         buf = fileheader
+      endif
+   else
+      buf = "<?xml version='1.0'?>" + lf
+      buf += "<" + d_rootNode + ">" + lf
+   endif
    rc = $writefile(_fh,buf)
 
    '' process clients
@@ -97,7 +126,13 @@ __MAIN:
       gosub _TplMe
       rc = $writefile(_fh,buf)
    enddo
-   buf = "</" + d_rootNode + ">" + lf
+   if filefooter dp then
+      if filefooter != "!NONE" then
+         buf = filefooter  
+      endif
+   else
+      buf = "</" + d_rootNode + ">" + lf
+   endif
 
 '  buf += "<DST>" + lf
 '   i = 0
@@ -183,6 +218,7 @@ __INIT:
    FileOut  = d_fileout
    Template = d_tpl
    rootnode = d_rootnode
+   noEmptyFile = "N"          'default to go ahead on build a file without any clients
 
    'if parmfile !dp then parmfile = d_parmfile endif
    'GetParm(parmfile)
@@ -198,7 +234,15 @@ __INIT:
    gosub __DST
 
    _fh = $fileavail()
-   rc = $openfile(_fh,FileOut,"O")
+   if appendfile = "Y" then
+      T = "E"
+   else
+      if clients[] !dp and noEmptyFile = "Y" then     'if we are not appending and there are no clients just quit
+         return
+      endif
+      T = "O"
+   endif
+   rc = $openfile(_fh,FileOut,T)
    if rc > 0 then
       $errmsg1 = $fmt(rc,"Error opening Output file. rc=99") + " F:" + FileOut
       return
