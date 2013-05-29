@@ -100,7 +100,7 @@ start CANS617(parmfile,option,client,retcode)
     if PromptNED = 1
      $dblock()
      rc = $dbread(02, $regid, cans_dstlist)	
-     rc = $dbremovedst(02, $regid, cans_dstlist)
+     rc = $dbremovedst(02, $regid, c.cans.rec,c.cans.date)
      $brmsg("CANS Assessment Successfully Removed from the Database!",1,"C","Process Complete")
      $brmsg("The assessment will restart now.",2,"W")
 	 Page = "0"
@@ -111,7 +111,7 @@ start CANS617(parmfile,option,client,retcode)
 	elseif PromptNED = 3
      $dblock()
      rc = $dbread(02, $regid, cans_dstlist)	       
-     rc = $dbremovedst(02, $regid, cans_dstlist)
+     rc = $dbremovedst(02, $regid, c.cans.rec,c.cans.date)
      $brmsg("CANS Assessment Successfully Removed from the Database!",1,"C","Process Complete")
      $brmsg("The assessment will exit now.",2,"W")
      return
@@ -138,7 +138,7 @@ start CANS617(parmfile,option,client,retcode)
     if PromptNED = 1
      $dblock()
      rc = $dbread(02, $regid, cans_dstlist)	
-     rc = $dbremovedst(02, $regid, cans_dstlist)
+     rc = $dbremovedst(02, $regid, c.cans.rec,c.cans.date)
      $brmsg("CANS Assessment Successfully Removed from the Database!",1,"C","Process Complete")
      $brmsg("The assessment will restart now.",2,"W")
 	 Page = "0"	 
@@ -149,7 +149,7 @@ start CANS617(parmfile,option,client,retcode)
 	elseif PromptNED = 3
      $dblock()
      rc = $dbread(02, $regid, cans_dstlist)	       
-     rc = $dbremovedst(02, $regid, cans_dstlist)
+     rc = $dbremovedst(02, $regid, c.cans.rec,c.cans.date)
      $brmsg("CANS Assessment Successfully Removed from the Database!",1,"C","Process Complete")
      $brmsg("The assessment will exit now.",2,"W")
      return
@@ -169,7 +169,7 @@ start CANS617(parmfile,option,client,retcode)
   if PromptNED = 1
    $dblock()
    rc = $dbread(02, $regid, cans_dstlist)	
-   rc = $dbremovedst(02, $regid, cans_dstlist)
+   rc = $dbremovedst(02, $regid, c.cans.rec,c.cans.date)
    $brmsg("CANS Assessment Successfully Removed from the Database!",1,"C","Process Complete")
    $brmsg("The assessment will restart now.",2,"W")
    Page = "0"   
@@ -180,7 +180,7 @@ start CANS617(parmfile,option,client,retcode)
   elseif PromptNED = 3
    $dblock()
    rc = $dbread(02, $regid, cans_dstlist)	       
-   rc = $dbremovedst(02, $regid, cans_dstlist)
+   rc = $dbremovedst(02, $regid, c.cans.rec,c.cans.date)
    $brmsg("CANS Assessment Successfully Removed from the Database!",1,"C","Process Complete")
    $brmsg("The assessment will exit now.",2,"W")
    return
@@ -2460,7 +2460,7 @@ function Validate2() is i
   (void)$arrpush(errors[],pshx_errortxt)
  endif
 
- if (c.cans.cg.safety != "0" and c.cans.cg.safety != "9" and c.cans.cg.safety dp) and (c.cans.fc.selfcr !dp or c.cans.fc.culstr !dp or c.cans.fc.empedu !dp or c.cans.fc.eduatt !dp or c.cans.fc.legal !dp or c.cans.fc.motive !dp or 
+ if (c.cans.cg.famsts != "0" and c.cans.cg.famsts != "9" and c.cans.cg.famsts dp) and (c.cans.fc.selfcr !dp or c.cans.fc.culstr !dp or c.cans.fc.empedu !dp or c.cans.fc.eduatt !dp or c.cans.fc.legal !dp or c.cans.fc.motive !dp or 
      c.cans.fc.finres !dp or c.cans.fc.transp !dp)
   (void)$arrpush(errors[],fcg_errortxt)
  endif
@@ -3247,9 +3247,17 @@ function ValidateALOC() is i
   if c.cans.rloc = "100" and c.cans.aloc != c.cans.rloc
    (void)$arrpush(errors[],aloc1_errortxt)  
   endif
-  if c.cans.aloc != c.cans.rloc and c.cans.loc_dev !dp
-   (void)$arrpush(errors[],aloc3_errortxt)
+
+  if c.cans.aloc != c.cans.rloc
+   if c.cans.loc_dev !dp
+    (void)$arrpush(errors[],aloc3_errortxt)
+   else
+    if $num(c.cans.aloc) > $num(c.cans.rloc) and (c.cans.loc_dev != "3" and c.cans.loc_dev != "4")
+     (void)$arrpush(errors[],locdev1_errortxt)	
+	endif
+   endif
   endif  
+
   if c.cans.aloc = "100" and (last_type = "I" or last_type = "U")
     (void)$arrpush(errors[],aloc9_errortxt)  
   endif
@@ -3296,6 +3304,15 @@ function ValidateALOC() is i
   if c.cans.type = "1"
    c.cans.type = "12"
   endif
+ elseif c.cans.aloc = "108"
+  if c.cans.type = "1"
+   c.cans.type = "12"
+  endif 
+  c.cans.loc_dev = "2"
+  $clear(c.cans.devjust)     
+ elseif c.cans.aloc = "109"
+  c.cans.loc_dev = "1"
+  $clear(c.cans.devjust)       
  endif
 end ValidateALOC
 

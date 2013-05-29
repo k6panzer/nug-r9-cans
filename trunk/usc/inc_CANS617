@@ -17,7 +17,7 @@ CansDisReasDCT   = 9703
 CansDisRefDCT    = 9704
 CansAuthLevelDCT = 9705
 CansDeviationDCT = 9706
-CansGradeDCT     = 9073
+CansGradeDCT     = 9710
 CansResTypeDCT   = 9012
 '*******************************************************
 
@@ -555,7 +555,7 @@ errors[] is x       'array for capturing errors by section
 %define cb_errortxt  "All items in Child Behavioral and Emotional Needs are Required"
 %define cr_errortxt  "All items in Child Risk Behaviors are Required"
 %define pshx_errortxt  "If Psychiatric Hospitalization is indicated, All Psych Hosp Hx Items are Required"
-%define fcg_errortxt  "If CG Safety is indicated, All Family Caregiver Items are Required"
+%define fcg_errortxt  "If CG Family Stress is indicated, All Family Caregiver Items are Required"
 %define tr_errortxt  "If CB Trauma is indicated, All Trauma Items are Required"
 %define sxab_errortxt  "If Trauma-Sexual Abuse is indicated, All Sexual Abuse Items are Required"
 %define adj_errortxt  "If CB Trauma is indicated, All Adjustment Items are Required"
@@ -608,6 +608,7 @@ errors[] is x       'array for capturing errors by section
 %define dloc_errortxt "The LOC requested for deviation is the same as the Recommended LOC. It will be unselected now. You can either leave the field blank or select another LOC."
 %define crisis_errortxt "Client is currently in crisis, please resolve this crisis and re-assess"
 %define loc9_1_errortxt "Change this Assessment Type to a Discharge or continue with the Update assessment by selecting an LOC Deviation"
+%define locdev1_errortxt "Invalid Reason for a Higher Deviation. Must be Clinical Need or Continuity of Care"
 
 rc_cans_dstlist = $dstlist(cans_dstlist,02,
 c.cans.rec,c.cans.staff,c.cans.ver,c.cans.date,c.cans.age,c.cans.aloc,c.cans.rloc,c.cans.dloc,c.cans.compd,c.cans.type,
