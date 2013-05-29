@@ -17,7 +17,7 @@ CansDisReasDCT   = 9703
 CansDisRefDCT    = 9704
 CansAuthLevelDCT = 9705
 CansDeviationDCT = 9706
-CansGradeDCT     = 9073
+CansGradeDCT     = 9710
 CansResTypeDCT   = 9012
 '*******************************************************
    

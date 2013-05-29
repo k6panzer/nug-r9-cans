@@ -1589,42 +1589,51 @@ function RLOC(c.cans.ac.sexgen,c.cans.ad.affreg,c.cans.ad.dissoc,c.cans.ad.intru
  endif   
 
 'At this point any other LOC could be recommended
-'Medication Management
  if c.cans.type = "1" or c.cans.type = "2" 
+'Medication Management
+'This one will more than likely be moved to the bottom
   if $num(c.cans.ld.develp) > 0
    if $num(c.cans.dv.cognit) > 1 or $num(c.cans.dv.develp) > 1
     RLOC = med_management 
+    return	
    endif
   endif 
 'IntensiveFamilyServices
   if c.cans.ld.legal = "3"
    if $num(c.cans.dv.cognit) > 1 and $num(c.cans.dv.develp) > 1
-    RLOC = intensive 
+    RLOC = intensive
+	return 
    endif
   endif
 
   if (c.cans.cr.suicid = "3" and c.cans.sr.hissui = "3")
    RLOC = intensive
+   return
   endif
 
   if	(c.cans.cr.runawy = "3" and $num(c.cans.rn.frqncy) > 1 and c.cans.rn.invill = "3")
    RLOC = intensive
+   return
   endif
 
   if (c.cans.cr.sexagr = "3" and c.cans.ld.livsit = "3" and c.cans.ld.school != "0" and c.cans.sc.behavr = "3")
    RLOC = intensive
+   return
   endif 
 
   if	(c.cans.cr.delqcy = "3" and c.cans.ld.livsit = "3" and c.cans.ld.school != "0" and c.cans.sc.behavr = "3")
    RLOC = intensive
+   return
   endif
 
   if	(c.cans.cb.anxity = "3" and c.cans.ld.livsit = "3" and c.cans.ld.school != "0" and $num(c.cans.sc.behavr) > 1 and $num(c.cans.sc.attend) > 1)
    RLOC = intensive
+   return
   endif 
 
   if (c.cans.cb.condct = "3" and (c.cans.ld.livsit = "3" or c.cans.ld.legal = "2" or ($num(c.cans.ld.school) > 0 and c.cans.sc.behavr = "3")))
    RLOC = intensive
+   return
   endif 
 
   if c.cans.cr.socbeh = "3" and 
@@ -1633,26 +1642,32 @@ function RLOC(c.cans.ac.sexgen,c.cans.ad.affreg,c.cans.ad.dissoc,c.cans.ad.intru
     ($num(c.cans.ld.school) > 0 and c.cans.sc.behavr = "3" and (c.cans.ld.livsit = "3" or c.cans.ld.legal = "2"))
    ) 
    RLOC = intensive
+   return
   endif
 
   if (c.cans.cr.runawy = "3" and ((c.cans.ld.livsit = "3" and (c.cans.ld.legal = "2" or c.cans.ld.sexdev = "3")) or ($num(c.cans.ld.school) > 0 and c.cans.sc.behavr = "3" and (c.cans.ld.livsit = "3" or c.cans.ld.legal = "2"))))
    RLOC = intensive
+   return
   endif
 
   if	(($num(c.cans.cr.delqcy) > 1 and c.cans.ld.legal = "2") and (c.cans.jj.serios = "3" or $num(c.cans.jj.histry) > 1 or c.cans.jj.comsaf = "3"))
    RLOC = intensive
+   return
   endif
 
   if (($num(c.cans.cb.oppdef) > 1 and c.cans.ld.legal = "2") and ((c.cans.ld.livsit = "3" and c.cans.ld.sexdev = "3") or ($num(c.cans.ld.school) > 0 and c.cans.sc.behavr = "3" and (c.cans.ld.livsit = "3" or c.cans.ld.sexdev = "3"))))
    RLOC = intensive
+   return
   endif
 
   if	(($num(c.cans.cb.subabs) > 1 and $num(c.cans.sa.parinf) > 1 and $num(c.cans.sa.perinf) > 1) and (c.cans.ld.legal = "2" or c.cans.ld.livsit = "3" or $num(c.cans.ld.sexdev) > 1 or ($num(c.cans.ld.school) > 0 and c.cans.sc.behavr = "3")))
    RLOC = intensive
+   return
   endif
 
   if (c.cans.cr.socbeh = "3" and c.cans.ld.legal = "2" and c.cans.ld.sexdev = "3")
    RLOC = intensive
+   return
   endif
 
   if	c.cans.cb.oppdef = "3" and 
@@ -1661,14 +1676,17 @@ function RLOC(c.cans.ac.sexgen,c.cans.ad.affreg,c.cans.ad.dissoc,c.cans.ad.intru
     ($num(c.cans.ld.school) > 0 and c.cans.sc.behavr = "3" and (c.cans.ld.legal = "2" or c.cans.ld.livsit = "3"))
     )
    RLOC = intensive
+   return
   endif
 
   if	(($num(c.cans.cr.suicid) > 0 and $num(c.cans.sr.hissui) > 1 and $num(c.cans.cr.episds) > 1) and (c.cans.cb.depres = "3" or c.cans.cb.anxity = "3"))
    RLOC = intensive
+   return
   endif
 
   if	(c.cans.cr.firset = "3" and ((c.cans.ld.livsit = "3" and c.cans.ld.legal = "2") or ($num(c.cans.ld.school) > 0) and c.cans.sc.behavr = "3" and (c.cans.ld.livsit = "3" or c.cans.ld.legal = "2")))
    RLOC = intensive
+   return
   endif
 
   if (c.cans.cr.bully = "3" and c.cans.ld.legal = "2") and 
@@ -1677,18 +1695,22 @@ function RLOC(c.cans.ac.sexgen,c.cans.ad.affreg,c.cans.ad.dissoc,c.cans.ad.intru
 	   ($num(c.cans.ld.school) > 1 and c.cans.sc.behavr = "3" and (c.cans.ld.livsit = "3" or c.cans.ld.sexdev = "3"))
       )	 
    RLOC = intensive	
+   return
   endif
 
   if	(c.cans.cb.eatdst = "3" and (c.cans.ld.livsit = "3" and c.cans.ld.sexdev = "3"))
    RLOC = intensive	
+   return
   endif			
 
   if	(c.cans.cb.eatdst = "3" and (c.cans.ld.family = "3" and c.cans.ld.livsit = "3"))
    RLOC = intensive	
+   return
   endif			
 
   if	c.cans.cb.eatdst = "3" and ($num(c.cans.ld.school) > 0 and c.cans.sc.behavr = "3" and (c.cans.ld.legal = "2" or c.cans.ld.livsit = "3"))
    RLOC = intensive	
+   return
   endif																		)
 
   if (c.cans.cr.suicid = "2" and c.cans.sr.hissui = "3") and 
@@ -1696,6 +1718,7 @@ function RLOC(c.cans.ac.sexgen,c.cans.ad.affreg,c.cans.ad.dissoc,c.cans.ad.intru
 	  c.cans.ld.livsit = "2" or c.cans.cb.subabs = "3" or $num(c.cans.cr.episds) > 1 or ($num(c.cans.ld.school) > 0 and c.cans.sc.behavr = "3")
 	 ) 
    RLOC = intensive
+   return
   endif
 
   if ($num(c.cans.cb.subabs) > 1 and ($num(c.cans.sa.envinf) > 1 or $num(c.cans.sa.parinf) > 1 or $num(c.cans.sa.severe) > 1 or $num(c.cans.sa.stgrec) > 0)) and
@@ -1709,6 +1732,7 @@ function RLOC(c.cans.ac.sexgen,c.cans.ad.affreg,c.cans.ad.dissoc,c.cans.ad.intru
 	    )
        )
    RLOC = intensive
+   return
   endif
   
   if (($num(c.cans.cb.psychs) > 1 and (c.cans.cr.oslfhr > 1 or c.cans.cr.smutil > 1)) and
@@ -1720,6 +1744,7 @@ function RLOC(c.cans.ac.sexgen,c.cans.ad.affreg,c.cans.ad.dissoc,c.cans.ad.intru
        ) 
       )
    RLOC = intensive
+   return
   endif
   
   if (c.cans.cb.depres = "3" and ($num(c.cans.cr.suicid) > 1 or $num(c.cans.cb.subabs) > 1) or $num(c.cans.cr.episds) > 1) and
@@ -1731,6 +1756,7 @@ function RLOC(c.cans.ac.sexgen,c.cans.ad.affreg,c.cans.ad.dissoc,c.cans.ad.intru
 	   )
 	  )
    RLOC = intensive	  
+   return
   endif 
   
   if (c.cans.cb.adjtrm = "3" and ($num(c.cans.ad.affreg) > 1 or $num(c.cans.ad.dissoc) > 1 or $num(c.cans.ad.intrus) > 1)) and
@@ -1743,6 +1769,7 @@ function RLOC(c.cans.ac.sexgen,c.cans.ad.affreg,c.cans.ad.dissoc,c.cans.ad.intru
 	    )
 	   )
    RLOC = intensive
+   return
   endif 	 
 
   if ($num(c.cans.cr.dangot) > 1 and ($num(c.cans.vi.hxviol) > 1 or $num(c.cans.rf.rescon) > 1 or c.cans.rf.comsc = "3")) and
@@ -1752,6 +1779,7 @@ function RLOC(c.cans.ac.sexgen,c.cans.ad.affreg,c.cans.ad.dissoc,c.cans.ad.intru
 	   ($num(c.cans.ld.school) > 0 and c.cans.sc.behavr = "3" and (c.cans.ld.livsit = "3" or c.cans.ld.legal = "2"))
        )
    RLOC = intensive
+   return
   endif
   
   if ($num(c.cans.cr.firset) > 0 and $num(c.cans.fs.inthrm) > 1) and
@@ -1761,51 +1789,60 @@ function RLOC(c.cans.ac.sexgen,c.cans.ad.affreg,c.cans.ad.dissoc,c.cans.ad.intru
     ($num(c.cans.ld.school) > 0 and c.cans.sc.behavr = "3") and (c.cans.ld.legal = "2" or c.cans.ld.livsit = "3" or c.cans.ld.sexdev = "3")
    )
    RLOC = intensive
+   return
   endif
 
  'ComplexServices
   if $num(c.cans.cb.eatdst) > 1 and $num(c.cans.ld.socfun) > 1
    RLOC = complex
+   return
   endif
 
   if c.cans.cr.socbeh = "3" and c.cans.ld.family = "3"
    RLOC = complex 
+   return
   endif
 
   if $num(c.cans.cr.sexagr) > 1 and $num(c.cans.cr.oslfhr) > 1
    RLOC = complex
+   return
   endif
 
   if ($num(c.cans.cr.bully) > 1 and ($num(c.cans.cb.oppdef) > 1 or $num(c.cans.cb.condct) > 1))
    RLOC = complex
+   return
   endif
-
 
   if ($num(c.cans.cb.subabs) > 1 and ($num(c.cans.ld.socfun) > 1 or $num(c.cans.cr.oslfhr) > 1))
    RLOC = complex
+   return
   endif
 
   if ($num(c.cans.cb.depres) > 1 and ($num(c.cans.ld.socfun) > 1 or $num(c.cans.cb.psychs) > 1))
    RLOC = complex
+   return
   endif
 
   if ($num(c.cans.cb.anxity) > 1 and ($num(c.cans.cb.oppdef) > 1 or $num(c.cans.cb.condct) > 1 or $num(c.cans.cb.angctr) > 1))
    RLOC = complex
+   return
   endif
-  
-
+ 
   if $num(c.cans.cb.angctr) > 1 and ($num(c.cans.cr.sexagr) > 1 or $num(c.cans.cr.runawy) > 1 or $num(c.cans.ld.sexdev) > 1 or $num(c.cans.cr.bully) > 1 or ($num(c.cans.cr.firset) > 0 and $num(c.cans.fs.inthrm) > 1))
    RLOC = complex
+   return
   endif
 
   if $num(c.cans.cb.oppdef) > 1 and
    ($num(c.cans.cr.sexagr) > 1 or $num(c.cans.cr.runawy) > 1 or $num(c.cans.cr.bully) > 1  or $num(c.cans.ld.sexdev) > 1 or ($num(c.cans.cr.firset) > 0 or $num(c.cans.fs.inthrm) > 1))
    RLOC = complex
+   return
   endif
 
   if $num(c.cans.cb.condct) > 1 and
    ($num(c.cans.cr.sexagr) > 1 or $num(c.cans.cr.runawy) > 1 or $num(c.cans.cr.bully) > 1  or $num(c.cans.ld.sexdev) > 1 or ($num(c.cans.cr.firset) > 0 or $num(c.cans.fs.inthrm) > 1))
    RLOC = complex
+   return
   endif
   
   if $num(c.cans.cb.implsv) > 1 and 
@@ -1815,6 +1852,7 @@ function RLOC(c.cans.ac.sexgen,c.cans.ad.affreg,c.cans.ad.dissoc,c.cans.ad.intru
     $num(c.cans.cr.sexagr) > 1 or c.cans.cr.oslfhr = "3"
    )
    RLOC = complex
+   return
   endif  
 
   if $num(c.cans.cb.angctr) > 1 and
@@ -1823,6 +1861,7 @@ function RLOC(c.cans.ac.sexgen,c.cans.ad.affreg,c.cans.ad.dissoc,c.cans.ad.intru
     $num(c.cans.cb.subabs) > 1 or c.cans.cr.oslfhr = "3" or $num(c.cans.cr.suicid) > 1 or $num(c.cans.cr.smutil) > 1
    )
     RLOC = complex
+   return
   endif
 
   if $num(c.cans.cb.oppdef) > 1 and
@@ -1832,6 +1871,7 @@ function RLOC(c.cans.ac.sexgen,c.cans.ad.affreg,c.cans.ad.dissoc,c.cans.ad.intru
     $num(c.cans.cr.smutil) > 1   
    )
     RLOC = complex
+   return
   endif
 
   if $num(c.cans.cr.socbeh) > 1 and
@@ -1843,6 +1883,7 @@ function RLOC(c.cans.ac.sexgen,c.cans.ad.affreg,c.cans.ad.dissoc,c.cans.ad.intru
     )
    )
     RLOC = complex
+   return
   endif
 
   if $num(c.cans.cr.dangot) > 1 and
@@ -1854,6 +1895,7 @@ function RLOC(c.cans.ac.sexgen,c.cans.ad.affreg,c.cans.ad.dissoc,c.cans.ad.intru
     )
    )
     RLOC = complex
+   return
   endif
 
   if $num(c.cans.cb.condct) > 1 and
@@ -1863,6 +1905,7 @@ function RLOC(c.cans.ac.sexgen,c.cans.ad.affreg,c.cans.ad.dissoc,c.cans.ad.intru
     $num(c.cans.cr.smutil) > 1
    )
    RLOC = complex
+   return
   endif 
 
   if $num(c.cans.cr.bully) > 1 and
@@ -1873,6 +1916,7 @@ function RLOC(c.cans.ac.sexgen,c.cans.ad.affreg,c.cans.ad.dissoc,c.cans.ad.intru
     $num(c.cans.cr.firset) > 0 and $num(c.cans.fs.inthrm) > 1 
    )
    RLOC = complex
+   return
   endif
 
   if $num(c.cans.cr.delqcy) > 1 and
@@ -1883,6 +1927,7 @@ function RLOC(c.cans.ac.sexgen,c.cans.ad.affreg,c.cans.ad.dissoc,c.cans.ad.intru
     $num(c.cans.cr.firset) > 0 and $num(c.cans.fs.inthrm) > 1    
    )
    RLOC = complex
+   return
   endif
 
   if $num(c.cans.cb.implsv) > 1 and
@@ -1893,6 +1938,7 @@ function RLOC(c.cans.ac.sexgen,c.cans.ad.affreg,c.cans.ad.dissoc,c.cans.ad.intru
     $num(c.cans.cr.firset) > 0 and $num(c.cans.fs.inthrm) > 1    
    )
    RLOC = complex
+   return
   endif
 
  'MedicationManagement or TargetedServices
@@ -1910,8 +1956,10 @@ function RLOC(c.cans.ac.sexgen,c.cans.ad.affreg,c.cans.ad.dissoc,c.cans.ad.intru
      c.cans.ld.jobfun != "3" and $num(c.cans.ld.legal) < 3 and (c.cans.ps.hosptl = "0" or (c.cans.ps.hosptl = "1" and $num(c.cans.hs.timlst) < 3))	
     )    
     RLOC = med_management
+    return	
    else
     RLOC = targeted
+    return	
    endif 
   endif 
 'At this point, if there is no RLOC assigned then the assessment is 110-Ineligible

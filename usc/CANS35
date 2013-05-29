@@ -2924,9 +2924,16 @@ function ValidateALOC() is i
  endif
  select c.cans.aloc
   case "100" c.cans.type = "11"
-  case "110" select c.cans.type
-              case "1" c.cans.type = "12"
-			 endselect  
+  case "110" if c.cans.type = "1"
+              c.cans.type = "12"
+			 endif 
+  case "108" if c.cans.type = "1"
+              c.cans.type = "12"
+             endif
+			 c.cans.loc_dev = "2"
+			 $clear(c.cans.devjust)
+  case "109" c.cans.loc_dev = "1"
+   			 $clear(c.cans.devjust)
  endselect
 end ValidateALOC
 
