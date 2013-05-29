@@ -1,20 +1,414 @@
-start cans_wrap()
+'wrapper script for batching cans assessments.
+'
+'author: Robert Edeker
+'date: 5/13/2013
+'version: 0.0
+'
+'updates:
+'--------
+'
+'tim 0.1 5/29/2013
+'  + client selection functionality
+'  + multiple canstype template processing functionality
+'  + ftp functionality
+'  + register marked with batched date functionality
+'  + batch file archive functionality
+'  + whole bunch of options: see https://code.google.com/p/nug-r9-cans/wiki/PageName
+'     for option details
+'  ^ TODO:
+'     beefer archive functionality
+'     sql lookups?
 
-list[]   is x
-option   is x
+%version 0.1 5/29/2013 TxACE
 
-list[1] = "YOUR_CLIENT_ID"
-'list[2] = "000100"
-'list[3] = "000101"
+%define CANS_TYPE617 "1"
+%define CANS_TYPE35 "2"
 
-option = "FileOut`/tmp/"
-   + $fmt($today,"YYYYMMDD_") + $fmt($timenow,"HHMM")
-   + ".xml"
+start cans_wrap(parmfile, option, client, retcode)
 
-option = $replace(" ","_",option)   'fix time -> ' 930' for 9:30a
-option += ";Template`/c0/forms/cansbaby.xml"
+parmfile       is x
+option         is x
+client         is x
+retcode        is x
 
-  
-call "xml_build2" (,option,list[])
+out_file[]     is x
+
+email_notify   is x
+buildOneFile   is x
+autoFtp        is x
+markAsBatched  is x
+archiveAfter   is x
+use80byte      is x
+
+list[]         is x
+list35[]       is x
+list617[]      is x
+
+'search options
+useSearch      is x
+scrit[]        is x
+include617     is x
+include35      is x
+
+'sequential read
+c.cans.rec     is h
+c.cans.compd   is d
+c.cans.caredt  is d
+c.cans.canstype    is x
+read_day_limit is b
+too-old-date   is d
+
+'80 byte batch
+byte_progname  is x
+byte_menu_parm is x
+byte_parm_1    is x
+byte_parm_2    is x
+byte_help_parm is x
+byte_db        is b
+byte_save_list is x
+
+'xml batch
+xml_script     is x
+xml_dir        is x
+xml_35         is x
+xml_35_sx      is x
+xml_617        is x
+xml_617_sx     is x
+xml_ansa       is x
+xml_ansa_sx    is x
+xml_Default    is x
+xml_default_sx is x
+xml-file       is x
+xml-option     is x
+
+ftp_site       is x
+ftp_login      is x
+ftp_pass       is x
+ftp_local_dir  is x
+ftp_remote_dir is x
+ftp_retry      is b
+ftp_delay      is b
+ftp-msg[]      is x
+ftp-cmds[]     is x
+ftp-ptr        is b
+ftp-ts[]       is n
+ftp-diff       is n
+
+archive_dir    is x
+
+stdout[]       is x
+clt_err[]      is x
+T              is x
+i              is b
+rc             is b
+
+'Set script default values:
+email_notify = "tim@gcmhmr.com"
+buildOneFile = "N"
+autoFTP = "N"
+markAsBatched = "N"
+archiveAfter = "N"
+use80byte = "N"
+
+'search defaults
+useSearch = "Y"
+include617 = "Y"
+include35 = "Y"
+
+'sequential read defaults
+read_day_limit = 30
+
+'xml build settings
+xml_script = "xml_build2"
+xml_dir = "/tmp/"
+xml_default = "/c0/forms/cans617.xml"
+xml_default_sx = "a"
+xml_35 = "/c0/forms/cansbaby.xml"
+xml_35_sx = "b"
+xml_617 = "/c0/forms/cans617.xml"
+xml_617_sx = "c"
+xml_ansa = "/c0/forms/ansa.xml"
+
+'ftp settings
+ftp_site = "sftp.dshs.tx.us"
+ftp_login = "batch-cmbhs-100"
+ftp_pass = "***"
+ftp_local_dir = "/tmp/"
+ftp_remote_dir = "test/XML"
+ftp_retry = 5
+ftp_delay = 60
+
+'process script configuration
+getparm(parmfile)
+getoption(option)
+
+'build the client list
+status("{{{{{ Building Client List }}}}}")
+
+if client dp then          'treat the client argument as a savedlist name
+   if $getlist(list[], 2, client) > 0 then
+      'error retrieving saved list
+      return
+   endif
+endif
+
+if list[] !dp then
+   if $uc(useSearch) = "Y" then                                                       'db search
+      scrit[1] = "\DP"                                                           'has a complete date
+      scrit[2] = "\DNP"                                                          'has not been batched
+      $clear(T)
+      if $uc(include617) = "Y" then
+         scrit[3] = CANS_TYPE617
+         list617[] = canssearch(scrit[])
+      endif
+      if $uc(include35) = "Y" then
+         scrit[3] = CANS_TYPE35
+         list35[] = canssearch(scrit[])
+      endif
+   
+   else                                                                          'sequential read
+      'set the read day limit
+      too-old-date = $today - read_day_limit
+      (void)$dbstart(2, client)
+      rc = $dbread(2, client, c.cans.rec, c.cans.compd, c.cans.caredt, c.cans.canstype)
+      do while rc < 3
+         do while rc < 2
+            if c.cans.compd dp and c.cans.caredt !dp then
+               select c.cans.canstype
+                  case CANS_TYPE617    (void)$arrPush(list617[], client)
+                  case CANS_TYPE35     (void)$arrPush(list35[], client)
+                  case other           '##thumb -- skip?? log invalid cans types??
+               endselect
+               rc = 99
+            elseif c.cans.compd[effd] < Too-Old-Date then
+               rc = 99
+            else
+               rc = $dbreadnextdst(2, client, c.cans.rec, c.cans.compd, c.cans.caredt, c.cans.canstype)
+            endif
+         enddo
+         $loopcount = 0 ' clear the loop count while reading db
+         rc = $dbreadnext(2, client, c.cans.rec, c.cans.compd, c.cans.caredt, c.cans.canstype)
+      enddo
+   endif
+endif
+
+'build the batch file
+status("{{{{{ Building Batch File }}}}}")
+
+if $uc(use80byte) = "Y" then '80 byte batch
+
+   rc = $misprog(byte_progname, byte_menu_parm, byte_parm_1, byte_parm_2, byte_help_parm, byte_db, byte_save_list)
+   if rc > 0 then
+      (void)$email(email_notify, "MIS PROGRAM FAIL", $castx(rc))
+   endif
+   '##thumb -- do the fold and stuff to add \r??
+
+else                         'xml batch
+
+   $clear(xml-option, xml-file)
+   'set the file header if you are only making one file
+   if buildOneFile = "Y" then
+      xml-file = $fmt($today,"YYYYMMDD_") + $fmt($timenow,"HHMM") + ".xml"
+      xml-file = $replace(" ", "_", xml-file)
+      xml-option = "fileHeader`<?xml version='1.0'?><Batch>;"
+   endif
+   
+   'default list
+   i = 1
+   out_file[i] = buildxml(xml_script, xml_Default, xml_dir, xml-file, xml_default_sx, xml-option, list[])
+   
+   'cans 3-5 list
+   $clear(xml-option)
+   if buildOneFile = "Y" then i++ endif
+   out_file[i] = buildxml(xml_script, xml_35, xml_dir, xml-file, xml_35_sx, xml-option, list35[])
+   
+   'cans 6-17 list
+   $clear(xml-option)
+   if buildOneFile = "Y" then
+      i++
+      xml-option = "fileFooter`</Batch>;"
+   endif
+   out_file[i] = buildxml(xml_script, xml_617, xml_dir, xml-file, xml_617_sx, xml-option, list617[])
+endif
+
+'automate the ftp submission
+if $uc(autoFtp) = "Y" then
+   'do the ftp only if we have all the pieces
+   status("{{{{{ Attempting to FTP Files.... }}}}}")
+
+   if ftp_site dp and ftp_login dp and ftp_pass dp and ftp_local_dir dp and ftp_remote_dir dp then
+      $clear( ftp-msg[], stdout[], ftp-cmds[])
+      stdout[1] = option
+      i = $maxarray(list[]) + $maxarray(list35[]) + $maxarray(list617[])
+      stdout[2] = $format(i, "Number of Records: ZZZ,ZZ9")
+      stdout[3] = " "
+   
+      '  setup the FTP Commands
+      ftp-cmds[1] = "ascii"                  ' Text Transfer Mode
+      i = 0
+      do while i < $maxarray(out_file[])
+         if out_file[i] dp then 
+            T = "put " + out_file[i]
+            (void)$arrPush(ftp-cmds[], T)
+         endif
+      enddo
+      'execute these for process confirmation
+      (void)$arrpush(ftp-cmds[], "pwd")                    ' Show remote directory
+      (void)$arrpush(ftp-cmds[], "dir -l *")                ' Show matching files (confirmation)
+   
+      '  Make n attempts to send the files
+   
+      rc = 999                                                                         ' Default to Error Code
+      ftp-ptr = 0                                                                      ' Zero the Loop Counter
+      do while ftp-ptr++ < ftp_retry and rc > 0                                        ' Loop while problems sending
+         (void)$arrPush(stdout[],$fmt($today,$timenow,"Timestamp: MM/DD/YY HH:MMAP"))  'document the ftp attempt
+         (void)$arrPush(stdout[],$fmt(ftp-ptr,"FTP Attempt: LZZ9"))
+         ftp-ts[1] = $ts
+         
+         rc = $sftp(ftp-cmds[], ftp_site, ftp_login, ftp_pass, ftp_local_dir, ftp_remote_dir, ftp-msg[])
+         
+         ftp-ts[2] = $ts
+         ftp-diff = (ftp-ts[2] - ftp-ts[1]) / 100
+   
+         '* hang out for a bit if we have an error...
+         if rc > 0 and ftp_delay > 0 then
+            $sleep(ftp_delay)
+         endif
+   
+         (void)$arrPush(stdout[],$fmt(ftp-diff,"FTP Duration: LZZZZ9.99"))             'document ftp status
+         (void)$arrPush(stdout[],$fmt(rc,"FTP Error Code RZ9"))
+         (void)$arraymerge(stdout[],ftp-msg[])
+         (void)$arrPush(stdout[],$mchar("-",50))
+         (void)$arrPush(stdout[]," ")
+      enddo
+   
+      (void)$arrPush(stdout[],`"Files placed in directory on the remote server: " + ftp_remote_dir`)
+      (void)$arrPush(stdout[]," ")
+      
+      T = "CANS BATCH FTP "
+      if rc > 0 then
+         T += "FAIL"
+         'don't mark or archive on ftp fail
+         markAsBatched = "N"
+         archiveAfter = "N"
+      else
+         T += "SUCCESS"
+      endif
+   else
+      T = "CANS BATCH FTP FAIL"
+      (void)$arrPush(stdout[], "Script not Configured for ftp")
+   endif
+   (void)$email(EMAIL_NOTIFY, T, stdout[])
+endif
+
+'mark registers as batched
+if $uc(markAsBatched) = "Y" then
+   
+   status("{{{{{ Marking Client Registers as Submitted }}}}}")
+   
+   $clear(stdout[])
+   (void)$arrayMerge(list[], list35[], list617[])
+   i = 0
+   do while i++ < $maxarray(list[])
+      rc = $dbread(2, list[i], c.cans.rec, c.cans.compd, c.cans.caredt)
+      do while rc < 2
+         if c.cans.compd dp and c.cans.caredt !dp then
+            c.cans.caredt = $today
+            if $dbupdate(2, list[i], c.cans.rec, c.cans.caredt) > 0 then
+               'report the failure to update
+               (void)$arrPush(stdout[], list[i])
+            endif
+            rc = 99
+         else
+            rc = $dbreadnextdst(2, list[i], c.cans.rec, c.cans.compd, c.cans.caredt)
+         endif
+      enddo
+   enddo
+   if clt_err[] dp then
+      (void)$email(EMAIL_NOTIFY, "CANS BATCH RECORD UPDATE FAIL", stdout[])
+   endif
+endif
+
+'move the batch files to archive directory
+if $uc(archiveAfter) = "Y" then
+   
+   status("{{{{{ Archiving Batch Files }}}}}")
+   
+   if archive_dir dp then
+      T = "mv " + xml_dir + xml-file + "* " + archive_dir
+      if $unix(T, stdout[], , clt_err[]) > 0 then
+         (void)$arrayMerge(clt_err[], stdout[])
+         (void)$arrInsert(clt_err[1], T)
+         (void)$email(EMAIL_NOTIFY, "CANS BATCH ARCHIVE FAIL", clt_err[])
+      endif
+   endif
+endif
+
+status("{{{{{ Process Complete }}}}}")
 
 end cans_wrap
+
+%include inc_GetParm
+%include inc_GetOption
+
+
+'search db 2 for complete CANS that have not been submitted
+dynamic function canssearch(crit[])[] is x
+crit[]      is x
+list[]      is x
+c.cans.compd   is d
+c.cans.caredt  is d
+c.cans.canstype    is x
+
+if $searchinit(c.cans.compd, c.cans.caredt, c.cans.canstype) > 0 then
+   $abort(1, "search init fail")
+endif
+
+if $search(crit[],,,,list[]) > 0 then
+   $abort(2, "search execute error")
+endif
+
+canssearch[] = list[]
+end canssearch
+
+
+'build the option string for xml building script and call script
+dynamic function buildxml(script, template, dir, appendFile, suffix, optionstring, cltlist[]) is x
+script         is x
+template       is x
+dir            is x
+appendfile     is x
+suffix         is x
+optionstring   is x
+cltlist[]      is x
+T              is x
+
+   optionstring += "noEmptyFile`Y;Template`" + template + ";"            'add the template
+   optionstring += "FileOut`" 
+   if appendfile dp then
+      optionstring += appendfile + ";"
+      optionstring += "appendFile`Y;"
+      buildxml = appendfile
+   else
+      T = dir + $fmt($today,"YYYYMMDD_") + $fmt($timenow,"HHMM") + suffix + ".xml"
+      T = $replace(" ", "_", T)
+      optionstring += T + ";"
+      buildxml = T
+   endif
+   
+   call script (,optionstring, cltlist[])
+end buildxml
+
+
+'display the program status
+dynamic function status(msg) is null
+msg      is x
+if msg !dp then msg = "{{{{ I'm Working On It }}}}" endif
+if ($operioallow = "Y") then
+   if $bui = "Y" then
+      $brmsg(msg, 1, "EC")
+   else
+      $disp(msg, 23, 20)
+   endif
+endif
+end status
