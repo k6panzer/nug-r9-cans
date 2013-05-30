@@ -18,8 +18,15 @@
 '  ^ TODO:
 '     beefer archive functionality
 '     sql lookups?
+'
+'tim 0.1.1 5/30/2013
+'  ^ fix ftp issue
+'  ^ fix buildOneFile option file head and footer formatting issue
+'  ^ fix archiveafter functionality
+'  + add multi directory archive functionality
+'  ^ fix markasbatched functionality
 
-%version 0.1 5/29/2013 TxACE
+%version 0.1.1 5/30/2013 TxACE
 
 %define CANS_TYPE617 "1"
 %define CANS_TYPE35 "2"
@@ -31,7 +38,8 @@ option         is x
 client         is x
 retcode        is x
 
-out_file[]     is x
+out-file[]     is x
+arc-dir[]      is x
 
 email_notify   is x
 buildOneFile   is x
@@ -94,7 +102,11 @@ ftp-ptr        is b
 ftp-ts[]       is n
 ftp-diff       is n
 
-archive_dir    is x
+arc_dir_default   is x
+arc_dir_35     is x
+arc_dir_617    is x
+arc_dir_ansa   is x
+arc_by_year    is x
 
 stdout[]       is x
 clt_err[]      is x
@@ -105,7 +117,7 @@ rc             is b
 'Set script default values:
 email_notify = "tim@gcmhmr.com"
 buildOneFile = "N"
-autoFTP = "N"
+autoFTP = "Y"
 markAsBatched = "N"
 archiveAfter = "N"
 use80byte = "N"
@@ -120,23 +132,32 @@ read_day_limit = 30
 
 'xml build settings
 xml_script = "xml_build2"
-xml_dir = "/tmp/"
+xml_dir = "/c0/CMBHS/queue/"
 xml_default = "/c0/forms/cans617.xml"
-xml_default_sx = "a"
+xml_default_sx = "_default"
 xml_35 = "/c0/forms/cansbaby.xml"
-xml_35_sx = "b"
+xml_35_sx = "_baby"
 xml_617 = "/c0/forms/cans617.xml"
-xml_617_sx = "c"
+xml_617_sx = "_cans"
 xml_ansa = "/c0/forms/ansa.xml"
 
 'ftp settings
-ftp_site = "sftp.dshs.tx.us"
-ftp_login = "batch-cmbhs-100"
-ftp_pass = "***"
-ftp_local_dir = "/tmp/"
-ftp_remote_dir = "test/XML"
+'ftp_site = "sftp.dshs.tx.us"
+ftp_site = "wiki"
+'ftp_login = "batch-cmbhs-100"
+ftp_login = "test1"
+'ftp_pass = "***"
+ftp_pass = "Test!!4"
+ftp_local_dir = "/c0/CMBHS/queue/"
+ftp_remote_dir = "Test/XML"
 ftp_retry = 5
-ftp_delay = 60
+ftp_delay = 2
+
+'archive settings
+arc_dir_default = "/c0/CMBHS/archive/"
+arc_dir_35 = "/c0/CMBHS/archive/"
+arc_dir_617 = "/c0/CMBHS/archive/"
+arc_by_year = "Y"
 
 'process script configuration
 getparm(parmfile)
@@ -210,25 +231,56 @@ else                         'xml batch
    if buildOneFile = "Y" then
       xml-file = $fmt($today,"YYYYMMDD_") + $fmt($timenow,"HHMM") + ".xml"
       xml-file = $replace(" ", "_", xml-file)
-      xml-option = "fileHeader`<?xml version='1.0'?><Batch>;"
+      xml-option = "fileHeader`<?xml version='1.0'?><Batch>;filefooter`!NONE;"
    endif
+
+'##thumb -- figure out a way to make the client selection generic to make file generation generic   
+'   i = 0
+'   do while ++i < $maxarray(xml_template[])     '++i to exit before last list
+'      out-file[i] = buildxml(xml_script, xml_template[i], xml_dir, xml-file, xml_file_sfx, xml-option, list[i])
+'      'arc_dir[i] = arc_dir[i] || arc_dir_default
+'
+'      'set xml option for next file
+'      if buildOneFile = "Y" then 
+'         xml-option = "fileHeader`!NONE;filefooter`!NONE;"
+'      else
+'         $clear(xml-option)
+'      endif
+'   enddo
+'   
+'   'set xml option for last list of clients
+'   if buildOneFile = "Y" then
+'      xml-option = "fileHeader`!NONE;filefooter`</Batch>;"
+'   else
+'      $clear(xml-option)
+'   endif
+'   out-file[i] = buildxml(xml_script, xml_template[i], xml_dir, xml-file, xml_file_sfx, xml-option, list[i])
+   
    
    'default list
    i = 1
-   out_file[i] = buildxml(xml_script, xml_Default, xml_dir, xml-file, xml_default_sx, xml-option, list[])
+   out-file[i] = buildxml(xml_script, xml_Default, xml_dir, xml-file, xml_default_sx, xml-option, list[])
+   arc-dir[i] = arc_dir_default
    
    'cans 3-5 list
-   $clear(xml-option)
-   if buildOneFile = "Y" then i++ endif
-   out_file[i] = buildxml(xml_script, xml_35, xml_dir, xml-file, xml_35_sx, xml-option, list35[])
+   if buildOneFile = "Y" then 
+      xml-option = "fileHeader`!NONE;filefooter`!NONE;"
+   else
+      $clear(xml-option)
+      i++ 
+      arc-dir[i] = arc_dir_35
+   endif
+   out-file[i] = buildxml(xml_script, xml_35, xml_dir, xml-file, xml_35_sx, xml-option, list35[])
    
    'cans 6-17 list
-   $clear(xml-option)
    if buildOneFile = "Y" then
+      xml-option = "fileHeader`!NONE;filefooter`</Batch>;"
+   else
+      $clear(xml-option)
       i++
-      xml-option = "fileFooter`</Batch>;"
+      arc-dir[i] = arc_dir_617
    endif
-   out_file[i] = buildxml(xml_script, xml_617, xml_dir, xml-file, xml_617_sx, xml-option, list617[])
+   out-file[i] = buildxml(xml_script, xml_617, xml_dir, xml-file, xml_617_sx, xml-option, list617[])
 endif
 
 'automate the ftp submission
@@ -244,11 +296,10 @@ if $uc(autoFtp) = "Y" then
       stdout[3] = " "
    
       '  setup the FTP Commands
-      ftp-cmds[1] = "ascii"                  ' Text Transfer Mode
       i = 0
-      do while i < $maxarray(out_file[])
-         if out_file[i] dp then 
-            T = "put " + out_file[i]
+      do while i++ < $maxarray(out-file[])
+         if out-file[i] dp then 
+            T = "put " + out-file[i]
             (void)$arrPush(ftp-cmds[], T)
          endif
       enddo
@@ -310,6 +361,7 @@ if $uc(markAsBatched) = "Y" then
    (void)$arrayMerge(list[], list35[], list617[])
    i = 0
    do while i++ < $maxarray(list[])
+      $dblock()
       rc = $dbread(2, list[i], c.cans.rec, c.cans.compd, c.cans.caredt)
       do while rc < 2
          if c.cans.compd dp and c.cans.caredt !dp then
@@ -320,12 +372,14 @@ if $uc(markAsBatched) = "Y" then
             endif
             rc = 99
          else
+            $dblock()
             rc = $dbreadnextdst(2, list[i], c.cans.rec, c.cans.compd, c.cans.caredt)
          endif
       enddo
    enddo
-   if clt_err[] dp then
+   if stdout[] dp then
       (void)$email(EMAIL_NOTIFY, "CANS BATCH RECORD UPDATE FAIL", stdout[])
+      archiveAfter = "N"
    endif
 endif
 
@@ -334,13 +388,28 @@ if $uc(archiveAfter) = "Y" then
    
    status("{{{{{ Archiving Batch Files }}}}}")
    
-   if archive_dir dp then
-      T = "mv " + xml_dir + xml-file + "* " + archive_dir
-      if $unix(T, stdout[], , clt_err[]) > 0 then
-         (void)$arrayMerge(clt_err[], stdout[])
-         (void)$arrInsert(clt_err[1], T)
-         (void)$email(EMAIL_NOTIFY, "CANS BATCH ARCHIVE FAIL", clt_err[])
-      endif
+   if arc-dir[] dp then
+      i = 0
+      do while i++ < $maxarray(out-file[])
+         if out-file[i] dp then
+            if $uc(arc_by_year) = "Y" then
+               'push file into this year's subdirectory
+               T = $fmt($today, "YYYY")
+               if T dp then T += "/" endif
+               T = arc-dir[i] + T 
+            endif
+            T = "mv " + out-file[i] + " " + T
+            if $unix(T, stdout[], , clt_err[]) > 0 then
+               (void)$arrayMerge(clt_err[], stdout[])
+               (void)$arrInsert(clt_err[1], T)
+            endif
+            if clt_err[] dp then
+               (void)$email(EMAIL_NOTIFY, "CANS BATCH ARCHIVE FAIL", clt_err[])
+            endif
+         endif
+      enddo
+   else
+      (void)$email(email_notify, "CANS BATCH ARCHIVE FAIL", "Script Configuration Fail")
    endif
 endif
 
@@ -383,20 +452,24 @@ optionstring   is x
 cltlist[]      is x
 T              is x
 
+$clear(buildxml)
    optionstring += "noEmptyFile`Y;Template`" + template + ";"            'add the template
    optionstring += "FileOut`" 
    if appendfile dp then
-      optionstring += appendfile + ";"
+      optionstring += dir + appendfile + ";"
       optionstring += "appendFile`Y;"
       buildxml = appendfile
    else
       T = dir + $fmt($today,"YYYYMMDD_") + $fmt($timenow,"HHMM") + suffix + ".xml"
       T = $replace(" ", "_", T)
       optionstring += T + ";"
-      buildxml = T
+      if cltlist[] dp then
+         buildxml = T
+      endif
    endif
    
    call script (,optionstring, cltlist[])
+   
 end buildxml
 
 
