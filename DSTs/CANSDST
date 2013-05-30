@@ -208,7 +208,7 @@ start CANSDST()
 			rc = $adddcv(9709,"8","LPC")
 		endif				
 
-	rc = $adddct(9010,"UA RDM - Grade Level Attained")
+	rc = $adddct(9710,"UA RDM - Grade Level Attained")
 		if rc = 0
 			rc = $adddcv(9710,"1","No years of Schooling","00")
 			rc = $adddcv(9710,"2","Grade 1","01")
