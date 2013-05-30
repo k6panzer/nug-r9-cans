@@ -24,7 +24,7 @@
 '  ^ fix buildOneFile option file head and footer formatting issue
 '  ^ fix archiveafter functionality
 '  + add multi directory archive functionality
-'  ^ fix markasbatched functionality
+'  ^ fix markasbatched functionality 
 
 %version 0.1.1 5/30/2013 TxACE
 
