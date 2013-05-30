@@ -35,7 +35,7 @@
 '  .005
 '  + add support for recoding values via $RT tag
 '  + add $DCT tag for datacode description and alt1-3 values
-'TJM 20130519 .006
+'TJM 20130520 .006
 '  + new options
 '     fileheader to override default file head (use "!NONE" for no header)
 '     filefooter to override default file foot (use "!NONE" for no foot)
@@ -43,6 +43,8 @@
 '     noemptyfile to skip building file if clients[] is !dp
 '        only applies when appendfile option != "Y"
 '     
+'TJM 20130530 .007
+'  ^ fixed buggs around new .006 options
 
 %define lf x"0a"
 '%define d_parmfile "CANSXML"
@@ -50,7 +52,7 @@
 %define d_tpl "/c0/forms/cans.xml"
 %define d_rootnode "Batch"
 
-%version 01.0.006 05/29/2013 GCC
+%version 01.0.006 05/30/2013 GCC
 
 start xml_build2(parmfile,option,clients[],retcode)
 
@@ -126,6 +128,7 @@ __MAIN:
       gosub _TplMe
       rc = $writefile(_fh,buf)
    enddo
+   $clear(buf)
    if filefooter dp then
       if filefooter != "!NONE" then
          buf = filefooter  
