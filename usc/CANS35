@@ -414,6 +414,8 @@ function SaveData() is i
  bad_char[1] = "<"
  bad_char[2] = ">"
  
+ NewUID is n
+ 
  c.cans.age = {"lib_UACOMMON"}ClientAge($regid, c.cans.date)
  if c.cans.compd !dp
   mode = "ADD"
@@ -501,6 +503,7 @@ function SaveData() is i
               case other
              endselect
 			 c.cans.rec[effd] = $today
+			 NewUID = c.cans.rec[uid]
 			 c.cans.canstype = "2"
              SaveData = $dbadddst(02, $regid, cans_dstlist)
   case "UPDATE" if (c.cans.dloc = c.cans.rloc) and (c.cans.dloc = c.cans.aloc)
@@ -537,89 +540,89 @@ function LifeDomain() is null
     enddo
    $row(,row_color1)
     $col()$text(q_text_ld_family)
-    $col("center")$radio(c.cans.ld.family,"","9")
+    $col("center")$radio(c.cans.ld.family,,"9")
     radio_index = -1
 	do while radio_index++ < 3
-     $col("center")$radio(c.cans.ld.family,"",$castx(radio_index))
+     $col("center")$radio(c.cans.ld.family,,$castx(radio_index))
 	enddo	
    $row(,row_color2)
     $col()$text(q_text_ld_livsit)
     $col()
     radio_index = -1
 	do while radio_index++ < 3
-     $col("center")$radio(c.cans.ld.livsit,"",$castx(radio_index))
+     $col("center")$radio(c.cans.ld.livsit,,$castx(radio_index))
 	enddo	
    $row(,row_color1)
     $col()$text(q_text_ld_preday)$text("{sup}3{/sup}")
     $col()
-    $col("center")$radio(c.cans.ld.preday,"","0")
+    $col("center")$radio(c.cans.ld.preday,,"0")
     radio_index = 0
 	do while radio_index++ < 3
-     $col("center",,,,,col_color_multi)$radio(c.cans.ld.preday,"",$castx(radio_index))
+     $col("center",,,,,col_color_multi)$radio(c.cans.ld.preday,,$castx(radio_index))
 	enddo	
    $row(,row_color2)
     $col()$text(q_text_ld_socFun)
     $col()
     radio_index = -1
     do while radio_index++ < 3
-     $col("center")$radio(c.cans.ld.socFun,"",$castx(radio_index))
+     $col("center")$radio(c.cans.ld.socFun,,$castx(radio_index))
     enddo   	
    $row(,row_color1)
     $col()$text(q_text_ld_recret)
     $col()
     radio_index = -1
     do while radio_index++ < 3
-     $col("center")$radio(c.cans.ld.recret,"",$castx(radio_index))
+     $col("center")$radio(c.cans.ld.recret,,$castx(radio_index))
     enddo   		
    $row(,row_color2)
     $col()$text(q_text_ld_develp)$text("{sup}4{/sup}")
     $col()
-    $col("center")$radio(c.cans.ld.develp,"","0")
+    $col("center")$radio(c.cans.ld.develp,,"0")
     radio_index = 0
     do while radio_index++ < 3
-     $col("center",,,,,col_color_multi)$radio(c.cans.ld.develp,"",$castx(radio_index))  
+     $col("center",,,,,col_color_multi)$radio(c.cans.ld.develp,,$castx(radio_index))  
     enddo   			
    $row(,row_color1)
     $col()$text(q_text_ld_motor)
     $col()
     radio_index = -1
     do while radio_index++ < 3
-     $col("center")$radio(c.cans.ld.motor,"",$castx(radio_index))
+     $col("center")$radio(c.cans.ld.motor,,$castx(radio_index))
     enddo 	  
    $row(,row_color2)
     $col()$text(q_text_ld_commun)
     $col()
     radio_index = -1
     do while radio_index++ < 3
-     $col("center")$radio(c.cans.ld.commun,"",$castx(radio_index))
+     $col("center")$radio(c.cans.ld.commun,,$castx(radio_index))
     enddo 	  	
    $row(,row_color1)
     $col()$text(q_text_ld_medicl)
     $col()
     radio_index = -1
     do while radio_index++ < 3
-     $col("center")$radio(c.cans.ld.medicl,"",$castx(radio_index))
+     $col("center")$radio(c.cans.ld.medicl,,$castx(radio_index))
     enddo 	  		
    $row(,row_color2)
     $col()$text(q_text_ld_physcl)
     $col()
     radio_index = -1
     do while radio_index++ < 3
-     $col("center")$radio(c.cans.ld.physcl,"",$castx(radio_index))
+     $col("center")$radio(c.cans.ld.physcl,,$castx(radio_index))
     enddo 	  			
    $row(,row_color1)
     $col()$text(q_text_ld_sleep) 	
-    $col("center")$radio(c.cans.ld.sleep,"","9")
+    $col("center")$radio(c.cans.ld.sleep,,"9")
 	radio_index = -1
 	do while radio_index++ < 3
-     $col("center")$radio(c.cans.ld.sleep,"",$castx(radio_index))
+     $col("center")$radio(c.cans.ld.sleep,,$castx(radio_index))
 	enddo
    $row(,row_color2)
     $col()$text(q_text_ld_relper)
     $col()
 	radio_index = -1
 	do while radio_index++ < 3
-     $col("center")$radio(c.cans.ld.relper,"",$castx(radio_index))
+     $col("center")$radio(c.cans.ld.relper,,$castx(radio_index))
 	enddo
   $endtable($funcname)
  $endfieldset()
@@ -648,98 +651,98 @@ function CareGive() is null
     $col()$text(q_text_cg_super)
 	radio_index = -1
 	do while radio_index++ < 3
-     $col("center")$radio(c.cans.cg.super,"",$castx(radio_index))
+     $col("center")$radio(c.cans.cg.super,,$castx(radio_index))
 	enddo	
    $row(,row_color2)
     $col()$text(q_text_cg_involv)
 	radio_index = -1
 	do while radio_index++ < 3
-     $col("center")$radio(c.cans.cg.involv,"",$castx(radio_index))
+     $col("center")$radio(c.cans.cg.involv,,$castx(radio_index))
 	enddo	
    $row(,row_color1)
     $col()$text(q_text_cg_knoldg)
 	radio_index = -1
 	do while radio_index++ < 3
-     $col("center")$radio(c.cans.cg.knoldg,"",$castx(radio_index))
+     $col("center")$radio(c.cans.cg.knoldg,,$castx(radio_index))
 	enddo	 
    $row(,row_color2)
     $col()$text(q_text_cg_empath)
 	radio_index = -1
 	do while radio_index++ < 3
-     $col("center")$radio(c.cans.cg.empath,"",$castx(radio_index))
+     $col("center")$radio(c.cans.cg.empath,,$castx(radio_index))
 	enddo	
    $row(,row_color1)
     $col()$text(q_text_cg_organz)
 	radio_index = -1
 	do while radio_index++ < 3
-     $col("center")$radio(c.cans.cg.organz,"",$castx(radio_index))
+     $col("center")$radio(c.cans.cg.organz,,$castx(radio_index))
 	enddo	
    $row(,row_color2)
     $col()$text(q_text_cg_socres)
 	radio_index = -1
 	do while radio_index++ < 3
-     $col("center")$radio(c.cans.cg.socres,"",$castx(radio_index))
+     $col("center")$radio(c.cans.cg.socres,,$castx(radio_index))
 	enddo	
    $row(,row_color1)
     $col()$text(q_text_cg_ressbl)
 	radio_index = -1
 	do while radio_index++ < 3
-     $col("center")$radio(c.cans.cg.ressbl,"",$castx(radio_index))
+     $col("center")$radio(c.cans.cg.ressbl,,$castx(radio_index))
 	enddo	
    $row(,row_color2)
     $col()$text(q_text_cg_physcl)
 	radio_index = -1
 	do while radio_index++ < 3
-     $col("center")$radio(c.cans.cg.physcl,"",$castx(radio_index))
+     $col("center")$radio(c.cans.cg.physcl,,$castx(radio_index))
 	enddo	
    $row(,row_color1)
     $col()$text(q_text_cg_menhth)
 	radio_index = -1
 	do while radio_index++ < 3
-     $col("center")$radio(c.cans.cg.menhth,"",$castx(radio_index))
+     $col("center")$radio(c.cans.cg.menhth,,$castx(radio_index))
 	enddo	
    $row(,row_color2)
     $col()$text(q_text_cg_subabs)
 	radio_index = -1
 	do while radio_index++ < 3
-     $col("center")$radio(c.cans.cg.subabs,"",$castx(radio_index))
+     $col("center")$radio(c.cans.cg.subabs,,$castx(radio_index))
 	enddo	
    $row(,row_color1)
     $col()$text(q_text_cg_develp) 
 	radio_index = -1
 	do while radio_index++ < 3
-     $col("center")$radio(c.cans.cg.develp,"",$castx(radio_index))
+     $col("center")$radio(c.cans.cg.develp,,$castx(radio_index))
 	enddo	
    $row(,row_color2)
     $col()$text(q_text_cg_chldcr)
 	radio_index = -1
 	do while radio_index++ < 3
-     $col("center")$radio(c.cans.cg.chldcr,"",$castx(radio_index))
+     $col("center")$radio(c.cans.cg.chldcr,,$castx(radio_index))
 	enddo	
    $row(,row_color1)
     $col()$text(q_text_cg_miltra)
 	radio_index = -1
 	do while radio_index++ < 3
-     $col("center")$radio(c.cans.cg.miltra,"",$castx(radio_index))
+     $col("center")$radio(c.cans.cg.miltra,,$castx(radio_index))
 	enddo	
    $row(,row_color2)
     $col()$text(q_text_cg_famsts)$text("{sup}5{/sup}")
-    $col("center")$radio(c.cans.cg.famsts,"","0")
+    $col("center")$radio(c.cans.cg.famsts,,"0")
 	radio_index = 0
 	do while radio_index++ < 3
-     $col("center",,,,,col_color_multi)$radio(c.cans.cg.famsts,"",$castx(radio_index))
+     $col("center",,,,,col_color_multi)$radio(c.cans.cg.famsts,,$castx(radio_index))
 	enddo	
    $row(,row_color1)
     $col()$text(q_text_cg_safety)
 	radio_index = -1
 	do while radio_index++ < 3
-     $col("center")$radio(c.cans.cg.safety,"",$castx(radio_index))
+     $col("center")$radio(c.cans.cg.safety,,$castx(radio_index))
 	enddo	
    $row(,row_color2)
     $col()$text(q_text_cg_marvio)
 	radio_index = -1
 	do while radio_index++ < 3
-     $col("center")$radio(c.cans.cg.marvio,"",$castx(radio_index))
+     $col("center")$radio(c.cans.cg.marvio,,$castx(radio_index))
 	enddo	
   $endtable($funcname)
  $endfieldset()
@@ -778,37 +781,37 @@ function ChildStrength() is null
     $col()$text(q_text_cs_family)
 	radio_index = -1
 	do while radio_index++ < 3
-     $col("center")$radio(c.cans.cs.family,"",$castx(radio_index))
+     $col("center")$radio(c.cans.cs.family,,$castx(radio_index))
 	enddo
    $row(,row_color2)
     $col()$text(q_text_cs_extfam) 
 	radio_index = -1
 	do while radio_index++ < 3
-     $col("center")$radio(c.cans.cs.extfam,"",$castx(radio_index))
+     $col("center")$radio(c.cans.cs.extfam,,$castx(radio_index))
 	enddo	
    $row(,row_color1)
     $col()$text(q_text_cs_intper) 
 	radio_index = -1
 	do while radio_index++ < 3
-     $col("center")$radio(c.cans.cs.intper,"",$castx(radio_index))
+     $col("center")$radio(c.cans.cs.intper,,$castx(radio_index))
 	enddo		
    $row(,row_color2)
     $col()$text(q_text_cs_adapt) 
 	radio_index = -1
 	do while radio_index++ < 3
-     $col("center")$radio(c.cans.cs.adapt,"",$castx(radio_index))
+     $col("center")$radio(c.cans.cs.adapt,,$castx(radio_index))
 	enddo		
    $row(,row_color1)
     $col()$text(q_text_cs_persis) 
 	radio_index = -1
 	do while radio_index++ < 3
-     $col("center")$radio(c.cans.cs.persis,"",$castx(radio_index))
+     $col("center")$radio(c.cans.cs.persis,,$castx(radio_index))
 	enddo		
    $row(,row_color2)
     $col()$text(q_text_cs_curios)
 	radio_index = -1
 	do while radio_index++ < 3
-     $col("center")$radio(c.cans.cs.curios,"",$castx(radio_index))
+     $col("center")$radio(c.cans.cs.curios,,$castx(radio_index))
 	enddo		 
   $endtable($funcname)
  $endfieldset()
@@ -840,65 +843,65 @@ function ChildBehave() is null
     $col()
 	radio_index = -1
 	do while radio_index++ < 3
- 	 $col("center")$radio(c.cans.cb.attach,"",$castx(radio_index))
+ 	 $col("center")$radio(c.cans.cb.attach,,$castx(radio_index))
 	enddo	
    $row(,row_color2)
     $col()$text(q_text_cb_regula)$text("{sup}1{/sup}") 
 	$col()
-	$col("center")$radio(c.cans.cb.regula,"","0")
+	$col("center")$radio(c.cans.cb.regula,,"0")
 	radio_index = 0
 	do while radio_index++ < 3
-     $col("center",,,,,col_color_multi)$radio(c.cans.cb.regula,"",$castx(radio_index))
+     $col("center",,,,,col_color_multi)$radio(c.cans.cb.regula,,$castx(radio_index))
 	enddo	
    $row(,row_color1) 
 	$col()$text(q_text_cb_fthriv)
 	$col()
 	radio_index = -1
  	do while radio_index++ < 3
-  	 $col("center")$radio(c.cans.cb.fthriv,"",$castx(radio_index))
+  	 $col("center")$radio(c.cans.cb.fthriv,,$castx(radio_index))
 	enddo			
    $row(,row_color2)
     $col()$text(q_text_cb_depres)
     $col()
 	radio_index = -1
 	do while radio_index++ < 3
- 	 $col("center")$radio(c.cans.cb.depres,"",$castx(radio_index))
+ 	 $col("center")$radio(c.cans.cb.depres,,$castx(radio_index))
 	enddo	
    $row(,row_color1)
     $col()$text(q_text_cb_anxity)
     $col()
 	radio_index = -1
 	do while radio_index++ < 3
- 	 $col("center")$radio(c.cans.cb.anxity,"",$castx(radio_index))
+ 	 $col("center")$radio(c.cans.cb.anxity,,$castx(radio_index))
 	enddo		
    $row(,row_color2)
     $col()$text(q_text_cb_atypic)
     $col()
 	radio_index = -1
 	do while radio_index++ < 3
- 	 $col("center")$radio(c.cans.cb.atypic,"",$castx(radio_index))
+ 	 $col("center")$radio(c.cans.cb.atypic,,$castx(radio_index))
 	enddo		
    $row(,row_color1)
     $col()$text(q_text_cb_implsv) 
-	$col("center")$radio(c.cans.cb.implsv,"","9")
+	$col("center")$radio(c.cans.cb.implsv,,"9")
 	radio_index = -1
 	do while radio_index++ < 3
- 	 $col("center")$radio(c.cans.cb.implsv,"",$castx(radio_index))
+ 	 $col("center")$radio(c.cans.cb.implsv,,$castx(radio_index))
 	enddo		
    $row(,row_color2)
     $col()$text(q_text_cb_oppdef)
-    $col("center")$radio(c.cans.cb.oppdef,"","9")
+    $col("center")$radio(c.cans.cb.oppdef,,"9")
 	radio_index = -1
 	do while radio_index++ < 3
-     $col("center")$radio(c.cans.cb.oppdef,"",$castx(radio_index))
+     $col("center")$radio(c.cans.cb.oppdef,,$castx(radio_index))
 	enddo		
    $row(,row_color1)
     $col()$text(q_text_cb_adjtrm)$text("{sup}2{/sup}")
     $col()
-	$col("center")$radio(c.cans.cb.adjtrm,"","0")
+	$col("center")$radio(c.cans.cb.adjtrm,,"0")
 	radio_index = 0
 	do while radio_index++ < 3
-     $col("center",,,,,col_color_multi)$radio(c.cans.cb.adjtrm,"",$castx(radio_index))
+     $col("center",,,,,col_color_multi)$radio(c.cans.cb.adjtrm,,$castx(radio_index))
 	enddo		
   $endtable($funcname)
  $endfieldset()
@@ -937,31 +940,31 @@ function Culture() is null
    $col()$text(q_text_ac_langua)
    radio_index = -1
    do while radio_index++ < 3
-    $col("center")$radio(c.cans.ac.langua,"",$castx(radio_index))
+    $col("center")$radio(c.cans.ac.langua,,$castx(radio_index))
    enddo   
   $row(,row_color2)
    $col()$text(q_text_ac_identy) 
    radio_index = -1
    do while radio_index++ < 3
-    $col("center")$radio(c.cans.ac.identy,"",$castx(radio_index))
+    $col("center")$radio(c.cans.ac.identy,,$castx(radio_index))
    enddo      
   $row(,row_color1)
    $col()$text(q_text_ac_ritual)
    radio_index = -1
    do while radio_index++ < 3
-    $col("center")$radio(c.cans.ac.ritual,"",$castx(radio_index))
+    $col("center")$radio(c.cans.ac.ritual,,$castx(radio_index))
    enddo      
   $row(,row_color2)
    $col()$text(q_text_ac_culstr)
    radio_index = -1
    do while radio_index++ < 3
-    $col("center")$radio(c.cans.ac.culstr,"",$castx(radio_index))
+    $col("center")$radio(c.cans.ac.culstr,,$castx(radio_index))
    enddo      
   $row(,row_color1)
    $col()$text(q_text_ac_culdif)
    radio_index = -1
    do while radio_index++ < 3
-    $col("center")$radio(c.cans.ac.culdif,"",$castx(radio_index))
+    $col("center")$radio(c.cans.ac.culdif,,$castx(radio_index))
    enddo        
   $endtable($funcname)
  $endfieldset()
@@ -993,21 +996,21 @@ function ChildRisk() is null
 	$col("center")
 	radio_index = -1
 	do while radio_index++ < 3
-     $col("center")$radio(c.cans.cr.sfharm,"",$castx(radio_index))
+     $col("center")$radio(c.cans.cr.sfharm,,$castx(radio_index))
 	enddo	
    $row(,row_color2)
     $col()$text(q_text_cr_aggbeh)
 	$col("center") 
 	radio_index = -1
 	do while radio_index++ < 3
-     $col("center")$radio(c.cans.cr.aggbeh,"",$castx(radio_index))
+     $col("center")$radio(c.cans.cr.aggbeh,,$castx(radio_index))
 	enddo	
    $row(,row_color1)
     $col()$text(q_text_cr_socbeh)
-    $col("center")$radio(c.cans.cr.socbeh,"","9")
+    $col("center")$radio(c.cans.cr.socbeh,,"9")
 	radio_index = -1
 	do while radio_index++ < 3
-     $col("center")$radio(c.cans.cr.socbeh,"",$castx(radio_index))
+     $col("center")$radio(c.cans.cr.socbeh,,$castx(radio_index))
 	enddo	
   $endtable($funcname)
  $endfieldset()
@@ -1036,25 +1039,25 @@ function School() is null
     $col()$text(q_text_sc_prequa)
 	radio_index = -1
 	do while radio_index++ < 3
-     $col("center")$radio(c.cans.sc.prequa,"",$castx(radio_index))
+     $col("center")$radio(c.cans.sc.prequa,,$castx(radio_index))
 	enddo	 
    $row(,row_color2)
     $col()$text(q_text_sc_pbehav)
 	radio_index = -1
 	do while radio_index++ < 3
-     $col("center")$radio(c.cans.sc.pbehav,"",$castx(radio_index))
+     $col("center")$radio(c.cans.sc.pbehav,,$castx(radio_index))
 	enddo	
    $row(,row_color3)
     $col()$text(q_text_sc_pachie) 
 	radio_index = -1
 	do while radio_index++ < 3
-     $col("center")$radio(c.cans.sc.pachie,"",$castx(radio_index))
+     $col("center")$radio(c.cans.sc.pachie,,$castx(radio_index))
 	enddo	
    $row(,row_color2)
     $col()$text(q_text_sc_patten)
 	radio_index = -1
 	do while radio_index++ < 3
-     $col("center")$radio(c.cans.sc.patten,"",$castx(radio_index))
+     $col("center")$radio(c.cans.sc.patten,,$castx(radio_index))
 	enddo	
   $endtable($funcname)
  $endfieldset()
@@ -1083,13 +1086,13 @@ function DevNeeds() is null
     $col()$text(q_text_dv_cognit)
 	radio_index = -1
 	do while radio_index++ < 3
-     $col("center")$radio(c.cans.dv.cognit,"",$castx(radio_index))
+     $col("center")$radio(c.cans.dv.cognit,,$castx(radio_index))
 	enddo	
    $row(,row_color2)
     $col()$text(q_text_dv_selfcr)
 	radio_index = -1
 	do while radio_index++ < 3
-     $col("center")$radio(c.cans.dv.selfcr,"",$castx(radio_index))
+     $col("center")$radio(c.cans.dv.selfcr,,$castx(radio_index))
 	enddo	
   $endtable($funcname)
  $endfieldset()
@@ -1118,49 +1121,49 @@ function FamilyCareGive() is null
    $col()$text(q_text_fc_selfcr)
    radio_index = -1
    do while radio_index++ < 3
-    $col("center")$radio(c.cans.fc.selfcr,"",$castx(radio_index))
+    $col("center")$radio(c.cans.fc.selfcr,,$castx(radio_index))
    enddo   
    $row(,row_color2)
    $col()$text(q_text_fc_culstr) 
    radio_index = -1
    do while radio_index++ < 3
-    $col("center")$radio(c.cans.fc.culstr,"",$castx(radio_index))
+    $col("center")$radio(c.cans.fc.culstr,,$castx(radio_index))
    enddo   
     $row(,row_color3)
    $col()$text(q_text_fc_empedu)
    radio_index = -1
    do while radio_index++ < 3
-    $col("center")$radio(c.cans.fc.empedu,"",$castx(radio_index))
+    $col("center")$radio(c.cans.fc.empedu,,$castx(radio_index))
    enddo   
      $row(,row_color2)
    $col()$text(q_text_fc_eduatt) 
    radio_index = -1
    do while radio_index++ < 3
-    $col("center")$radio(c.cans.fc.eduatt,"",$castx(radio_index))
+    $col("center")$radio(c.cans.fc.eduatt,,$castx(radio_index))
    enddo   
   $row(,row_color3)
    $col()$text(q_text_fc_legal)
    radio_index = -1
    do while radio_index++ < 3
-    $col("center")$radio(c.cans.fc.legal,"",$castx(radio_index))
+    $col("center")$radio(c.cans.fc.legal,,$castx(radio_index))
    enddo   
    $row(,row_color2)
    $col()$text(q_text_fc_motive) 
    radio_index = -1
    do while radio_index++ < 3
-    $col("center")$radio(c.cans.fc.motive,"",$castx(radio_index))
+    $col("center")$radio(c.cans.fc.motive,,$castx(radio_index))
    enddo   
     $row(,row_color3)
    $col()$text(q_text_fc_finres)
    radio_index = -1
    do while radio_index++ < 3
-    $col("center")$radio(c.cans.fc.finres,"",$castx(radio_index))
+    $col("center")$radio(c.cans.fc.finres,,$castx(radio_index))
    enddo   
   $row(,row_color2)
    $col()$text(q_text_fc_transp) 
    radio_index = -1
    do while radio_index++ < 3
-    $col("center")$radio(c.cans.fc.transp,"",$castx(radio_index))
+    $col("center")$radio(c.cans.fc.transp,,$castx(radio_index))
    enddo   
  $endtable($funcname)
 $endfieldset()
@@ -1187,10 +1190,10 @@ function trauma() is null
 	enddo  
    $row(,row_color3)
     $col()$text(q_text_tr_sexabs)
-    $col("center")$radio(c.cans.tr.sexabs,"","0")
+    $col("center")$radio(c.cans.tr.sexabs,,"0")
 	radio_index = 0
 	do while radio_index++ < 3
-     $col("center",,,,,col_color_multi)$radio(c.cans.tr.sexabs,"",$castx(radio_index))
+     $col("center",,,,,col_color_multi)$radio(c.cans.tr.sexabs,,$castx(radio_index))
 	enddo	
   $endtable($funcname)
   $table($funcname,,table_nobgcolor)
@@ -1198,55 +1201,55 @@ function trauma() is null
     $col(,,"50%")$text(q_text_tr_phyabs) 
 	radio_index = -1
 	do while radio_index++ < 3
-     $col("center",,"10%")$radio(c.cans.tr.phyabs,"",$castx(radio_index))
+     $col("center",,"10%")$radio(c.cans.tr.phyabs,,$castx(radio_index))
 	enddo	
    $row(,row_color3)
     $col()$text(q_text_tr_emoabs)
 	radio_index = -1
 	do while radio_index++ < 3
-     $col("center")$radio(c.cans.tr.emoabs,"",$castx(radio_index))
+     $col("center")$radio(c.cans.tr.emoabs,,$castx(radio_index))
 	enddo		
    $row(,row_color2)
     $col()$text(q_text_tr_medtrm) 
 	radio_index = -1
 	do while radio_index++ < 3
-     $col("center")$radio(c.cans.tr.medtrm,"",$castx(radio_index))
+     $col("center")$radio(c.cans.tr.medtrm,,$castx(radio_index))
 	enddo		
    $row(,row_color3)
     $col()$text(q_text_tr_natdis)
 	radio_index = -1
 	do while radio_index++ < 3
-     $col("center")$radio(c.cans.tr.natdis,"",$castx(radio_index))
+     $col("center")$radio(c.cans.tr.natdis,,$castx(radio_index))
 	enddo		
    $row(,row_color2)
     $col()$text(q_text_tr_wtofam) 
 	radio_index = -1
 	do while radio_index++ < 3
-     $col("center")$radio(c.cans.tr.wtofam,"",$castx(radio_index))
+     $col("center")$radio(c.cans.tr.wtofam,,$castx(radio_index))
 	enddo		
    $row(,row_color3)
     $col()$text(q_text_tr_wtocom)
 	radio_index = -1
 	do while radio_index++ < 3
-     $col("center")$radio(c.cans.tr.wtocom,"",$castx(radio_index))
+     $col("center")$radio(c.cans.tr.wtocom,,$castx(radio_index))
 	enddo		
    $row(,row_color2)
     $col()$text(q_text_tr_wcrime)
 	radio_index = -1
 	do while radio_index++ < 3
-     $col("center")$radio(c.cans.tr.wcrime,"",$castx(radio_index))
+     $col("center")$radio(c.cans.tr.wcrime,,$castx(radio_index))
 	enddo		
    $row(,row_color3)
     $col()$text(q_text_tr_waraff) 
 	radio_index = -1
 	do while radio_index++ < 3
-     $col("center")$radio(c.cans.tr.waraff,"",$castx(radio_index))
+     $col("center")$radio(c.cans.tr.waraff,,$castx(radio_index))
 	enddo		
    $row(,row_color2)
     $col()$text(q_text_tr_teraff)
 	radio_index = -1
 	do while radio_index++ < 3
-     $col("center")$radio(c.cans.tr.teraff,"",$castx(radio_index))
+     $col("center")$radio(c.cans.tr.teraff,,$castx(radio_index))
 	enddo		
   $endtable($funcname)
  $endfieldset()
@@ -1275,31 +1278,31 @@ function sexab1() is null
     $col()$text(q_text_tr_emclos)
 	radio_index = -1
 	do while radio_index++ < 3
-     $col("center")$radio(c.cans.tr.emclos,"",$castx(radio_index))
+     $col("center")$radio(c.cans.tr.emclos,,$castx(radio_index))
 	enddo	
    $row(,row_color2)
     $col()$text(q_text_tr_freq)
 	radio_index = -1
 	do while radio_index++ < 3
-     $col("center")$radio(c.cans.tr.freq,"",$castx(radio_index))
+     $col("center")$radio(c.cans.tr.freq,,$castx(radio_index))
 	enddo
    $row(,row_color3)
     $col()$text(q_text_tr_durat) 
 	radio_index = -1
 	do while radio_index++ < 3
-     $col("center")$radio(c.cans.tr.durat,"",$castx(radio_index))
+     $col("center")$radio(c.cans.tr.durat,,$castx(radio_index))
 	enddo
    $row(,row_color2)
     $col()$text(q_text_tr_force)
 	radio_index = -1
 	do while radio_index++ < 3
-     $col("center")$radio(c.cans.tr.force,"",$castx(radio_index))
+     $col("center")$radio(c.cans.tr.force,,$castx(radio_index))
 	enddo
    $row(,row_color3)
     $col()$text(q_text_tr_react) 
 	radio_index = -1
 	do while radio_index++ < 3
-     $col("center")$radio(c.cans.tr.react,"",$castx(radio_index))
+     $col("center")$radio(c.cans.tr.react,,$castx(radio_index))
 	enddo   	
   $endtable($funcname)
  $endfieldset() 
@@ -1328,37 +1331,37 @@ function adjust() is null
     $col()$text(q_text_ad_affreg)
 	radio_index = -1
 	do while radio_index++ < 3
-     $col("center")$radio(c.cans.ad.affreg,"",$castx(radio_index))
+     $col("center")$radio(c.cans.ad.affreg,,$castx(radio_index))
 	enddo	
    $row(,row_color2)
     $col()$text(q_text_ad_reexp) 
 	radio_index = -1
 	do while radio_index++ < 3
-     $col("center")$radio(c.cans.ad.reexp,"",$castx(radio_index))
+     $col("center")$radio(c.cans.ad.reexp,,$castx(radio_index))
 	enddo	
    $row(,row_color3)
     $col()$text(q_text_ad_avoid)
 	radio_index = -1
 	do while radio_index++ < 3
-     $col("center")$radio(c.cans.ad.avoid,"",$castx(radio_index))
+     $col("center")$radio(c.cans.ad.avoid,,$castx(radio_index))
 	enddo	
    $row(,row_color2)
     $col()$text(q_text_ad_incaro)
 	radio_index = -1
 	do while radio_index++ < 3
-     $col("center")$radio(c.cans.ad.incaro,"",$castx(radio_index))
+     $col("center")$radio(c.cans.ad.incaro,,$castx(radio_index))
 	enddo	
    $row(,row_color3)
     $col()$text(q_text_ad_numres)
 	radio_index = -1
 	do while radio_index++ < 3
-     $col("center")$radio(c.cans.ad.numres,"",$castx(radio_index))
+     $col("center")$radio(c.cans.ad.numres,,$castx(radio_index))
 	enddo	
    $row(,row_color2)
     $col()$text(q_text_ad_timb4t)
 	radio_index = -1
 	do while radio_index++ < 3
-     $col("center")$radio(c.cans.ad.timb4t,"",$castx(radio_index))
+     $col("center")$radio(c.cans.ad.timb4t,,$castx(radio_index))
 	enddo	
   $endtable($funcname)
  $endfieldset()
@@ -2367,25 +2370,25 @@ function Regulatory() is null
     $col()$text(q_text_rg_eating)
 	radio_index = -1
 	do while radio_index++ < 3
- 	 $col("center")$radio(c.cans.rg.eating,"",$castx(radio_index))
+ 	 $col("center")$radio(c.cans.rg.eating,,$castx(radio_index))
 	enddo	
    $row(,row_color2)
     $col()$text(q_text_rg_elim)
 	radio_index = -1
 	do while radio_index++ < 3
-   	 $col("center")$radio(c.cans.rg.elim,"",$castx(radio_index))
+   	 $col("center")$radio(c.cans.rg.elim,,$castx(radio_index))
 	enddo	
    $row(,row_color3)
     $col()$text(q_text_rg_sensor)
 	radio_index = -1
 	do while radio_index++ < 3
- 	 $col("center")$radio(c.cans.rg.sensor,"",$castx(radio_index))
+ 	 $col("center")$radio(c.cans.rg.sensor,,$castx(radio_index))
 	enddo
    $row(,row_color2)
     $col()$text(q_text_rg_emot)
 	radio_index = -1
 	do while radio_index++ < 3
-  	 $col("center")$radio(c.cans.rg.emot,"",$castx(radio_index))
+  	 $col("center")$radio(c.cans.rg.emot,,$castx(radio_index))
 	enddo		
   $endtable($funcname)
  $endfieldset()
@@ -2413,49 +2416,49 @@ function ChildRiskFactor() is null
     $col()$text(q_text_cf_birthw)
 	radio_index = -1
 	do while radio_index++ < 3
-     $col("center")$radio(c.cans.cf.birthw,"",$castx(radio_index))
+     $col("center")$radio(c.cans.cf.birthw,,$castx(radio_index))
 	enddo	
    $row(,row_color2)
     $col()$text(q_text_cf_pica)
 	radio_index = -1
 	do while radio_index++ < 3
-     $col("center")$radio(c.cans.cf.pica,"",$castx(radio_index))
+     $col("center")$radio(c.cans.cf.pica,,$castx(radio_index))
 	enddo	
    $row(,row_color1)
     $col()$text(q_text_cf_prenat)
 	radio_index = -1
 	do while radio_index++ < 3
-     $col("center")$radio(c.cans.cf.prenat,"",$castx(radio_index))
+     $col("center")$radio(c.cans.cf.prenat,,$castx(radio_index))
 	enddo
    $row(,row_color2)
     $col()$text(q_text_cf_labdel)
 	radio_index = -1
 	do while radio_index++ < 3
-     $col("center")$radio(c.cans.cf.labdel,"",$castx(radio_index))
+     $col("center")$radio(c.cans.cf.labdel,,$castx(radio_index))
 	enddo
    $row(,row_color1)
     $col()$text(q_text_cf_subexp)
 	radio_index = -1
 	do while radio_index++ < 3
-     $col("center")$radio(c.cans.cf.subexp,"",$castx(radio_index))
+     $col("center")$radio(c.cans.cf.subexp,,$castx(radio_index))
 	enddo
    $row(,row_color2)
     $col()$text(q_text_cf_psprob)
 	radio_index = -1
 	do while radio_index++ < 3
-     $col("center")$radio(c.cans.cf.psprob,"",$castx(radio_index))
+     $col("center")$radio(c.cans.cf.psprob,,$castx(radio_index))
 	enddo
    $row(,row_color1)
     $col()$text(q_text_cf_matava)
 	radio_index = -1
 	do while radio_index++ < 3
-     $col("center")$radio(c.cans.cf.matava,"",$castx(radio_index))
+     $col("center")$radio(c.cans.cf.matava,,$castx(radio_index))
 	enddo
    $row(,row_color2)
     $col()$text(q_text_cf_abuse)
 	radio_index = -1
 	do while radio_index++ < 3
-     $col("center")$radio(c.cans.cf.abuse,"",$castx(radio_index)) 
+     $col("center")$radio(c.cans.cf.abuse,,$castx(radio_index)) 
 	enddo
   $endtable($funcname)
  $endfieldset()
@@ -2656,6 +2659,9 @@ function OtherQuestionRpt() is null
  if c.cans.type = "1" or c.cans.type = "2" or (c.cans.type = "3" and c.cans.disreas = "9") or c.cans.type = "12"
   $br()
   $table($funcname,,"width='100%' cellspacing='0' cellpadding='2' bgcolor='White' style='border-style: solid; border-width: 1px'")
+   $row()
+    $col("right",,"50%")$text(q_text_tcoommi)
+	$col()$text(c.cans.tcoommi)
    $row()
     $col("right",,"50%")$text(q_text_sped)
     $col()$text(c.cans.sped)
