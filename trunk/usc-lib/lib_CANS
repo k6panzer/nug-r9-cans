@@ -72,7 +72,8 @@ $setvarname(c.cans.type,     "C.CANS.TYPE")
 $setvarname(c.cans.alocdate, "C.CANS.ALOCDATE")
 
 $allowupdate(c.cans.type,c.cans.staff,c.cans.ver,c.cans.date,c.cans.age,c.cans.aloc,c.cans.rloc,c.cans.dloc,c.cans.compd) 
-  do until c.cans.compd dp or rc = 2
+  rc = 0
+  do until c.cans.compd dp or rc > 1
    rc = $dbreadnextdst(02,clientid,c.cans.rec,c.cans.type,c.cans.staff,c.cans.ver,c.cans.date,c.cans.age,c.cans.aloc,c.cans.rloc,c.cans.dloc,c.cans.compd,c.cans.alocdate)
   enddo
   
