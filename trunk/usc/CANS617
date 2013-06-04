@@ -73,8 +73,10 @@ start CANS617(parmfile,option,client,retcode)
  assessments[] is x
  {"lib_CANS"}Allow_Assesment($regid,assessments[]) 
 
- %global bgcolor
- bgcolor is x 
+ %global bgcolor,table_color
+ bgcolor     is x
+ table_color is x 
+ 
  %define table_wbgcolor "width='100%' cellspacing='0' cellpadding='0' bgcolor='" + bgcolor + "'"
  %define table_nobgcolor "width='100%' cellspacing='0' cellpadding='0'"  
  %define row_color1 "bgcolor='LightSkyBlue'"
@@ -404,6 +406,7 @@ start CANS617(parmfile,option,client,retcode)
         Page = "Report"
        else
         DisplayErrors()
+		$clear(errors[])
        endif	 
 	  else 
 	   $clear(e.ser,e.ru,e.start,e.dur,e.loc)
@@ -2252,6 +2255,7 @@ end PsyHospHx
 
 'Initial Validations before starting the assessment
 function Validate() is i
+ $clear(errors[])
  c.cans.age = {"lib_UACOMMON"}ClientAge($regid)
  if c.cans.age > 17
   (void)$arrpush(errors[],age_errortxt)
@@ -2269,6 +2273,7 @@ function Validate() is i
 end Validate
 
 function Validate0() is i
+ $clear(errors[])
  if c.cans.type = "1"
   $clear(c.cans.disdt,c.cans.disreas,c.cans.disref,c.cans.disoth)
   if c.cans.intref != "5"
@@ -2365,6 +2370,7 @@ function Validate0() is i
 end Validate0
 
 function Validate1() is i
+ $clear(errors[])
  if c.cans.type = "1" or c.cans.type = "2" or (c.cans.type = "3" and c.cans.disreas = "9") or c.cans.type = "12"
   if c.cans.ld.family !dp or c.cans.ld.livsit !dp or c.cans.ld.school !dp or c.cans.ld.socFun !dp or c.cans.ld.recret !dp or c.cans.ld.develp !dp or c.cans.ld.commun !dp or c.cans.ld.judgmt !dp or 
   c.cans.ld.jobfun !dp or c.cans.ld.legal  !dp or c.cans.ld.medicl !dp or c.cans.ld.physcl !dp or c.cans.ld.sexdev !dp or c.cans.ld.sleep  !dp or c.cans.ld.indliv !dp
@@ -2450,6 +2456,7 @@ function Validate1() is i
 end Validate1
 
 function Validate2() is i
+ $clear(errors[])
  if ($num(c.cans.ld.school) > 0) and (c.cans.sc.behavr !dp or c.cans.sc.achiev !dp or c.cans.sc.attend !dp or c.cans.sc.reltch !dp) 
   (void)$arrpush(errors[],sc_errortxt)
  endif  
@@ -2560,6 +2567,7 @@ function Validate2() is i
 end Validate2
 
 function Validate3() is i
+ $clear(errors[])
  if c.cans.tr.sexabs != "0" and c.cans.tr.sexabs dp and (c.cans.tr.emclos !dp or c.cans.tr.freq !dp or   c.cans.tr.durat !dp or  c.cans.tr.force !dp or  c.cans.tr.react !dp)    
   (void)$arrpush(errors[],sxab_errortxt)
  endif  	                            
@@ -2574,6 +2582,7 @@ function Validate3() is i
 end Validate3
 
 function Validate4() is i
+ $clear(errors[])
  if c.cans.commdate !dp
   (void)$arrpush(errors[],commdt1_errortxt)
  endif
@@ -3243,6 +3252,7 @@ function ALOCRpt(RptTitle,ReportID) is null
  end ALOCRpt
 
 function ValidateALOC() is i
+ $clear(errors[])
  CurrentDX     is x
  last_type     is x
  last_aloc     is x
@@ -3325,6 +3335,7 @@ function ValidateALOC() is i
 end ValidateALOC
 
 function ValidateReport() is i
+ $clear(errors[])
  if c.cans.type = "2" and c.cans.rloc = "110" and c.cans.dloc !dp
   (void)$arrpush(errors[],loc9_1_errortxt) 
  endif 
@@ -3354,7 +3365,6 @@ function DisplayErrors() is null
    enddo
   $tag("</center>")
  $sendform($funcname)
- $clear(errors[])
 end DisplayErrors
 
 function SaveEvent() is x

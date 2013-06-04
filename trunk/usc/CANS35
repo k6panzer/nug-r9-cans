@@ -343,6 +343,7 @@ start CANS35(parmfile,option,client,retcode)
 						                             Page = "Report"
 						                            else
 						                             DisplayErrors()
+													 $clear(errors[])
 						                            endif
 										 case "NO" $clear(e.ser,e.ru,e.start,e.dur,e.loc)
 												   Page = "4"
@@ -1796,7 +1797,8 @@ function CultureRpt() is null
  endif
 end CultureRpt
 
-function Validate0() is i
+function Validate0() is i                     
+ $clear(errors[])
  select c.cans.type
   case "3" select c.cans.disreas
              case "9" if c.cans.tcoommi !dp
@@ -1867,6 +1869,7 @@ function Validate0() is i
 end Validate0
 
 function Validate1() is i
+ $clear(errors[])
    if c.cans.type != "11"
     if c.cans.ld.family !dp or c.cans.ld.livsit !dp or c.cans.ld.preday !dp or c.cans.ld.socFun !dp or c.cans.ld.recret !dp or c.cans.ld.develp !dp or c.cans.ld.motor !dp or c.cans.ld.commun !dp or c.cans.ld.medicl !dp or c.cans.ld.physcl !dp or
        c.cans.ld.sleep !dp or c.cans.ld.relper !dp
@@ -1912,6 +1915,7 @@ function Validate1() is i
 end Validate1
 
 function Validate2() is i
+ $clear(errors[])
 '1
  if ($num(c.cans.cb.regula) > 0) and (c.cans.rg.eating !dp or c.cans.rg.elim !dp or c.cans.rg.sensor !dp or c.cans.rg.emot !dp)
   (void)$arrpush(errors[],rg_errortxt)   
@@ -1959,6 +1963,7 @@ function Validate2() is i
 end Validate2
 
 function Validate3() is i
+ $clear(errors[])
  if $num(c.cans.tr.sexabs) = 0 and (c.cans.tr.emclos !dp or c.cans.tr.freq !dp or c.cans.tr.durat !dp or c.cans.tr.force !dp or c.cans.tr.react !dp)    
   (void)$arrpush(errors[],sxab_errortxt)
  endif  	                            
@@ -1973,6 +1978,7 @@ function Validate3() is i
 end Validate3
 
 function Validate4() is i
+ $clear(errors[])
  if c.cans.commdate !dp
   (void)$arrpush(errors[],commdt1_errortxt)
  endif
@@ -2508,6 +2514,7 @@ end ChildRiskFacRpt
 
 'Initial Validations before starting the assessment
 function Validate() is i
+ $clear(errors[])
  c.cans.age = {"lib_UACOMMON"}ClientAge($regid)
  if c.cans.age > 17
   (void)$arrpush(errors[],age_errortxt)
@@ -2865,6 +2872,7 @@ function RLOC() is x
 end RLOC
 
 function ValidateALOC() is i
+ $clear(errors[])
  CurrentDX     is x
  last_type     is x
  last_aloc     is x
@@ -2944,6 +2952,7 @@ function ValidateALOC() is i
 end ValidateALOC
 
 function ValidateReport() is i
+ $clear(errors[])
  if c.cans.dloc = c.cans.rloc and c.cans.dloc dp
   (void)$arrpush(errors[],dloc_errortxt)
   $clear(c.cans.dloc)
@@ -2970,7 +2979,6 @@ function DisplayErrors() is null
    enddo
   $tag("</CENTER>")
  $sendform("errors")
- $clear(errors[])
 end DisplayErrors
 
 function SaveEvent() is x
