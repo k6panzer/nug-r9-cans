@@ -2480,7 +2480,7 @@ function Validate2() is i
   (void)$arrpush(errors[],sud_errortxt)
  endif  	                            
 
- if c.cans.cr.suicid != "0" and c.cans.cr.suicid dp and (c.cans.sr.hissui !dp and c.cans.sr.hfmsui !dp and c.cans.sr.firear !dp)
+ if c.cans.cr.suicid != "0" and c.cans.cr.suicid dp and (c.cans.sr.hissui !dp or c.cans.sr.hfmsui !dp or c.cans.sr.firear !dp)
   (void)$arrpush(errors[],sr_errortxt)   
  endif
    
