@@ -1590,14 +1590,7 @@ function RLOC(c.cans.ac.sexgen,c.cans.ad.affreg,c.cans.ad.dissoc,c.cans.ad.intru
 
 'At this point any other LOC could be recommended
  if c.cans.type = "1" or c.cans.type = "2" 
-'Medication Management
-'This one will more than likely be moved to the bottom
-  if $num(c.cans.ld.develp) > 0
-   if $num(c.cans.dv.cognit) > 1 or $num(c.cans.dv.develp) > 1
-    RLOC = med_management 
-    return	
-   endif
-  endif 
+
 'IntensiveFamilyServices
   if c.cans.ld.legal = "3"
    if $num(c.cans.dv.cognit) > 1 and $num(c.cans.dv.develp) > 1
@@ -1961,8 +1954,18 @@ function RLOC(c.cans.ac.sexgen,c.cans.ad.affreg,c.cans.ad.dissoc,c.cans.ad.intru
     RLOC = targeted
     return	
    endif 
+  endif
+
+'Medication Management
+'This one will more than likely be moved to the bottom
+  if $num(c.cans.ld.develp) > 0
+   if $num(c.cans.dv.cognit) > 1 or $num(c.cans.dv.develp) > 1
+    RLOC = med_management 
+    return	
+   endif
   endif 
-'At this point, if there is no RLOC assigned then the assessment is 110-Ineligible
+   
+'At this point, if there is no RLOC assigned then the assessment is 110-Ineligible?
   if RLOC !dp
    RLOC = Ineligible
   endif 
