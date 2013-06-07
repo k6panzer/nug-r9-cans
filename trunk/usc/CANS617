@@ -41,14 +41,16 @@ start CANS617(parmfile,option,client,retcode)
  RptTitle = Title
  ReportID = "CANS"  
  
- if $regid !dp and client !dp
-  $regid = {"lib_UACOMMON"}GetClientID() 
-  if $regid !dp
-   return
+ if $regid !dp
+  if client dp
+   $regid = client
+  else
+   $regid = {"lib_UACOMMON"}GetClientID() 
+   if $regid !dp
+    return
+   endif
   endif
- else
-  $regid = client
- endif 
+ endif
  
  if $lc(option) = "reportonly" or $lc(option) = "bigreport"
   if $dbread(2, $regid, c.cans.rec, c.cans.date) < 2
