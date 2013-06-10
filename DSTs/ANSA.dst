@@ -1,0 +1,191 @@
+                                                       HELEN FARABEE CENTERS                                                        
+
+Numeric    Listing of FILE     2  REC             Data Element Specification List                      06/10/2013 9:59am  Page     1
+                                                                                                                                    
+     No    Ref Name          Full Name                  Sens    File              Type  Edit  Len  Tbl Record  Picture  Recode Alt  
+    27800 C.ANSA.REC       ANSA Record Header             0  (02)CLIENT FILE        R     0     0    0 27800                        
+    27801 C.ANSA.STAFF     ANSA Staff                     0  (02)CLIENT FILE        X     3    10    0 27800                        
+    27802 C.ANSA.VER       ANSA Local Version             0  (02)CLIENT FILE        X     0    10    0 27800                        
+    27803 C.ANSA.DATE      ANSA Date                      0  (02)CLIENT FILE        D     0    10    0 27800                        
+    27804 C.ANSA.CAREDT    ANSA Care Batch Date           0  (02)CLIENT FILE        D     0    10    0 27800                        
+    27805 C.ANSA.R.SUICID  Suicide Risk{sup}1{/sup}       0  (02)CLIENT FILE        X     0     1    0 27800                        
+    27806 C.ANSA.R.DANGOT  Danger to Others{sup}2{/sup}   0  (02)CLIENT FILE        X     0     1    0 27800                        
+    27807 C.ANSA.R.SMUTIL  Self-Injurious Behavior        0  (02)CLIENT FILE        X     0     1    0 27800                        
+    27808 C.ANSA.R.OSLFHR  Other Self Harm                0  (02)CLIENT FILE        X     0     1    0 27800                        
+    27809 C.ANSA.R.EXPLOIT Exploitation                   0  (02)CLIENT FILE        X     0     1    0 27800                        
+    27810 C.ANSA.R.GAMBLE  Gambling                       0  (02)CLIENT FILE        X     0     1    0 27800                        
+    27811 C.ANSA.R.SEXAGR  Sexual Aggression{sup}3{/sup}  0  (02)CLIENT FILE        X     0     1    0 27800                        
+    27812 C.ANSA.R.CRIMBE  Criminal Behavior{sup}4{/sup}  0  (02)CLIENT FILE        X     0     1    0 27800                        
+    27813 C.ANSA.B.PSYCHS  Psychosis/Thought Disturbance  0  (02)CLIENT FILE        X     0     1    0 27800                        
+    27814 C.ANSA.B.COG     Cognition                      0  (02)CLIENT FILE        X     0     1    0 27800                        
+    27815 C.ANSA.B.DEPRES  Depression                     0  (02)CLIENT FILE        X     0     1    0 27800                        
+    27816 C.ANSA.B.ANXITY  Anxiety                        0  (02)CLIENT FILE        X     0     1    0 27800                        
+    27817 C.ANSA.B.MANIA   Mania                          0  (02)CLIENT FILE        X     0     1    0 27800                        
+    27818 C.ANSA.B.IMPLSV  Impulse Control                0  (02)CLIENT FILE        X     0     1    0 27800                        
+    27819 C.ANSA.B.INTER   Interpersonal Problems         0  (02)CLIENT FILE        X     0     1    0 27800                        
+    27820 C.ANSA.B.ANTISOC Antisocial Behavior            0  (02)CLIENT FILE        X     0     1    0 27800                        
+    27821 C.ANSA.B.ADJTRM  Adjustment to Trauma{sup}5{/su 0  (02)CLIENT FILE        X     0     1    0 27800                        
+    27822 C.ANSA.B.ANGCTR  Anger Control                  0  (02)CLIENT FILE        X     0     1    0 27800                        
+    27823 C.ANSA.B.SUBABS  Substance Use{sup}6{/sup}      0  (02)CLIENT FILE        X     0     1    0 27800                        
+    27824 C.ANSA.B.EATDST  Eating Disturbances            0  (02)CLIENT FILE        X     0     1    0 27800                        
+    27825 C.ANSA.LD.PHYMED Physical/Medical               0  (02)CLIENT FILE        X     0     1    0 27800                        
+    27826 C.ANSA.LD.FAMILY Family Functioning             0  (02)CLIENT FILE        X     0     1    0 27800                        
+    27827 C.ANSA.LD.EMPLOY Employment{sup}7{/sup}         0  (02)CLIENT FILE        X     0     1    0 27800                        
+    27828 C.ANSA.LD.SOCFUN Social Functioning             0  (02)CLIENT FILE        X     0     1    0 27800                        
+    27829 C.ANSA.LD.RECRET Recreational                   0  (02)CLIENT FILE        X     0     1    0 27800                        
+    27830 C.ANSA.LD.INDLIV Intellectual/Development{sup}8 0  (02)CLIENT FILE        X     0     1    0 27800                        
+    27831 C.ANSA.LD.SEXDEV Sexuality                      0  (02)CLIENT FILE        X     0     1    0 27800                        
+    27832 C.ANSA.LD.LIVING Living Skills                  0  (02)CLIENT FILE        X     0     1    0 27800                        
+    27833 C.ANSA.LD.RESTAB Residential Stability          0  (02)CLIENT FILE        X     0     1    0 27800                        
+    27834 C.ANSA.LD.LEGAL  Legal                          0  (02)CLIENT FILE        X     0     1    0 27800                        
+    27835 C.ANSA.LD.SLEEP  Sleep                          0  (02)CLIENT FILE        X     0     1    0 27800                        
+    27836 C.ANSA.LD.SLFCRE Self-Care                      0  (02)CLIENT FILE        X     0     1    0 27800                        
+    27837 C.ANSA.LD.DECISI Decision-making                0  (02)CLIENT FILE        X     0     1    0 27800                        
+    27838 C.ANSA.LD.INVREC Involvement in Recovery        0  (02)CLIENT FILE        X     0     1    0 27800                        
+    27839 C.ANSA.LD.TRANS  Transportation                 0  (02)CLIENT FILE        X     0     1    0 27800                        
+    27840 C.ANSA.FC.NA     Not applicable                 0  (02)CLIENT FILE        X     0     1    0 27800                        
+    27841 C.ANSA.FC.PHLTH  Physical/Behavioral Health     0  (02)CLIENT FILE        X     0     1    0 27800                        
+    27842 C.ANSA.FC.INVCRE Involvement with Care          0  (02)CLIENT FILE        X     0     1    0 27800                        
+    27843 C.ANSA.FC.KNOW   Knowledge                      0  (02)CLIENT FILE        X     0     1    0 27800                        
+    27844 C.ANSA.FC.SFRES  Social and Financial Resources 0  (02)CLIENT FILE        X     0     1    0 27800                        
+    27845 C.ANSA.FC.FAMST  Family Stress                  0  (02)CLIENT FILE        X     0     1    0 27800                        
+    27846 C.ANSA.FC.SAFE   Safety                         0  (02)CLIENT FILE        X     0     1    0 27800                        
+    27847 C.ANSA.ST.FAM    Family                         0  (02)CLIENT FILE        X     0     1    0 27800                        
+    27848 C.ANSA.ST.SOCCON Socail Connectedness           0  (02)CLIENT FILE        X     0     1    0 27800                        
+    27849 C.ANSA.ST.OPTI   Optimisim                      0  (02)CLIENT FILE        X     0     1    0 27800                        
+    27850 C.ANSA.ST.TAL    Talents/Interests              0  (02)CLIENT FILE        X     0     1    0 27800                        
+    27851 C.ANSA.ST.EDU    Educational                    0  (02)CLIENT FILE        X     0     1    0 27800                        
+    27852 C.ANSA.ST.VOL    Volunteering                   0  (02)CLIENT FILE        X     0     1    0 27800                        
+                                                       HELEN FARABEE CENTERS                                                        
+
+Numeric    Listing of FILE     2  REC             Data Element Specification List                      06/10/2013 9:59am  Page     2
+                                                                                                                                    
+     No    Ref Name          Full Name                  Sens    File              Type  Edit  Len  Tbl Record  Picture  Recode Alt  
+    27853 C.ANSA.ST.JOBHI  Job History                    0  (02)CLIENT FILE        X     0     1    0 27800                        
+    27854 C.ANSA.ST.RELIG  Spirital/Religious             0  (02)CLIENT FILE        X     0     1    0 27800                        
+    27855 C.ANSA.ST.COMCON Community Connection           0  (02)CLIENT FILE        X     0     1    0 27800                        
+    27856 C.ANSA.ST.NATSUP Natural Supports               0  (02)CLIENT FILE        X     0     1    0 27800                        
+    27857 C.ANSA.ST.RESIL  Resiliency                     0  (02)CLIENT FILE        X     0     1    0 27800                        
+    27858 C.ANSA.ST.RESOUR Resourcefulness                0  (02)CLIENT FILE        X     0     1    0 27800                        
+    27859 C.ANSA.AC.LANGUA Language                       0  (02)CLIENT FILE        X     0     1    0 27800                        
+    27860 C.ANSA.AC.IDENTY Identity                       0  (02)CLIENT FILE        X     0     1    0 27800                        
+    27861 C.ANSA.AC.RITUAL Ritual                         0  (02)CLIENT FILE        X     0     1    0 27800                        
+    27862 C.ANSA.AC.CULSTR Cultural Stress                0  (02)CLIENT FILE        X     0     1    0 27800                        
+    27863 C.ANSA.HS.NUM180 Number of hospitalizations in  0  (02)CLIENT FILE        X     0     1    0 27800                        
+    27864 C.ANSA.HS.NUML30 Number of hospitalizations les 0  (02)CLIENT FILE        X     0     1    0 27800                        
+    27865 C.ANSA.HS.NUMG30 Number of hospitalizations gre 0  (02)CLIENT FILE        X     0     1    0 27800                        
+    27866 C.ANSA.CR.EPISDS Number of psychiatric crisis e 0  (02)CLIENT FILE        X     0     1    0 27800                        
+    27867 C.ANSA.SR.IDEA   Ideation                       0  (02)CLIENT FILE        X     0     1    0 27800                        
+    27868 C.ANSA.SR.INTENT Intent                         0  (02)CLIENT FILE        X     0     1    0 27800                        
+    27869 C.ANSA.SR.PLAN   Planning                       0  (02)CLIENT FILE        X     0     1    0 27800                        
+    27870 C.ANSA.SR.HIST   Suicide History                0  (02)CLIENT FILE        X     0     1    0 27800                        
+    27871 C.ANSA.D.FRUSMAN Frustation Management          0  (02)CLIENT FILE        X     0     1    0 27800                        
+    27872 C.ANSA.D.HOST    Hostility                      0  (02)CLIENT FILE        X     0     1    0 27800                        
+    27873 C.ANSA.D.PTHINK  Paranoid Thinking              0  (02)CLIENT FILE        X     0     1    0 27800                        
+    27874 C.ANSA.D.GAINANG Secondary Gains from Anger     0  (02)CLIENT FILE        X     0     1    0 27800                        
+    27875 C.ANSA.D.VTHINK  Violent Thinking               0  (02)CLIENT FILE        X     0     1    0 27800                        
+    27876 C.ANSA.D.POTENT  Awareness of Violence Potentia 0  (02)CLIENT FILE        X     0     1    0 27800                        
+    27877 C.ANSA.D.RESPON  Response                       0  (02)CLIENT FILE        X     0     1    0 27800                        
+    27878 C.ANSA.D.CSCTRL  Commitments to Self Control    0  (02)CLIENT FILE        X     0     1    0 27800                        
+    27879 C.ANSA.D.TINV    Treatment Involvment           0  (02)CLIENT FILE        X     0     1    0 27800                        
+    27880 C.ANSA.SB.RELTON Relationship                   0  (02)CLIENT FILE        X     0     1    0 27800                        
+    27881 C.ANSA.SB.PHYFRC Physical Force/Threat          0  (02)CLIENT FILE        X     0     1    0 27800                        
+    27882 C.ANSA.SB.PLANIN Planning                       0  (02)CLIENT FILE        X     0     1    0 27800                        
+    27883 C.ANSA.SB.AGEDIF Age Differential               0  (02)CLIENT FILE        X     0     1    0 27800                        
+    27884 C.ANSA.SB.TYPSEX Type of Sex Act                0  (02)CLIENT FILE        X     0     1    0 27800                        
+    27885 C.ANSA.SB.RESACC Response to Accusation         0  (02)CLIENT FILE        X     0     1    0 27800                        
+    27886 C.ANSA.CB.SERI   Seriousness                    0  (02)CLIENT FILE        X     0     1    0 27800                        
+    27887 C.ANSA.CB.HIST   History                        0  (02)CLIENT FILE        X     0     1    0 27800                        
+    27888 C.ANSA.CB.ARREST Arrests                        0  (02)CLIENT FILE        X     0     1    0 27800                        
+    27889 C.ANSA.CB.PLAN   Planning                       0  (02)CLIENT FILE        X     0     1    0 27800                        
+    27890 C.ANSA.CB.COMSF  Community Safety               0  (02)CLIENT FILE        X     0     1    0 27800                        
+    27891 C.ANSA.CB.LEGCOM Legal Compliance               0  (02)CLIENT FILE        X     0     1    0 27800                        
+    27892 C.ANSA.CB.PEER   Peer Influences                0  (02)CLIENT FILE        X     0     1    0 27800                        
+    27893 C.ANSA.CB.FINF   Immediate Family Criminal      0  (02)CLIENT FILE        X     0     1    0 27800                        
+    27894 C.ANSA.CB.BINF   Behavior Influences            0  (02)CLIENT FILE        X     0     1    0 27800                        
+    27895 C.ANSA.CB.EINF   Environmental Influences       0  (02)CLIENT FILE        X     0     1    0 27800                        
+    27896 C.ANSA.TR.SEXABS Sexual Abuse                   0  (02)CLIENT FILE        X     0     1    0 27800                        
+    27897 C.ANSA.TR.PHYABS Physical Abuse                 0  (02)CLIENT FILE        X     0     1    0 27800                        
+    27898 C.ANSA.TR.EMOABS Emotional Abuse                0  (02)CLIENT FILE        X     0     1    0 27800                        
+    27899 C.ANSA.TR.MEDTRM Medical Trauma                 0  (02)CLIENT FILE        X     0     1    0 27800                        
+    27900 C.ANSA.TR.NATDIS Natural Disaster               0  (02)CLIENT FILE        X     0     1    0 27800                        
+    27901 C.ANSA.TR.WTOFAM Witness to Family Violence     0  (02)CLIENT FILE        X     0     1    0 27800                        
+    27902 C.ANSA.TR.WTOCOM Witness to Community Violence  0  (02)CLIENT FILE        X     0     1    0 27800                        
+    27903 C.ANSA.TR.WCRIME Witness/Victim - Criminal Acti 0  (02)CLIENT FILE        X     0     1    0 27800                        
+    27904 C.ANSA.TR.WARAFF War Affected                   0  (02)CLIENT FILE        X     0     1    0 27800                        
+    27905 C.ANSA.TR.TERAFF Terrorism Affected             0  (02)CLIENT FILE        X     0     1    0 27800                        
+                                                       HELEN FARABEE CENTERS                                                        
+
+Numeric    Listing of FILE     2  REC             Data Element Specification List                      06/10/2013 9:59am  Page     3
+                                                                                                                                    
+     No    Ref Name          Full Name                  Sens    File              Type  Edit  Len  Tbl Record  Picture  Recode Alt  
+    27906 C.ANSA.TR.AFFREG Affect Regulation              0  (02)CLIENT FILE        X     0     1    0 27800                        
+    27907 C.ANSA.TR.INTRUS Intrusions                     0  (02)CLIENT FILE        X     0     1    0 27800                        
+    27908 C.ANSA.TR.ATTACH Attachment                     0  (02)CLIENT FILE        X     0     1    0 27800                        
+    27909 C.ANSA.TR.DISSOC Dissociation                   0  (02)CLIENT FILE        X     0     1    0 27800                        
+    27910 C.ANSA.SA.SEVERE Severity of Use                0  (02)CLIENT FILE        X     0     1    0 27800                        
+    27911 C.ANSA.SA.DURATI Duration of Use                0  (02)CLIENT FILE        X     0     1    0 27800                        
+    27912 C.ANSA.SA.STGREC Stage of Recovery              0  (02)CLIENT FILE        X     0     1    0 27800                        
+    27913 C.ANSA.SA.PERINF Peer Influences                0  (02)CLIENT FILE        X     0     1    0 27800                        
+    27914 C.ANSA.SA.ENVINF Environmental Influences       0  (02)CLIENT FILE        X     0     1    0 27800                        
+    27915 C.ANSA.SA.RECCOM Recovery Support in Community  0  (02)CLIENT FILE        X     0     1    0 27800                        
+    27916 C.ANSA.VC.CAREER Career Aspirations             0  (02)CLIENT FILE        X     0     1    0 27800                        
+    27917 C.ANSA.VC.JTIME  Job Time                       0  (02)CLIENT FILE        X     0     1    0 27800                        
+    27918 C.ANSA.VC.JATT   Job Attendance                 0  (02)CLIENT FILE        X     0     1    0 27800                        
+    27919 C.ANSA.VC.JPER   Job Performance                0  (02)CLIENT FILE        X     0     1    0 27800                        
+    27920 C.ANSA.VC.JREL   Job Relations                  0  (02)CLIENT FILE        X     0     1    0 27800                        
+    27921 C.ANSA.VC.JSKILL Job Skills                     0  (02)CLIENT FILE        X     0     1    0 27800                        
+    27922 C.ANSA.DN.COG    Cognitive                      0  (02)CLIENT FILE        X     0     1    0 27800                        
+    27923 C.ANSA.DN.COMM   Communication                  0  (02)CLIENT FILE        X     0     1    0 27800                        
+    27924 C.ANSA.DN.DEV    Development                    0  (02)CLIENT FILE        X     0     1    0 27800                        
+    27925 C.ANSA.PM.PCPC   Primary Care Physician Connect 0  (02)CLIENT FILE        X     0     1    0 27800                        
+    27926 C.ANSA.PM.CHI    Chronic Health Issues          0  (02)CLIENT FILE        X     0     1    0 27800                        
+    27927 C.ANSA.PM.MEHV   Medical/ER Hospital Visits     0  (02)CLIENT FILE        X     0     1    0 27800                        
+    27928 C.ANSA.PM.MP     Medical Prescriptions          0  (02)CLIENT FILE        X     0     1    0 27800                        
+    27929 C.ANSA.TYPE      ANSA Assessment Type           0  (02)CLIENT FILE        X     1     1 9700 27800                        
+    27930 C.ANSA.RLOC      ANSA RLOC Services Level       0  (02)CLIENT FILE        X     1     3 9711 27800                        
+    27931 C.ANSA.ALOC      ANSA ALOC Service Levels       0  (02)CLIENT FILE        X     1     3 9712 27800                        
+    27932 C.ANSA.AGE       ANSA Client Age                0  (02)CLIENT FILE        B     0     2    0 27800                        
+    27933 C.ANSA.DLOC      ANSA DLOC Service Levels       0  (02)CLIENT FILE        X     1     3 9712 27800                        
+    27934 C.ANSA.COMPD     ANSA Completion Date           0  (02)CLIENT FILE        D     0    10    0 27800                        
+    27935 C.ANSA.COMMENT   ANSA Staff Comment             0  (02)CLIENT FILE        X     0    64    0 27800                        
+    27936 C.ANSA.ACOMMENT  ANSA Auth Staff Comment        0  (02)CLIENT FILE        X     0    64    0 27800                        
+    27937 C.ANSA.ISN       ANSA ISN                       0  (02)CLIENT FILE        X   109    32    0 27800                        
+    27938 C.ANSA.SNAPID    ANSA snapshot id               0  (02)CLIENT FILE        X   113    32    0 27800                        
+    27939 C.ANSA.COMMDATE  ANSA Community Section Date    0  (02)CLIENT FILE        D     0    10    0 27800                        
+    27941 C.ANSA.ALOCSTAFF ANSA ALOC Staff                0  (02)CLIENT FILE        X     3    32    0 27800                        
+    27942 C.ANSA.ALOCDATE  ANSA ALOC Date                 0  (02)CLIENT FILE        D     0    10    0 27800                        
+    27943 C.ANSA.ALOCEDATE ANSA Auth End Date             0  (02)CLIENT FILE        D     0    10    0 27800                        
+    27944 C.ANSA.FAIRHEAR  ANSA Fair Hearing Letter       0  (02)CLIENT FILE        X     1     1   29 27800                        
+    27945 C.ANSA.ARREST    ANSA Arrests last 30 days      0  (02)CLIENT FILE        X     0     2    0 27800                        
+    27946 C.ANSA.GRADE     ANSA Highest Grade Achieved    0  (02)CLIENT FILE        X     1     2 9710 27800                        
+    27947 C.ANSA.RESTYPE   ANSA Residence Type            0  (02)CLIENT FILE        X     1     2 9012 27800                        
+    27948 C.ANSA.RESOTHER1 ANSA Residence Other 1         0  (02)CLIENT FILE        X     0    50    0 27800                        
+    27949 C.ANSA.RESOTHER2 ANSA Residence Other 1         0  (02)CLIENT FILE        X     0    56    0 27800                        
+    27950 C.ANSA.EXTDREV   ANSA Extended Review           0  (02)CLIENT FILE        X     1     1   29 27800                        
+    27951 C.ANSA.TCOOMMI   ANSA TCOOMMI Client            0  (02)CLIENT FILE        X     1     1   29 27800                        
+    27952 C.ANSA.DISDT     ANSA Discharge Date            0  (02)CLIENT FILE        D     0    10    0 27800                        
+    27953 C.ANSA.DISREAS   ANSA Discharge Reason          0  (02)CLIENT FILE        X     1     2 9703 27800                        
+    27954 C.ANSA.DISREF    ANSA Discharge Refer           0  (02)CLIENT FILE        X     1     2 9704 27800                        
+    27955 C.ANSA.DISOTH    ANSA Other Discharge Reas      0  (02)CLIENT FILE        X     0    50    0 27800                        
+    27956 C.ANSA.INTREF    ANSA Intake Referral           0  (02)CLIENT FILE        X     1     1 9702 27800                        
+    27957 C.ANSA.INTREFOTH ANSA Intake Ref Other          0  (02)CLIENT FILE        X     0    50    0 27800                        
+    27958 C.ANSA.LOC_DEV   ANSA LOC Deviation Reason      0  (02)CLIENT FILE        X     1     1 9706 27800                        
+    27959 C.ANSA.DEVOTH    ANSA Other Deviation Reas      0  (02)CLIENT FILE        X     0    64    0 27800                        
+                                                       HELEN FARABEE CENTERS                                                        
+
+Numeric    Listing of FILE     2  REC             Data Element Specification List                      06/10/2013 9:59am  Page     4
+                                                                                                                                    
+     No    Ref Name          Full Name                  Sens    File              Type  Edit  Len  Tbl Record  Picture  Recode Alt  
+    27960 C.ANSA.DEVR1     ANSA Deviation 1               0  (02)CLIENT FILE        X     0    63    0 27800                        
+    27961 C.ANSA.DEVR2     ANSA Other Deviation 2         0  (02)CLIENT FILE        X     0    63    0 27800                        
+    27962 C.ANSA.DEVR3     ANSA Other Deviation 3         0  (02)CLIENT FILE        X     0    63    0 27800                        
+    27963 C.ANSA.DEVR4     ANSA Other Deviation 4         0  (02)CLIENT FILE        X     0    63    0 27800                        
+    27965 C.ANSA.DEVR5     ANSA Other Deviation 5         0  (02)CLIENT FILE        X     0     3    0 27800                        
+    27966 C.ANSA.DEVJUST   ANSA Other Deviation Reas      0  (02)CLIENT FILE        X     0    64    0 27800                        
+    27967 C.ANSA.PSRS      ANSA PSRS SCORE                0  (02)CLIENT FILE        X     0     2    0 27800                        
+    27968 C.ANSA.BNSA      ANSA BNSA SCORE                0  (02)CLIENT FILE        X     0     2    0 27800                        
+    27969 C.ANSA.BDSS      ANSA BDSS SCORE                0  (02)CLIENT FILE        X     0     2    0 27800                        
+    27970 C.ANSA.QIDS      ANSA QIDS SCORE                0  (02)CLIENT FILE        X     0     2    0 27800                        
+    27971 C.ANSA.QIDSVER   ANSA QIDS VERSION              0  (02)CLIENT FILE        X     1     1 9007 27800                        
+    27972 C.ANSA.SR.FFSUI  ANSA SR FAMILY HX              0  (02)CLIENT FILE        X     0     1    0 27800                        
