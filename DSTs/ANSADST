@@ -1,0 +1,344 @@
+'change log
+'----------
+'
+
+%version 0.0 06/11/13 TxACE
+
+start ANSADST()
+ rc        is i
+ dbfile    is i
+ dst       is n
+ recordnum is n
+
+ dbfile = 02
+
+'$nextavdst
+'This is the starting number of the DST's that will be added.  While a contiguous range of DST numbers is not 
+'required.  It is preferable.  If you want a contiguous range of DST's make sure you have at least 250
+'available DST numbers after the number you choose.
+
+'recordnum
+'This is the DST record number that will be assigned to all of the DST's that are created.  This can be any
+'available number.  But preference should be given to making it the same number as the record header DST
+'number.  The record header DST will be the first DST crated and will have the number in the $nextavdst
+'value
+
+'''''''Change These Values for your system'''''''''
+ $nextavdst = 24800           
+ recordnum  = 24800
+ '$trace("path.on", `"/c0/EXPORT/trace/PV_" + $scriptid`)
+'''''''''''''''''''''''''''''''''''''''''''''''''''
+
+'This section will create the Data Code Tables and Populate them with the necessary values.  
+'If the DCT already exists, it will NOT be replaced and none of the values will be changed.
+'Make sure that the DCT tables ID's are available.  If not, modify the script below to an available DST
+'number.  Make sure you go further down in the script and adjust the DCT table used for the DST's too.
+
+
+	rc = $adddct(9010,"UA RDM - Grad level Attained")
+		if rc = 0
+			rc = $adddcv(9010,"00" ,"No years of Schooling","01")
+			rc = $adddcv(9010,"01" ,"Grade 1","02")
+			rc = $adddcv(9010,"02" ,"Grade 2","03")
+			rc = $adddcv(9010,"03" ,"Grade 3","04")
+			rc = $adddcv(9010,"04" ,"Grade 4","05")
+			rc = $adddcv(9010,"05" ,"Grade 5","06")
+			rc = $adddcv(9010,"06" ,"Grade 6","07")
+			rc = $adddcv(9010,"07" ,"Grade 7","08")
+			rc = $adddcv(9010,"08" ,"Grade 8","09")
+			rc = $adddcv(9010,"09" ,"Grade 9","10")
+			rc = $adddcv(9010,"10" ,"Grade 10","11")
+			rc = $adddcv(9010,"11" ,"Grade 11","12")
+			rc = $adddcv(9010,"12" ,"Grade 12","13")
+			rc = $adddcv(9010,"13" ,"Nursery, Pre, Head Start","14")
+			rc = $adddcv(9010,"14" ,"Kindergarten","15")
+		endif
+
+	rc = $adddct(9012,"C & A PRIMARY RESIDENCE TYPE")
+		if rc = 0
+			rc = $adddcv(9012,"1" ,"PRIVATE RESIDENCE")
+			rc = $adddcv(9012,"10","Living Independently")
+			rc = $adddcv(9012,"2" ,"FOSTER CARE")
+			rc = $adddcv(9012,"3" ,"RESIDENTIAL CARE (GRP HOME)")
+			rc = $adddcv(9012,"4" ,"CRISIS RESIDENTIAL")
+			rc = $adddcv(9012,"5" ,"CHILDREN'S RESIDENTIAL TRMT CT")
+			rc = $adddcv(9012,"6" ,"INSTITUTIONAL SETTING")
+			rc = $adddcv(9012,"7" ,"JAIL/CORRECTIONAL FACILITY")
+			rc = $adddcv(9012,"8" ,"HOMELESS")
+			rc = $adddcv(9012,"9" ,"OTHER")
+		endif
+		
+	rc = $adddct(9700,"CANS/ANSA Assessment Type")
+		if rc = 0
+			rc = $adddcv(9700,"1","Initial","I")
+			rc = $adddcv(9700,"11","Crisis","E")
+			rc = $adddcv(9700,"12","Initial Non Admission","I","9")
+			rc = $adddcv(9700,"2","Update","U")
+			rc = $adddcv(9700,"3","Discharge","D")
+		endif
+
+	rc = $adddct(9703,"CANS/ANSA Discharge Reasons")
+		if rc = 0
+			rc = $adddcv(9703,"1" ,"Change NorthSTAR Eligibility")
+			rc = $adddcv(9703,"10","Termination request by Family")
+			rc = $adddcv(9703,"11","Texas Juvenile Justice Dept")
+			rc = $adddcv(9703,"2" ,"Death")
+			rc = $adddcv(9703,"3" ,"Elected a New Provider")
+			rc = $adddcv(9703,"4" ,"Inpatient Treatment Setting")
+			rc = $adddcv(9703,"5" ,"Moved out of Service Area")
+			rc = $adddcv(9703,"6" ,"Never Returned")
+			rc = $adddcv(9703,"7" ,"Other")
+			rc = $adddcv(9703,"8" ,"Residential Treatment")
+			rc = $adddcv(9703,"9" ,"Completed Outpatient Services")
+		endif
+
+	rc = $adddct(9704,"CANS/ANSA Discharge Referral")
+		if rc = 0
+			rc = $adddcv(9704,"1" ,"Comm Indigent Health Clinic")
+			rc = $adddcv(9704,"10","Unknown")
+			rc = $adddcv(9704,"11","Private Practitioner")
+			rc = $adddcv(9704,"2" ,"Different Center")
+			rc = $adddcv(9704,"3" ,"Fed. Qualified Health Home")
+			rc = $adddcv(9704,"4" ,"Juvenile Justice System")
+			rc = $adddcv(9704,"5" ,"No Service")
+			rc = $adddcv(9704,"6" ,"Nursing Home")
+			rc = $adddcv(9704,"7" ,"Other Public Provider")
+			rc = $adddcv(9704,"8" ,"Relinquishment of Custody")
+			rc = $adddcv(9704,"9" ,"Residential Treatment")
+		endif
+
+	rc = $adddct(9706,"CANS/ANSA Deviation Reasons")
+		if rc = 0
+			rc = $adddcv(9706,"1","Resource Limitations")
+			rc = $adddcv(9706,"2","Consumer Refused")
+			rc = $adddcv(9706,"3","Clinical Need")
+			rc = $adddcv(9706,"4","Continuity of Care")
+			rc = $adddcv(9706,"5","Other")
+		endif
+
+	rc = $adddct(9707,"CANS Justification Late Auth")
+		if rc = 0
+			rc = $adddcv(9707,"1","Administrative Delay")
+			rc = $adddcv(9707,"2","Appeal/Fair Hearing Request")
+			rc = $adddcv(9707,"3","Disaster")
+			rc = $adddcv(9707,"4","Pending Information")
+			rc = $adddcv(9707,"5","Provider Requested Delay")
+			rc = $adddcv(9707,"6","Other")
+		endif
+
+		rc = $adddct(9709,"CANS/ANSA Credentials")
+		if rc = 0
+			rc = $adddcv(9709,"1","RN-APN")
+			rc = $adddcv(9709,"12","LMFT")
+			rc = $adddcv(9709,"13","LCSW")
+			rc = $adddcv(9709,"2","RN")
+			rc = $adddcv(9709,"21","QMHP-CS")
+			rc = $adddcv(9709,"4","PA")
+			rc = $adddcv(9709,"5","MD")
+			rc = $adddcv(9709,"6","LVN")
+			rc = $adddcv(9709,"8","LPC")
+		endif				
+
+		rc = $adddct(9711,"ANSA RLOC Service Levels")
+		if rc = 0
+			rc = $adddcv(9711,"100","Crisis Services")
+			rc = $adddcv(9711,"110","Ineligible")
+			rc = $adddcv(9711,"111","Basic Services-Med Management")
+			rc = $adddcv(9711,"112","Basic Services-Skills Training")
+			rc = $adddcv(9711,"113","Basic Services")
+			rc = $adddcv(9711,"114","Intensive Services")
+			rc = $adddcv(9711,"115","Assertive community Treatment")
+		endif				
+
+		rc = $adddct(9712,"ANSA ALOC Service Levels")
+		if rc = 0
+			rc = $adddcv(9712,"100","Crisis Services")
+			rc = $adddcv(9712,"106","Transitional Services")
+			rc = $adddcv(9712,"108","comsumer Refuses Services")
+			rc = $adddcv(9712,"109","Waiting for All Authorized Ser")
+			rc = $adddcv(9712,"110","Ineligible")
+			rc = $adddcv(9712,"111","Basic Services-Med Management")
+			rc = $adddcv(9712,"112","Basic Services-Skills Training")
+			rc = $adddcv(9712,"113","Basic Services")
+			rc = $adddcv(9712,"114","Intensive Services")
+			rc = $adddcv(9712,"115","Assertive community Treatment")
+		endif				
+		
+'Now create the DST's.
+rc = $dstadd(dst,"C.ANSA.REC"      ,"ANSA Record Header"            ,dbfile,"H",0, 0,   0,recordnum)
+rc = $dstadd(dst,"C.ANSA.STAFF"    ,"ANSA Staff"                    ,dbfile,"X",3, 6,   0,recordnum)
+rc = $dstadd(dst,"C.ANSA.VER"      ,"ANSA Local Version"            ,dbfile,"X",0, 6,   0,recordnum)
+rc = $dstadd(dst,"C.ANSA.DATE"     ,"ANSA Date"                     ,dbfile,"D",0,10,   0,recordnum)
+rc = $dstadd(dst,"C.ANSA.CAREDT"   ,"ANSA Care Batch Date"          ,dbfile,"D",0,10,   0,recordnum)
+rc = $dstadd(dst,"C.ANSA.R.CUICID" ,"Suicide Risk 1"                ,dbfile,"X",0, 1,   0,recordnum)
+rc = $dstadd(dst,"C.ANSA.R.DANGOT" ,"Danger to Others 2"            ,dbfile,"X",0, 1,   0,recordnum)
+rc = $dstadd(dst,"C.ANSA.R.SMUTIL" ,"Self-Injurious Behaviour"      ,dbfile,"X",0, 1,   0,recordnum)
+rc = $dstadd(dst,"C.ANSA.R.OSLFHR" ,"Other Self Harm"               ,dbfile,"X",0, 1,   0,recordnum)
+rc = $dstadd(dst,"C.ANSA.R.EXPLOIT","Exploitation"                  ,dbfile,"X",0, 1,   0,recordnum)
+rc = $dstadd(dst,"C.ANSA.R.GAMBLE" ,"Gambling"                      ,dbfile,"X",0, 1,   0,recordnum)
+rc = $dstadd(dst,"C.ANSA.R.SEXAGR" ,"Sexual Aggression 3"           ,dbfile,"X",0, 1,   0,recordnum)
+rc = $dstadd(dst,"C.ANSA.R.CRIMBE" ,"Criminal Behavior 4"           ,dbfile,"X",0, 1,   0,recordnum)
+rc = $dstadd(dst,"C.ANSA.B.PSYCHS" ,"Psychocis/thought Disturbance" ,dbfile,"X",0, 1,   0,recordnum)
+rc = $dstadd(dst,"C.ANSA.B.COG"    ,"Cognition"                     ,dbfile,"X",0, 1,   0,recordnum)
+rc = $dstadd(dst,"C.ANSA.B.DEPRES" ,"Depression"                    ,dbfile,"X",0, 1,   0,recordnum)
+rc = $dstadd(dst,"C.ANSA.B.ANXITY" ,"Anxiety"                       ,dbfile,"X",0, 1,   0,recordnum)
+rc = $dstadd(dst,"C.ANSA.B.MANIA"  ,"Mania"                         ,dbfile,"X",0, 1,   0,recordnum)
+rc = $dstadd(dst,"C.ANSA.B.IMPLSV" ,"Impulse Control"               ,dbfile,"X",0, 1,   0,recordnum)
+rc = $dstadd(dst,"C.ANSA.B.INTER"  ,"Interpersonal Pbroblems"       ,dbfile,"X",0, 1,   0,recordnum)
+rc = $dstadd(dst,"C.ANSA.B.ANTISOC","Antisocial Behavior"           ,dbfile,"X",0, 1,   0,recordnum)
+rc = $dstadd(dst,"C.ANSA.B.ADJTRM" ,"Adjustment to Trauma 5"        ,dbfile,"X",0, 1,   0,recordnum)
+rc = $dstadd(dst,"C.ANSA.B.ANGCTR" ,"Anger Control"                 ,dbfile,"X",0, 1,   0,recordnum)
+rc = $dstadd(dst,"C.ANSA.B.SUBABS" ,"Substance Use{sup}6{/sup}"     ,dbfile,"X",0, 1,   0,recordnum)
+rc = $dstadd(dst,"C.ANSA.B.EATDST" ,"Eating Disturbances"           ,dbfile,"X",0, 1,   0,recordnum)
+rc = $dstadd(dst,"C.ANSA.LD.PHYMED","Physical/Medical"              ,dbfile,"X",0, 1,   0,recordnum)
+rc = $dstadd(dst,"C.ANSA.LD.FAMILY","Family Functioning"            ,dbfile,"X",0, 1,   0,recordnum)
+rc = $dstadd(dst,"C.ANSA.LD.EMPLOY","Employment{sup}7{/sup}"        ,dbfile,"X",0, 1,   0,recordnum)
+rc = $dstadd(dst,"C.ANSA.LD.SOCFUN","Social Functoning"             ,dbfile,"X",0, 1,   0,recordnum)
+rc = $dstadd(dst,"C.ANSA.LD.RECRET","Recreational"                  ,dbfile,"X",0, 1,   0,recordnum)
+rc = $dstadd(dst,"C.ANSA.LD.INDLIV","Intellectual/Development 8"    ,dbfile,"X",0, 1,   0,recordnum)
+rc = $dstadd(dst,"C.ANSA.LD.SEXDEV","Secuality"                     ,dbfile,"X",0, 1,   0,recordnum)
+rc = $dstadd(dst,"C.ANSA.LD.LIVING","Living Skills"                 ,dbfile,"X",0, 1,   0,recordnum)
+rc = $dstadd(dst,"C.ANSA.LD.RESTAB","Residential Stability"         ,dbfile,"X",0, 1,   0,recordnum)
+rc = $dstadd(dst,"C.ANSA.LD.LEGAL" ,"Legal"                         ,dbfile,"X",0, 1,   0,recordnum)
+rc = $dstadd(dst,"C.ANSA.LD.SLEEP" ,"Sleep"                         ,dbfile,"X",0, 1,   0,recordnum)
+rc = $dstadd(dst,"C.ANSA.LD.SLFCRE","Self-Care"                     ,dbfile,"X",0, 1,   0,recordnum)
+rc = $dstadd(dst,"C.ANSA.LD.DECISI","Decision-making"               ,dbfile,"X",0, 1,   0,recordnum)
+rc = $dstadd(dst,"C.ANSA.LD.INVREC","Involvement in Recovery"       ,dbfile,"X",0, 1,   0,recordnum)
+rc = $dstadd(dst,"C.ANSA.LD.TRANS" ,"Transportation"                ,dbfile,"X",0, 1,   0,recordnum)
+rc = $dstadd(dst,"C.ANSA.FS.NA"    ,"Not Applicable"                ,dbfile,"X",0, 1,   0,recordnum)
+rc = $dstadd(dst,"C.ANSA.FC.PHLTH" ,"Physical/Behavioral Health"    ,dbfile,"X",0, 1,   0,recordnum)
+rc = $dstadd(dst,"C.ANSA.FC.INVCRE","Involvement with Care"         ,dbfile,"X",0, 1,   0,recordnum)
+rc = $dstadd(dst,"C.ANSA.FC.KNOW"  ,"Knowledge"                     ,dbfile,"X",0, 1,   0,recordnum)
+rc = $dstadd(dst,"C.ANSA.FC.SFRES" ,"Social and Financial Resources",dbfile,"X",0, 1,   0,recordnum)
+rc = $dstadd(dst,"C.ANSA.FC.FAMST" ,"Family Stress"                 ,dbfile,"X",0, 1,   0,recordnum)
+rc = $dstadd(dst,"C.ANSA.FC.SAFE"  ,"Safety"                        ,dbfile,"X",0, 1,   0,recordnum)
+rc = $dstadd(dst,"C.ANSA.ST.FAM"   ,"Family"                        ,dbfile,"X",0, 1,   0,recordnum)
+rc = $dstadd(dst,"C.ANSA.ST.SOCCON","Social Connectedness"          ,dbfile,"X",0, 1,   0,recordnum)
+rc = $dstadd(dst,"C.ANSA.ST.OPTI"  ,"Optimisim"                     ,dbfile,"X",0, 1,   0,recordnum)
+rc = $dstadd(dst,"C.ANSA.ST.TAL"   ,"Talents/Interests"             ,dbfile,"X",0, 1,   0,recordnum)
+rc = $dstadd(dst,"C.ANSA.ST.EDU"   ,"Educational"                   ,dbfile,"X",0, 1,   0,recordnum)
+rc = $dstadd(dst,"C.ANSA.ST.VOL"   ,"Volunteering"                  ,dbfile,"X",0, 1,   0,recordnum)
+rc = $dstadd(dst,"C.ANSA.ST.JOBHI" ,"Job History"                   ,dbfile,"X",0, 1,   0,recordnum)
+rc = $dstadd(dst,"C.ANSA.ST.RELIG" ,"Spirital/Religious"            ,dbfile,"X",0, 1,   0,recordnum)
+rc = $dstadd(dst,"C.ANSA.ST.COMCON","Community Connection"          ,dbfile,"X",0, 1,   0,recordnum)
+rc = $dstadd(dst,"C.ANSA.ST.NATSUP","Natural Supports"              ,dbfile,"X",0, 1,   0,recordnum)
+rc = $dstadd(dst,"C.ANSA.ST.RESIL" ,"Resiliency"                    ,dbfile,"X",0, 1,   0,recordnum)
+rc = $dstadd(dst,"C.ANSA.ST.RESOUR","Resourcefulness"               ,dbfile,"X",0, 1,   0,recordnum)
+rc = $dstadd(dst,"C.ANSA.AC.LANGUA","Language"                      ,dbfile,"X",0, 1,   0,recordnum)
+rc = $dstadd(dst,"C.ANSA.AC.RITUAL","Ritual"                        ,dbfile,"X",0, 1,   0,recordnum)
+rc = $dstadd(dst,"C.ANSA.AC.CULSTR","Cultural Stress"               ,dbfile,"X",0, 1,   0,recordnum)
+rc = $dstadd(dst,"C.ANSA.HS.NUM180","Number of Hospitalizations in" ,dbfile,"X",0, 1,   0,recordnum)
+rc = $dstadd(dst,"C.ANSA.HS.NUML30","Number of Hospitalizations Les",dbfile,"X",0, 1,   0,recordnum)
+rc = $dstadd(dst,"C.ANSA.HS.NUMG30","Number of Hospitalizations gre",dbfile,"X",0, 1,   0,recordnum)
+rc = $dstadd(dst,"C.ANSA.CR.EPISDS","Number of Psychiatric crisis e",dbfile,"X",0, 1,   0,recordnum)
+rc = $dstadd(dst,"C.ANSA.SR.IDEA"  ,"Ideation"                      ,dbfile,"X",0, 1,   0,recordnum)
+rc = $dstadd(dst,"C.ANSA.SR.INTENT","Intent"                        ,dbfile,"X",0, 1,   0,recordnum)
+rc = $dstadd(dst,"C.ANSA.SR.PLAN"  ,"Planning"                      ,dbfile,"X",0, 1,   0,recordnum)
+rc = $dstadd(dst,"C.ANSA.SR.HIST"  ,"Suicide History"               ,dbfile,"X",0, 1,   0,recordnum)
+rc = $dstadd(dst,"C.ANSA.D.FRUSMAN","Frustation Managment"          ,dbfile,"X",0, 1,   0,recordnum)
+rc = $dstadd(dst,"C.ANSA.D.HOST"   ,"Hostility"                     ,dbfile,"X",0, 1,   0,recordnum)
+rc = $dstadd(dst,"C.ANSA.D.PTHINK" ,"Paranoid Thinking"             ,dbfile,"X",0, 1,   0,recordnum)
+rc = $dstadd(dst,"C.ANSA.D.GAINANG","Secondary Gains From Anger"    ,dbfile,"X",0, 1,   0,recordnum)
+rc = $dstadd(dst,"C.ANSA.D.VTHINK" ,"Violent Thinking"              ,dbfile,"X",0, 1,   0,recordnum)
+rc = $dstadd(dst,"C.ANSA.D.POTENT" ,"Awareness of Violence Potentia",dbfile,"X",0, 1,   0,recordnum)
+rc = $dstadd(dst,"C.ANSA.D.RESPON" ,"Response"                      ,dbfile,"X",0, 1,   0,recordnum)
+rc = $dstadd(dst,"C.ANSA.D.TINV"   ,"Treatment Involvement"         ,dbfile,"X",0, 1,   0,recordnum)
+rc = $dstadd(dst,"C.ANSA.SB.RELTON","Relationship"                  ,dbfile,"X",0, 1,   0,recordnum)
+rc = $dstadd(dst,"C.ANSA.SB.PHYFRC","Physical Force/Threat"         ,dbfile,"X",0, 1,   0,recordnum)
+rc = $dstadd(dst,"C.ANSA.SB.PLANIN","Planning"                      ,dbfile,"X",0, 1,   0,recordnum)
+rc = $dstadd(dst,"C.ANSA.SB.AGEDIF","Age Differential"              ,dbfile,"X",0, 1,   0,recordnum)
+rc = $dstadd(dst,"C.ANSA.SB.TYPSEX","Type of Sex Act"               ,dbfile,"X",0, 1,   0,recordnum)
+rc = $dstadd(dst,"C.ANSA.SB.RESACC","Response to Accusation"        ,dbfile,"X",0, 1,   0,recordnum)
+rc = $dstadd(dst,"C.ANSA.CB.SERI"  ,"Seriousness"                   ,dbfile,"X",0, 1,   0,recordnum)
+rc = $dstadd(dst,"C.ANSA.CB.HIST"  ,"History"                       ,dbfile,"X",0, 1,   0,recordnum)
+rc = $dstadd(dst,"C.ANSA.CB.ARREST","Arrests"                       ,dbfile,"X",0, 1,   0,recordnum)
+rc = $dstadd(dst,"C.ANSA.CB.PLAN"  ,"Planning"                      ,dbfile,"X",0, 1,   0,recordnum)
+rc = $dstadd(dst,"C.ANSA.CB.COMSF" ,"Community Safety"              ,dbfile,"X",0, 1,   0,recordnum)
+rc = $dstadd(dst,"C.ANSA.CB.LEGCOM","Legal Compliance"              ,dbfile,"X",0, 1,   0,recordnum)
+rc = $dstadd(dst,"C.ANSA.CB.PEER"  ,"Peer Influences"               ,dbfile,"X",0, 1,   0,recordnum)
+rc = $dstadd(dst,"C.ANSA.CB.FINF"  ,"Immediate Family Criminal"     ,dbfile,"X",0, 1,   0,recordnum)
+rc = $dstadd(dst,"C.ANSA.CB.BINF"  ,"Behavior Influences"           ,dbfile,"X",0, 1,   0,recordnum)
+rc = $dstadd(dst,"C.ANSA.CB.EINF"  ,"Environmental Influences"      ,dbfile,"X",0, 1,   0,recordnum)
+rc = $dstadd(dst,"C.ANSA.TR.SEXABS","Sexual Abuse"                  ,dbfile,"X",0, 1,   0,recordnum)
+rc = $dstadd(dst,"C.ANSA.TR.PHYABS","Physical Abuse"                ,dbfile,"X",0, 1,   0,recordnum)
+rc = $dstadd(dst,"C.ANSA.TR.EMOABS","Emotional Abuse"               ,dbfile,"X",0, 1,   0,recordnum)
+rc = $dstadd(dst,"C.ANSA.TR.MEDTRM","Medical Trauma"                ,dbfile,"X",0, 1,   0,recordnum)
+rc = $dstadd(dst,"C.ANSA.TR.NATDIS","Natural Disaster"              ,dbfile,"X",0, 1,   0,recordnum)
+rc = $dstadd(dst,"C.ANSA.TR.WTOFAM","Witness to Family Violence"    ,dbfile,"X",0, 1,   0,recordnum)
+rc = $dstadd(dst,"C.ANSA.TR.WTOCOM","Witness to Community Violence" ,dbfile,"X",0, 1,   0,recordnum)
+rc = $dstadd(dst,"C.ANSA.TR.WCRIME","Witness/Victim - Criminal Acti",dbfile,"X",0, 1,   0,recordnum)
+rc = $dstadd(dst,"C.ANSA.TR.WARAFF","War Affected"                  ,dbfile,"X",0, 1,   0,recordnum)
+rc = $dstadd(dst,"C.ANSA.TR.TERAFF","Terrorism Affected"            ,dbfile,"X",0, 1,   0,recordnum)
+rc = $dstadd(dst,"C.ANSA.TR.AFFREG","Affect Regulation"             ,dbfile,"X",0, 1,   0,recordnum)
+rc = $dstadd(dst,"C.ANSA.TR.INTRUS","Intrusions"                    ,dbfile,"X",0, 1,   0,recordnum)
+rc = $dstadd(dst,"C.ANSA.TR.ATTACH","Attachment"                    ,dbfile,"X",0, 1,   0,recordnum)
+rc = $dstadd(dst,"C.ANSA.TR.DISSOC","Dissociation"                  ,dbfile,"X",0, 1,   0,recordnum)
+rc = $dstadd(dst,"C.ANSA.SA.SEVERE","Severity of Use"               ,dbfile,"X",0, 1,   0,recordnum)
+rc = $dstadd(dst,"C.ANSA.SA.DURATI","Duration of Use"               ,dbfile,"X",0, 1,   0,recordnum)
+rc = $dstadd(dst,"C.ANSA.SA.STGREC","Stage of Recovery"             ,dbfile,"X",0, 1,   0,recordnum)
+rc = $dstadd(dst,"C.ANSA.SA.PERINF","Peer Influences"               ,dbfile,"X",0, 1,   0,recordnum)
+rc = $dstadd(dst,"C.ANSA.SA.ENVINF","Environmental Influences"      ,dbfile,"X",0, 1,   0,recordnum)
+rc = $dstadd(dst,"C.ANSA.SA.RECCOM","Reocvery Support in Community" ,dbfile,"X",0, 1,   0,recordnum)
+rc = $dstadd(dst,"C.ANSA.VC.CAREER","Career Aspirations"            ,dbfile,"X",0, 1,   0,recordnum)
+rc = $dstadd(dst,"C.ANSA.VC.JTIME" ,"Job Time"                      ,dbfile,"X",0, 1,   0,recordnum)
+rc = $dstadd(dst,"C.ANSA.VC.JATT"  ,"Job Attendance"                ,dbfile,"X",0, 1,   0,recordnum)
+rc = $dstadd(dst,"C.ANSA.VC.JPER"  ,"Job Performance"               ,dbfile,"X",0, 1,   0,recordnum)
+rc = $dstadd(dst,"C.ANSA.VC.JREL"  ,"Job Relations"                 ,dbfile,"X",0, 1,   0,recordnum)
+rc = $dstadd(dst,"C.ANSA.VC.JSKILL","Job Skills"                    ,dbfile,"X",0, 1,   0,recordnum)
+rc = $dstadd(dst,"C.ANSA.DN.COG"   ,"Cognitive"                     ,dbfile,"X",0, 1,   0,recordnum)
+rc = $dstadd(dst,"C.ANSA.DN.COMM"  ,"Communication"                 ,dbfile,"X",0, 1,   0,recordnum)
+rc = $dstadd(dst,"C.ANSA.DN.DEV"   ,"Development"                   ,dbfile,"X",0, 1,   0,recordnum)
+rc = $dstadd(dst,"C.ANSA.PM.PCPC"  ,"Primary Care Phsician Connect" ,dbfile,"X",0, 1,   0,recordnum)
+rc = $dstadd(dst,"C.ANSA.PM.CHI"   ,"Chronic Health Issues"         ,dbfile,"X",0, 1,   0,recordnum)
+rc = $dstadd(dst,"C.ANSA.PM.MEHV"  ,"Medical/ER Hospital Visits"    ,dbfile,"X",0, 1,   0,recordnum)
+rc = $dstadd(dst,"C.ANSA.PM.MP"    ,"Medical prescriptions"         ,dbfile,"X",0, 1,   0,recordnum)
+rc = $dstadd(dst,"C.ANSA.TYPE"     ,"ANSA Assessment Type"          ,dbfile,"X",1, 2,9700,recordnum)
+rc = $dstadd(dst,"C.ANSA.RLOC"     ,"ANSA RLOC Service Level"       ,dbfile,"X",1, 3,9711,recordnum)
+rc = $dstadd(dst,"C.ANSA.ALOC"     ,"ANSA ALOC Service Level"       ,dbfile,"X",1, 3,9712,recordnum)
+rc = $dstadd(dst,"C.ANSA.AGE"      ,"ANSA Client Age"               ,dbfile,"B",0, 2,   0,recordnum)
+rc = $dstadd(dst,"C.ANSA.DLOC"     ,"ANSA DLOC Service Level"       ,dbfile,"X",1, 3,9712,recordnum)
+rc = $dstadd(dst,"C.ANSA.COMPD"    ,"ANSA Completion Date"          ,dbfile,"D",0,10,   0,recordnum)
+rc = $dstadd(dst,"C.ANSA.COMMENT"  ,"ANSA Staff Comment"            ,dbfile,"X",0,64,   0,recordnum)
+rc = $dstadd(dst,"C.ANSA.ACOMMENT" ,"ANSA ALOC Staff Comment"       ,dbfile,"X",0,64,   0,recordnum)
+rc = $dstadd(dst,"C.ANSA.ISN"      ,"ANSA ISN Register"             ,dbfile,"X",0,26,   0,recordnum)
+rc = $dstadd(dst,"C.ANSA.SNAPID"   ,"ANSA SnapID"                   ,dbfile,"X",0,32,   0,recordnum)
+rc = $dstadd(dst,"C.ANSA.COMMDATE" ,"ANSA Community Scales Date"    ,dbfile,"D",0,10,   0,recordnum)
+rc = $dstadd(dst,"C.ANSA.ALOCSTAFF","ANSA ALOC Staff"               ,dbfile,"X",3, 5,   0,recordnum)
+rc = $dstadd(dst,"C.ANSA.ALOCDATE" ,"ANSA ALOC Date"                ,dbfile,"D",0,10,   0,recordnum)
+rc = $dstadd(dst,"C.ANSA.ALOCEDATE","ANSA Auth End Date"            ,dbfile,"D",0,10,   0,recordnum)
+rc = $dstadd(dst,"C.ANSA.FAIRHEAR" ,"ANSA Medicaid Fair Hearing Req",dbfile,"X",1, 1,  29,recordnum)
+rc = $dstadd(dst,"C.ANSA.ARREST"   ,"ANSA Arrests last 30 Days"     ,dbfile,"X",0, 2,   0,recordnum)
+rc = $dstadd(dst,"C.ANSA.GRADE"    ,"ANSA Highest Grade Achieved"   ,dbfile,"X",1, 2,9010,recordnum)
+rc = $dstadd(dst,"C.ANSA.RESTYPE"  ,"ANSA Residence Type"           ,dbfile,"X",1, 2,9012,recordnum)
+rc = $dstadd(dst,"C.ANSA.RESOTHER1","ANSA Residence Other 1"        ,dbfile,"X",0,44,   0,recordnum)
+rc = $dstadd(dst,"C.ANSA.RESOTHER2","ANSA Residence Other 2"        ,dbfile,"X",0,56,   0,recordnum)
+rc = $dstadd(dst,"C.ANSA.EXTDREV"  ,"ANSA Extended Review"          ,dbfile,"X",1, 1,  29,recordnum)
+rc = $dstadd(dst,"C.ANSA.TCOOMMI"  ,"ANSA TCOOMMI Client?"          ,dbfile,"X",1, 1,  29,recordnum)
+rc = $dstadd(dst,"C.ANSA.DISDT"    ,"ANSA Discharge Date"           ,dbfile,"D",0,10,   0,recordnum)
+rc = $dstadd(dst,"C.ANSA.DISREAS"  ,"ANSA Discharge Reason"         ,dbfile,"X",1, 2,9703,recordnum)
+rc = $dstadd(dst,"C.ANSA.DISREF"   ,"ANSA Discharge Refer"          ,dbfile,"X",1, 2,9704,recordnum)
+rc = $dstadd(dst,"C.ANSA.DISOTH"   ,"ANSA Other Discharge Reas"     ,dbfile,"X",0,50,   0,recordnum)
+rc = $dstadd(dst,"C.ANSA.INTREF"   ,"ANSA Intake Referral"          ,dbfile,"X",1, 1,9702,recordnum)
+rc = $dstadd(dst,"C.ANSA.INTREFOTH","ANSA Intake Ref Other"         ,dbfile,"X",0,50,   0,recordnum)
+rc = $dstadd(dst,"C.ANSA.LOC_DEV"  ,"ANSA LOC Deviation Reason"     ,dbfile,"X",1, 1,9706,recordnum)
+rc = $dstadd(dst,"C.ANSA.DEVOTH"   ,"ANSA Other Deviation Reason"   ,dbfile,"X",0,64,   0,recordnum)
+rc = $dstadd(dst,"C.ANSA.DEVR1"    ,"ANSA Other Deviation 1"        ,dbfile,"X",0,63,   0,recordnum)
+rc = $dstadd(dst,"C.ANSA.DEVR2"    ,"ANSA Other Deviation 2"        ,dbfile,"X",0,63,   0,recordnum)
+rc = $dstadd(dst,"C.ANSA.DEVR3"    ,"ANSA Other Deviation 3"        ,dbfile,"X",0,63,   0,recordnum)
+rc = $dstadd(dst,"C.ANSA.DEVR4"    ,"ANSA Other Deviation 4"        ,dbfile,"X",0,63,   0,recordnum)
+rc = $dstadd(dst,"C.ANSA.EMPTYPE"  ,"ANSA Paid Employment Type"     ,dbfile,"X",0, 1,9004,recordnum)
+rc = $dstadd(dst,"C.ANSA.DEVR5"    ,"ANSA Other Deviation 5"        ,dbfile,"X",0, 3,   0,recordnum)
+rc = $dstadd(dst,"C.ANSA.DEVJUST"  ,"ANSA Deviation Justification"  ,dbfile,"X",0,64,   0,recordnum)
+rc = $dstadd(dst,"C.ANSA.PSRS"     ,"ANSA PSRS Score"               ,dbfile,"X",1, 2,   0,recordnum)
+rc = $dstadd(dst,"C.ANSA.BNSA"     ,"ANSA BNSA Score"               ,dbfile,"X",1, 2,   0,recordnum)
+rc = $dstadd(dst,"C.ANSA.BDSS"     ,"ANSA BDSS Score"               ,dbfile,"X",1, 2,   0,recordnum)
+rc = $dstadd(dst,"C.ANSA.QIDS"     ,"ANSA QIDS Score"               ,dbfile,"X",1, 2,   0,recordnum)
+rc = $dstadd(dst,"C.ANSA.QIDSVER"  ,"ANSA QIDS Version"             ,dbfile,"X",1, 1,9007,recordnum)
+rc = $dstadd(dst,"C.ANSA.SR.FFSUI" ,"ANSA SR Family Hx"             ,dbfile,"X",0, 1,   0,recordnum)
+rc = $dstadd(dst,"C.ANSA.MINOR"    ,"ANSA Resides with Minor"       ,dbfile,"X",0, 1,  29,recordnum)
+rc = $dstadd(dst,"C.ANSA.SCALEDT"  ,"Clinical Scales Date"          ,dbfile,"D",0,10,   0,recordnum)
+rc = $dstadd(dst,"C.ANSA.LABOR"    ,"ANSA Paid Reason Out of Work"  ,dbfile,"X",0, 2,   0,recordnum)
+
+
+end ANSADST
+ 
