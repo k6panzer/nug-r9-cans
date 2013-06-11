@@ -1,0 +1,1492 @@
+library lib_ANSA()
+ %include inc_SCHIZALG
+ %include inc_QIDSALG
+ %include inc_BIPOLARALG
+ %include inc_DX
+
+ function Allow_Assesment(clientid,assessments[]) is null
+  clientid        is x
+  c.ansa.rec      is h
+  c.ansa.staff    is x
+  c.ansa.ver      is x
+  c.ansa.date     is d
+  c.ansa.age      is i
+  c.ansa.aloc     is x
+  c.ansa.rloc     is x
+  c.ansa.dloc     is x
+  c.ansa.compd    is d
+  c.ansa.type     is x
+  c.ansa.alocdate is d  
+  rc              is i 
+  assessments[]   is x
+  $clear(assessments[])
+  $allowupdate(assessments[])
+  Last_Assessment(clientid,c.ansa.type,c.ansa.staff,c.ansa.ver,c.ansa.date,c.ansa.age,c.ansa.aloc,c.ansa.rloc,c.ansa.dloc,c.ansa.compd,c.ansa.alocdate)
+  select c.ansa.type
+   'no prior assessment
+   case !dp  (void)$arrpush(assessments[],"1")
+             (void)$arrpush(assessments[],"11")
+   'Initial
+   case "1"  
+     or "I"  (void)$arrpush(assessments[],"2")
+             (void)$arrpush(assessments[],"3")
+   'Update
+   case "2"
+     or "U"  (void)$arrpush(assessments[],"2")
+	         (void)$arrpush(assessments[],"3")
+   'Discharge
+   case "3"  
+     or "D"  (void)$arrpush(assessments[],"1")
+             (void)$arrpush(assessments[],"11")   
+   'Crisis
+   case "11" 
+     or "E"  (void)$arrpush(assessments[],"1")
+             (void)$arrpush(assessments[],"11")   
+   'Initial Non Admission
+   case "12" (void)$arrpush(assessments[],"1")
+             (void)$arrpush(assessments[],"11")   
+  endselect 
+ end Allow_Assesment
+
+ dynamic function Last_Assessment(clientid,c.ansa.type,c.ansa.staff,c.ansa.ver,c.ansa.date,c.ansa.age,c.ansa.aloc,c.ansa.rloc,c.ansa.dloc,c.ansa.compd,c.ansa.alocdate) is null
+  clientid        is x
+  c.ansa.rec      is h
+  c.ansa.staff    is x
+  c.ansa.ver      is x
+  c.ansa.date     is d
+  c.ansa.age      is i
+  c.ansa.aloc     is x
+  c.ansa.rloc     is x
+  c.ansa.dloc     is x
+  c.ansa.compd    is d
+  c.ansa.type     is x
+  c.ansa.alocdate is d  
+  rc              is i 
+
+'have to set these variable names incase the library doesn't get unloaded / reloaded and the names where changed previously
+  $setvarname(c.ANSA.rec,      "C.ANSA.REC")
+  $setvarname(c.ANSA.staff,    "C.ANSA.STAFF")
+  $setvarname(c.ANSA.date,     "C.ANSA.DATE")
+  $setvarname(c.ANSA.aloc,     "C.ANSA.ALOC")
+  $setvarname(c.ANSA.rloc,     "C.ANSA.RLOC")
+  $setvarname(c.ANSA.compd,    "C.ANSA.COMPD")
+  $setvarname(c.ANSA.type,     "C.ANSA.TYPE")
+  $setvarname(c.ANSA.alocdate, "C.ANSA.ALOCDATE")
+
+  $allowupdate(c.ansa.type,c.ansa.staff,c.ansa.ver,c.ansa.date,c.ansa.age,c.ansa.aloc,c.ansa.rloc,c.ansa.dloc,c.ansa.compd) 
+  rc = 0
+  do until c.ansa.compd dp or rc > 1
+   rc = $dbreadnextdst(02,clientid,c.ansa.rec,c.ansa.type,c.ansa.staff,c.ansa.ver,c.ansa.date,c.ansa.age,c.ansa.aloc,c.ansa.rloc,c.ansa.dloc,c.ansa.compd,c.ansa.alocdate)
+  enddo 
+  if rc = 2
+   $setvarname(c.ansa.rec,      "C.UABD")
+   $setvarname(c.ansa.staff,    "C.UABD.STAFF1")
+   $setvarname(c.ansa.date,     "C.UABD.DATE")
+   $setvarname(c.ansa.aloc,     "C.UABD.ALOC")
+   $setvarname(c.ansa.rloc,     "C.UABD.RLOC")
+   $setvarname(c.ansa.compd,    "C.UABD.COMPD")
+   $setvarname(c.ansa.type,     "C.UABD.PUR")
+   $setvarname(c.ansa.alocdate, "C.UABD.ALOCD")
+   rc = $dbread(02,clientid,c.ansa.rec,c.ansa.type,c.ansa.staff,c.ansa.date,c.ansa.rloc,c.ansa.compd,c.ansa.alocdate)
+   do until c.ansa.compd dp or rc > 1
+    rc = $dbreadnextdst(02,clientid,c.ansa.rec,c.ansa.type,c.ansa.staff,c.ansa.date,c.ansa.rloc,c.ansa.compd,c.ansa.alocdate)
+   enddo
+   if c.ansa.aloc = "6" or c.ansa.aloc = "8" or c.ansa.aloc = "9"
+    $clear(c.ansa.type)
+   endif
+  endif
+ end Last_Assessment
+ 
+ function EndDate(c.ansa.aloc,c.ansa.alocdate) is d
+  c.ansa.aloc     is x
+  c.ansa.alocdate is d
+  select c.ansa.aloc
+   case "100" EndDate = c.ansa.alocdate + 7
+   case "106" EndDate = c.ansa.alocdate + 90
+   case "108" EndDate = c.ansa.alocdate + 90   
+   case "109" EndDate = c.ansa.alocdate + 90
+   case "111" EndDate = c.ansa.alocdate + 90   
+   case "112" EndDate = c.ansa.alocdate + 90   
+   case "113" EndDate = c.ansa.alocdate + 90   
+   case "114" EndDate = c.ansa.alocdate + 90   
+   case "115" EndDate = c.ansa.alocdate + 90
+   case other EndDate = c.ansa.alocdate
+  endselect 
+ end EndDate
+ 
+ function PromptNewEditDel(clientid) is i
+  clientid        is x
+  c.ansa.rec      is h
+  c.ansa.staff    is x
+  c.ansa.ver      is x
+  c.ansa.date     is d
+  c.ansa.age      is i
+  c.ansa.aloc     is x
+  c.ansa.rloc     is x
+  c.ansa.dloc     is x
+  c.ansa.compd    is d
+  c.ansa.type     is x
+  c.ansa.alocdate is d
+  rc              is i
+  choice_btn[]    is x
+  rc = $dbread(02,clientid,c.ansa.rec,c.ansa.type,c.ansa.staff,c.ansa.date,c.ansa.rloc,c.ansa.compd)
+  if c.ansa.staff = $operstaffid and c.ansa.compd !dp
+   do while 1 = 1
+    $clear(choice_btn[])
+    $submitopt("off")
+    $cancelopt("off","Exit")
+    $form($funcname)
+     {"lib_UACOMMON"}ClientPageHeader($regid)
+	 $tag("<center>")
+	  $br(3)$text("There is a current ANSA assessment that has not yet been authorized. How do you wish to proceed?","datatag")
+	  $br(2)$submit(choice_btn[1],"Restart Current")
+	  $br(2) $submit(choice_btn[2],"Edit Existing")
+	  $br(2) $submit(choice_btn[3],"Delete Existing and Exit")
+	  $br(2) $submit(choice_btn[4],"Exit with no changes")
+	 $tag("</center>")
+    $sendform($funcname)
+    select $endbutton
+     case "SUBMIT" 
+	 case "CANCEL" PromptNewEditDel = 4
+	               return
+	 case other PromptNewEditDel = $maxarray(choice_btn[])
+	            return
+    endselect    
+   enddo
+  elseif c.ansa.staff dp and c.ansa.staff != $operstaffid and c.ansa.compd !dp
+   PromptNewEditDel = 5
+  endif
+ end PromptNewEditDel
+ 
+ function SCHIZALG() is null
+  radio_index is i
+  do while 1 = 1
+   $submitopt("off","SUBMIT")
+   $cancelopt("off","BACK")
+   $form($funcname)
+    {"lib_UACOMMON"}ClientPageHeader($regid)
+    $text("{H1}SCORESHEET FOR SCHIZOPHRENIA ALGORITHM{/H1}")  
+    $text(q_text_schz_date,"datatag")
+    $textbox(c.schiz.date,"CAL",10,6,"Y")
+    $tag("<hr/>")
+    $text("4-Item Positive Symptom Rating Scale","datatag")  
+    $table($funcname)
+     $row()
+      $col("center")
+      $col("center")$text("N/A","datatag")
+      radio_index = 0
+	  do while radio_index++ < 7
+       $col("center")$text(radio_index,"datatag")
+	  enddo
+     $row(,"bgcolor='99ccff'")
+      $col()$text(q_text_schz_susp,"datatag")
+      $col("center")$radio(c.schiz.susp,,"NA")
+      radio_index = 0
+	  do while radio_index++ < 7
+	   $col("center")$radio(c.schiz.susp,,$castx(radio_index))
+	  enddo 
+      $col()$link(psrs1_link,"Description","target='.blank'")
+     $row(,"bgcolor='white'")
+      $col()$text(q_text_schz_thou,"datatag")
+      $col("center") $radio(c.schiz.thou,,"NA")
+      radio_index = 0
+	  do while radio_index++ < 7	
+       $col("center") $radio(c.schiz.thou,,$castx(radio_index))
+	  enddo 
+      $col()$link(psrs2_link,"Description","target='.blank'")
+     $row(,"bgcolor='99ccff'")
+      $col()$text(q_text_schz_hall,"datatag")
+      $col("center") $radio(c.schiz.hall,,"NA")
+       radio_index = 0
+	   do while radio_index++ < 7	
+        $col("center") $radio(c.schiz.hall,,$castx(radio_index))
+	   enddo 
+      $col()$link(psrs3_link,"Description","target='.blank'")
+     $row(,"bgcolor='white'")
+      $col("left") $text(q_text_schz_cond,"datatag")
+      $col("center") $radio(c.schiz.cond,,"NA")
+      radio_index = 0
+	  do while radio_index++ < 7	
+       $col("center") $radio(c.schiz.cond,,$castx(radio_index))
+      enddo
+      $col()$link(psrs4_link,"Description","target='.blank'")
+    $endtable($funcname)
+    $br()$text("*NA -- Not able to be assessed","siginfo")
+    $tag("<hr/>")
+    $br()$text("4-Item Negative Symptom Rating Scale","datatag")
+    $table($funcname)  
+     $row()
+      $col("center") 
+	  radio_index = 0
+	  do while radio_index++ < 6
+       $col("center")$text(radio_index,"datatag")     
+	  enddo
+     $row(,"bgcolor='99ccff'")
+      $col()$text(q_text_schz_resp,"datatag")
+	  radio_index = 0
+	  do while radio_index++ < 6	
+       $col("center") $radio(c.schiz.resp,,$castx(radio_index))
+      enddo
+      $col()$link(bnsa1_link,"Description","target='.blank'")  
+     $row(,"bgcolor='white'")
+      $col()$text(q_text_schz_emot,"datatag")
+	  radio_index = 0
+	  do while radio_index++ < 6	
+       $col("center") $radio(c.schiz.emot,,$castx(radio_index))
+      enddo
+      $col()$link(bnsa2_link,"Description","target='.blank'")  
+     $row(,"bgcolor='99ccff'")
+      $col()$text(q_text_schz_socl,"datatag")
+	  radio_index = 0
+	  do while radio_index++ < 6		
+       $col("center") $radio(c.schiz.socl,,$castx(radio_index))
+      enddo
+      $col()$link(bnsa3_link,"Description","target='.blank'")  
+     $row(,"bgcolor='white'")
+      $col()$text(q_text_schz_grhy,"datatag")
+	  radio_index = 0
+	  do while radio_index++ < 6		
+       $col("center")$radio(c.schiz.grhy,,$castx(radio_index))
+	  enddo 
+      $col()$link(bnsa4_link,"Description","target='.blank'")  
+    $endtable($funcname)
+    $tag("<hr/>")
+    $br()
+    $table($funcname)  
+     $row()
+      $col()$text("Source of Information(check all applicable)","datatag")
+      $col()$text("Explain here if validity of assessment is questionable:","datatag")  
+     $row(,"bgcolor='99ccff'")
+      $col()$checkbox(c.schiz.pati,q_text_schz_pati,"Y")
+      $col()$checkbox(c.schiz.drug,q_text_schz_drug,"Y")  
+     $row(,"bgcolor='99ccff'")
+      $col()$checkbox(c.schiz.parn,q_text_schz_parn,"Y")
+      $col()$checkbox(c.schiz.rapp,q_text_schz_rapp,"Y")  
+     $row(,"bgcolor='99ccff'")
+      $col()$checkbox(c.schiz.prof,q_text_schz_prof,"Y")
+      $col()$checkbox(c.schiz.nega,q_text_schz_nega,"Y")  
+     $row(,"bgcolor='99ccff'")
+      $col()$checkbox(c.schiz.char,q_text_schz_char,"Y")
+      $col()$checkbox(c.schiz.unco,q_text_schz_unco,"Y")    
+     $row(,"bgcolor='99ccff'")
+      $col()
+      $col()$checkbox(c.schiz.diso,q_text_schz_diso,"Y")
+     $row(,"bgcolor='99ccff'")
+      $col()
+      $col()$checkbox(c_schiz_othr,q_text_schz_othr,"Y",,,"Oth","Oth")
+     $block("Oth","Oth")       
+      $textbox(c.schiz.othr,,30,45)
+     $endblock("Oth","Oth")  
+     $row()
+      $col()$text(q_text_schz_con1,"datatag")$textbox(c.schiz.conf,,1,1)$text(q_text_schz_con2)  
+     $endtable($funcname)
+     $br()$text(q_text_schz_comm,"datatag")
+     $br()$textblock(c.schiz.comm,10,60,,, 1000)$countbox(c.schiz.comm,"(max chars is 1000)")    
+   $sendform($funcname)
+   if $endbutton = "CANCEL"
+    return
+   elseif c.schiz.date !dp
+    $brmsg("You Must Enter an Assessment Date To Move On.",1,"W","Error")
+   elseif c.schiz.susp !dp or c.schiz.thou !dp or c.schiz.hall !dp or c.schiz.cond !dp or c.schiz.resp !dp or c.schiz.emot !dp or c.schiz.socl !dp or c.schiz.grhy !dp
+    $brmsg("You Must Complete All Sections of the PSRS and BNSA To Move On.", 1,"W","Error")
+   elseif c.schiz.conf !dp
+    $brmsg("You Must Score the Confidence in the Assessment To Move On.",1,"W","Error")
+   elseif c.schiz.pati !dp and c.schiz.parn !dp and c.schiz.prof !dp and c.schiz.char !dp
+    $brmsg("You Must Check at Least One of the Sources of Information To Move On.",1,"W","Error")
+   elseif c_schiz_othr dp and c.schiz.othr !dp
+    $brmsg("You Must Provide a Description if Other is a Questionable Reason.",1,"W","Error")
+   else
+    return
+   endif	
+  enddo
+ end SCHIZALG
+
+ function SCHIZALGRpt(c.ansa.scaledt,c.ansa.psrs,c.ansa.bnsa) is i
+  c.ansa.scaledt is d
+  c.ansa.psrs    is x
+  c.ansa.bnsa    is x
+  rc             is i
+  schizsusp      is i 'Int SUSPICIOUS VARIABLE
+  schizthou      is i 'Int THOUGHT CONTENT VARIABLE
+  schizhall      is i 'Int HALLUCINATIONS VARIABLE
+  schizcond      is i 'Int CONCEPTUAL VARIABLE
+  schizpsrs      is i 'Int PSRS TOTAL
+  schizresp      is i 'Int TIME TO RESPOND VARIABLE
+  schizemot      is i 'Int EMOTION VARIABLE
+  schizsocl      is i 'Int SOCIAL DRIVE VARIABLE
+  schizgrhy      is i 'Int GROOMING/HYGIENE VARIABLE
+  schizbnsa      is i 'Int BNSA TOTAL
+  
+  if c.schiz.susp = "NA"
+   schizsusp = 1
+  else
+   schizsusp = c.schiz.susp
+  endif
+  if c.schiz.thou = "NA"
+   schizthou = 1
+  else
+   schizthou = c.schiz.thou
+  endif
+  if c.schiz.hall = "NA"
+   schizhall = 1
+  else
+   schizhall = c.schiz.hall
+  endif
+  if c.schiz.cond = "NA"
+   schizcond = 1
+  else
+   schizcond = c.schiz.cond
+  endif
+ 'Calculate the PSRS score
+  schizpsrs = schizsusp + schizthou + schizhall + schizcond
+  c.schiz.psrs = schizpsrs
+ 'Calculate the BNSA score
+  schizresp = c.schiz.resp
+  schizemot = c.schiz.emot
+  schizsocl = c.schiz.socl
+  schizgrhy = c.schiz.grhy
+  schizbnsa = schizresp + schizemot + schizsocl + schizgrhy
+  c.schiz.bnsa = schizbnsa
+
+  $submitopt("off","")
+  $cancelopt("off","BACK")
+  $form($funcname)
+   $tag("<CENTER>")
+    $text("SCHIZOPHRENIA ASSESSMENT","H5")
+   $tag("</CENTER>")
+   $tag("<hr/>")
+   {"lib_UACOMMON"}ClientPageHeader($regid)
+   $br()$text(q_text_schz_date,"H6")$text(c.schiz.date)
+   $tag("<hr/>")
+   $tag("<CENTER>")
+    $text("4-ITEM POSITIVE SYMPTOM RATING SCALE","H6")
+   $tag("</CENTER>")
+   $br()
+   $table("t1",,"width='100%'")
+    $row()
+    $col(,,"40%")$text(q_text_schz_susp,"H6")
+    $col(,,"60%")$text(c.schiz.susp)$text($dct(SchizScoreDCT, c.schiz.susp,"D"))
+   $row()
+    $col()$text(q_text_schz_thou,"H6")
+    $col()$text(c.schiz.thou)$text($dct(SchizScoreDCT, c.schiz.thou,"D"))
+   $row()
+    $col()$text(q_text_schz_hall,"H6")
+    $col()$text(c.schiz.hall)$text($dct(SchizScoreDCT, c.schiz.hall,"D"))
+   $row()
+    $col()$text(q_text_schz_cond,"H6")
+    $col()$text(c.schiz.cond)$text($dct(SchizScoreDCT, c.schiz.cond,"D"))
+   $row()
+    $col()$text(q_text_schz_psrs,"H6")
+    $col()$text(c.schiz.psrs)
+   $endtable($funcname)
+   $br()
+   $tag("<CENTER>")
+    $text("4-ITEM NEGATIVE SYMPTOM RATING SCALE","H6")
+   $tag("</CENTER>")
+   $br()
+   $table($funcname,,"width='100%'")
+    $row()
+     $col(,,"40%")$text(q_text_schz_resp,"H6")
+     $col(,,"60%")$text(c.schiz.resp)$text($dct(SchizScoreDCT, c.schiz.resp,"D"))
+    $row()
+     $col()$text(q_text_schz_emot,"H6")
+     $col()$text(c.schiz.emot)$text($dct(SchizScoreDCT, c.schiz.emot,"D"))
+    $row()
+     $col()$text(q_text_schz_socl,"H6")
+     $col()$text(c.schiz.socl)$text($dct(SchizScoreDCT, c.schiz.socl,"D"))
+    $row()
+     $col()$text(q_text_schz_grhy,"H6")
+     $col()$text(c.schiz.grhy)$text($dct(SchizScoreDCT, c.schiz.grhy,"D"))
+    $row()
+     $col()$text(q_text_schz_bnsa,"H6")
+     $col()$text(c.schiz.bnsa)
+   $endtable($funcname)
+   $br()$text("Sources of Information","H6")
+   if c.schiz.pati = "Y"
+    $br()$text(q_text_schz_pati)
+   endif
+   if c.schiz.parn = "Y"
+    $br()$text(q_text_schz_parn)
+   endif
+   if c.schiz.prof = "Y"
+    $br()$text(q_text_schz_prof)
+   endif
+   if c.schiz.char = "Y"
+    $br()$text(q_text_schz_char)
+   endif
+   $br()$text("Validity of Assessment Questionable Reasons","H6")
+   if c.schiz.drug = "Y"
+    $br()$text(q_text_schz_drug)
+   endif
+   if c.schiz.rapp = "Y"
+    $br()$text(q_text_schz_rapp)
+   endif
+   if c.schiz.nega = "Y"
+   $br()$text(q_text_schz_nega)
+   endif
+   if c.schiz.unco = "Y"
+    $br()$text(q_text_schz_unco)
+   endif
+   if c.schiz.diso = "Y"
+    $br()$text(q_text_schz_diso)
+   endif
+   if c_schiz_othr = "Y"
+    $br()$text(q_text_schz_othr,"H6")$text(c.schiz.othr)
+   endif
+   $br()$text(q_text_schz_con1,"H6")$text(c.schiz.conf)
+   $br(2)$text(q_text_schz_comm,"H6")$text(c.schiz.comm)
+   $tag("<hr/>")
+   $br(3)
+   {"l_snapLibSC"}sn_CreateReport(SchizRptTitle,,,SchizReportID)
+  $sendform($funcname)
+  if $endbutton != "CANCEL" and $endbutton != "SUBMIT"
+   $dblock()
+   rc = $dbpoint(2,$regid,
+   c.schiz.rec,c.schiz.susp,c.schiz.thou,c.schiz.hall,c.schiz.cond,c.schiz.psrs,c.schiz.resp,c.schiz.emot,c.schiz.socl,c.schiz.grhy,c.schiz.bnsa,c.schiz.pati,c.schiz.parn,c.schiz.prof,c.schiz.char,c.schiz.conf,c.schiz.drug,c.schiz.rapp,
+    c.schiz.nega,c.schiz.unco,c.schiz.diso,c.schiz.othr,c.schiz.staf,c.schiz.date,c.schiz.comm)
+   c.schiz.rec[effd] = c.schiz.date			   
+   c.schiz.staf = $operstaffid
+   if c_schiz_othr != "Y"
+    $clear(c.schiz.othr)
+   endif 
+   rc = $dbadddst(2,$regid,c.schiz.rec,c.schiz.susp,c.schiz.thou,c.schiz.hall,c.schiz.cond,c.schiz.psrs,c.schiz.resp,c.schiz.emot,c.schiz.socl,c.schiz.grhy,c.schiz.bnsa,c.schiz.pati,c.schiz.parn,c.schiz.prof,c.schiz.char,c.schiz.conf,c.schiz.drug,
+                           c.schiz.rapp,c.schiz.nega,c.schiz.unco,c.schiz.diso,c.schiz.othr,c.schiz.staf,c.schiz.date,c.schiz.comm)
+   if rc = 0
+    $brmsg("Data Successfully Added to Database!", 1,"W","Process Complete")
+    SCHIZALGRpt = rc 
+    c.ansa.scaledt = c.schiz.date
+	c.ansa.psrs = c.schiz.psrs
+    c.ansa.bnsa = c.schiz.bnsa
+	$allowupdate(c.ansa.scaledt,c.ansa.psrs,c.ansa.bnsa)
+    return
+   else
+    $brmsg("There Was A Problem Saving The Data! Please Retry.", 1,"W","ERROR")
+	$brmsg($errmsg,1,"W","Error")
+   endif
+  else
+   SCHIZALG()
+  endif
+ end SCHIZALGRpt
+
+ function QIDSALG() is null
+  radio_index is i
+  do while 1 = 1
+   $submitopt("off", "SUBMIT")
+   $cancelopt("off", "BACK")
+   $form($funcname)
+    {"lib_UACOMMON"}ClientPageHeader($regid)
+    $text("{H1}SCORESHEET FOR DEPRESSION ALGORITHM -- ANSWER ALL SECTIONS{/H1}")
+    $text(q_text_qids_date, "datatag")$textbox(c.qids.date,"CAL",10,6,"Y")  
+    $table($funcname)
+     $row()
+      $col("right")$text("Self-Report","datatag")
+      $col()$text("Clinician Report","datatag")
+     $row()
+      $col("right")$radio(c.qids.vers,, "1")
+      $col() $radio(c.qids.vers,, "2")
+    $endtable($funcname)
+    $tag("<hr/>")
+    $text("Quick Inventory of Depressive Symptomatology","datatag")  
+    $table($funcname)
+     $row()
+      $col("center")
+      radio_index = -1
+      do while radio_index++ < 3
+       $col("center")$text(radio_index,"datatag")
+      enddo 
+     $row(, "bgcolor='99ccff'")
+      $col()$text("Section 1: Falling Asleep","datatag")
+      radio_index = -1
+      do while radio_index++ < 3	
+       $col("center")$radio(c.qids.fall,,$castx(radio_index))
+	  enddo 
+      $col("center")$link(qids_link1,"Description","target='_blank'")            
+     $row(,"bgcolor='white'")
+      $col()$text(q_text_qids_slep,"datatag")
+      radio_index = -1
+      do while radio_index++ < 3	   
+       $col("center")$radio(c.qids.slep,,$castx(radio_index))
+	  enddo 
+      $col("center")$link(qids_link2,"Description","target='_blank'")
+     $row(,"bgcolor='99ccff'")
+      $col()$text("Section 3: Waking Up Too Early","datatag")
+      radio_index = -1
+      do while radio_index++ < 3	   
+       $col("center")$radio(c.qids.wake,,$castx(radio_index))
+	  enddo 
+      $col("center")$link(qids_link3,"Description","target='_blank'")
+     $row(,"bgcolor='white'")
+      $col() $text(q_text_qids_much,"datatag")
+      radio_index = -1
+      do while radio_index++ < 3	   	
+       $col("center")$radio(c.qids.much,,$castx(radio_index))
+      enddo
+      $col("center")$link(qids_link4,"Description","target='_blank'")
+     $row(,"bgcolor='99ccff'")
+      $col()$text(q_text_qids_sad,"datatag")
+      radio_index = -1
+      do while radio_index++ < 3	   		
+       $col("center")$radio(c.qids.sad,,$castx(radio_index))
+	  enddo 
+      $col("center") $link(qids_link5,"Description","target='_blank'")
+     $row(,"bgcolor='white'")
+      $col()$text(q_text_qids_appd,"datatag")
+      radio_index = -1
+      do while radio_index++ < 3	   			
+       $col("center")$radio(c.qids.appd,,$castx(radio_index))
+      enddo
+      $col("center")$link(qids_link6,"Description","target='_blank'")
+     $row(,"bgcolor='99ccff'")
+      $col()$text(q_text_qids_appi,"datatag")
+      radio_index = -1
+      do while radio_index++ < 3	   				
+       $col("center")$radio(c.qids.appi,,$castx(radio_index))
+      enddo
+      $col("center")$link(qids_link7,"Description","target='_blank'")
+     $row(,"bgcolor='white'")
+      $col()$text(q_text_qids_weid,"datatag")
+      radio_index = -1
+      do while radio_index++ < 3	   				
+       $col("center")$radio(c.qids.weid,,$castx(radio_index))
+      enddo
+      $col("center")$link(qids_link8,"Description","target='_blank'")
+     $row(,"bgcolor='99ccff'")
+      $col()$text(q_text_qids_weii,"datatag")
+      radio_index = -1
+      do while radio_index++ < 3	   					
+       $col("center")$radio(c.qids.weii,,$castx(radio_index))
+      enddo
+      $col("center")$link(qids_link9,"Description","target='_blank'")
+     $row(,"bgcolor='white'")
+      $col()$text(q_text_qids_conc,"datatag")
+      radio_index = -1
+      do while radio_index++ < 3	   					
+       $col("center")$radio(c.qids.conc,,$castx(radio_index))
+      enddo
+      $col("center")$link(qids_link10,"Description","target='_blank'")
+     $row(,"bgcolor='99ccff'")
+      $col()$text(q_text_qids_self,"datatag")
+      radio_index = -1
+      do while radio_index++ < 3	   					
+       $col("center")$radio(c.qids.self,,$castx(radio_index))
+      enddo
+      $col("center")$link(qids_link11,"Description","target='_blank'")  
+     $row(,"bgcolor='white'")
+      $col()$text(q_text_qids_deat,"datatag")
+      radio_index = -1
+      do while radio_index++ < 3	   					
+       $col("center")$radio(c.qids.deat,,$castx(radio_index))
+      enddo
+      $col("center")$link(qids_link12,"Description","target='_blank'")  
+     $row(,"bgcolor='99ccff'")
+      $col()$text(q_text_qids_intr,"datatag")
+      radio_index = -1
+      do while radio_index++ < 3	   						
+       $col("center")$radio(c.qids.intr,,$castx(radio_index))
+      enddo
+      $col("center")$link(qids_link13,"Description","target='_blank'")  
+     $row(,"bgcolor='white'")
+      $col()$text(q_text_qids_enrg,"datatag")
+      radio_index = -1
+      do while radio_index++ < 3	   							
+       $col("center")$radio(c.qids.enrg,,$castx(radio_index))
+      enddo
+      $col("center")$link(qids_link14,"Description","target='_blank'")  
+     $row(,"bgcolor='99ccff'")
+      $col()$text(q_text_qids_slow,"datatag")
+      radio_index = -1
+      do while radio_index++ < 3	   							
+       $col("center")$radio(c.qids.slow,,$castx(radio_index))
+      enddo
+      $col("center")$link(qids_link15,"Description","target='_blank'")  
+     $row(,"bgcolor='white'")
+      $col()$text(q_text_qids_rest,"datatag")
+      radio_index = -1
+      do while radio_index++ < 3	   							
+       $col("center")$radio(c.qids.rest,,$castx(radio_index))
+      enddo
+      $col("center")$link(qids_link16,"Description","target='_blank'")  
+    $endtable($funcname)  
+    $tag("<hr/>")
+    $text("Additional Comments:","datatag")
+    $br()$textblock(c.qids.comm,10,60,,,1000)$countbox(c.qids.comm,"(max chars is 1000)") 
+   $sendform($funcname)
+   if $endbutton = "CANCEL"
+     return
+   elseif c.qids.date !dp
+    $brmsg("You Must Enter a Date and Staff Completing the Assessment to Move On.",1,"W","Error")
+   elseif c.qids.vers !dp
+    $brmsg("You must indicate if this is a Clinician or Self Report To Move On.",1,"W","Error")
+   elseif c.qids.fall !dp or c.qids.slep !dp or c.qids.wake !dp or c.qids.much !dp or c.qids.sad !dp or c.qids.appd !dp or c.qids.appi !dp or
+    c.qids.weid !dp or c.qids.weii !dp or c.qids.conc !dp or c.qids.self !dp or c.qids.deat !dp or c.qids.intr !dp or c.qids.enrg !dp or
+    c.qids.slow !dp or c.qids.rest !dp
+    $brmsg("You Must Complete All Sections of the QIDS To Move On.",1,"W","Error")
+   else 
+    return
+   endif
+  enddo 	
+ end QIDSALG
+
+ function QIDSALGRpt(c.ansa.scaledt,c.ansa.qids,c.ansa.qidsver) is i
+  c.ansa.scaledt is d
+  c.ansa.qids    is x
+  c.ansa.qidsver is x
+  rc             is i  
+  qidsfall       is n
+  qidsslep       is n
+  qidswake       is n
+  qidsmuch       is n
+  qidssad        is n
+  qidsappd       is n
+  qidsappi       is n
+  qidsweid       is n
+  qidsweii       is n
+  qidsconc       is n
+  qidsself       is n
+  qidsdeat       is n
+  qidsintr       is n
+  qidsenrg       is n
+  qidsslow       is n
+  qidsrest       is n
+  qidstotl       is n
+  var1           is n
+  var2           is n
+  var3           is n
+
+  'Calculate the PSRS score
+  qidsfall = c.qids.fall
+  qidsslep = c.qids.slep
+  qidswake = c.qids.wake
+  qidsmuch = c.qids.much
+  qidssad = c.qids.sad
+  qidsappd = c.qids.appd
+  qidsappi = c.qids.appi
+  qidsweid = c.qids.weid
+  qidsweii = c.qids.weii
+  qidsconc = c.qids.conc
+  qidsself = c.qids.self
+  qidsdeat = c.qids.deat
+  qidsintr = c.qids.intr
+  qidsenrg = c.qids.enrg
+  qidsslow = c.qids.slow
+  qidsrest = c.qids.rest
+ 'Variable to contain highest score of 1 - 4
+  var1 = $max(qidsfall,qidsslep,qidswake,qidsmuch)
+
+ 'Variable to contain highest score of 6 - 9
+  var2 = $max(qidsappd,qidsappi,qidsweid,qidsweii)
+ 'Variable to contain highest score of 15 or 16
+  var3 = $max(qidsslow,qidsrest)
+ 'Formula to calculate QIDS Total
+  qidstotl = var1 + qidssad + var2 + qidsconc + qidsself + qidsdeat + qidsintr + qidsenrg + var3
+  c.qids.totl = qidstotl
+
+  $submitopt("off","")
+  $cancelopt("off","BACK")
+  $form($funcname)
+   $tag("<CENTER>")
+    $br()$text("DEPRESSION ASSESSMENT","H5")
+   $tag("</CENTER>")
+   $tag("<hr/>")
+   {"lib_UACOMMON"}ClientPageHeader($regid)
+   $br()$text(q_text_qids_date,"H6")$text(c.qids.date)
+   $tag("<hr/>")
+   $tag("<CENTER>")
+    $text("Quick Inventory of Depressive Symptomatology ","H6")
+   $tag("</CENTER>")
+   $br()
+   $table($funcname)
+    $row()
+     $col(,,"50%")$text(q_text_qids_fall,"H6")
+     $col()$text(c.qids.fall)$text($dct(QidsFallDCT,c.qids.fall,"D"))
+    $row()
+     $col()$text(q_text_qids_slep,"H6")
+     $col()$text(c.qids.slep)$text($dct(QidsSlepDCT,c.qids.slep,"D"))
+    $row()
+     $col()$text(q_text_qids_wake,"H6")
+     $col()$text(c.qids.wake)$text($dct(QidsWakeDCT,c.qids.wake,"D"))
+    $row()
+     $col()$text(q_text_qids_much,"H6")
+     $col()$text(c.qids.much)$text($dct(QidsMuchDCT,c.qids.much,"D"))
+    $row()
+     $col()$text(q_text_qids_sad,"H6")
+     $col()$text(c.qids.sad)$text($dct(QidsSadDCT,c.qids.sad,"D"))
+    $row()
+     $col()$text(q_text_qids_appd,"H6")
+     $col()$text(c.qids.appd)$text($dct(QidsAppdDCT,c.qids.appd,"D"))
+    $row()
+     $col()$text(q_text_qids_appi,"H6")
+     $col()$text(c.qids.appi)$text($dct(QidsAppiDCT,c.qids.appi,"D"))
+    $row()
+     $col()$text(q_text_qids_weid,"H6")
+     $col()$text(c.qids.weid)$text($dct(QidsWeidDCT,c.qids.weid,"D"))
+    $row()
+     $col()$text(q_text_qids_weii,"H6")
+     $col()$text(c.qids.weii)$text($dct(QidsWeiiDCT,c.qids.weii,"D"))
+    $row()
+     $col()$text(q_text_qids_conc,"H6")
+     $col()$text(c.qids.conc)$text($dct(QidsConcDCT,c.qids.conc,"D"))
+    $row()
+     $col()$text(q_text_qids_self,"H6")
+     $col()$text(c.qids.self)$text($dct(QidsSelfDCT,c.qids.self,"D"))
+    $row()
+     $col()$text(q_text_qids_deat,"H6")
+     $col()$text(c.qids.deat)$text($dct(QidsDeatDCT,c.qids.deat,"D"))
+    $row()
+     $col()$text(q_text_qids_intr,"H6")
+     $col()$text(c.qids.intr)$text($dct(QidsIntrDCT,c.qids.intr,"D"))
+    $row()
+     $col()$text(q_text_qids_enrg,"H6")
+     $col()$text(c.qids.enrg)$text($dct(QidsEnrgDCT,c.qids.enrg,"D"))
+    $row()
+     $col()$text(q_text_qids_slow,"H6")
+     $col()$text(c.qids.slow)$text($dct(QidsSlowDCT,c.qids.slow,"D"))
+    $row()
+     $col()$text(q_text_qids_rest,"H6")
+     $col()$text(c.qids.rest)$text($dct(QidsRestDCT,c.qids.rest,"D"))
+    $row()
+     $col()$text(q_text_qids_totl,"H6")
+     $col()$text(c.qids.totl)
+    $row()
+     $col()$text(q_text_qids_vers,"H6")
+     $col()$text(c.qids.vers)$text($dct(QidsVersDCT,c.qids.vers,"D"))
+   $endtable($funcname)
+   $br()$text("Additional Comments:","H6")$text(c.qids.comm)
+   $tag("<hr/>")
+   {"l_snapLibSC"}sn_CreateReport(QIDSRptTitle,,,QIDSReportID)
+  $sendform($funcname)
+  if $endbutton != "CANCEL" and $endbutton != "SUBMIT"
+   $dblock()
+   rc = $dbpoint(2,$regid,c.qids.rec,c.qids.fall,c.qids.slep,c.qids.wake,c.qids.much,c.qids.sad,c.qids.appd,c.qids.appi,c.qids.weid,c.qids.weii,c.qids.conc,c.qids.self,c.qids.deat,c.qids.intr,c.qids.enrg,c.qids.slow,c.qids.rest,c.qids.totl,c.qids.staf,
+                          c.qids.date,c.qids.vers,c.qids.comm)
+   c.qids.rec[effd] = c.qids.date
+   c.qids.staf = $operstaffid  
+   rc = $dbadddst(2,$regid,c.qids.rec,c.qids.fall,c.qids.slep,c.qids.wake,c.qids.much,c.qids.sad,c.qids.appd,c.qids.appi,c.qids.weid,c.qids.weii,c.qids.conc,c.qids.self,c.qids.deat,c.qids.intr,c.qids.enrg,c.qids.slow,c.qids.rest,c.qids.totl,c.qids.staf,
+                           c.qids.date,c.qids.vers,c.qids.comm) 
+   if rc = 0
+    $brmsg("Data Successfully Added to Database!",1,"W","Process Complete")
+     QIDSALGRpt = rc
+	 c.ansa.scaledt = c.qids.date
+	 c.ansa.qids = c.qids.totl
+	 c.ansa.qidsver = c.qids.vers
+	 $allowupdate(c.ansa.scaledt,c.ansa.qids,c.ansa.qidsver)
+	 return
+   else
+    $brmsg("There Was A Problem Saving The Data! Contact MIS Now.",1,"W","ERROR")
+   endif
+  else
+   QIDSALG() 
+  endif
+ end QIDSALGRpt
+
+ function BipolarAlg() is null
+  radio_index is i
+  do while 1 = 1 
+   $submitopt("off", "SUBMIT")
+   $cancelopt("off", "BACK")
+   $form($funcname)
+    $text("{H1}SCORESHEET FOR BIPOLAR ALGORITHM -- ANSWER ALL SECTIONS{/H1}")
+    {"lib_UACOMMON"}ClientPageHeader($regid)
+    $text(q_text_bdss_date, "datatag")$textbox(c.bdss.date,"CAL",10,6,"Y")
+    $tag("<hr/>")
+    $text("Brief Bipolar Disorder Symptom Scale","datatag")  
+    $table($funcname)
+     $row()
+      $col("center")$text("")
+      $col("center")$text("NA","datatag")
+	  radio_index = 0
+	  do while radio_index++ < 7
+       $col("center")$text(radio_index,"datatag")
+	  enddo  
+     $row(,"bgcolor='99ccff'")
+      $col()$text(q_text_bdss_host,"datatag")
+      $col("center")$radio(c.bdss.host,,"NA")
+	  radio_index = 0
+	  do while radio_index++ < 8
+       $col("center")$radio(c.bdss.host,,$castx(radio_index))
+	  enddo 
+      $col()$link(bdss_link1,"Description","target='_blank'")            
+     $row(,"bgcolor='white'")
+      $col()$text(q_text_bdss_mood,"datatag")
+      $col("center")$radio(c.bdss.mood,,"NA")
+	  radio_index = 0
+	  do while radio_index++ < 7
+       $col("center")$radio(c.bdss.mood,,$castx(radio_index))
+	  enddo 
+      $col()$link(bdss_link2,"Description","target='_blank'")
+     $row(,"bgcolor='99ccff'")
+      $col() $text(q_text_bdss_gran,"datatag")
+      $col("center")$radio(c.bdss.gran,,"NA")
+      radio_index = 0
+	  do while radio_index++ < 7
+	   $col("center")$radio(c.bdss.gran,,$castx(radio_index))
+      enddo
+      $col()$link(bdss_link3,"Description","target='_blank'")
+     $row(,"bgcolor='white'")
+      $col()$text(q_text_bdss_depr,"datatag")
+      $col("center")$radio(c.bdss.depr,,"NA")
+      radio_index = 0
+	  do while radio_index++ < 7
+	   $col("center")$radio(c.bdss.depr,,$castx(radio_index))
+      enddo
+      $col()$link(bdss_link4,"Description","target='_blank'")
+     $row(,"bgcolor='99ccff'")
+      $col()$text(q_text_bdss_anxi,"datatag")
+      $col("center")$radio(c.bdss.anxi,,"NA")
+      radio_index = 0
+	  do while radio_index++ < 7
+	   $col("center")$radio(c.bdss.anxi,,$castx(radio_index))
+	  enddo 
+      $col()$link(bdss_link5,"Description","target='_blank'")
+     $row(,"bgcolor='white'")
+      $col()$text(q_text_bdss_thou, "datatag")
+      $col("center")$radio(c.bdss.thou,,"NA")
+	  radio_index = 0
+	  do while radio_index++ < 7
+       $col("center")$radio(c.bdss.thou,,$castx(radio_index))
+      enddo
+      $col()$link(bdss_link6,"Description","target='_blank'")
+     $row(,"bgcolor='99ccff'")
+      $col()$text(q_text_bdss_exci,"datatag")
+      $col("center")$radio(c.bdss.exci,,"NA")
+	  radio_index = 0
+	  do while radio_index++ < 7
+       $col("center")$radio(c.bdss.exci,,$castx(radio_index))
+	  enddo 
+      $col()$link(bdss_link7,"Description","target='_blank'")
+     $row(,"bgcolor='white'")
+      $col()$text(q_text_bdss_moto,"datatag")
+      $col("center")$radio(c.bdss.moto,,"NA")
+	  radio_index = 0
+	  do while radio_index++ < 7
+       $col("center")$radio(c.bdss.moto,,$castx(radio_index))
+      enddo
+      $col()$link(bdss_link8,"Description","target='_blank'")
+     $row(,"bgcolor='99ccff'")
+      $col()$text(q_text_bdss_emot,"datatag")
+      $col("center")$radio(c.bdss.emot,,"NA")
+      radio_index = 0
+	  do while radio_index++ < 7
+	   $col("center")$radio(c.bdss.emot,,$castx(radio_index))
+	  enddo
+      $col()$link(bdss_link9,"Description","target='_blank'")
+     $row(,"bgcolor='white'")
+      $col()$text(q_text_bdss_blun,"datatag")
+      $col("center")$radio(c.bdss.blun,,"NA")
+      radio_index = 0
+	  do while radio_index++ < 7	 
+	   $col("center") $radio(c.bdss.blun,,$castx(radio_index))
+      enddo
+      $col()$link(bdss_link10,"Description","target='_blank'") 
+    $endtable($funcname)
+    $br()$text("*NA -- Not able to be assessed","siginfo")
+    $tag("<hr/>")
+    $br()
+    $table($funcname)  
+     $row()
+      $col()$text("Source of Information(check all applicable)", "datatag")
+      $col()$text("Explain here if validity of assessment is questionable:", "datatag")
+     $row(,"bgcolor='99ccff'")
+      $col()$checkbox(c.bdss.pati,q_text_bdss_pati,"Y",,,,"normal")
+      $col()$checkbox(c.bdss.drug,q_text_bdss_drug,"Y")
+     $row(,"bgcolor='99ccff'")
+      $col()$checkbox(c.bdss.parn,q_text_bdss_parn,"Y",,,,"normal")
+      $col()$checkbox(c.bdss.rapp,q_text_bdss_rapp,"Y")
+     $row(,"bgcolor='99ccff'")
+      $col()$checkbox(c.bdss.prof,q_text_bdss_prof,"Y",,,,"normal")
+      $col()$checkbox(c.bdss.nega,q_text_bdss_nega,"Y")
+     $row(,"bgcolor='99ccff'")
+      $col()$checkbox(c.bdss.char,q_text_bdss_char,"Y",,,,"normal")
+      $col()$checkbox(c.bdss.unco,q_text_bdss_unco,"Y")
+     $row(,"bgcolor='99ccff'")
+      $col()
+      $col()$checkbox(c.bdss.diso,q_text_bdss_diso,"Y")
+     $row(,"bgcolor='99ccff'")
+      $col()
+      $col()$checkbox(c_bdss_othr,"Other","Y",,,"Oth","Oth")
+     $block("Oth","Oth")       
+      $textbox(c.bdss.othr,,30,45)
+     $endblock("Oth","Oth")
+     $row()
+      $col()$text(q_text_bdss_con1)$textbox(c.bdss.conf,,1,1)$text(q_text_bdss_con2)
+    $endtable($funcname)
+    $br()
+    $text(q_text_bdss_comm, "datatag")
+    $br()$textblock(c.bdss.comm,10,60,,, 1000)$countbox(c.bdss.comm, "(max chars is 1000)") 
+   $sendform($funcname)
+   if $endbutton = "CANCEL"
+    return
+   elseif c.bdss.date !dp
+    $brmsg("You Must Enter a Date for the Assessment to Move On.",1,"W","Error")
+   elseif c.bdss.host !dp or c.bdss.mood !dp or c.bdss.gran !dp or c.bdss.depr !dp or c.bdss.anxi !dp or c.bdss.thou !dp or c.bdss.exci !dp or c.bdss.moto !dp or c.bdss.emot !dp or c.bdss.blun !dp
+    $brmsg("You Must Complete All Sections of the BDSS To Move On.", 1, "W", "Error")
+   elseif c.bdss.pati !dp and c.bdss.parn !dp and c.bdss.prof !dp and c.bdss.char !dp
+    $brmsg("You Must Check at Least One of the Sources of Information To Move On.",1,"W","Error")
+   elseif c_bdss_othr dp and c.bdss.othr !dp
+    $brmsg("You Must Provide a Description if Other is a Questionable Reason.",1,"W","Error")
+   elseif c.bdss.conf !dp
+    $brmsg("You Must Score the Confidence in the Assessment To Move On.",1,"W","Erroe")
+   else 
+    return
+   endif	
+  enddo
+ end BipolarAlg
+
+ function BipolarAlgRpt(c.ansa.scaledt,c.ansa.bdss) is i
+  c.ansa.scaledt is d
+  c.ansa.bdss    is x
+  rc             is i
+  bdsshost       is n    'NUMERIC HOSTILITY VARIABLE
+  bdssmood       is n    'NUMERIC ELEVATED MOOD VARIABLE
+  bdssgran       is n    'NUMERIC GRANDIOSITY VARIABLE
+  bdssdepr       is n    'NUMERIC DEPRESSION VARIABLE
+  bdssanxi       is n    'NUMERIC ANXIETY VARIABLE
+  bdssthou       is n    'NUMERIC THOUGHT CONTENT VARIABLE
+  bdssexci       is n    'NUMERIC EXCITEMENT VARIABLE
+  bdssmoto       is n    'NUMERIC MOTOR HYPERACTIVE VARIABLE
+  bdssemot       is n    'NUMERIC EMOTIONAL WITHDRAW VARIABLE
+  bdssblun       is n    'NUMERIC BLUNTED AFFECT VARIABLE
+  'Calculate the PSRS score
+  if c.bdss.host = "NA"
+    bdsshost = 1
+  else
+    bdsshost = c.bdss.host
+  endif
+  if c.bdss.mood = "NA"
+    bdssmood = 1
+  else
+    bdssmood = c.bdss.mood
+  endif
+  if c.bdss.gran = "NA"
+    bdssgran = 1
+  else
+    bdssgran = c.bdss.gran
+  endif
+  if c.bdss.depr = "NA"
+    bdssdepr = 1
+  else
+    bdssdepr = c.bdss.depr
+  endif
+  if c.bdss.anxi = "NA"
+    bdssanxi = 1
+  else
+    bdssanxi = c.bdss.anxi
+  endif
+  if c.bdss.thou = "NA"
+    bdssthou = 1
+  else
+    bdssthou = c.bdss.thou
+  endif
+  if c.bdss.exci = "NA"
+    bdssexci = 1
+  else
+    bdssexci = c.bdss.exci
+  endif
+  if c.bdss.moto = "NA"
+    bdssmoto = 1
+  else
+    bdssmoto = c.bdss.moto
+  endif
+  if c.bdss.emot = "NA"
+    bdssemot = 1
+  else
+    bdssemot = c.bdss.emot
+  endif
+  if c.bdss.blun = "NA"
+    bdssblun = 1
+  else
+    bdssblun = c.bdss.blun
+  endif
+  c.bdss.score = bdsshost + bdssmood + bdssgran + bdssdepr + bdssanxi + bdssthou + bdssexci + bdssmoto + bdssemot + bdssblun
+
+  $submitopt("off", "")
+  $cancelopt("off", "BACK")
+  $form($funcname)
+   $tag("<CENTER>")
+    $text("BIPOLAR ASSESSMENT", "H5")
+   $tag("</CENTER>")
+   $tag("<hr/>")
+   $br(){"lib_UACOMMON"}ClientPageHeader($regid,"Y")
+   $br()$text(q_text_bdss_date,"H6")$text(c.bdss.date)
+   $tag("<hr/>")
+   $tag("<CENTER>")
+    $text("Brief Bipolar Disorder Symptom Scale ", "H6")
+   $tag("</CENTER>")
+   $br()
+   $table($funcname,,"width='100%'")
+    $row()
+     $col(,,"40%")$text(q_text_bdss_host,"H6")
+     $col(,,"60%")$text(c.bdss.host)$text($dct(BDSSScoreDCT,c.bdss.host,"D"))
+    $row()
+     $col()$text(q_text_bdss_mood,"H6")
+     $col()$text(c.bdss.mood)$text($dct(BDSSScoreDCT,c.bdss.mood,"D"))
+    $row()
+     $col()$text(q_text_bdss_gran,"H6")
+     $col()$text(c.bdss.gran)$text($dct(BDSSScoreDCT,c.bdss.gran,"D"))
+    $row()
+     $col()$text(q_text_bdss_depr,"H6")
+     $col()$text(c.bdss.depr)$text($dct(BDSSScoreDCT,c.bdss.depr,"D"))
+    $row()
+     $col()$text(q_text_bdss_anxi,"H6")
+     $col()$text(c.bdss.anxi)$text($dct(BDSSScoreDCT,c.bdss.anxi,"D"))
+    $row()
+     $col()$text(q_text_bdss_thou,"H6")
+     $col()$text(c.bdss.thou)$text($dct(BDSSScoreDCT,c.bdss.thou,"D"))
+    $row()
+     $col()$text(q_text_bdss_exci,"H6")
+     $col()$text(c.bdss.exci)$text($dct(BDSSScoreDCT,c.bdss.exci,"D"))
+    $row()
+     $col()$text(q_text_bdss_moto,"H6")
+     $col()$text(c.bdss.moto)$text($dct(BDSSScoreDCT,c.bdss.moto,"D"))
+    $row()
+     $col()$text(q_text_bdss_emot,"H6")
+     $col()$text(c.bdss.emot)$text($dct(BDSSScoreDCT,c.bdss.emot,"D"))
+    $row()
+     $col()$text(q_text_bdss_blun,"H6")
+     $col()$text(c.bdss.blun)$text($dct(BDSSScoreDCT,c.bdss.blun,"D"))
+    $row()
+     $col()$text(q_text_bdss_scor,"H6")
+     $col()$text(c.bdss.score)
+   $endtable($funcname)
+   $br()$text("Source Of Information", "H6")
+   if c.bdss.pati = "Y"
+    $br()$text(q_text_bdss_pati)
+   endif
+   if c.bdss.parn = "Y"
+    $br()$text(q_text_bdss_parn)
+   endif
+   if c.bdss.prof = "Y"
+    $br()$text(q_text_bdss_prof)
+   endif
+   if c.bdss.char = "Y"
+    $br()$text(q_text_bdss_char)
+   endif
+   $br()$text("Validity Of Assessment Questionable Reasons", "H6")
+   if c.bdss.drug = "Y"
+    $br()$text(q_text_bdss_drug)
+   endif
+   if c.bdss.rapp = "Y"
+    $br()$text(q_text_bdss_rapp)
+   endif
+   if c.bdss.nega = "Y"
+    $br()$text(q_text_bdss_nega)
+   endif
+   if c.bdss.unco = "Y"
+    $br()$text(q_text_bdss_unco)
+   endif
+   if c.bdss.diso = "Y"
+    $br()$text(q_text_bdss_diso)
+   endif
+   if c_bdss_othr = "Y"
+    $br()$text(q_text_bdss_othr)$text(c.bdss.othr)
+   endif
+   $br()$text(q_text_bdss_con1, "H6")$text(c.bdss.conf)
+   $br(2)$text(q_text_bdss_comm, "H6")$text(c.bdss.comm)
+   $tag("<hr/>")
+   {"l_snapLibSC"}sn_CreateReport(BDSSRptTitle,,,BDSSReportID)
+  $sendform($funcname)
+  ''***************************************SAVE DATA ROUTINE************************************
+  if $endbutton != "CANCEL" and $endbutton != "SUBMIT"
+   $dblock()
+   rc = $dbpoint(2,$regid,c.bdss.rec,c.bdss.host,c.bdss.mood,c.bdss.gran,c.bdss.depr,c.bdss.anxi,c.bdss.thou,c.bdss.exci,c.bdss.moto,c.bdss.emot,c.bdss.blun,c.bdss.pati,c.bdss.parn,c.bdss.prof,c.bdss.char,c.bdss.conf,c.bdss.drug,c.bdss.rapp,c.bdss.nega,
+                          c.bdss.unco,c.bdss.diso,c.bdss.othr,c.bdss.staf,c.bdss.date,c.bdss.score,c.bdss.comm)		    
+   c.bdss.rec[effd] =  c.bdss.date
+   c.bdss.staf = $operstaffid   
+   rc = $dbadddst(2,$regid,c.bdss.rec,c.bdss.host,c.bdss.mood,c.bdss.gran,c.bdss.depr,c.bdss.anxi,c.bdss.thou,c.bdss.exci,c.bdss.moto,c.bdss.emot,c.bdss.blun,c.bdss.pati,c.bdss.parn,c.bdss.prof,c.bdss.char,c.bdss.conf,c.bdss.drug,c.bdss.rapp,c.bdss.nega,
+                           c.bdss.unco,c.bdss.diso,c.bdss.othr,c.bdss.staf,c.bdss.date,c.bdss.score,c.bdss.comm)
+   if rc = 0
+    $brmsg("Data Successfully Added to Database!", 1, "W", "Process Complete")
+    c.ansa.scaledt = c.bdss.date
+	c.ansa.bdss = c.bdss.score
+	$allowupdate(c.ansa.scaledt,c.ansa.bdss)
+    BipolarAlgRpt = rc
+    return
+   else
+    $brmsg(`"There Was A Problem Saving The Data! Contact MIS Now. RC=" + rc`, 1, "W", "ERROR")
+   endif
+  else
+   BipolarAlg()
+  endif
+ end BipolarAlgRpt  
+
+ function GETDX(DXType, DX, DXCat, DXDate,DXGaf) is null
+  DXType is x
+  DX     is x
+  DXCat  is x
+  DXDate is d
+  DXGaf  is i
+  rc     is b
+ 
+  rc = $dbread(02, $regid, c.dsmiiir,c.diag,c.dxaxvc,c.dxdate)
+  dxtype = $dct(dx_dct, c.diag, "1")
+  DX = c.diag
+  DXGaf = c.dxaxvc
+ 
+  if dxtype = "O" and C.DXAXI2 dp
+   dxtype = $dct(dx_dct, C.DXAXI2, "1")
+   if dxtype = "S" or dxtype = "B" or dxtype = "D"
+ 	DX = C.DXAXI2
+   endif
+  endif
+  if dxtype = "O" and C.DXAXI3 dp
+   dxtype = $dct(dx_dct, C.DXAXI3, "1")
+   if dxtype = "S" or dxtype = "B" or dxtype = "D"
+    DX = C.DXAXI3
+   endif
+  endif
+  if dxtype = "O" and C.DXAXI4 dp
+   dxtype = $dct(dx_dct, C.DXAXI4, "1")
+   if dxtype = "S" or dxtype = "B" or dxtype = "D"
+    DX = C.DXAXI4
+   endif
+  endif
+  if dxtype = "O" and C.DXAXI5 dp
+   dxtype = $dct(dx_dct, C.DXAXI5, "1")
+   if dxtype = "S" or dxtype = "B" or dxtype = "D"
+    DX = C.DXAXI5
+   endif
+  endif
+  if dxtype = "O" and C.DXAXI6 dp
+   dxtype = $dct(dx_dct, C.DXAXI6, "1")
+   if dxtype = "S" or dxtype = "B" or dxtype = "D"
+    DX = C.DXAXI6
+   endif
+  endif
+  select DXType
+   case "B" dxcat = "Bipolar"
+   case "S" dxcat = "Schizophrenia"
+   case "D" select DX
+             case "296.24" dxcat = "MDD - With Psychotic Features"
+			 case "296.34" dxcat = "MDD - With Psychotic Features"
+			 case other    dxcat = "MDD - Without Psychotic Features"
+			endselect 
+   case "O" dxcat = "Other"
+  endselect
+  $allowupdate(dxtype, DX, dxcat, DXGAF)
+ end GETDX
+ 
+ function RLOC(c.ansa.b.depress,c.ansa.b.subabs,c.ansa.cr.episds,c.ansa.dn.cog,c.ansa.hs.num180,c.ansa.hs.numg30,c.ansa.hs.numl30,c.ansa.ld.employ,c.ansa.ld.family,c.ansa.ld.living,c.ansa.ld.restab,c.ansa.ld.slfcre,
+               c.ansa.qids,c.ansa.r.crimbe,c.ansa.r.dangot,c.ansa.r.suicid,c.ansa.sr.hist,c.ansa.sr.idea,c.ansa.sr.intent,c.ansa.sr.plan,c.ansa.st.natsup,c.ansa.type,DXcat,DXgaf,DXtype) is x 
+  c.ansa.b.depress is x 
+  c.ansa.b.subabs  is x 
+  c.ansa.cr.episds is x 
+  c.ansa.dn.cog    is x 
+  c.ansa.hs.num180 is x 
+  c.ansa.hs.numg30 is x 
+  c.ansa.hs.numl30 is x 
+  c.ansa.ld.employ is x 
+  c.ansa.ld.family is x 
+  c.ansa.ld.living is x 
+  c.ansa.ld.restab is x 
+  c.ansa.ld.slfcre is x 
+  c.ansa.qids      is x 
+  c.ansa.r.crimbe  is x 
+  c.ansa.r.dangot  is x 
+  c.ansa.r.suicid  is x 
+  c.ansa.sr.hist   is x 
+  c.ansa.sr.idea   is x 
+  c.ansa.sr.intent is x 
+  c.ansa.sr.plan   is x 
+  c.ansa.st.natsup is x 
+  c.ansa.type      is x 
+  DXcat            is x 
+  DXgaf            is x 
+  DXtype           is x   
+
+  crisis          is x
+  basic_medManage is x
+  basic_skills    is x
+  basic           is x
+  intensive       is x
+  act             is x
+  ineligible      is x  
+
+  crisis          = "100"
+  basic_MedManage = "111"
+  basic_skills    = "112"
+  basic           = "113"
+  intensive       = "114"
+  act             = "115"
+  Ineligible      = "120"   
+  
+'Crisis
+  if c.ansa.type = "1" or c.ansa.type = "11"
+   if c.ansa.r.suicid = "3" or (c.ansa.r.suicid = "2" and (c.ansa.sr.idea = "3" or $num(c.ansa.sr.intent) > 1 or $num(c.ansa.sr.plan) > 1 or $num(c.ansa.sr.hist) > 1)) or 
+   c.ansa.r.dangot = "3" or c.ansa.ld.slfcre = "3" or c.ansa.dn.cog = "3" or c.ansa.b.subabs = "3"
+	c.ansa.type = "11"
+	$allowupdate(c.ansa.type)
+	RLOC = crisis
+	return
+   endif
+  endif
+  
+
+'Target Population
+  if DXType = "S" or DXType = "B" or (DXType = "D" and (c.ansa.type = "1" and DXGaf <= 50)) or c.ansa.type = "2" or c.ansa.type = "11"
+
+'4/115/ACT
+   if ($num(c.ansa.hs.num180) > 1 or c.ansa.hs.numg30 = "3") or (c.ansa.cr.episds = "3" and (c.ansa.hs.num180 = "1" or c.ansa.hs.numl30 = "2"))
+    RLOC = act
+	return
+   endif
+
+'3/114/Intensive
+   if $num(c.ansa.r.suicid) < 3 and $num(c.ansa.r.dangot) < 3 and 
+   ($num(c.ansa.hs.num180)  < 2 or $num(c.ansa.hs.numl30) < 3 or c.ansa.hs.numg30 = "0") and 
+   ($num(c.ansa.ld.living) > 0 or (c.ansa.ld.slfcre = "1" or c.ansa.ld.slfcre = "2")) and 
+   $num(c.ansa.ld.family) > 1 and c.ansa.st.natsup > 1 and 
+   ($num(c.ansa.ld.employ) > 1 or $num(c.ansa.ld.restab) > 1 or c.ansa.b.subabs = "2" or $num(c.ansa.r.crimbe) > 1 or c.ansa.cr.episds = "3")
+    if DXType = "D"
+     if c.ansa.b.depress = "3" and $num(c.ansa.qids) > 15
+	  RLOC = Intensive
+	  return
+	 endif
+	else
+	 RLOC = Intensive
+	 return
+	endif 
+   endif
+
+'2/113/Basic   
+   if c.ansa.r.suicid = "0" or 
+   ((c.ansa.r.suicid = "1" or c.ansa.r.suicid = "2") and $num(c.ansa.sr.idea) < 3 and $num(c.ansa.sr.intent) < 2 and $num(c.ansa.sr.hist) < 2 and $num(c.ansa.sr.plan) < 2) and
+   $num(c.ansa.r.dangot) < 3 and $num(c.ansa.b.depress) > 0 and
+   ($num(c.ansa.ld.living) > 0 or (c.ansa.ld.slfcre = "1" or c.ansa.ld.slfcre = "2")) and 
+   ($num(c.ansa.qids) > 5 and $num(c.ansa.qids) < 16)
+    select DXCat
+     case "MDD - With Psychotic Features" if ($num(c.ansa.ld.employ) < 2 or c.ansa.ld.employ = "9") and
+	                                      $num(c.ansa.ld.restab) < 2 and 
+	                                      $num(c.ansa.b.subabs) < 2 and
+										  $num(c.ansa.r.crimbe) < 2
+                                           RLOC = Basic
+										   return
+	                                      endif
+     case "MDD - Without Psychotic Features" if  $num(c.ansa.b.subabs) < 3
+	                                          RLOC = Basic
+											  return
+											 endif
+
+    endselect
+   endif
+
+'1-M/111/Basic-Med Management
+   if $num(c.ansa.r.suicid) < 2 and $num(c.ansa.r.dangot) < 2 and $num(c.ansa.b.depress) < 2 and $num(c.ansa.ld.restab) < 2 and  $num(c.ansa.b.subabs) < 2 and $num(c.ansa.r.crimbe) < 2 and c.ansa.cr.episds = "0"
+    if DXType = "D"
+	 if $num(c.ansa.qids) < 11
+	  if HistoryTest() = 0
+	   RLOC = basic_MedManage
+	   return
+	  endif
+	 endif
+	endif
+   endif    
+  endif 
+  
+'1-S/112/Basic-Skills Training 
+  if DXType = "S" or DXType = "B" or (DXType = "D" and DXGaf <= 50)
+   RLOC = basic_skills
+   return
+  endif
+  
+  RLOC = Ineligible
+ end RLOC   
+
+ function HistoryTest() is i
+  rc               is i
+  assessment_age   is i
+  ansa_dstlist     is dstlist
+  c.ansa.rec       is h
+  c.ansa.ac.culstr is x      
+  c.ansa.ac.identy is x      
+  c.ansa.ac.langua is x      
+  c.ansa.ac.ritual is x      
+  c.ansa.aloc      is x      
+  c.ansa.b.adjtrm  is x      
+  c.ansa.b.angctr  is x      
+  c.ansa.b.antisoc is x      
+  c.ansa.b.anxity  is x      
+  c.ansa.b.cog     is x      
+  c.ansa.b.depres  is x      
+  c.ansa.b.eatdst  is x      
+  c.ansa.b.implsv  is x      
+  c.ansa.b.inter   is x      
+  c.ansa.b.mania   is x      
+  c.ansa.b.psychs  is x      
+  c.ansa.b.subabs  is x      
+  c.ansa.cr.episds is x      
+  c.ansa.d.csctrl  is x      
+  c.ansa.d.frusman is x      
+  c.ansa.d.gainang is x      
+  c.ansa.d.host    is x      
+  c.ansa.d.potent  is x      
+  c.ansa.d.pthink  is x      
+  c.ansa.d.respon  is x      
+  c.ansa.d.tinv    is x      
+  c.ansa.d.vthink  is x      
+  c.ansa.date      is d      
+  c.ansa.dn.cog    is x      
+  c.ansa.dn.comm   is x      
+  c.ansa.dn.dev    is x      
+  c.ansa.fc.famst  is x      
+  c.ansa.fc.invcre is x      
+  c.ansa.fc.know   is x      
+  c.ansa.fc.na     is x      
+  c.ansa.fc.phlth  is x      
+  c.ansa.fc.safe   is x      
+  c.ansa.fc.sfres  is x      
+  c.ansa.hs.num180 is x      
+  c.ansa.hs.numg30 is x      
+  c.ansa.hs.numl30 is x      
+  c.ansa.ld.decisi is x      
+  c.ansa.ld.employ is x      
+  c.ansa.ld.family is x      
+  c.ansa.ld.indliv is x      
+  c.ansa.ld.invrec is x      
+  c.ansa.ld.legal  is x      
+  c.ansa.ld.living is x      
+  c.ansa.ld.phymed is x      
+  c.ansa.ld.recret is x      
+  c.ansa.ld.restab is x      
+  c.ansa.ld.sexdev is x      
+  c.ansa.ld.sleep  is x      
+  c.ansa.ld.slfcre is x      
+  c.ansa.ld.socfun is x      
+  c.ansa.ld.trans  is x      
+  c.ansa.r.crimbe  is x      
+  c.ansa.r.dangot  is x      
+  c.ansa.r.exploit is x      
+  c.ansa.r.gamble  is x      
+  c.ansa.r.oslfhr  is x      
+  c.ansa.r.sexagr  is x      
+  c.ansa.r.smutil  is x      
+  c.ansa.r.suicid  is x      
+  c.ansa.rloc      is x      
+  c.ansa.sr.ffsui  is x      
+  c.ansa.sr.hist   is x      
+  c.ansa.sr.idea   is x      
+  c.ansa.sr.intent is x      
+  c.ansa.sr.plan   is x      
+  c.ansa.st.comcon is x      
+  c.ansa.st.edu    is x      
+  c.ansa.st.fam    is x      
+  c.ansa.st.jobhi  is x      
+  c.ansa.st.natsup is x      
+  c.ansa.st.opti   is x      
+  c.ansa.st.relig  is x      
+  c.ansa.st.resil  is x      
+  c.ansa.st.resour is x      
+  c.ansa.st.soccon is x      
+  c.ansa.st.tal    is x      
+  c.ansa.st.vol    is x      
+  c.ansa.vc.career is x
+  c.ansa.vc.jtime  is x      
+  c.ansa.vc.jatt   is x      
+  c.ansa.vc.jper   is x      
+  c.ansa.vc.jrel   is x      
+  c.ansa.vc.jskill is x   
+  
+  
+  
+  HistoryTest = 0
+  rc = $dstlist(ansa_dstlist,02,
+                c.ansa.rec,
+                c.ansa.ac.culstr,c.ansa.ac.identy,c.ansa.ac.langua,c.ansa.ac.ritual,
+                c.ansa.aloc,
+                c.ansa.b.adjtrm,c.ansa.b.angctr,c.ansa.b.antisoc,c.ansa.b.anxity,c.ansa.b.cog,c.ansa.b.depres,c.ansa.b.eatdst,c.ansa.b.implsv,c.ansa.b.inter,c.ansa.b.mania,c.ansa.b.psychs,c.ansa.b.subabs,
+                c.ansa.cr.episds,
+                c.ansa.d.csctrl,c.ansa.d.frusman,c.ansa.d.gainang,c.ansa.d.host,c.ansa.d.potent,c.ansa.d.pthink,c.ansa.d.respon,c.ansa.d.tinv,c.ansa.d.vthink,
+                c.ansa.date,
+                c.ansa.dn.cog,c.ansa.dn.comm,c.ansa.dn.dev,
+                c.ansa.fc.famst,c.ansa.fc.invcre,c.ansa.fc.know,c.ansa.fc.na,c.ansa.fc.phlth,c.ansa.fc.safe,c.ansa.fc.sfres,
+                c.ansa.hs.num180,c.ansa.hs.numg30,c.ansa.hs.numl30,
+                c.ansa.ld.decisi,c.ansa.ld.employ,c.ansa.ld.family,c.ansa.ld.indliv,c.ansa.ld.invrec,c.ansa.ld.legal,c.ansa.ld.living,c.ansa.ld.phymed,c.ansa.ld.recret,c.ansa.ld.restab,c.ansa.ld.sexdev,c.ansa.ld.sleep,c.ansa.ld.slfcre,c.ansa.ld.socfun,
+				c.ansa.ld.trans,
+                c.ansa.r.crimbe,c.ansa.r.dangot,c.ansa.r.exploit,c.ansa.r.gamble,c.ansa.r.oslfhr,c.ansa.r.sexagr,c.ansa.r.smutil,c.ansa.r.suicid,
+                c.ansa.rloc,
+                c.ansa.sr.ffsui,c.ansa.sr.hist,c.ansa.sr.idea,c.ansa.sr.intent,c.ansa.sr.plan,
+                c.ansa.st.comcon,c.ansa.st.edu,c.ansa.st.fam,c.ansa.st.jobhi,c.ansa.st.natsup,c.ansa.st.opti,c.ansa.st.relig,c.ansa.st.resil,c.ansa.st.resour,c.ansa.st.soccon,c.ansa.st.tal,c.ansa.st.vol,
+                c.ansa.vc.career,c.ansa.vc.jatt,c.ansa.vc.jper,c.ansa.vc.jrel,c.ansa.vc.jskill)    
+  rc = $dbread(02,$regid,ansa_dstlist)
+  rc = $dbreadnextdst(02,$regid,ansa_dstlist)
+  assessment_age = $today - c.ansa.date
+  do while rc < 2 and assessment_age < 365 and HistoryTest = 0
+   if $num(c.ansa.r.suicid) > 1 or $num(c.ansa.r.dangot) > 1 or $num(c.ansa.r.smutil) > 1 or $num(c.ansa.r.oslfhr)  > 1 or $num(c.ansa.r.exploit) > 1 or $num(c.ansa.r.gamble) > 1 or $num(c.ansa.r.sexagr) > 1 or $num(c.ansa.r.crimbe) > 1
+    HistoryTest = 1
+   endif
+   if HistoryTest = 0
+    if $num(c.ansa.r.suicid) = 1 and ($num(c.ansa.sr.idea) > 1 or $num(c.ansa.sr.intent) > 1 or $num(c.ansa.sr.plan) > 1 or $num(c.ansa.sr.hist) > 1 or $num(c.ansa.sr.ffsui ) > 1)
+	 HistoryTest = 1
+	endif
+   endif   	
+   if HistoryTest = 0
+    if $num(c.ansa.r.dangot) = 1 and 
+	($num(c.ansa.d.frusman) > 1 or $num(c.ansa.d.host) > 1 or $num(c.ansa.d.pthink) > 1 or $num(c.ansa.d.gainang) > 1 or $num(c.ansa.d.vthink) > 1 or $num(c.ansa.d.potent) > 1 or $num(c.ansa.d.respon) > 1 or $num(c.ansa.d.csctrl) > 1 or 
+	$num(c.ansa.d.tinv) > 1)	
+	 HistoryTest = 1
+	endif
+   endif
+   if HistoryTest = 0
+    if $num(c.ansa.b.psychs) > 1 or $num(c.ansa.b.cog) > 1 or $num(c.ansa.b.depres) > 1 or $num(c.ansa.b.anxity) > 1 or $num(c.ansa.b.mania) > 1 or
+    $num(c.ansa.b.implsv) > 1 or $num(c.ansa.b.inter) > 1 or $num(c.ansa.b.antisoc) > 1 or $num(c.ansa.b.adjtrm) > 1 or $num(c.ansa.b.angctr) > 1 or $num(c.ansa.b.subabs) > 1 or $num(c.ansa.b.eatdst) > 1
+     HistoryTest = 1
+    endif
+   endif
+   if HistoryTest = 0
+    if $num(c.ansa.ld.phymed) > 1 or $num(c.ansa.ld.family) > 1 or ($num(c.ansa.ld.employ) > 1 and $num(c.ansa.ld.employ) < 9)or $num(c.ansa.ld.socfun) > 1 or $num(c.ansa.ld.recret) > 1 or $num(c.ansa.ld.indliv) > 1 or $num(c.ansa.ld.sexdev) > 1 or 
+	$num(c.ansa.ld.living) > 1 or $num(c.ansa.ld.restab) > 1 or $num(c.ansa.ld.legal) > 1 or $num(c.ansa.ld.sleep) > 1 or $num(c.ansa.ld.slfcre) > 1 or $num(c.ansa.ld.decisi) > 1 or $num(c.ansa.ld.invrec) > 1 or $num(c.ansa.ld.trans ) > 1
+     HistoryTest = 1
+    endif  
+   endif
+   if HistoryTest = 0
+    if $num(c.ansa.ld.employ) = 1 and ($num(c.ansa.vc.career) > 1 or $num(c.ansa.vc.jtime) > 1 or 
+	($num(c.ansa.vc.jatt) > 1 and $num(c.ansa.vc.jatt) < 9) or ($num(c.ansa.vc.jper) > 1 and $num(c.ansa.vc.jper) < 9) or ($num(c.ansa.vc.jrel) > 1 and $num(c.ansa.vc.jrel) < 9) or $num(c.ansa.vc.jskill) > 1)
+	 HistoryTest = 1
+    endif
+   endif
+   if HistoryTest = 0
+    if $num(c.ansa.ld.indliv) = 1 and ($num(c.ansa.dn.cog) > 1 or $num(c.ansa.dn.comm) > 1 or  $num(c.ansa.dn.dev) > 1)	
+	 HistoryTest = 1
+	endif 
+   endif   
+   if HistoryTest = 0
+    if $num(c.ansa.fc.na) !dp and ($num(c.ansa.fc.phlth) > 1 or $num(c.ansa.fc.invcre) > 1 or $num(c.ansa.fc.know) > 1 or $num(c.ansa.fc.sfres) > 1 or $num(c.ansa.fc.famst) > 1 or $num(c.ansa.fc.safe) > 1)
+     HistoryTest = 1
+    endif
+   endif
+   if HistoryTest = 0
+    if $num(c.ansa.st.fam   ) > 1 or $num(c.ansa.st.soccon) > 1 or $num(c.ansa.st.opti  ) > 1 or $num(c.ansa.st.tal   ) > 1 or ($num(c.ansa.st.edu) > 1 and $num(c.ansa.st.edu) < 9) or $num(c.ansa.st.vol   ) > 1 or $num(c.ansa.st.jobhi ) > 1 or 
+	$num(c.ansa.st.relig ) > 1 or $num(c.ansa.st.comcon) > 1 or $num(c.ansa.st.natsup) > 1 or $num(c.ansa.st.resil ) > 1 or $num(c.ansa.st.resour) > 1
+     HistoryTest = 1
+    endif 
+   endif   
+   if HistoryTest = 0
+    if $num(c.ansa.ac.langua) > 1 or $num(c.ansa.ac.identy) > 1 or $num(c.ansa.ac.ritual) > 1 or $num(c.ansa.ac.culstr) > 1
+     HistoryTest = 1
+    endif
+   endif
+   if HistoryTest = 0
+    if $num(c.ansa.hs.num180) > 1 or $num(c.ansa.hs.numl30) > 1 or $num(c.ansa.hs.numg30) > 1 
+	 HistoryTest = 1
+	endif
+   endif
+   if HistoryTest = 0
+    if $num(c.ansa.cr.episds) > 0
+	 HistoryTest = 1
+	endif 
+   endif
+   if HistoryTest = 0
+    if c.ansa.rloc != "111" and c.ansa.rloc != "112" 
+	 HistoryTest = 1
+    endif
+   endif	   
+   if HistoryTest = 0
+    if c.ansa.aloc != "111" and c.ansa.aloc != "112" 
+	 HistoryTest = 1
+    endif
+   endif   
+   if HistoryTest = 0
+    rc = $dbreadnextdst(02,$regid,ansa_dstlist)
+	assessment_age = $today - c.ansa.date
+   endif	
+  enddo 
+ end HistoryTest

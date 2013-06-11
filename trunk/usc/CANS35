@@ -50,6 +50,11 @@ start CANS35(parmfile,option,client,retcode)
     return
    endif
   endif
+ elseif ($regid dp and client dp) and client != $regid
+  $regid = {"lib_UACOMMON"}GetClientID() 
+  if $regid !dp
+   return
+  endif
  endif
  
  if $lc(option) = "reportonly" or $lc(option) = "bigreport"
@@ -260,7 +265,8 @@ start CANS35(parmfile,option,client,retcode)
                              $clear(c.cans.rloc,c.cans.aloc,c.cans.dloc)
                             endif									 					 
 					        select c.cans.rloc
-							 case "100" Page = "Report"
+							 case "100" c.cans.aloc = c.cans.rloc
+							            Page = "Report"
 							 case other Page = "SAL"
 						    endselect																		         
 					 case 1 Page = "4"
@@ -2739,6 +2745,7 @@ function ALOC() is null
     endif
     if c.cans.type = "11" or c.cans.rloc = "100"
      c.cans.aloc = "100"
+	 c_cans_aloc = $dct(CansAuthLevelDCT,c.cans.aloc) 
      $row()
       $col("right",,"50%")$text(q_text_rloc,"datatag")
       $col()$text(c_cans_rloc)  
