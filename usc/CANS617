@@ -50,6 +50,11 @@ start CANS617(parmfile,option,client,retcode)
     return
    endif
   endif
+ elseif ($regid dp and client dp) and client != $regid
+  $regid = {"lib_UACOMMON"}GetClientID() 
+  if $regid !dp
+   return
+  endif
  endif
  
  if $lc(option) = "reportonly" or $lc(option) = "bigreport"
@@ -306,6 +311,7 @@ start CANS617(parmfile,option,client,retcode)
    if Validate4() = 0
     c.cans.rloc = {"lib_CANS617"}Crisis_RLOC(c.cans.type,c.cans.cr.suicid,c.cans.cr.smutil,c.cans.cr.oslfhr,c.cans.cr.dangot,c.cans.cb.psychs,c.cans.cr.firset,c.cans.fs.planin)		
 	if c.cans.rloc = "100"
+	 c.cans.aloc = c.cans.rloc
      Page = "Report"
     else
      Page = "SAL"
@@ -3139,6 +3145,7 @@ function ALOC() is null
     endif
     if c.cans.type = "11" or c.cans.rloc = "100"
      c.cans.aloc = "100"
+	 c_cans_aloc = $dct(CansAuthLevelDCT,c.cans.aloc) 
      $row()
       $col("right",,"50%")$text(q_text_rloc,"datatag")
       $col()$text(c_cans_rloc)  
