@@ -1,6 +1,6 @@
                                                        HELEN FARABEE CENTERS                                                        
 
-Numeric    Listing of FILE     2  REC             Data Element Specification List                      06/10/2013 9:59am  Page     1
+Numeric    Listing of             REC 27800       Data Element Specification List                      06/11/2013 11:37am Page     1
                                                                                                                                     
      No    Ref Name          Full Name                  Sens    File              Type  Edit  Len  Tbl Record  Picture  Recode Alt  
     27800 C.ANSA.REC       ANSA Record Header             0  (02)CLIENT FILE        R     0     0    0 27800                        
@@ -58,7 +58,7 @@ Numeric    Listing of FILE     2  REC             Data Element Specification Lis
     27852 C.ANSA.ST.VOL    Volunteering                   0  (02)CLIENT FILE        X     0     1    0 27800                        
                                                        HELEN FARABEE CENTERS                                                        
 
-Numeric    Listing of FILE     2  REC             Data Element Specification List                      06/10/2013 9:59am  Page     2
+Numeric    Listing of             REC 27800       Data Element Specification List                      06/11/2013 11:37am Page     2
                                                                                                                                     
      No    Ref Name          Full Name                  Sens    File              Type  Edit  Len  Tbl Record  Picture  Recode Alt  
     27853 C.ANSA.ST.JOBHI  Job History                    0  (02)CLIENT FILE        X     0     1    0 27800                        
@@ -116,7 +116,7 @@ Numeric    Listing of FILE     2  REC             Data Element Specification Lis
     27905 C.ANSA.TR.TERAFF Terrorism Affected             0  (02)CLIENT FILE        X     0     1    0 27800                        
                                                        HELEN FARABEE CENTERS                                                        
 
-Numeric    Listing of FILE     2  REC             Data Element Specification List                      06/10/2013 9:59am  Page     3
+Numeric    Listing of             REC 27800       Data Element Specification List                      06/11/2013 11:37am Page     3
                                                                                                                                     
      No    Ref Name          Full Name                  Sens    File              Type  Edit  Len  Tbl Record  Picture  Recode Alt  
     27906 C.ANSA.TR.AFFREG Affect Regulation              0  (02)CLIENT FILE        X     0     1    0 27800                        
@@ -161,7 +161,7 @@ Numeric    Listing of FILE     2  REC             Data Element Specification Lis
     27946 C.ANSA.GRADE     ANSA Highest Grade Achieved    0  (02)CLIENT FILE        X     1     2 9710 27800                        
     27947 C.ANSA.RESTYPE   ANSA Residence Type            0  (02)CLIENT FILE        X     1     2 9012 27800                        
     27948 C.ANSA.RESOTHER1 ANSA Residence Other 1         0  (02)CLIENT FILE        X     0    50    0 27800                        
-    27949 C.ANSA.RESOTHER2 ANSA Residence Other 1         0  (02)CLIENT FILE        X     0    56    0 27800                        
+    27949 C.ANSA.LABOROTH  ANSA Residence Other 1         0  (02)CLIENT FILE        X     0    50    0 27800                        
     27950 C.ANSA.EXTDREV   ANSA Extended Review           0  (02)CLIENT FILE        X     1     1   29 27800                        
     27951 C.ANSA.TCOOMMI   ANSA TCOOMMI Client            0  (02)CLIENT FILE        X     1     1   29 27800                        
     27952 C.ANSA.DISDT     ANSA Discharge Date            0  (02)CLIENT FILE        D     0    10    0 27800                        
@@ -174,13 +174,14 @@ Numeric    Listing of FILE     2  REC             Data Element Specification Lis
     27959 C.ANSA.DEVOTH    ANSA Other Deviation Reas      0  (02)CLIENT FILE        X     0    64    0 27800                        
                                                        HELEN FARABEE CENTERS                                                        
 
-Numeric    Listing of FILE     2  REC             Data Element Specification List                      06/10/2013 9:59am  Page     4
+Numeric    Listing of             REC 27800       Data Element Specification List                      06/11/2013 11:37am Page     4
                                                                                                                                     
      No    Ref Name          Full Name                  Sens    File              Type  Edit  Len  Tbl Record  Picture  Recode Alt  
     27960 C.ANSA.DEVR1     ANSA Deviation 1               0  (02)CLIENT FILE        X     0    63    0 27800                        
     27961 C.ANSA.DEVR2     ANSA Other Deviation 2         0  (02)CLIENT FILE        X     0    63    0 27800                        
     27962 C.ANSA.DEVR3     ANSA Other Deviation 3         0  (02)CLIENT FILE        X     0    63    0 27800                        
     27963 C.ANSA.DEVR4     ANSA Other Deviation 4         0  (02)CLIENT FILE        X     0    63    0 27800                        
+    27964 C.ANSA.EMPTYPE   ANSA Paid Employment Type      0  (02)CLIENT FILE        X     1     1 9004 27800                        
     27965 C.ANSA.DEVR5     ANSA Other Deviation 5         0  (02)CLIENT FILE        X     0     3    0 27800                        
     27966 C.ANSA.DEVJUST   ANSA Other Deviation Reas      0  (02)CLIENT FILE        X     0    64    0 27800                        
     27967 C.ANSA.PSRS      ANSA PSRS SCORE                0  (02)CLIENT FILE        X     0     2    0 27800                        
@@ -189,3 +190,6 @@ Numeric    Listing of FILE     2  REC             Data Element Specification Lis
     27970 C.ANSA.QIDS      ANSA QIDS SCORE                0  (02)CLIENT FILE        X     0     2    0 27800                        
     27971 C.ANSA.QIDSVER   ANSA QIDS VERSION              0  (02)CLIENT FILE        X     1     1 9007 27800                        
     27972 C.ANSA.SR.FFSUI  ANSA SR FAMILY HX              0  (02)CLIENT FILE        X     0     1    0 27800                        
+    27973 C.ANSA.MINOR     ANSA Resides with Minor        0  (02)CLIENT FILE        X     1     1   29 27800                        
+    27974 C.ANSA.SCALEDT   Clinical Scales Date           0  (02)CLIENT FILE        D     0    10    0 27800                        
+    27975 C.ANSA.LABOR     ANSA Paid Reason Out of Work   0  (02)CLIENT FILE        X     0     2    0 27800                        
