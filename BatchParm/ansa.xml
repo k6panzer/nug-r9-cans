@@ -5,7 +5,7 @@
   <ComponentCode>230</ComponentCode> 
   <LocalCaseNbr>%C.ID%</LocalCaseNbr> 
   <LocalUnitNbr /> 
-  <Age>%C.ANSA.AGE</Age> 
+  <Age>%C.ANSA.AGE%</Age> 
   <AssessmentType>%C.ANSA.TYPE%</AssessmentType> 
   <QuestionSet>3</QuestionSet> 
   <JustificationForLateSubmission /> 
@@ -15,7 +15,7 @@
   <DischargeDate>%C.ANSA.DISDT%</DischargeDate> 
   <DischargeReason>%C.ANSA.DISREAS%</DischargeReason> 
   <DischargeReasonOther>%C.ANSA.DISOTH%</DischargeReasonOther> 
-  <ReferralTo>C.ANSA.INTREF%</ReferralTo> 
+  <ReferralTo>%C.ANSA.INTREF%</ReferralTo> 
   <TCOOMMIConsumer>%C.ANSA.TCOOMMI%</TCOOMMIConsumer> 
   <DocumentStatus>3</DocumentStatus> 
   <DocumentStatusDate>%C.ANSA.COMPD%</DocumentStatusDate> 
