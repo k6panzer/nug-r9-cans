@@ -1,15 +1,13 @@
-  <?xml version="1.0" encoding="utf-8" ?> 
-- <Batch>
-- <Transaction>
+ <Transaction>
   <TransactionType>28</TransactionType> 
   <ComponentCode>230</ComponentCode> 
   <LocalCaseNbr>%C.ID%</LocalCaseNbr> 
-  <LocalUnitNbr /> 
+  <LocalUnitNbr/> 
   <Age>%C.ANSA.AGE%</Age> 
   <AssessmentType>%C.ANSA.TYPE%</AssessmentType> 
   <QuestionSet>3</QuestionSet> 
-  <JustificationForLateSubmission /> 
-  <OtherJustificationForLateSubmission /> 
+  <JustificationForLateSubmission/> 
+  <OtherJustificationForLateSubmission/> 
   <LevelRecommendation>%C.ANSA.RLOC%</LevelRecommendation> 
   <LevelDeviation>%C.ANSA.DLOC%</LevelDeviation> 
   <DischargeDate>%C.ANSA.DISDT%</DischargeDate> 
@@ -18,8 +16,8 @@
   <ReferralTo>%C.ANSA.INTREF%</ReferralTo> 
   <TCOOMMIConsumer>%C.ANSA.TCOOMMI%</TCOOMMIConsumer> 
   <DocumentStatus>3</DocumentStatus> 
-  <DocumentStatusDate>%C.ANSA.COMPD%</DocumentStatusDate> 
-- <QuestionSetType>
+  <DocumentStatusDate>%C.ANSA.COMPD%</DocumentStatusDate>
+ <QuestionSetType>
 	  <AssessmentDate>%C.ANSA.DATE%</AssessmentDate> 
 	  <RbSuicideRisk>%C.ANSA.R.SUICID%</RbSuicideRisk> 
 	  <RbDangerToOthers>%C.ANSA.R.DANGOT%</RbDangerToOthers> 
@@ -33,7 +31,7 @@
 	  <SrIntent>%C.ANSA.SR.INTENT%</SrIntent> 
 	  <SrPlanning>%C.ANSA.SR.PLAN%</SrPlanning> 
 	  <SrSuicideHistory>%C.ANSA.SR.HIST%</SrSuicideHistory> 
-	  <SrSuicideFamilyHistory>%C.ANSA.SR.FSUI%</SrSuicideFamilyHistory> 
+	  <SrSuicideFamilyHistory>%C.ANSA.SR.FFSUI%</SrSuicideFamilyHistory> 
 	  <DanFrustrationMgmt>%C.ANSA.D.FRUSMAN%</DanFrustrationMgmt> 
 	  <DanHostility>%C.ANSA.D.HOST%</DanHostility> 
 	  <DanParanoidThinking>%C.ANSA.D.PTHINK%</DanParanoidThinking> 
@@ -77,7 +75,7 @@
 	  <TraNaturalDisaster>%C.ANSA.TR.NATDIS%</TraNaturalDisaster> 
 	  <TraWitnessToFamViolence>%C.ANSA.TR.WTOFAM%</TraWitnessToFamViolence> 
 	  <TraWitnessToComViolence>%C.ANSA.TR.WTOCOM%</TraWitnessToComViolence> 
-	  <TraWitnessCrimActivity>%C.ANSA.TR.CRIME%</TraWitnessCrimActivity> 
+	  <TraWitnessCrimActivity>%C.ANSA.TR.WCRIME%</TraWitnessCrimActivity> 
 	  <TraWarAffected>%C.ANSA.TR.WARAFF%</TraWarAffected> 
 	  <TraTerrorismAffected>%C.ANSA.TR.TERAFF%</TraTerrorismAffected> 
 	  <TraAffectRegulation>%C.ANSA.TR.AFFREG%</TraAffectRegulation> 
@@ -149,20 +147,20 @@
 	  <PerformedByCredential>$DBREAD|03|C.ANSA.STAFF|S.RANDR.CRED</PerformedByCredential> 
 	  <AssessmentNotes>%C.ANSA.COMMENT%</AssessmentNotes> 
   </QuestionSetType>
-- <Authorization>
+ <Authorization>
   <LevelAuthorized>%C.ANSA.ALOC%</LevelAuthorized> 
   <DeviationReason>%C.ANSA.LOC_DEV%</DeviationReason> 
   <DeviationReasonOther>%C.ANSA.DEVOTH%</DeviationReasonOther> 
   <DeviationJustification>%C.ANSA.DEVJUST%<DeviationJustification> 
   <AuthorizationDate>%C.ANSA.ALOCDATE%</AuthorizationDate> 
   <JustificationForLateAuthorization></JustificationForLateAuthorization> 
-  <OtherJustificationForLateAuthorization /> 
+  <OtherJustificationForLateAuthorization/> 
   <EndDate>%C.ANSA.ALOCEDATE%</EndDate> 
   <SubjectToHearing></SubjectToHearing> 
   <AuthorizedBy>$EDIT|DB``03|C.CANS.ALOCSTAFF</AuthorizedBy> 
   <AuthorizedByCredential>$DBREAD|03|C.CANS.ALOCSTAFF|S.RANDR.CRED</AuthorizedByCredential> 
   </Authorization>
-- <CommunityData>
+ <CommunityData>
   <NumberOfArrest>%C.ANSA.ARREST%</NumberOfArrest> 
   <AssessmentDate>%C.ANSA.COMMDATE%</AssessmentDate> 
   <Grade>%C.ANSA.GRADE%</Grade> 
@@ -171,18 +169,17 @@
   <ChildInHouse>%C.ANSA.MINOR%</ChildInHouse> 
   <EmploymentType>%C.ANSA.EMPTYPE%</EmploymentType> 
   <ReasonNotWorking>%C.ANSA.LABOR%</ReasonNotWorking> 
-  <ReasonNotWorkingOther /> 
+  <ReasonNotWorkingOther/> 
   </CommunityData>
-- <ClinicalRatingScale>
+ <ClinicalRatingScale>
   <AssessmentDate>%C.ANSA.SCALEDT%</AssessmentDate> 
   <TotalPSRS>%C.ANSA.PSRS%</TotalPSRS> 
   <TotalBNSA>%C.ANSA.BNSA%</TotalBNSA> 
-  <TotalBDSS>%C.ANSA.PDSS%</TotalBDSS> 
+  <TotalBDSS>%C.ANSA.BDSS%</TotalBDSS> 
   <TotalQIDS>%C.ANSA.QIDS%</TotalQIDS> 
   <QIDSVersion>%C.ANSA.QIDSVER%</QIDSVersion> 
-  </ClinicalRatingScale>
-  <BHOProviderId /> 
-  <NPI /> 
-  <VendorNbr /> 
+ </ClinicalRatingScale>
+  <BHOProviderId/> 
+  <NPI/> 
+  <VendorNbr/>    
   </Transaction>
-  </Batch>
