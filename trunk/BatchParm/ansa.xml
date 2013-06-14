@@ -6,8 +6,8 @@
   <Age>%C.ANSA.AGE%</Age> 
   <AssessmentType>%C.ANSA.TYPE%</AssessmentType> 
   <QuestionSet>3</QuestionSet> 
-  <JustificationForLateSubmission/> 
-  <OtherJustificationForLateSubmission/> 
+  <JustificationForLateSubmission>%C.ANSA.SLATE%</JustificationForLateSubmission>
+  <OtherJustificationForLateSubmission>%C.ANSA.SLATEOTH%</OtherJustificationForLateSubmission>   
   <LevelRecommendation>%C.ANSA.RLOC%</LevelRecommendation> 
   <LevelDeviation>%C.ANSA.DLOC%</LevelDeviation> 
   <DischargeDate>%C.ANSA.DISDT%</DischargeDate> 
@@ -151,7 +151,7 @@
   <LevelAuthorized>%C.ANSA.ALOC%</LevelAuthorized> 
   <DeviationReason>%C.ANSA.LOC_DEV%</DeviationReason> 
   <DeviationReasonOther>%C.ANSA.DEVOTH%</DeviationReasonOther> 
-  <DeviationJustification>%C.ANSA.DEVJUST%<DeviationJustification> 
+  <DeviationJustification>%C.ANSA.DEVJUST%</DeviationJustification> 
   <AuthorizationDate>%C.ANSA.ALOCDATE%</AuthorizationDate> 
   <JustificationForLateAuthorization></JustificationForLateAuthorization> 
   <OtherJustificationForLateAuthorization/> 
