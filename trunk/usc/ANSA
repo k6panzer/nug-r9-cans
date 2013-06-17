@@ -2817,7 +2817,19 @@ end CanSkipPage2
 function CanSkipPage3() is x
  CanSkipPage3 = "Y"
  if c.ansa.type = "1" or c.ansa.type = "2" or (c.ansa.type = "3" and c.ansa.disreas = "9")
-  CanSkipPage3 = "N"
+  if {"lib_ANSA"}DXScaleRequired(DXType,c.ansa.date) = "Y"
+   CanSkipPage3 = "N"
+  else 
+   CanSkipPage3 = "Y"
+   select DXType
+    case "S" $clear(c.ansa.qids,c.ansa.qidsver,c.ansa.bdss)
+	         {"lib_ANSA"}GetSchizScore(c.ansa.scaledt,c.ansa.psrs,c.ansa.bnsa)
+	case "D" $clear(c.ansa.bdss,c.ansa.psrs,c.ansa.bnsa)
+             {"lib_ANSA"}GetQIDSScore(c.ansa.scaledt,c.ansa.qids,c.ansa.qidsver)
+	case "B" $clear(c.ansa.qids,c.ansa.qidsver,c.ansa.psrs,c.ansa.bnsa)
+             {"lib_ANSA"}GetBipolarScore(c.ansa.scaledt,c.ansa.bdss)	
+   endselect
+  endif
  endif 
 end CanSkipPage3
 

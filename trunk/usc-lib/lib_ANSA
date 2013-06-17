@@ -2,7 +2,7 @@ library lib_ANSA()
  %include inc_SCHIZALG
  %include inc_QIDSALG
  %include inc_BIPOLARALG
- %include inc_DX
+ %include inc_DX_ANSA
 
  function Allow_Assesment(clientid,assessments[]) is null
   clientid        is x
@@ -1116,6 +1116,8 @@ library lib_ANSA()
   DXDate is d
   DXGaf  is i
   rc     is b
+  
+  dx_dct = 400
  
   rc = $dbread(02, $regid, c.dsmiiir,c.diag,c.dxaxvc,c.dxdate)
   dxtype = $dct(dx_dct, c.diag, "1")
@@ -1225,7 +1227,7 @@ library lib_ANSA()
   if DXType = "S" or DXType = "B" or (DXType = "D" and (c.ansa.type = "1" and DXGaf <= 50)) or c.ansa.type = "2" or c.ansa.type = "11"
 
 '4/115/ACT
-   if ($num(c.ansa.hs.num180) > 1 or c.ansa.hs.numg30 = "3") or (c.ansa.cr.episds = "3" and (c.ansa.hs.num180 = "1" or c.ansa.hs.numl30 = "2"))
+   if ($num(c.ansa.hs.num180) > 1 or c.ansa.hs.numl30 = "3" or $num(c.ansa.hs.numg30) > 0) or (c.ansa.cr.episds = "3" and (c.ansa.hs.num180 = "1" or c.ansa.hs.numl30 = "2"))
     RLOC = act
 	return
    endif
@@ -1490,3 +1492,80 @@ library lib_ANSA()
    endif	
   enddo 
  end HistoryTest
+ 
+ function DXScaleRequired(DXType,c.ansa.date) is x
+ DXType      is x
+ c.ansa.date is d
+ ScaleAge    is i
+ rc          is i
+ select DXType
+  case "S" rc = $dbread(02,$regid,c.schiz.rec,c.schiz.date)
+           if rc = 0
+            ScaleAge = c.ansa.date - c.schiz.date
+			if ScaleAge < 90
+			 DXScaleRequired = "N1"
+			else
+		     DXScaleRequired = "Y"
+			endif
+		   else
+		    DXScaleRequired = "Y"
+		   endif	
+  case "D" rc = $dbread(02,$regid,c.qids.rec,c.qids.date)
+           if rc = 0
+            ScaleAge = c.ansa.date - c.qids.date
+			if ScaleAge < 90
+			 DXScaleRequired = "N1"
+			else
+		     DXScaleRequired = "Y"
+			endif
+		   else
+		    DXScaleRequired = "Y"
+		   endif	  
+  case "B" rc = $dbread(02,$regid,c.bdss.rec,c.bdss.date)
+           if rc = 0
+            ScaleAge = c.ansa.date - c.bdss.date
+			if ScaleAge < 90
+			 DXScaleRequired = "N1"
+			else
+		     DXScaleRequired = "Y"
+			endif
+		   else
+		    DXScaleRequired = "Y"
+		   endif	  
+  case other DXScaleRequired = "N"
+ endselect
+end DXScaleRequired
+
+function GetSchizScore(c.ansa.scaledt,c.ansa.psrs,c.ansa.bnsa) is null
+ c.ansa.scaledt is d
+ c.ansa.psrs    is x
+ c.ansa.bnsa    is x
+ rc             is i
+ rc = $dbpoint(2,$regid,c.schiz.rec,c.schiz.date,c.schiz.psrs,c.schiz.bnsa)
+ c.ansa.scaledt = c.schiz.date
+ c.ansa.psrs = c.schiz.psrs
+ c.ansa.bnsa = c.schiz.bnsa
+ $allowupdate(c.ansa.scaledt,c.ansa.psrs,c.ansa.bnsa)
+end GetSchizScore
+
+function GetQIDSScore(c.ansa.scaledt,c.ansa.qids,c.ansa.qidsver) is null
+ c.ansa.scaledt is d
+ c.ansa.qids    is x
+ c.ansa.qidsver is x
+ rc             is i
+ rc = $dbread(2,$regid,c.qids.rec,c.qids.date,c.qids.totl,c.qids.vers)
+ c.ansa.scaledt = c.qids.date
+ c.ansa.qids = c.qids.totl
+ c.ansa.qidsver = c.qids.vers 
+ $allowupdate(c.ansa.scaledt,c.ansa.qids,c.ansa.qidsver)
+end GetQIDSScore
+
+function GetBipolarScore(c.ansa.scaledt,c.ansa.bdss) is null
+ c.ansa.scaledt is d
+ c.ansa.bdss    is x
+ rc             is i
+ rc = $dbread(2,$regid,c.bdss.rec,c.bdss.date,c.bdss.score)
+ c.ansa.scaledt = c.bdss.date
+ c.ansa.bdss = c.bdss.score
+ $allowupdate(c.ansa.scaledt,c.ansa.bdss)
+end GetBipolarScore	
