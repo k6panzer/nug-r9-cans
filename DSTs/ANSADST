@@ -163,6 +163,15 @@ start ANSADST()
 			rc = $adddcv(9712,"114","Intensive Services")
 			rc = $adddcv(9712,"115","Assertive community Treatment")
 		endif				
+		rc = $adddct(9714,"ANSA ALOC Service Levels")
+		if rc = 0
+			rc = $adddcv(9714,"11","Ind/Depend/In Fmly Home/Sup HS")
+			rc = $adddcv(9714,"12","Grp Home/Assist Live/Trmt Trng")
+			rc = $adddcv(9714,"13","Nursing Home/ICF/Hospital")
+			rc = $adddcv(9714,"2","Foster Care")
+			rc = $adddcv(9714,"7","Jail or Correctional Facility")
+			rc = $adddcv(9714,"8","Homeless")
+		endif						
 		
 'Now create the DST's.
 rc = $dstadd(dst,"C.ANSA.REC"      ,"ANSA Record Header"            ,dbfile,"H",0, 0,   0,recordnum)
@@ -309,7 +318,7 @@ rc = $dstadd(dst,"C.ANSA.ALOCEDATE","ANSA Auth End Date"            ,dbfile,"D",
 rc = $dstadd(dst,"C.ANSA.FAIRHEAR" ,"ANSA Medicaid Fair Hearing Req",dbfile,"X",1, 1,  29,recordnum)
 rc = $dstadd(dst,"C.ANSA.ARREST"   ,"ANSA Arrests last 30 Days"     ,dbfile,"X",0, 2,   0,recordnum)
 rc = $dstadd(dst,"C.ANSA.GRADE"    ,"ANSA Highest Grade Achieved"   ,dbfile,"X",1, 2,9010,recordnum)
-rc = $dstadd(dst,"C.ANSA.RESTYPE"  ,"ANSA Residence Type"           ,dbfile,"X",1, 2,9012,recordnum)
+rc = $dstadd(dst,"C.ANSA.RESTYPE"  ,"ANSA Residence Type"           ,dbfile,"X",1, 2,9714,recordnum)
 rc = $dstadd(dst,"C.ANSA.RESOTHER1","ANSA Residence Other 1"        ,dbfile,"X",0,44,   0,recordnum)
 rc = $dstadd(dst,"C.ANSA.RESOTHER2","ANSA Residence Other 2"        ,dbfile,"X",0,56,   0,recordnum)
 rc = $dstadd(dst,"C.ANSA.EXTDREV"  ,"ANSA Extended Review"          ,dbfile,"X",1, 1,  29,recordnum)
