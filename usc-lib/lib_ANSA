@@ -1119,7 +1119,8 @@ library lib_ANSA()
   
   dx_dct = 400
  
-  rc = $dbread(02, $regid, c.dsmiiir,c.diag,c.dxaxvc,c.dxdate)
+  rc = $dbread(02, $regid, c.dsmiiir,c.diag,c.dxaxi2,c.dxaxi3,c.dxaxi4,c.dxaxi5,c.dxaxi6,c.dxaxvc,c.dxdate)  
+
   dxtype = $dct(dx_dct, c.diag, "1")
   DX = c.diag
   DXGaf = c.dxaxvc
