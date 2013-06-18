@@ -111,7 +111,8 @@ start ANSA(parmfile,option,client,retcode)
  %global UM_StaffYN
  UM_StaffYN is x
  UM_StaffYN = {"lib_UACOMMON"}UMStaff()
- PromptNED is x
+ %global PromptNED
+ PromptNED is i
  
  if UM_StaffYN = "Y"
   rc = $dbread(02, $regid, c.ansa.rec,c.ansa.compd,c.ansa.type,c.ansa.staff)
@@ -120,8 +121,9 @@ start ANSA(parmfile,option,client,retcode)
     PromptNED = {"lib_ANSA"}PromptNewEditDel($regid)    
     if PromptNED = 1
      $dblock()
-     rc = $dbread(02, $regid, ansa_dstlist)	
+     rc = $dbread(02, $regid, c.ansa.rec,c.ansa.date)	
      rc = $dbremovedst(02, $regid, c.ansa.rec,c.ansa.date)
+	 $clear(c.ansa.date)
      $brmsg("ANSA Assessment Successfully Removed from the Database!",1,"C","Process Complete")
      $brmsg("The assessment will restart now.",2,"W")
 	 Page = "0"
@@ -158,8 +160,9 @@ start ANSA(parmfile,option,client,retcode)
    PromptNED = {"lib_ANSA"}PromptNewEditDel($regid)
     if PromptNED = 1
      $dblock()
-     rc = $dbread(02, $regid, ansa_dstlist)	
+     rc = $dbread(02, $regid, c.ansa.rec,c.ansa.date)	
      rc = $dbremovedst(02, $regid, c.ansa.rec,c.ansa.date)
+	 $clear(c.ansa.date)
      $brmsg("ANSA Assessment Successfully Removed from the Database!",1,"C","Process Complete")
      $brmsg("The assessment will restart now.",2,"W")
 	 Page = "0"	 
@@ -189,8 +192,9 @@ start ANSA(parmfile,option,client,retcode)
   rc = $dbread(02, $regid, c.ansa.rec,c.ansa.compd,c.ansa.type,c.ansa.staff)
   if PromptNED = 1
    $dblock()
-   rc = $dbread(02, $regid, ansa_dstlist)	
+   rc = $dbread(02, $regid, c.ansa.rec,c.ansa.date)	
    rc = $dbremovedst(02, $regid, c.ansa.rec,c.ansa.date)
+   $clear(c.ansa.date)
    $brmsg("ansa Assessment Successfully Removed from the Database!",1,"C","Process Complete")
    $brmsg("The assessment will restart now.",2,"W")
    Page = "0"   
@@ -1292,7 +1296,7 @@ function Page4() is null
 	       $dropbox(c.ansa.emptype,"Independent/Competitive/Supported/Self-employment","1",,,,,,"Y")
            $dropbox(c.ansa.emptype,"Transitional/Sheltered Employment","2",,,,,,"Y")
            $dropbox(c.ansa.emptype,"Unemployed but wants or needs to work","3",,,,,,"Y")
-           $dropbox(c.ansa.emptype,"Not In The Labor Force","4","NOWORK","NOWORK",,,,"Y")
+           $dropbox(c.ansa.emptype,"Not In The Labor Force","4",,,"NOWORK","NOWORK",,"Y")
    $endtable($funcname)
    $block("NOWORK","NOWORK")
     $table($funcname,,table_nobgcolor)   		   
@@ -1305,7 +1309,7 @@ function Page4() is null
             $dropbox(c.ansa.labor,"Unable to find or keep a job",4,,,,,,"Y")
             $dropbox(c.ansa.labor,"Stay-at-home parent, homemaker, or full-time student",5,,,,,,"Y")
             $dropbox(c.ansa.labor,"Over 65 or retired",6,,,,,,"Y")
-            $dropbox(c.ansa.labor,"Other",7,"NOWORK","OTHER",,,,"Y")  	  
+            $dropbox(c.ansa.labor,"Other",7,,,"NOWORK","OTHER",,"Y")  	  
 	$endtable($funcname)	   
    $endblock("NOWORK","NOWORK")
    $block("NOWORK","OTHER")
@@ -1319,15 +1323,15 @@ function Page4() is null
     $row()
      $col("right",,"50%")$text(q_text_restype,"datatag")
      $col()$dropboxdct(c.ansa.restype,AnsaResTypeDCT,,,,"Y")
-	       $dropbox(c.ansa.restype,"Other","9",,,"OTHER","OTHER","Y")       
+	       $dropbox(c.ansa.restype,"Other","9",,,"RESTYPE","OTHER","Y")       
    $endtable($funcname)
-   $block("OTHER","OTHER")
+   $block("RESTYPE","OTHER")
     $table("OTHER",,table_nobgcolor)
      $row()
       $col("right",,"50%")$text(q_text_resother1,"datatag")
       $col()$textbox(c.ansa.resother1,,50,60,"Y")
     $endtable("OTHER")
-   $endblock("OTHER","OTHER")
+   $endblock("RESTYPE","OTHER")
    $table($funcname,,table_nobgcolor)
     $row()
      $col("right",,"50%")$text(q_text_minor, "datatag")
@@ -2911,7 +2915,11 @@ function SaveData() is i
   mode = "ADD"
  else
   mode = "UPDATE"
- endif            
+ endif
+ 
+ if PromptNED = 2
+  mode = "UPDATE"
+ endif 
  
  $dblock()
  SaveData = $dbpoint(02, $regid, c.ansa.rec)	                          
@@ -3096,8 +3104,46 @@ function Page0() is null
 end Page0
 
 function Validate0() is i
- $clear(errors[])
- Validate0 = $maxarray(errors[])
+ $clear(errors[]) 
+ select c.ansa.type
+  case "1" $clear(c.ansa.disdt,c.ansa.disreas,c.ansa.disref,c.ansa.disoth)
+           if c.ansa.intref != "5"
+            $clear(c.ansa.intrefoth)
+           endif
+           if c.ansa.tcoommi !dp
+            (void)$arrpush(errors[],oth_tc_errortxt)
+           endif
+  case "2" $clear(c.ansa.intref,c.ansa.intrefoth,c.ansa.disdt,c.ansa.disreas,c.ansa.disref,c.ansa.disoth)
+           if c.ansa.tcoommi !dp
+            (void)$arrpush(errors[],oth_tc_errortxt)
+           endif
+  case "3" $clear(c.ansa.intref,c.ansa.intrefoth)
+           if c.ansa.disreas = "9"
+            if c.ansa.tcoommi !dp
+             (void)$arrpush(errors[],oth_tc_errortxt)
+            endif
+           else
+            ClearPage1()
+            ClearPage2()
+            ClearPage3()
+			ClearPage4()
+		   endif
+  case "11" $clear(c.ansa.intref,c.ansa.intrefoth,c.ansa.disdt,c.ansa.disreas,c.ansa.disref,c.ansa.disoth)
+            ClearPage1()
+            ClearPage2()
+            ClearPage3()
+            ClearPage4()
+  case "12" $clear(c.ansa.disdt,c.ansa.disreas,c.ansa.disref,c.ansa.disoth)
+            if c.ansa.tcoommi !dp
+             (void)$arrpush(errors[],oth_tc_errortxt)
+            endif
+ endselect
+
+ if errors[1] dp
+  Validate0 = 1
+ else
+  Validate0 = 0
+ endif
  c.ansa.staff = $operstaffid
  c.ansa.ver   = $scriptid
 end Validate0
@@ -3568,3 +3614,35 @@ function NonPPPage() is null
        $text("ability you may clinically override this person into an appropriate level of care.  Otherwise this person may be placed on a waiting list for services if there is currently insufficient capacity to serve this person.")
  $sendform($funcname)
 end NonPPPage
+
+function ClearPage1() is null
+ $clear(c.ansa.r.suicid,c.ansa.r.dangot,c.ansa.r.smutil,c.ansa.r.oslfhr,c.ansa.r.exploit,c.ansa.r.gamble,c.ansa.r.sexagr,c.ansa.r.crimbe)
+ $clear(c.ansa.b.psychs,c.ansa.b.cog,c.ansa.b.depres,c.ansa.b.anxity,c.ansa.b.mania,c.ansa.b.implsv,c.ansa.b.inter,c.ansa.b.antisoc,c.ansa.b.adjtrm,c.ansa.b.angctr,c.ansa.b.subabs,c.ansa.b.eatdst)
+ $clear(c.ansa.ld.phymed,c.ansa.ld.family,c.ansa.ld.employ,c.ansa.ld.socfun,c.ansa.ld.recret,c.ansa.ld.indliv,c.ansa.ld.sexdev,c.ansa.ld.living,c.ansa.ld.restab,c.ansa.ld.legal,c.ansa.ld.sleep,c.ansa.ld.slfcre,c.ansa.ld.decisi,c.ansa.ld.invrec)
+ $clear(c.ansa.ld.trans)
+ $clear(c.ansa.fc.na,c.ansa.fc.phlth,c.ansa.fc.invcre,c.ansa.fc.know,c.ansa.fc.sfres,c.ansa.fc.famst,c.ansa.fc.safe)
+ $clear(c.ansa.st.fam,c.ansa.st.soccon,c.ansa.st.opti,c.ansa.st.tal,c.ansa.st.edu,c.ansa.st.vol,c.ansa.st.jobhi,c.ansa.st.relig,c.ansa.st.comcon,c.ansa.st.natsup,c.ansa.st.resil,c.ansa.st.resour)
+ $clear(c.ansa.ac.langua,c.ansa.ac.identy,c.ansa.ac.ritual,c.ansa.ac.culstr)
+ $clear(c.ansa.hs.num180,c.ansa.hs.numl30,c.ansa.hs.numg30)
+ $clear(c.ansa.cr.episds)
+end ClearPage1
+
+function ClearPage2() is null
+ $clear(c.ansa.sr.idea,c.ansa.sr.intent,c.ansa.sr.plan,c.ansa.sr.hist,c.ansa.sr.ffsui)
+ $clear(c.ansa.d.frusman,c.ansa.d.host,c.ansa.d.pthink,c.ansa.d.gainang,c.ansa.d.vthink,c.ansa.d.potent,c.ansa.d.respon,c.ansa.d.csctrl,c.ansa.d.tinv)
+ $clear(c.ansa.sb.relton,c.ansa.sb.phyfrc,c.ansa.sb.planin,c.ansa.sb.agedif,c.ansa.sb.typsex,c.ansa.sb.resacc)
+ $clear(c.ansa.cb.seri,c.ansa.cb.hist,c.ansa.cb.arrest,c.ansa.cb.plan,c.ansa.cb.comsf,c.ansa.cb.legcom,c.ansa.cb.peer,c.ansa.cb.finf,c.ansa.cb.einf)
+ $clear(c.ansa.tr.sexabs,c.ansa.tr.phyabs,c.ansa.tr.emoabs,c.ansa.tr.medtrm,c.ansa.tr.natdis,c.ansa.tr.wtofam,c.ansa.tr.wtocom,c.ansa.tr.wcrime,c.ansa.tr.waraff,c.ansa.tr.teraff,c.ansa.tr.affreg,c.ansa.tr.intrus,c.ansa.tr.attach,c.ansa.tr.dissoc)
+ $clear(c.ansa.sa.severe,c.ansa.sa.durati,c.ansa.sa.stgrec,c.ansa.sa.perinf,c.ansa.sa.envinf,c.ansa.sa.reccom)
+ $clear(c.ansa.pm.pcpc,c.ansa.pm.chi,c.ansa.pm.mehv,c.ansa.pm.mp)
+ $clear(c.ansa.vc.career,c.ansa.vc.jtime,c.ansa.vc.jatt,c.ansa.vc.jper,c.ansa.vc.jrel,c.ansa.vc.jskill)
+ $clear(c.ansa.dn.cog,c.ansa.dn.comm,c.ansa.dn.dev)
+end ClearPage2
+
+function ClearPage3() is null
+ $clear(c.ansa.scaledt,c.ansa.psrs,c.ansa.bnsa,c.ansa.bdss,c.ansa.qids,c.ansa.qidsver)
+end ClearPage3
+
+function ClearPage4() is null
+ $clear(c.ansa.commdate,c.ansa.arrest,c.ansa.grade,c.ansa.restype,c.ansa.resother1,c.ansa.emptype,c.ansa.labor,c.ansa.laboroth,c.ansa.minor,c.ansa.isn)
+end ClearPage4

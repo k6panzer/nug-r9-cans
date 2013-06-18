@@ -94,6 +94,7 @@ start CANS617(parmfile,option,client,retcode)
  %global UM_StaffYN
  UM_StaffYN is x
  UM_StaffYN = {"lib_UACOMMON"}UMStaff()
+ %global PromptNED
  PromptNED is x
  
  if UM_StaffYN = "Y"
@@ -108,8 +109,9 @@ start CANS617(parmfile,option,client,retcode)
     PromptNED = {"lib_CANS"}PromptNewEditDel($regid)    
     if PromptNED = 1
      $dblock()
-     rc = $dbread(02, $regid, cans_dstlist)	
+     rc = $dbread(02, $regid, c.cans.rec,c.cans.date)	
      rc = $dbremovedst(02, $regid, c.cans.rec,c.cans.date)
+	 $clear(c.cans.date)
      $brmsg("CANS Assessment Successfully Removed from the Database!",1,"C","Process Complete")
      $brmsg("The assessment will restart now.",2,"W")
 	 Page = "0"
@@ -146,8 +148,9 @@ start CANS617(parmfile,option,client,retcode)
    PromptNED = {"lib_CANS"}PromptNewEditDel($regid)
     if PromptNED = 1
      $dblock()
-     rc = $dbread(02, $regid, cans_dstlist)	
+     rc = $dbread(02, $regid, c.cans.rec,c.cans.date)	
      rc = $dbremovedst(02, $regid, c.cans.rec,c.cans.date)
+	 $clear(c.cans.date)
      $brmsg("CANS Assessment Successfully Removed from the Database!",1,"C","Process Complete")
      $brmsg("The assessment will restart now.",2,"W")
 	 Page = "0"	 
@@ -177,8 +180,9 @@ start CANS617(parmfile,option,client,retcode)
   rc = $dbread(02, $regid, c.cans.rec,c.cans.compd,c.cans.type,c.cans.staff)
   if PromptNED = 1
    $dblock()
-   rc = $dbread(02, $regid, cans_dstlist)	
+   rc = $dbread(02, $regid, c.cans.rec,c.cans.date)	
    rc = $dbremovedst(02, $regid, c.cans.rec,c.cans.date)
+   $clear(c.cans.date)
    $brmsg("CANS Assessment Successfully Removed from the Database!",1,"C","Process Complete")
    $brmsg("The assessment will restart now.",2,"W")
    Page = "0"   
@@ -565,6 +569,9 @@ function SaveData() is i
   mode = "ADD"
  else
   mode = "UPDATE"  
+ endif
+ if PromptNED = 2
+  mode = "UPDATE"
  endif
  $dblock()
  SaveData = $dbpoint(02, $regid, c.cans.rec) 
