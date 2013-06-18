@@ -1504,7 +1504,7 @@ library lib_ANSA()
            if rc = 0
             ScaleAge = c.ansa.date - c.schiz.date
 			if ScaleAge < 90
-			 DXScaleRequired = "N1"
+			 DXScaleRequired = "N"
 			else
 		     DXScaleRequired = "Y"
 			endif
@@ -1515,7 +1515,7 @@ library lib_ANSA()
            if rc = 0
             ScaleAge = c.ansa.date - c.qids.date
 			if ScaleAge < 90
-			 DXScaleRequired = "N1"
+			 DXScaleRequired = "N"
 			else
 		     DXScaleRequired = "Y"
 			endif
@@ -1526,7 +1526,7 @@ library lib_ANSA()
            if rc = 0
             ScaleAge = c.ansa.date - c.bdss.date
 			if ScaleAge < 90
-			 DXScaleRequired = "N1"
+			 DXScaleRequired = "N"
 			else
 		     DXScaleRequired = "Y"
 			endif
@@ -1542,7 +1542,7 @@ function GetSchizScore(c.ansa.scaledt,c.ansa.psrs,c.ansa.bnsa) is null
  c.ansa.psrs    is x
  c.ansa.bnsa    is x
  rc             is i
- rc = $dbpoint(2,$regid,c.schiz.rec,c.schiz.date,c.schiz.psrs,c.schiz.bnsa)
+ rc = $dbread(2,$regid,c.schiz.rec,c.schiz.date,c.schiz.psrs,c.schiz.bnsa)
  c.ansa.scaledt = c.schiz.date
  c.ansa.psrs = c.schiz.psrs
  c.ansa.bnsa = c.schiz.bnsa
