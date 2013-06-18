@@ -2,7 +2,7 @@
 '----------
 '
 
-%version 0.0 06/11/13 TxACE
+%version 0.2 06/11/13 TxACE
 
 start ANSADST()
  rc        is i
@@ -234,6 +234,7 @@ rc = $dstadd(dst,"C.ANSA.ST.NATSUP","Natural Supports"              ,dbfile,"X",
 rc = $dstadd(dst,"C.ANSA.ST.RESIL" ,"Resiliency"                    ,dbfile,"X",0, 1,   0,recordnum)
 rc = $dstadd(dst,"C.ANSA.ST.RESOUR","Resourcefulness"               ,dbfile,"X",0, 1,   0,recordnum)
 rc = $dstadd(dst,"C.ANSA.AC.LANGUA","Language"                      ,dbfile,"X",0, 1,   0,recordnum)
+rc = $dstadd(dst,"C.ANSA.AC.IDENTY","Identy"                        ,dbfile,"X",0, 1,   0,recordnum)
 rc = $dstadd(dst,"C.ANSA.AC.RITUAL","Ritual"                        ,dbfile,"X",0, 1,   0,recordnum)
 rc = $dstadd(dst,"C.ANSA.AC.CULSTR","Cultural Stress"               ,dbfile,"X",0, 1,   0,recordnum)
 rc = $dstadd(dst,"C.ANSA.HS.NUM180","Number of Hospitalizations in" ,dbfile,"X",0, 1,   0,recordnum)
@@ -251,6 +252,7 @@ rc = $dstadd(dst,"C.ANSA.D.GAINANG","Secondary Gains From Anger"    ,dbfile,"X",
 rc = $dstadd(dst,"C.ANSA.D.VTHINK" ,"Violent Thinking"              ,dbfile,"X",0, 1,   0,recordnum)
 rc = $dstadd(dst,"C.ANSA.D.POTENT" ,"Awareness of Violence Potentia",dbfile,"X",0, 1,   0,recordnum)
 rc = $dstadd(dst,"C.ANSA.D.RESPON" ,"Response"                      ,dbfile,"X",0, 1,   0,recordnum)
+rc = $dstadd(dst,"C.ANSA.D.CSCTRL" ,"Commitment to Self Contro"     ,dbfile,"X",0, 1,   0,recordnum)
 rc = $dstadd(dst,"C.ANSA.D.TINV"   ,"Treatment Involvement"         ,dbfile,"X",0, 1,   0,recordnum)
 rc = $dstadd(dst,"C.ANSA.SB.RELTON","Relationship"                  ,dbfile,"X",0, 1,   0,recordnum)
 rc = $dstadd(dst,"C.ANSA.SB.PHYFRC","Physical Force/Threat"         ,dbfile,"X",0, 1,   0,recordnum)
@@ -265,8 +267,8 @@ rc = $dstadd(dst,"C.ANSA.CB.PLAN"  ,"Planning"                      ,dbfile,"X",
 rc = $dstadd(dst,"C.ANSA.CB.COMSF" ,"Community Safety"              ,dbfile,"X",0, 1,   0,recordnum)
 rc = $dstadd(dst,"C.ANSA.CB.LEGCOM","Legal Compliance"              ,dbfile,"X",0, 1,   0,recordnum)
 rc = $dstadd(dst,"C.ANSA.CB.PEER"  ,"Peer Influences"               ,dbfile,"X",0, 1,   0,recordnum)
-rc = $dstadd(dst,"C.ANSA.CB.FINF"  ,"Immediate Family Criminal"     ,dbfile,"X",0, 1,   0,recordnum)
-rc = $dstadd(dst,"C.ANSA.CB.BINF"  ,"Behavior Influences"           ,dbfile,"X",0, 1,   0,recordnum)
+rc = $dstadd(dst,"C.ANSA.CB.FINF"  ,"Immediate Family Crime Bhv Inf",dbfile,"X",0, 1,   0,recordnum)
+'rc = $dstadd(dst,"C.ANSA.CB.BINF"  ,"Behavior Influences"           ,dbfile,"X",0, 1,   0,recordnum)
 rc = $dstadd(dst,"C.ANSA.CB.EINF"  ,"Environmental Influences"      ,dbfile,"X",0, 1,   0,recordnum)
 rc = $dstadd(dst,"C.ANSA.TR.SEXABS","Sexual Abuse"                  ,dbfile,"X",0, 1,   0,recordnum)
 rc = $dstadd(dst,"C.ANSA.TR.PHYABS","Physical Abuse"                ,dbfile,"X",0, 1,   0,recordnum)
@@ -321,7 +323,7 @@ rc = $dstadd(dst,"C.ANSA.GRADE"    ,"ANSA Highest Grade Achieved"   ,dbfile,"X",
 rc = $dstadd(dst,"C.ANSA.RESTYPE"  ,"ANSA Residence Type"           ,dbfile,"X",1, 2,9714,recordnum)
 rc = $dstadd(dst,"C.ANSA.RESOTHER1","ANSA Residence Other 1"        ,dbfile,"X",0,44,   0,recordnum)
 rc = $dstadd(dst,"C.ANSA.RESOTHER2","ANSA Residence Other 2"        ,dbfile,"X",0,56,   0,recordnum)
-rc = $dstadd(dst,"C.ANSA.EXTDREV"  ,"ANSA Extended Review"          ,dbfile,"X",1, 1,  29,recordnum)
+'rc = $dstadd(dst,"C.ANSA.EXTDREV"  ,"ANSA Extended Review"          ,dbfile,"X",1, 1,  29,recordnum)
 rc = $dstadd(dst,"C.ANSA.TCOOMMI"  ,"ANSA TCOOMMI Client?"          ,dbfile,"X",1, 1,  29,recordnum)
 rc = $dstadd(dst,"C.ANSA.DISDT"    ,"ANSA Discharge Date"           ,dbfile,"D",0,10,   0,recordnum)
 rc = $dstadd(dst,"C.ANSA.DISREAS"  ,"ANSA Discharge Reason"         ,dbfile,"X",1, 2,9703,recordnum)
