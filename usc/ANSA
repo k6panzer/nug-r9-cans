@@ -2875,9 +2875,11 @@ function Report(RptTitle,ReportID,mode) is null
    if c.ansa.type = "1" or c.ansa.type = "2" or (c.ansa.type = "3" and c.ansa.disreas = "9") or c.ansa.type = "12"
     OtherQuestionRpt()
    endif	
-   $br()RiskRpt()
-   $br()BehavioralRpt()
-   $br()LifeDomainRpt()
+   if c.ansa.type = "1" or c.ansa.type = "2" or (c.ansa.type = "3" and c.ansa.disreas = "9") or c.ansa.type = "11" or c.ansa.type = "12"
+    $br()RiskRpt()
+    $br()BehavioralRpt()
+    $br()LifeDomainRpt()
+   endif	
    if c.ansa.type = "1" or c.ansa.type = "2" or (c.ansa.type = "3" and c.ansa.disreas = "9") or c.ansa.type = "12"
     $br()CareGiveRpt()
     $br()StrengthsRpt()
