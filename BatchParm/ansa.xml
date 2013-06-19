@@ -12,8 +12,10 @@
   <LevelDeviation>%C.ANSA.DLOC%</LevelDeviation> 
   <DischargeDate>%C.ANSA.DISDT%</DischargeDate> 
   <DischargeReason>%C.ANSA.DISREAS%</DischargeReason> 
-  <DischargeReasonOther>%C.ANSA.DISOTH%</DischargeReasonOther> 
-  <ReferralTo>%C.ANSA.INTREF%</ReferralTo> 
+  <DischargeReasonOther>%C.ANSA.DISOTH%</DischargeReasonOther>
+  <ReferralSource>%C.ANSA.INTREF%</ReferralSource>
+  <ReferralSourceOther>%C.ANSA.INTREFOTH%</ReferralSourceOther>   
+  <ReferralTo>%C.ANSA.DISREF%</ReferralTo> 
   <TCOOMMIConsumer>%C.ANSA.TCOOMMI%</TCOOMMIConsumer> 
   <DocumentStatus>3</DocumentStatus> 
   <DocumentStatusDate>%C.ANSA.COMPD%</DocumentStatusDate>
@@ -169,7 +171,7 @@
   <ChildInHouse>%C.ANSA.MINOR%</ChildInHouse> 
   <EmploymentType>%C.ANSA.EMPTYPE%</EmploymentType> 
   <ReasonNotWorking>%C.ANSA.LABOR%</ReasonNotWorking> 
-  <ReasonNotWorkingOther/> 
+  <ReasonNotWorkingOther>%C.ANSA.LABOROTH%</ReasonNotWorking> 
   </CommunityData>
  <ClinicalRatingScale>
   <AssessmentDate>%C.ANSA.SCALEDT%</AssessmentDate> 
