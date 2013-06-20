@@ -301,7 +301,7 @@ library lib_ANSA()
   enddo
  end SCHIZALG
 
- function SCHIZALGRpt(c.ansa.scaledt,c.ansa.psrs,c.ansa.bnsa) is i
+ function SCHIZALGRpt(c.ansa.scaledt,c.ansa.psrs,c.ansa.bnsa) is x
   c.ansa.scaledt is d
   c.ansa.psrs    is x
   c.ansa.bnsa    is x
@@ -453,7 +453,7 @@ library lib_ANSA()
                            c.schiz.rapp,c.schiz.nega,c.schiz.unco,c.schiz.diso,c.schiz.othr,c.schiz.staf,c.schiz.date,c.schiz.comm)
    if rc = 0
     $brmsg("Data Successfully Added to Database!", 1,"W","Process Complete")
-    SCHIZALGRpt = rc 
+    SCHIZALGRpt = "Y" 
     c.ansa.scaledt = c.schiz.date
 	c.ansa.psrs = c.schiz.psrs
     c.ansa.bnsa = c.schiz.bnsa
@@ -464,7 +464,7 @@ library lib_ANSA()
 	$brmsg($errmsg,1,"W","Error")
    endif
   else
-   SCHIZALG()
+   SCHIZALGRpt = "N" 
   endif
  end SCHIZALGRpt
 
@@ -627,7 +627,7 @@ library lib_ANSA()
   enddo 	
  end QIDSALG
 
- function QIDSALGRpt(c.ansa.scaledt,c.ansa.qids,c.ansa.qidsver) is i
+ function QIDSALGRpt(c.ansa.scaledt,c.ansa.qids,c.ansa.qidsver) is x
   c.ansa.scaledt is d
   c.ansa.qids    is x
   c.ansa.qidsver is x
@@ -765,7 +765,7 @@ library lib_ANSA()
                            c.qids.date,c.qids.vers,c.qids.comm) 
    if rc = 0
     $brmsg("Data Successfully Added to Database!",1,"W","Process Complete")
-     QIDSALGRpt = rc
+     QIDSALGRpt = "Y"
 	 c.ansa.scaledt = c.qids.date
 	 c.ansa.qids = c.qids.totl
 	 c.ansa.qidsver = c.qids.vers
@@ -775,7 +775,7 @@ library lib_ANSA()
     $brmsg("There Was A Problem Saving The Data! Contact MIS Now.",1,"W","ERROR")
    endif
   else
-   QIDSALG() 
+   QIDSALGRpt = "N"
   endif
  end QIDSALGRpt
 
@@ -932,7 +932,7 @@ library lib_ANSA()
   enddo
  end BipolarAlg
 
- function BipolarAlgRpt(c.ansa.scaledt,c.ansa.bdss) is i
+ function BipolarAlgRpt(c.ansa.scaledt,c.ansa.bdss) is x
   c.ansa.scaledt is d
   c.ansa.bdss    is x
   rc             is i
@@ -1096,16 +1096,16 @@ library lib_ANSA()
                            c.bdss.unco,c.bdss.diso,c.bdss.othr,c.bdss.staf,c.bdss.date,c.bdss.score,c.bdss.comm)
    if rc = 0
     $brmsg("Data Successfully Added to Database!", 1, "W", "Process Complete")
+    BipolarAlgRpt = "Y"
     c.ansa.scaledt = c.bdss.date
 	c.ansa.bdss = c.bdss.score
 	$allowupdate(c.ansa.scaledt,c.ansa.bdss)
-    BipolarAlgRpt = rc
     return
    else
     $brmsg(`"There Was A Problem Saving The Data! Contact MIS Now. RC=" + rc`, 1, "W", "ERROR")
    endif
   else
-   BipolarAlg()
+   BipolarAlgRpt = "N"
   endif
  end BipolarAlgRpt  
 
@@ -1510,7 +1510,8 @@ library lib_ANSA()
 			endif
 		   else
 		    DXScaleRequired = "Y"
-		   endif	
+		   endif
+		   $clear(c.schiz.date)	
   case "D" rc = $dbread(02,$regid,c.qids.rec,c.qids.date)
            if rc = 0
             ScaleAge = c.ansa.date - c.qids.date
@@ -1521,7 +1522,8 @@ library lib_ANSA()
 			endif
 		   else
 		    DXScaleRequired = "Y"
-		   endif	  
+		   endif
+		   $clear(c.qids.date)	  
   case "B" rc = $dbread(02,$regid,c.bdss.rec,c.bdss.date)
            if rc = 0
             ScaleAge = c.ansa.date - c.bdss.date
@@ -1532,7 +1534,8 @@ library lib_ANSA()
 			endif
 		   else
 		    DXScaleRequired = "Y"
-		   endif	  
+		   endif
+		   $clear(c.bdss.date)	  
   case other DXScaleRequired = "N"
  endselect
 end DXScaleRequired
