@@ -245,40 +245,40 @@ start ANSA(parmfile,option,client,retcode)
 			          {"lib_ANSA"}QidsAlg()
                       select $endbutton
 		               case "SUBMIT" select {"lib_ANSA"}QidsAlgRpt(c.ansa.scaledt,,c.ansa.qids,c.ansa.qidsver)
-			   		               case 0 Page = "4"
-			   					   case other Page = "Validate3"
-			   					  endselect						             
+			   		                  case "Y" Page = "4"
+			   					      case "N" Validate3()
+									           Page = "3"
+			   					     endselect						             
 			   		case "CANCEL" select CanSkipPage2()
 			   		               case "Y" Page = "1"
 			   				       case "N" Page = "2"
 			   				      endselect
-		               case other Page = "4"
 		              endselect
              case "B" $clear(c.ansa.qids,c.ansa.qidsver,c.ansa.psrs,c.ansa.bnsa)
 			          {"lib_ANSA"}BipolarAlg()
                       select $endbutton
 		               case "SUBMIT" select {"lib_ANSA"}BipolarAlgRpt(c.ansa.scaledt,,c.ansa.bdss)
-			   		               case 0 Page = "4"
-			   					   case other Page = "Validate3"
-			   					  endselect
+			   		                  case "Y" Page = "4"
+			   					      case "N" Validate3()
+									           Page = "3"
+			   					     endselect
 			   		case "CANCEL" select CanSkipPage2()
 			   		               case "Y" Page = "1"
 			   				       case "N" Page = "2"
 			   				      endselect
-		               case other Page = "4"
 		              endselect
              case "S" $clear(c.ansa.qids,c.ansa.qidsver,c.ansa.bdss)
 			          {"lib_ANSA"}SchizAlg()
                       select $endbutton
 		               case "SUBMIT" select {"lib_ANSA"}SchizAlgRpt(c.ansa.scaledt,c.ansa.psrs,c.ansa.bnsa)
-			   		               case 0 Page = "4"
-			   					   case other Page = "Validate3"
-			   					  endselect						
+			   		                  case "Y" Page = "4"
+			   					      case "N" Validate3()
+									           Page = "3"
+			   					     endselect						
 			   		case "CANCEL" select CanSkipPage2()
 			   		               case "Y" Page = "1"
 			   				       case "N" Page = "2"
 			   				      endselect
-		               case other Page = "4"
 		              endselect
              case "O" or !dp $clear(c.ansa.scaledt,c.ansa.qids,c.ansa.qidsver,c.ansa.bdss,c.ansa.psrs,c.ansa.bnsa)
                              NonPPPage()
