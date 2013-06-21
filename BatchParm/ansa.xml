@@ -171,7 +171,6 @@
   <ChildInHouse>%C.ANSA.MINOR%</ChildInHouse> 
   <EmploymentType>%C.ANSA.EMPTYPE%</EmploymentType> 
   <ReasonNotWorking>%C.ANSA.LABOR%</ReasonNotWorking> 
-  <ReasonNotWorkingOther>%C.ANSA.LABOROTH%</ReasonNotWorking> 
   </CommunityData>
  <ClinicalRatingScale>
   <AssessmentDate>%C.ANSA.SCALEDT%</AssessmentDate> 
