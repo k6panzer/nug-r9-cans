@@ -2,11 +2,21 @@
 'Diagnosis Record
 '#54
 
-%global DX_DCT
-DX_DCT is b
+%global DX_DCT,DX_DCT2,DX_DCT3,DX_DCT4,DX_DCT5,DX_DCT6
+DX_DCT  is b
+DX_DCT2 is b
+DX_DCT3 is b
+DX_DCT4 is b
+DX_DCT5 is b
+DX_DCT6 is b
 
 '*********Datacode Tables, Change These*****************
 DX_DCT = 400    
+DX_DCT2 = DX_DCT
+DX_DCT3 = DX_DCT
+DX_DCT4 = DX_DCT
+DX_DCT5 = DX_DCT
+DX_DCT6 = DX_DCT
 '*******************************************************
 
 %global dx_dstlist
