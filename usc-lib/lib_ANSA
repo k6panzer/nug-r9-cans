@@ -1169,6 +1169,8 @@ library lib_ANSA()
 			 case other    dxcat = "MDD - Without Psychotic Features"
 			endselect 
    case "O" dxcat = "Other"
+   case !dp dxcat = "Other"
+            DXType = "O"
   endselect
   $allowupdate(dxtype, DX, dxcat, DXGAF)
  end GETDX
