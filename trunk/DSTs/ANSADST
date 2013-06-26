@@ -349,7 +349,8 @@ rc = $dstadd(dst,"C.ANSA.SR.FFSUI" ,"ANSA SR Family Hx"             ,dbfile,"X",
 rc = $dstadd(dst,"C.ANSA.MINOR"    ,"ANSA Resides with Minor"       ,dbfile,"X",1, 1,  29,recordnum)
 rc = $dstadd(dst,"C.ANSA.SCALEDT"  ,"Clinical Scales Date"          ,dbfile,"D",0,10,   0,recordnum)
 rc = $dstadd(dst,"C.ANSA.LABOR"    ,"ANSA Paid Reason Out of Work"  ,dbfile,"X",0, 2,   0,recordnum)
-
+rc = $dstadd(dst,"C.ANSA.EXTDREV"  ,"ANSA Extended Review"          ,dbfile,"X",1, 1,  29,recordnum)
+rc = $dstadd(dst,"C.ANSA.LABOROTH" ,"ANSA Residence Other 1"        ,dbfile,"X",0,50,   0,recordnum)
 
 end ANSADST
  
