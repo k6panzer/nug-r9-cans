@@ -163,6 +163,7 @@ start ANSADST()
 			rc = $adddcv(9712,"113","Basic Services")
 			rc = $adddcv(9712,"114","Intensive Services")
 			rc = $adddcv(9712,"115","Assertive community Treatment")
+			rc = $adddcv(9712,"120","Ineligible")			
 		endif				
 		rc = $adddct(9714,"ANSA ALOC Service Levels")
 		if rc = 0
