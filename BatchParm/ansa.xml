@@ -159,8 +159,8 @@
   <OtherJustificationForLateAuthorization/> 
   <EndDate>%C.ANSA.ALOCEDATE%</EndDate> 
   <SubjectToHearing></SubjectToHearing> 
-  <AuthorizedBy>$EDIT|DB``03|C.CANS.ALOCSTAFF</AuthorizedBy> 
-  <AuthorizedByCredential>$DBREAD|03|C.CANS.ALOCSTAFF|S.RANDR.CRED</AuthorizedByCredential> 
+  <AuthorizedBy>$EDIT|DB``03|C.ANSA.ALOCSTAFF</AuthorizedBy> 
+  <AuthorizedByCredential>$DBREAD|03|C.ANSA.ALOCSTAFF|S.RANDR.CRED</AuthorizedByCredential> 
   </Authorization>
  <CommunityData>
   <NumberOfArrest>%C.ANSA.ARREST%</NumberOfArrest> 
