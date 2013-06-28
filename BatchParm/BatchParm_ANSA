@@ -306,7 +306,7 @@ STAFFCRED 3055
 82  003 00000   21                                   Physical record number     
 *82  004 00000                                        Authorized by creds       
 *Optionally program generated using AUSTAFF2/STAFFCRED parameter logic          
-82  005 26343                                        Late Auth                  
+*82  005 26343                                        Late Auth                  
 *Adult Uniform Assmt 22- TX Number 28                                           
 83  001 00000   28                                   Transaction code           
 83  002 00000   A                                    Format version             
