@@ -21,7 +21,7 @@ i = 1
 
 
 
-do until i = 341
+do until i = 342
 
 if $seg(parmline[i],1,1) >= "6" and $seg(parmline[i],1,1) <= "8"
 	
@@ -377,22 +377,23 @@ parmline[322] =   "84  001 00000   28                                   Transact
 parmline[323] =   "84  002 00000   A                                    Format version             " 
 parmline[324] =   "84  003 00000   23                                   Physical record number     " 
 parmline[325] =   "*84  004 27949                                        Prim res other (Part 2)   " 
-parmline[326] =   "84  004  C.ANSA.LABOROTH                                       Reason Not Workin" 
-parmline[327] =   "*Optionally program generated using AUTEXT3 parameter logic                     " 
-parmline[328] =   "84  005 C.ANSA.GRADE                                        Current/High Grade  " 
-parmline[329] =   "84  006 C.ANSA.MINOR                                        Child in house      " 
-parmline[330] =   "84  007 C.ANSA.EMPTYPE                                        Emp Type          " 
-parmline[331] =   "84  008 C.ANSA.LABOR                                        Reason not working  " 
-parmline[332] =   "*Adult Uniform Assmt 24- TX Number 28                                           " 
-parmline[333] =   "85  001 00000   28                                   Transaction code           " 
-parmline[334] =   "85  002 00000   A                                    Format version             " 
-parmline[335] =   "85  003 00000   24                                   Physical record number     " 
-parmline[336] =   "85  004 C.ANSA.SCALEDT                                        CRS assessment dat" 
-parmline[337] =   "85  005 C.ANSA.PSRS                                        Schizophrenia - Pos -" 
-parmline[338] =   "85  006 C.ANSA.BNSA                                        Schizophrenia - Neg -" 
-parmline[339] =   "85  007 C.ANSA.BDSS                                        Bipolar scale - X    " 
-parmline[340] =   "85  008 C.ANSA.QIDS                                        Major depression - X " 
-parmline[341] =   "85  009 27971                                        QIDS Version               " 
+Parmline[326] =   "*CMHC Record 9 below is correct and is in correct place                         "
+parmline[327] =   "84  009  C.ANSA.LABOROTH                                       Reason Not Workin" 
+parmline[328] =   "*Optionally program generated using AUTEXT3 parameter logic                     " 
+parmline[329] =   "84  005 C.ANSA.GRADE                                        Current/High Grade  " 
+parmline[330] =   "84  006 C.ANSA.MINOR                                        Child in house      " 
+parmline[331] =   "84  007 C.ANSA.EMPTYPE                                        Emp Type          " 
+parmline[332] =   "84  008 C.ANSA.LABOR                                        Reason not working  " 
+parmline[333] =   "*Adult Uniform Assmt 24- TX Number 28                                           " 
+parmline[334] =   "85  001 00000   28                                   Transaction code           " 
+parmline[335] =   "85  002 00000   A                                    Format version             " 
+parmline[336] =   "85  003 00000   24                                   Physical record number     " 
+parmline[337] =   "85  004 C.ANSA.SCALEDT                                        CRS assessment dat" 
+parmline[338] =   "85  005 C.ANSA.PSRS                                        Schizophrenia - Pos -" 
+parmline[339] =   "85  006 C.ANSA.BNSA                                        Schizophrenia - Neg -" 
+parmline[340] =   "85  007 C.ANSA.BDSS                                        Bipolar scale - X    " 
+parmline[341] =   "85  008 C.ANSA.QIDS                                        Major depression - X " 
+parmline[342] =   "85  009 27971                                        QIDS Version               " 
 
 
 $allowupdate(parmline[])
