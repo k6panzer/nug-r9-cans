@@ -323,7 +323,8 @@ STAFFCRED 3055
 84  002 00000   A                                    Format version             
 84  003 00000   23                                   Physical record number     
 *84  004 27949                                        Prim res other (Part 2)   
-84  004                                        Reason Not Workin                
+*CMHC Record 9 below is correct and is in correct place
+84  009 26675                                        Reason Not Workin                
 *Optionally program generated using AUTEXT3 parameter logic                     
 84  005 26645                                        Current/High Grade         
 84  006 26671                                        Child in house             
