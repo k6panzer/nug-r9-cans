@@ -1,0 +1,341 @@
+*Texas CARE (CMBHS) Reporting                                                   
+*                                                                               
+COMPCODE 350                                                                    
+BATCHNO Z1                                                                      
+TRLVERSION A                                                                    
+USERID BATCH                                                                    
+*LIVEONLY                                                                       
+TESTOUT Y                                                                       
+CLLIST ANSA                                                                     
+PQOUT N                                                                         
+SEQOUT /c4/EXPORT2/BatchTest/ANSA                                               
+AURECHDR 26500                                                                  
+AUDATE 26634       *C.ANSA.COMPD                                                
+AUFLAG 26504                                                                    
+*AUEXCLUDE 25571                                                                
+*AUFORCE 25572                                                                  
+AUSTAFF1 26501                                                                  
+AUSTAFF2 26640                                                                  
+*AUTEXT1 28164                                                                  
+*AUTEXT2 28165                                                                  
+*AUTEXT3 28166                                                                  
+STAFFCRED 3055                                                                  
+*                                                                               
+*Adult Uniform Assmt 1 - TX Number 28                                           
+62  001 00000   28                                   Transaction code           
+62  002 00000   A                                    Format version             
+62  003 00000   01                                   Physical record number     
+62  004                                         Local Case Number               
+*62  005 27999                                        Age-Binary-type           
+62  005 26632                                        Age-X-type                 
+62  006 26629                                        Asmt Type                  
+62  007 26630                                        LOC-R                      
+62  008 26633                                        LOC-D                      
+*62  009 28002                                        BHO Provider ID           
+*62  010 28003                                        NPI                       
+*62  011 28004                                        Vendor ID                 
+*Adult Uniform Assmt 2 - TX Number 28                                           
+63  001 00000   28                                   Transaction code           
+63  002 00000   A                                    Format version             
+63  003 00000   02                                   Physical record number     
+63  004 26650                                        Discharge Date             
+63  005 26651                                        Discharge Reason           
+63  006 26653                                        Disch Reason - Othe        
+*63  007 27954                                        Referral Source           
+*Adult Uniform Assmt 3 - TX Number 28                                           
+64  001 00000   28                                   Transaction code           
+64  002 00000   A                                    Format version             
+64  003 00000   03                                   Physical record number     
+*64  004 28007                                        Referral source other     
+64  005 26652                                        Referred to                
+*64  006 28008                                        Local unit number         
+*Adult Uniform Assmt 4 - TX Number 28                                           
+65  001 00000   28                                   Transaction code           
+65  002 00000   A                                    Format version             
+65  003 00000   04                                   Physical record number     
+65  004 26649                                        TCOOMMI?                   
+65  005 00000   3                                     Doc Status                
+65  006 26634                                        Doc Status Date            
+*65  007 28011                                        Justification late sub    
+*Adult Uniform Assmt 5 - TX Number 28                                           
+66  001 00000   28                                   Transaction code           
+66  002 00000   A                                    Format version             
+66  003 00000   05                                   Physical record number     
+66  004 26503                                        ANSA Assmt Date            
+*66  005 00000                                        Performed by (Part 1)     
+*Optionally program generated using AUSTAFF1 parameter logic                    
+*                                                                               
+*Adult Uniform Assmt 6 - TX Number 28                                           
+67  001 00000   28                                   Transaction code           
+67  002 00000   A                                    Format version             
+67  003 00000   06                                   Physical record number     
+*67  004 00000                                        Performed by (Part 2)     
+*Optionally program generated using AUSTAFF1 parameter logic (always spaces)    
+*67  005 00000                                        Performed by (creds)      
+*Optionally program generated using AUSTAFF1/STAFFCRED parameter logic          
+*                                                                               
+*Adult Uniform Assmt 7 - TX Number 28                                           
+68  001 00000   28                                   Transaction code           
+68  002 00000   A                                    Format version             
+68  003 00000   07                                   Physical record number     
+68  004 26505                                        Suicide risk               
+68  005 26506                                        Danger to others           
+68  006 26507                                        Self injury                
+68  007 26508                                        Other self-harm            
+68  008 26509                                        Exploitation               
+68  009 26510                                        Gambling                   
+68  010 26511                                        Sexual aggression          
+68  011 26512                                        Criminal behavior          
+68  012 26567                                        Ideation                   
+68  013 26568                                        Intent                     
+68  014 26569                                        Planning                   
+68  015 26570                                        Suicide history            
+68  016 26670                                        Suicide family hi          
+68  017 26571                                        Frustration mana           
+68  018 26572                                        Hostility                  
+68  019 26573                                        Paranoid thinking          
+68  020 26574                                        Secondary gains            
+68  021 26575                                        Violent thinking           
+68  022 26576                                        Aware violence po          
+68  023 26577                                        Response to conse          
+68  024 26578                                        Commitment to sel          
+68  025 26579                                        Treatment involveme        
+68  026 26580                                        Relationship               
+68  027 26581                                        Physical force/t           
+68  028 26582                                        Planning                   
+68  029 26583                                        Age differential           
+68  030 26584                                        Type of sex act            
+68  031 26585                                        Response to accu           
+68  032 26586                                        Seriousness                
+68  033 26587                                        History                    
+68  034 26588                                        Arrests                    
+68  035 26589                                        Planning                   
+68  036 26590                                        Community safety           
+68  037 26591                                        Legal compliance           
+68  038 26592                                        Peer influences            
+68  039 26593                                        Immediate family c         
+68  040 26595                                        Environmental infl         
+68  041 26513                                        Psychosis                  
+68  042 26514                                        Cognition                  
+68  043 26515                                        Depression                 
+68  044 26516                                        Anxiety                    
+68  045 26517                                        Mania                      
+68  046 26518                                        Impulse control            
+68  047 26519                                        Interpersonal prob         
+68  048 26520                                        Anti-social beha           
+68  049 26521                                        Adjustment to tra          
+68  050 26523                                        Substance use              
+68  051 26524                                        Eating disturbanc          
+68  052 26596                                        Sexual abuse               
+68  053 26597                                        Physical abuse             
+68  054 26598                                        Emotional abuse            
+68  055 26599                                        Medical trauma             
+68  056 26600                                        Natural disaster           
+68  057 26601                                        Witness family v           
+68  058 26602                                        Witness comm vio           
+68  059 26603                                        Witness criminal           
+68  060 26604                                        War affected               
+68  061 26605                                        Terrorism affect           
+68  062 26606                                        Affect regulatio           
+68  063 26607                                        Intrusions                 
+68  064 26608                                        Attachment                 
+68  065 26609                                        Dissociation               
+***Netsmart added this field                                                    
+68  066 26522                                        Anger Control              
+***Netsmart added this field                                                    
+*Adult Uniform Assmt 8 - TX Number 28                                           
+69  001 00000   28                                   Transaction code           
+69  002 00000   A                                    Format version             
+69  003 00000   08                                   Physical record number     
+69  004 26610                                        Severity of use            
+69  005 26611                                        Duration of use            
+69  006 26612                                        Stage of recover           
+69  007 26613                                        Peer influences            
+69  008 26614                                        Environmental in           
+69  009 26615                                        Recovery in supp           
+69  010 26525                                        Physical                   
+69  011 26526                                        Family functioni           
+69  012 26527                                        Employment / Edu           
+69  013 26528                                        Social functioni           
+69  014 26529                                        Recreational               
+69  015 26530                                        Intellectual dev           
+69  016 26531                                        Sexual developme           
+69  017 26532                                        Living skills              
+69  018 26533                                        Residential stab           
+69  019 26534                                        Legal                      
+69  020 26535                                        Sleep                      
+69  021 26536                                        Self care                  
+69  022 26537                                        Decision making            
+69  023 26538                                        Involvement in r           
+69  024 26539                                        Transportation             
+69  025 26616                                        Career aspiratio           
+69  026 26617                                        Job time                   
+69  027 26618                                        Job attendance             
+69  028 26619                                        Job performance            
+69  029 26620                                        Job relations              
+69  030 26621                                        Job skills                 
+69  031 26622                                        Cognitive                  
+69  032 26623                                        Communication              
+69  033 26624                                        Developmental              
+69  034 26541                                        Physical health            
+69  035 26542                                        Involvement with           
+69  036 26543                                        Knowledge                  
+69  037 26544                                        Social finan reso          
+69  038 26545                                        Family stress              
+69  039 26546                                        Safety                     
+69  040 26547                                        Family                     
+69  041 26548                                        Social connected           
+69  042 26549                                        Optimism                   
+69  043 26550                                        Talents                    
+69  044 26551                                        Educational                
+69  045 26552                                        Volunteering               
+69  046 26553                                        Job history                
+69  047 26554                                        Spiritual religio          
+69  048 26555                                        Community connec           
+69  049 26556                                        Natural supports           
+69  050 26557                                        Resiliency                 
+69  051 26558                                        Resourcefulness            
+69  052 26559                                        Language                   
+69  053 26560                                        Identity                   
+69  054 26561                                        Ritual                     
+69  055 26562                                        Cultural stress            
+69  056 26563                                        Number prior hos           
+69  057 26564                                        Number prior hos           
+69  058 26565                                        Number prior hos           
+69  059 26566                                        Psychiatric ep l           
+69  060 26625                                        Primary care physi         
+69  061 26626                                        Chronic health issu        
+69  062 26627                                        Medical/ER hosp vi         
+69  063 26628                                        Medical prescription       
+***Netsmart added this field                                                    
+69  064 26540                                        Family/Caregiver NA        
+***Netsmart added this field                                                    
+*Adult Uniform Assmt 9 - TX Number 28                                           
+70  001 00000   28                                   Transaction code           
+70  002 00000   A                                    Format version             
+70  003 00000   09                                   Physical record number     
+70  004 26635                                       Notes (Part 1)              
+*Optionally program generated using AUTEXT1 parameter logic                     
+*                                                                               
+*Adult Uniform Assmt 10- TX Number 28                                           
+71  001 00000   28                                   Transaction code           
+71  002 00000   A                                    Format version             
+71  003 00000   10                                   Physical record number     
+71  004 26636                                        Note (Part 2)              
+*Optionally program generated using AUTEXT1 parameter logic                     
+*                                                                               
+*Adult Uniform Assmt 11- TX Number 28                                           
+72  001 00000   28                                   Transaction code           
+72  002 00000   A                                    Format version             
+72  003 00000   11                                   Physical record number     
+*72  004 00000                                        Notes (Part 3)            
+*Optionally program generated using AUTEXT1 parameter logic                     
+*                                                                               
+*Adult Uniform Assmt 12- TX Number 28                                           
+73  001 00000   28                                   Transaction code           
+73  002 00000   A                                    Format version             
+73  003 00000   12                                   Physical record number     
+*73  004 00000                                        Notes (Part 4)            
+*Optionally program generated using AUTEXT1 parameter logic                     
+*                                                                               
+*Adult Uniform Assmt 13- TX Number 28                                           
+74  001 00000   28                                   Transaction code           
+74  002 00000   A                                    Format version             
+74  003 00000   13                                   Physical record number     
+*74  004 00000                                        Notes (Part 5)            
+*Optionally program generated using AUTEXT1 parameter logic                     
+*74  005 28135                                        Justification Late Sub    
+*74  006 28136                                        Justification Late Auth   
+*Adult Uniform Assmt 14- TX Number 28                                           
+75  001 00000   28                                   Transaction code           
+75  002 00000   A                                    Format version             
+75  003 00000   14                                   Physical record number     
+75  004 26631                                        LOC-A                      
+75  005 26656                                        Reason Dev LOC-R           
+75  006 26657                                        Dev Reason - Other         
+*Adult Uniform Assmt 15- TX Number 28                                           
+76  001 00000   28                                   Transaction code           
+76  002 00000   A                                    Format version             
+76  003 00000   15                                   Physical record number     
+76  004 26658                                        Justification (Part        
+*Optionally program generated using AUTEXT2 parameter logic                     
+*                                                                               
+*Adult Uniform Assmt 16- TX Number 28                                           
+77  001 00000   28                                   Transaction code           
+77  002 00000   A                                    Format version             
+77  003 00000   16                                   Physical record number     
+77  004 26659                                        Justification (Part        
+*Optionally program generated using AUTEXT2 parameter logic                     
+*                                                                               
+*Adult Uniform Assmt 17- TX Number 28                                           
+78  001 00000   28                                   Transaction code           
+78  002 00000   A                                    Format version             
+78  003 00000   17                                   Physical record number     
+78  004 26660                                        Justification (Part        
+*Optionally program generated using AUTEXT2 parameter logic                     
+*                                                                               
+*Adult Uniform Assmt 18- TX Number 28                                           
+79  001 00000   28                                   Transaction code           
+79  002 00000   A                                    Format version             
+79  003 00000   18                                   Physical record number     
+79  004 26661                                        Justification (Part        
+*Optionally program generated using AUTEXT2 parameter logic                     
+*                                                                               
+*Adult Uniform Assmt 19- TX Number 28                                           
+80  001 00000   28                                   Transaction code           
+80  002 00000   A                                    Format version             
+80  003 00000   19                                   Physical record number     
+80  004 26663                                        Justification (Part        
+*Optionally program generated using AUTEXT2 parameter logic                     
+80  005 26641                                        Auth Date                  
+80  006 26642                                        End date                   
+80  007 26643                                        MCaid Hearing              
+*80  008 00000                                        Authorized by (Part 1)    
+*Optionally program generated using AUSTAFF2 parameter logic                    
+*                                                                               
+*Adult Uniform Assmt 20- TX Number 28                                           
+81  001 00000   28                                   Transaction code           
+81  002 00000   A                                    Format version             
+81  003 00000   20                                   Physical record number     
+*81  004 00000                                        Authorized by (Part 2)    
+*Optionally program generated using AUTSTAFF2 parameter logic (always spaces)   
+*                                                                               
+*Adult Uniform Assmt 21- TX Number 28                                           
+82  001 00000   28                                   Transaction code           
+82  002 00000   A                                    Format version             
+82  003 00000   21                                   Physical record number     
+*82  004 00000                                        Authorized by creds       
+*Optionally program generated using AUSTAFF2/STAFFCRED parameter logic          
+82  005 26343                                        Late Auth                  
+*Adult Uniform Assmt 22- TX Number 28                                           
+83  001 00000   28                                   Transaction code           
+83  002 00000   A                                    Format version             
+83  003 00000   22                                   Physical record number     
+83  004 26644                                        Arrests 30 days - B        
+*83  004 28144                                        Arrests 30 days - X-type  
+83  005 26639                                        Assmt Date                 
+83  006 26646                                        Res type                   
+83  007 26647                                        Prim res other (           
+*Optionally program generated using AUTEXT3 parameter logic                     
+*                                                                               
+*Adult Uniform Assmt 23- TX Number 28                                           
+84  001 00000   28                                   Transaction code           
+84  002 00000   A                                    Format version             
+84  003 00000   23                                   Physical record number     
+*84  004 27949                                        Prim res other (Part 2)   
+84  004                                        Reason Not Workin                
+*Optionally program generated using AUTEXT3 parameter logic                     
+84  005 26645                                        Current/High Grade         
+84  006 26671                                        Child in house             
+84  007 26662                                        Emp Type                   
+84  008 26673                                        Reason not working         
+*Adult Uniform Assmt 24- TX Number 28                                           
+85  001 00000   28                                   Transaction code           
+85  002 00000   A                                    Format version             
+85  003 00000   24                                   Physical record number     
+85  004 26672                                        CRS assessment dat         
+85  005 26665                                        Schizophrenia - Pos -      
+85  006 26666                                        Schizophrenia - Neg -      
+85  007 26667                                        Bipolar scale - X          
+85  008 26668                                        Major depression - X       
+85  009 27971                                        QIDS Version               
