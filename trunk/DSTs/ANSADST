@@ -1,8 +1,9 @@
 'change log
 '----------
-'
+' Tim 7/1/13 0.3
+'  ^ fixed typo on dst name: C.ANSA.R.CUICID -> C>ANSA.R.SUICID
 
-%version 0.2 06/11/13 TxACE
+%version 0.3 07/01/13 TxACE
 
 start ANSADST()
  rc        is i
@@ -24,8 +25,8 @@ start ANSADST()
 'value
 
 '''''''Change These Values for your system'''''''''
- $nextavdst = 24800           
- recordnum  = 24800
+ $nextavdst = 28500           
+ recordnum  = 28500
  '$trace("path.on", `"/c0/EXPORT/trace/PV_" + $scriptid`)
 '''''''''''''''''''''''''''''''''''''''''''''''''''
 
@@ -181,7 +182,7 @@ rc = $dstadd(dst,"C.ANSA.STAFF"    ,"ANSA Staff"                    ,dbfile,"X",
 rc = $dstadd(dst,"C.ANSA.VER"      ,"ANSA Local Version"            ,dbfile,"X",0, 6,   0,recordnum)
 rc = $dstadd(dst,"C.ANSA.DATE"     ,"ANSA Date"                     ,dbfile,"D",0,10,   0,recordnum)
 rc = $dstadd(dst,"C.ANSA.CAREDT"   ,"ANSA Care Batch Date"          ,dbfile,"D",0,10,   0,recordnum)
-rc = $dstadd(dst,"C.ANSA.R.CUICID" ,"Suicide Risk 1"                ,dbfile,"X",0, 1,   0,recordnum)
+rc = $dstadd(dst,"C.ANSA.R.SUICID" ,"Suicide Risk 1"                ,dbfile,"X",0, 1,   0,recordnum)
 rc = $dstadd(dst,"C.ANSA.R.DANGOT" ,"Danger to Others 2"            ,dbfile,"X",0, 1,   0,recordnum)
 rc = $dstadd(dst,"C.ANSA.R.SMUTIL" ,"Self-Injurious Behaviour"      ,dbfile,"X",0, 1,   0,recordnum)
 rc = $dstadd(dst,"C.ANSA.R.OSLFHR" ,"Other Self Harm"               ,dbfile,"X",0, 1,   0,recordnum)
