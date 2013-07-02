@@ -1,9 +1,11 @@
 'change log
 '----------
 ' Tim 7/1/13 0.3
-'  ^ fixed typo on dst name: C.ANSA.R.CUICID -> C>ANSA.R.SUICID
+'  ^ fixed typo on dst name: C.ANSA.R.CUICID -> C.ANSA.R.SUICID
+' Tim 7/2/2013 0.4
+'  ^ fixed type on dst name: C.ANSA.FS.NA -> C.ANSA.FC.NA
 
-%version 0.3 07/01/13 TxACE
+%version 0.4 07/02/13 TxACE
 
 start ANSADST()
  rc        is i
@@ -217,7 +219,7 @@ rc = $dstadd(dst,"C.ANSA.LD.SLFCRE","Self-Care"                     ,dbfile,"X",
 rc = $dstadd(dst,"C.ANSA.LD.DECISI","Decision-making"               ,dbfile,"X",0, 1,   0,recordnum)
 rc = $dstadd(dst,"C.ANSA.LD.INVREC","Involvement in Recovery"       ,dbfile,"X",0, 1,   0,recordnum)
 rc = $dstadd(dst,"C.ANSA.LD.TRANS" ,"Transportation"                ,dbfile,"X",0, 1,   0,recordnum)
-rc = $dstadd(dst,"C.ANSA.FS.NA"    ,"Not Applicable"                ,dbfile,"X",0, 1,   0,recordnum)
+rc = $dstadd(dst,"C.ANSA.FC.NA"    ,"Not Applicable"                ,dbfile,"X",0, 1,   0,recordnum)
 rc = $dstadd(dst,"C.ANSA.FC.PHLTH" ,"Physical/Behavioral Health"    ,dbfile,"X",0, 1,   0,recordnum)
 rc = $dstadd(dst,"C.ANSA.FC.INVCRE","Involvement with Care"         ,dbfile,"X",0, 1,   0,recordnum)
 rc = $dstadd(dst,"C.ANSA.FC.KNOW"  ,"Knowledge"                     ,dbfile,"X",0, 1,   0,recordnum)
