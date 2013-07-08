@@ -3248,10 +3248,14 @@ function ValidateALOC() is i
      (void)$arrpush(errors[],locdev1_errortxt)	
 	endif
    endif
-  endif  
+  endif
+  
+  if c.ansa.aloc = "111" and c.ansa.rloc != "111"
+   (void)$arrpush(errors[],aloc12_errortxt)
+  endif
 
   if c.ansa.aloc = "100" and (last_type = "I" or last_type = "U")
-    (void)$arrpush(errors[],aloc9_errortxt)  
+   (void)$arrpush(errors[],aloc9_errortxt)  
   endif
   if c.ansa.aloc = c.ansa.rloc and c.ansa.loc_dev dp
    $clear(c.ansa.loc_dev,c.ansa.devoth,c.ansa.devR1,c.ansa.devR2,c.ansa.devR3,c.ansa.devR4,c.ansa.devR5, c.ansa.devjust)   
