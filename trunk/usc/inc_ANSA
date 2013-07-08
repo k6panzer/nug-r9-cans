@@ -506,7 +506,7 @@ errors[] is x
 %define disch1_errortxt "If the Assessment Type is Discharge then the Discharge Date must be selected"
 %define disch2_errortxt "The Discharge Date must cannot be more than ___ days in the future"
 %define disch3_errortxt "The Discharge Date must cannot be more than ___ days in the past"
-%define diag_errortxt "A current diagnosis is required to complete this assessment for an Intake, Update or Discharge for Services Complete"
+%define diag_errortxt "No current Diagnosis is found for this client. This Assessment may not be saved in any status, unless it is a Crisis Assessment or an Unplanned Discharge Assessment"
 %define age_errortxt "This client is younger than 18, please complete the CANS assessment"
 %define age1_errortxt "This client does not have a current birth date entered, please correct and retry"
 %define commdt1_errortxt "The Community Scales Date is required"
