@@ -45,6 +45,10 @@
 '     
 'TJM 20130530 .007
 '  ^ fixed buggs around new .006 options
+'RHW 20130709 .008
+'  ^ Removed logic to place "<?xml version='1.0'?>" at the beginning of the xml batch file.
+'       DSHS has notified that this string is not needed for proper processing of our xml batch
+'       and has updated sample xml files on the CMBHS Documentation website accordingly.
 
 %define lf x"0a"
 '%define d_parmfile "CANSXML"
@@ -52,7 +56,7 @@
 %define d_tpl "/c0/forms/cans.xml"
 %define d_rootnode "Batch"
 
-%version 01.0.006 05/30/2013 GCC
+%version 01.0.008 07/09/2013 GCC
 
 start xml_build2(parmfile,option,clients[],retcode)
 
@@ -109,7 +113,7 @@ __MAIN:
          buf = fileheader
       endif
    else
-      buf = "<?xml version='1.0'?>" + lf
+'      buf = "<?xml version='1.0'?>" + lf
       buf += "<" + d_rootNode + ">" + lf
    endif
    rc = $writefile(_fh,buf)
