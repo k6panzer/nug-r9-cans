@@ -2317,9 +2317,9 @@ function CanSkipPage4() is x
 			endselect
   case "11"  CanSkipPage4 = "Y"
  endselect   
- if `$today - c.cans.date` > 30 
-  CanSkipPage4 = "N" 
- endif 
+' if `$today - c.cans.date` > 30 
+'  CanSkipPage4 = "N" 
+' endif 
 end CanSkipPage4
 
 function ChildRiskScoring() is null
