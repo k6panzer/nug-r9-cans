@@ -2847,9 +2847,9 @@ function CanSkipPage4() is x
  if c.ansa.rloc = "100"
   CanSkipPage4 = "Y"
  endif
- if `$today - c.ansa.date` > 30
-  CanSkipPage4 = "N"
- endif 
+' if `$today - c.ansa.date` > 30
+'  CanSkipPage4 = "N"
+' endif 
 end CanSkipPage4
 
 function Report(RptTitle,ReportID,mode) is null
