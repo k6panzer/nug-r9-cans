@@ -2,14 +2,15 @@
 ' DSHS Specs: https://cmbhslst.dshs.state.tx.us/cmbhs/Documents/Migration/
 '
 'Tim Markello
-'7/17/2013
-' 0.0.0.0
+'7/18/2013
+' 0.0.1 alpha release. Minor testing completed. Major testing needs to be completed
+'  to validate migration sorting logic.
 '
 'Assumptions
 '  DB does not contain any current TRR UA records
 '
 'Dependencies
-'  None
+'  inc_GetParm, inc_GetOption
 '
 'Deviations from DSHS Specs
 '  Script does not update the 'migration' record with any assessment data -- 
@@ -17,8 +18,18 @@
 '
 'Configuration
 '  DST short names must be mapped to ensure successful migration
+'
+'Updates
+'
+'TJM 0.0.1.x 7/18/2013
+'  ^ fixed issues with non-clearing variables
+'  ^ fixed issue with defaulting to child ua when there is realy no ua
+'  + added reportInactive option to control reporting of clients that will not migrate
+'  ~ tweaked the days of authorization table to match the published draft um guidelines
+'     https://cmbhslst.dshs.state.tx.us/cmbhs/Documents/Adult%20Uniform%20Assessment%20-%20Release%201/DRAFT%20Adult%20UM%20Guidelines%20Effective%20Sept.2013.FY14.doc
+'     * should probably make options to override the authorization days defaults...
 
-%version 0.0.0.8 7/18/2013 gcc
+%version 0.0.1.2 7/18/2013 gcc
 
 start RDMtoTRR(parmfile, option, clientid, retcode)
 'arguments
@@ -30,6 +41,7 @@ retcode           is b
 'options
 auditOnly         is x
 doReport          is x
+reportinactive    is x
 migrate_date      is d
 
 er_crisis_flags[] is x
@@ -317,11 +329,12 @@ trr.def.astaff = "MIGRATION"
 'end day caluclation table
 trr_days_by_loc[trr_a_crisi] = 7
 trr_days_by_loc[trr_a_trans] = 90
-trr_days_by_loc[trr_a_medis] = 90
-trr_days_by_loc[trr_a_skill] = 90
-trr_days_by_loc[trr_a_basic] = 90
-trr_days_by_loc[trr_a_inten] = 90
-trr_days_by_loc[trr_a_asser] = 90
+trr_days_by_loc[trr_a_medis] = 365
+trr_days_by_loc[trr_a_skill] = 180
+trr_days_by_loc[trr_a_basic] = 180
+trr_days_by_loc[trr_a_inten] = 180
+trr_days_by_loc[trr_a_asser] = 180
+
 trr_days_by_loc[trr_c_medis] = 90
 trr_days_by_loc[trr_c_targe] = 90
 trr_days_by_loc[trr_c_compl] = 90
@@ -358,7 +371,9 @@ else
    rc = $dbstart(clientdb, read-id)
 endif
 
-if doReport = "Y" then report("START", rdm.a.type, rdm.a.loca, rdm.c.type, rdm.c.loca, trr.a.loca, trr.c.loca) endif
+$brmsg("...Migrating...", 1, "EC" )
+
+if doReport = "Y" then report("START", rdm.a.type, rdm.a.loca, trr.a.loca, rdm.c.type, rdm.c.loca, trr.c.loca) endif
 
 $dblock()
 rc = $dbread(clientdb, read-id, c.age, rdm.a.rec, rdm.a.type, rdm.a.loca, rdm.c.rec, rdm.c.type, rdm.c.loca, rdm.c.tcom, rdm.c.jj)
@@ -366,12 +381,13 @@ gosub _REC-PROC
 
 'stop hear or rip through rest of db
 $dblock()
-rc = $dbreadnext(clientdb, read-id, c.age, rdm.a.rec, rdm.a.loca, rdm.c.rec, rdm.c.loca)
+rc = $dbreadnext(clientdb, read-id, c.age, rdm.a.rec, rdm.a.type, rdm.a.loca, rdm.c.rec, rdm.c.type, rdm.c.loca, rdm.c.tcom, rdm.c.jj)
 if clientid dp then rc = 99 endif
 do while rc < 3
+   $loopcount = 0
    gosub _REC-PROC
    $dblock()
-   rc = $dbreadnext(clientdb, read-id, c.age, rdm.c.rec, rdm.c.loca, rdm.c.rec, rdm.c.loca)
+   rc = $dbreadnext(clientdb, read-id, c.age, rdm.a.rec, rdm.a.type, rdm.a.loca, rdm.c.rec, rdm.c.type, rdm.c.loca, rdm.c.tcom, rdm.c.jj)
 enddo
 
 if doReport = "Y" then report("END") endif
@@ -381,6 +397,7 @@ return
 
 'record processing
 _REC-PROC:
+   $clear(trr.a.loca, trr.c.loca)
    'calculate new locr
    if rdm.a.type = rdm_disch_type or rdm.c.type = rdm_disch_type then
       'not migrating inactive clients
@@ -405,7 +422,7 @@ _REC-PROC:
                                  trr.a.loca = trr_a_skill
                               endif
                            case other  'must be update
-                              if `last-ua-date - rdm.a.date` > 1 
+                              if ( last-ua-date dp and `last-ua-date - rdm.a.date` > 1 )
                               or rdm.a.loca != "1" or rdm.a.locr != "1"
                               or (rdm.a.harm != "1"
                               or rdm.a.supp != "1"
@@ -472,7 +489,7 @@ _REC-PROC:
       trr.a.endd = trr.a.date + trr_days_by_loc[`$casti(trr.a.loca)`]
       trr.a.devo = trr.def.dreaso
       trr.a.astf = trr.def.astaff
-   else
+   elseif rdm.c.type dp then
       if c.age < 6 then 
          trr.c.loca = trr_c_young
       else
@@ -517,7 +534,17 @@ _REC-PROC:
    endif
    
    'log report
-   if doReport = "Y" then report(read-id, rdm.a.type, rdm.a.loca, rdm.c.type, rdm.c.loca, trr.a.loca, trr.c.loca) endif
+   if doReport = "Y" then 
+      if trr.a.loca dp or trr.c.loca dp or ReportInactive = "Y" then 
+         report(read-id, rdm.a.type, rdm.a.loca, trr.a.loca, rdm.c.type, rdm.c.loca, trr.c.loca) 
+      endif
+   endif
+   
+'   'clear for next record
+'   $clear(c.age, rdm.a.rec, rdm.a.loca, rdm.a.type, rdm.a.harm, rdm.a.supp,rdm.a.hosp,rdm.a.impr,
+'      rdm.a.empl,rdm.a.hous,rdm.a.cops,rdm.a.crim,rdm.a.meds, rdm.c.rec, rdm.c.type, rdm.c.loca, 
+'      rdm.c.tcom, rdm.c.jj)
+
 goback
 
 
@@ -596,7 +623,7 @@ endif
 
 if read-id = "END" then
    report = $closereport(reportNbr)
-return
+   return
 endif
 
 print-line = $format(read-id, dst1, dst2, dst3, dst4, dst5, dst6, fmt)
