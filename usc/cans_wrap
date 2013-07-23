@@ -25,8 +25,15 @@
 '  ^ fix archiveafter functionality
 '  + add multi directory archive functionality
 '  ^ fix markasbatched functionality 
+'
+'tim 0.2 6/11/2013
+'  + add uid look up functionality to pass off to xml build script for reading / updating specific layers
+'
+'tim 0.2.1 7/23/2013
+'  + ansa batching functionality
+'  ~ still working on the uid look up functionality for multi layer batching support.
 
-%version 0.1.1 5/30/2013 TxACE
+%version 0.2 6/11/2013 TxACE
 
 %define CANS_TYPE617 "1"
 %define CANS_TYPE35 "2"
@@ -48,9 +55,14 @@ markAsBatched  is x
 archiveAfter   is x
 use80byte      is x
 
+listType       is x     '35 | 617 | ANSA | null
 list[]         is x
 list35[]       is x
+list35uid[]    is n
 list617[]      is x
+list617uid[]   is n
+listAnsa[]     is x
+listAnsaUid[]  is n
 
 'search options
 useSearch      is x
@@ -108,16 +120,25 @@ arc_dir_617    is x
 arc_dir_ansa   is x
 arc_by_year    is x
 
+msg_stat_clt   is x
+msg_stat_xml   is x
+msg_stat_ftp   is x
+msg_stat_arc   is x
+msg_stat_upt   is x
+msg_stat_cmp   is x
+msg_stat_def   is x
+
 stdout[]       is x
 clt_err[]      is x
 T              is x
 i              is b
 rc             is b
+uid            is uid
 
 'Set script default values:
 email_notify = "tim@gcmhmr.com"
 buildOneFile = "N"
-autoFTP = "Y"
+autoFTP = "N"
 markAsBatched = "N"
 archiveAfter = "N"
 use80byte = "N"
@@ -140,6 +161,7 @@ xml_35_sx = "_baby"
 xml_617 = "/c0/forms/cans617.xml"
 xml_617_sx = "_cans"
 xml_ansa = "/c0/forms/ansa.xml"
+xml_ansa_sx = "_ansa"
 
 'ftp settings
 'ftp_site = "sftp.dshs.tx.us"
@@ -157,20 +179,37 @@ ftp_delay = 2
 arc_dir_default = "/c0/CMBHS/archive/"
 arc_dir_35 = "/c0/CMBHS/archive/"
 arc_dir_617 = "/c0/CMBHS/archive/"
+arc_dir_ansa = "/c0/CMBHS/archive/"
 arc_by_year = "Y"
+
+'status messages for user
+msg_stat_clt = "{{{{{ Building Client List }}}}}"
+msg_stat_xml = "{{{{{ Building Batch File }}}}}"
+msg_stat_ftp = "{{{{{ Attempting to FTP Files.... }}}}}"
+msg_stat_arc = "{{{{{ Archiving Batch Files }}}}}"
+msg_stat_upt = "{{{{{ Marking Client Registers as Submitted }}}}}"
+msg_stat_cmp = "{{{{{ Process Complete }}}}}"
+
 
 'process script configuration
 getparm(parmfile)
 getoption(option)
 
 'build the client list
-status("{{{{{ Building Client List }}}}}")
+status(msg_stat_clt)
 
 if client dp then          'treat the client argument as a savedlist name
    if $getlist(list[], 2, client) > 0 then
       'error retrieving saved list
       return
    endif
+   
+   select listType
+      case "35"    list35[] = list[]   $clear(list[])
+      case "617"   list617[] = list[]  $clear(list[])
+      case "ANSA"  listAnsa[] = list[] $clear(list[])
+      case other   'leave as default
+   endselect
 endif
 
 if list[] !dp then
@@ -181,40 +220,61 @@ if list[] !dp then
       if $uc(include617) = "Y" then
          scrit[3] = CANS_TYPE617
          list617[] = canssearch(scrit[])
+         i = 0
+         do while i++ < $maxarray(list617[])
+            client = list617[i]
+            rc = $dbread(2, client, c.cans.rec, c.cans.compd, c.cans.caredt, c.cans.canstype)
+            gosub _DBREAD
+         enddo
       endif
       if $uc(include35) = "Y" then
          scrit[3] = CANS_TYPE35
          list35[] = canssearch(scrit[])
+         i = 0
+         do while i++ < $maxarray(list35[])
+            client = list35[i]
+            rc = $dbread(2, client, c.cans.rec, c.cans.compd, c.cans.caredt, c.cans.canstype)
+            gosub _DBREAD
+         enddo
       endif
    
    else                                                                          'sequential read
       'set the read day limit
       too-old-date = $today - read_day_limit
       (void)$dbstart(2, client)
+      $dblock()   'lock to generate uids.
       rc = $dbread(2, client, c.cans.rec, c.cans.compd, c.cans.caredt, c.cans.canstype)
       do while rc < 3
-         do while rc < 2
-            if c.cans.compd dp and c.cans.caredt !dp then
-               select c.cans.canstype
-                  case CANS_TYPE617    (void)$arrPush(list617[], client)
-                  case CANS_TYPE35     (void)$arrPush(list35[], client)
-                  case other           '##thumb -- skip?? log invalid cans types??
-               endselect
-               rc = 99
-            elseif c.cans.compd[effd] < Too-Old-Date then
-               rc = 99
-            else
-               rc = $dbreadnextdst(2, client, c.cans.rec, c.cans.compd, c.cans.caredt, c.cans.canstype)
-            endif
-         enddo
-         $loopcount = 0 ' clear the loop count while reading db
+         gosub _DBREAD
+'         do while rc < 2
+'            if c.cans.compd dp and c.cans.caredt !dp then
+'               uid = c.cans.rec[uid]
+'               select c.cans.canstype
+'                  case CANS_TYPE617    (void)$arrPush(list617[], client)
+'                                       i = $maxarray(list617[])
+'                                       list617[1] = uid
+'                                       '(void)$arrPush(list617uid[], uid)
+'                  case CANS_TYPE35     (void)$arrPush(list35[], client)
+'                                       (void)$arrPush(list35uid[], uid)
+'                  case other           '##thumb -- skip?? log invalid cans types??
+'               endselect
+'               'rc = 99
+'            elseif c.cans.compd[effd] < Too-Old-Date then
+'               rc = 99
+'            else
+'               rc = $dbreadnextdst(2, client, c.cans.rec, c.cans.compd, c.cans.caredt, c.cans.canstype)
+'            endif
+'         enddo
+         i = 0
+'         $loopcount = 0 ' clear the loop count while reading db
          rc = $dbreadnext(2, client, c.cans.rec, c.cans.compd, c.cans.caredt, c.cans.canstype)
       enddo
    endif
 endif
 
+
 'build the batch file
-status("{{{{{ Building Batch File }}}}}")
+status(msg_stat_xml)
 
 if $uc(use80byte) = "Y" then '80 byte batch
 
@@ -270,7 +330,8 @@ else                         'xml batch
       i++ 
       arc-dir[i] = arc_dir_35
    endif
-   out-file[i] = buildxml(xml_script, xml_35, xml_dir, xml-file, xml_35_sx, xml-option, list35[])
+   list35uid[] = list35uid[]
+   out-file[i] = buildxml(xml_script, xml_35, xml_dir, xml-file, xml_35_sx, xml-option, list35[], list35uid[])
    
    'cans 6-17 list
    if buildOneFile = "Y" then
@@ -280,13 +341,24 @@ else                         'xml batch
       i++
       arc-dir[i] = arc_dir_617
    endif
-   out-file[i] = buildxml(xml_script, xml_617, xml_dir, xml-file, xml_617_sx, xml-option, list617[])
+   out-file[i] = buildxml(xml_script, xml_617, xml_dir, xml-file, xml_617_sx, xml-option, list617[], list617uid[])
+
+   'ansa list
+   if buildOneFile = "Y" then
+      xml-option = "fileHeader`!NONE;filefooter`</Batch>;"
+   else
+      $clear(xml-option)
+      i++
+      arc-dir[i] = arc_dir_ansa
+   endif
+   out-file[i] = buildxml(xml_script, xml_ansa, xml_dir, xml-file, xml_ansa_sx, xml-option, listAnsa[], listAnsaUid[])
+
 endif
 
 'automate the ftp submission
 if $uc(autoFtp) = "Y" then
    'do the ftp only if we have all the pieces
-   status("{{{{{ Attempting to FTP Files.... }}}}}")
+   status(msg_stat_ftp)
 
    if ftp_site dp and ftp_login dp and ftp_pass dp and ftp_local_dir dp and ftp_remote_dir dp then
       $clear( ftp-msg[], stdout[], ftp-cmds[])
@@ -355,7 +427,7 @@ endif
 'mark registers as batched
 if $uc(markAsBatched) = "Y" then
    
-   status("{{{{{ Marking Client Registers as Submitted }}}}}")
+   status(msg_stat_upt)
    
    $clear(stdout[])
    (void)$arrayMerge(list[], list35[], list617[])
@@ -386,7 +458,7 @@ endif
 'move the batch files to archive directory
 if $uc(archiveAfter) = "Y" then
    
-   status("{{{{{ Archiving Batch Files }}}}}")
+   status(msg_stat_arc)
    
    if arc-dir[] dp then
       i = 0
@@ -413,7 +485,50 @@ if $uc(archiveAfter) = "Y" then
    endif
 endif
 
-status("{{{{{ Process Complete }}}}}")
+status(msg_stat_cmp)
+
+return
+
+'sub routines:
+'=============
+
+_DBREAD:
+'   rc = $dbread(2, client, c.cans.rec, c.cans.compd, c.cans.caredt, c.cans.canstype)
+'   do while rc < 3
+      do while rc < 2
+         if c.cans.compd dp and c.cans.caredt !dp then
+            uid = c.cans.rec[uid]
+            select c.cans.canstype
+               case CANS_TYPE617    if i = 0 then i = $maxarray(list617[]) + 1 endif
+                                    list617[i] = client
+                                    list617uid[i] = uid
+                                    '(void)$arrPush(list617uid[], uid)
+               case CANS_TYPE35     if i = 0 then i = $maxarray(list35[]) + 1 endif
+                                    list35[i] = client
+                                    list35uid[i] = uid
+                                    '(void)$arrPush(list35uid[], uid)
+               case other           '##thumb -- skip?? log invalid cans types??
+            endselect
+            'rc = 99
+         endif
+         if c.ansa.compd dp and c.ansa.caredt !dp then
+            uid = c.ansa.rec[uid]
+            if i = 0 then i = $maxarray(listAnsa[]) + 1 endif
+            listAnsa[i] = client
+            listAnsaUid[i] = uid 
+         endif
+         if (c.cans.compd dp and c.cans.compd[effd] < Too-Old-Date )
+         or (c.ansa.compd dp and c.ansa.compd[effd] < Too-old-date ) then
+            rc = 99
+         else
+            rc = $dbreadnextdst(2, client, c.cans.rec, c.cans.compd, c.cans.caredt, c.cans.canstype)
+         endif
+      enddo
+      $loopcount = 0 ' clear the loop count while reading db
+'      rc = $dbreadnext(2, client, c.cans.rec, c.cans.compd, c.cans.caredt, c.cans.canstype)
+'   enddo
+goback
+
 
 end cans_wrap
 
@@ -442,7 +557,7 @@ end canssearch
 
 
 'build the option string for xml building script and call script
-dynamic function buildxml(script, template, dir, appendFile, suffix, optionstring, cltlist[]) is x
+dynamic function buildxml(script, template, dir, appendFile, suffix, optionstring, cltlist[] cltuid[]) is x
 script         is x
 template       is x
 dir            is x
@@ -450,6 +565,7 @@ appendfile     is x
 suffix         is x
 optionstring   is x
 cltlist[]      is x
+cltuid[]       is n
 T              is x
 
 $clear(buildxml)
@@ -468,7 +584,7 @@ $clear(buildxml)
       endif
    endif
    
-   call script (,optionstring, cltlist[])
+   call script (,optionstring, cltlist[],,cltuid[])
    
 end buildxml
 
