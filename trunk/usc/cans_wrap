@@ -40,8 +40,14 @@
 ' 0.2.2 7/25/2013
 '  ^ fixed ansa batching functionality so that it actually works
 '  ~ continuting to have issues with uid look up functionality. currently disabled.
+'
+' 0.2.3 7/25/2013
+'  ^ uid issues fixed 
+'     **** functionality requires updates to xml_build2, lib_DST, and all xml templates
+'  * TODO:
+'     ~ test ansa search functionality.
 
-%version 0.2.2 7/25/2013 TxACE
+%version 0.2.3 7/25/2013 TxACE
 
 %define CANS_TYPE617 "1"
 %define CANS_TYPE35 "2"
@@ -63,7 +69,7 @@ markAsBatched  is x
 archiveAfter   is x
 use80byte      is x
 
-listType       is x     '35 | 617 | ANSA | null
+'listType       is x     '35 | 617 | ANSA | null
 list[]         is x
 list35[]       is x
 list35uid[]    is n
@@ -179,12 +185,12 @@ xml_ansa = "/c0/forms/ansa.xml"
 xml_ansa_sx = "_ansa"
 
 'ftp settings
-'ftp_site = "sftp.dshs.tx.us"
-ftp_site = "wiki"
-'ftp_login = "batch-cmbhs-100"
-ftp_login = "test1"
-'ftp_pass = "***"
-ftp_pass = "Test!!4"
+ftp_site = "sftp.dshs.state.tx.us"
+'ftp_site = "wiki"
+ftp_login = "cmbhs-batch-100"
+'ftp_login = "test1"
+ftp_pass = "****"
+'ftp_pass = "Test!!4"
 ftp_local_dir = "/c0/CMBHS/queue/"
 ftp_remote_dir = "Test/XML"
 ftp_retry = 5
@@ -223,6 +229,7 @@ if client dp then          'treat the client argument as a savedlist name
    i = 0
    do while i++ < $maxarray(list[])
       client = list[i]
+      $dblock()
       rc = $dbread(2, client, c.cans.rec, c.cans.compd, c.cans.caredt, c.cans.canstype,
          c.ansa.rec, c.ansa.compd, c.ansa.caredt)
       gosub _DBREAD
@@ -276,6 +283,7 @@ else
       do while i++ < $maxarray(list[])
          client = list[i]
 '         rec-idx = i
+         $dblock()
          rc = $dbread(2, client, c.cans.rec, c.cans.compd, c.cans.caredt, c.cans.canstype,
             c.ansa.rec, c.ansa.compd, c.ansa.caredt)
          gosub _DBREAD
@@ -311,6 +319,7 @@ else
 '         enddo
          i = 0
 '         $loopcount = 0 ' clear the loop count while reading db
+         $dblock()
          rc = $dbreadnext(2, client, c.cans.rec, c.cans.compd, c.cans.caredt, c.cans.canstype,
                c.ansa.rec, c.ansa.compd, c.ansa.caredt)
       enddo
@@ -558,11 +567,11 @@ _DBREAD:
             select c.cans.canstype
                case CANS_TYPE617    rec-idx = $maxarray(list617[]) + 1 
                                     list617[rec-idx] = client
-'                                    list617uid[rec-idx] = uid
+                                    list617uid[rec-idx] = uid
 '                                    (void)$arrPush(list617uid[], uid)
                case CANS_TYPE35     rec-idx = $maxarray(list35[]) + 1 
                                     list35[rec-idx] = client
-'                                    list35uid[rec-idx] = uid
+                                    list35uid[rec-idx] = uid
 '                                    (void)$arrPush(list35uid[], uid)
                case other           '##thumb -- skip?? log invalid cans types??
             endselect
@@ -572,12 +581,13 @@ _DBREAD:
             uid = c.ansa.rec[uid]
             rec-idx = $maxarray(listAnsa[]) + 1 
             listAnsa[rec-idx] = client
-'            listAnsaUid[rec-idx] = uid 
+            listAnsaUid[rec-idx] = uid 
          endif
          if (c.cans.compd dp and c.cans.compd[effd] < Too-Old-Date )
          or (c.ansa.compd dp and c.ansa.compd[effd] < Too-old-date ) then
             rc = 99
          else
+            $dblock()
             rc = $dbreadnextdst(2, client, c.cans.rec, c.cans.compd, c.cans.caredt, c.cans.canstype,
                c.ansa.rec, c.ansa.compd, c.ansa.caredt)
             'pull down the current client 
