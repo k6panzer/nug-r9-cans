@@ -224,6 +224,36 @@ if $uc(rmi_r_all) = "Y" then
 endif
 end rmi_read
 
+''-------------------------------------------------
+'public dynamic function rmi_nextRec(parmfile, option, client, retcode) is x
+'parmfile    is x
+'option      is x
+'client      is x
+'retcode     is x
+'
+'rmi_readdst[]   is x
+'rmi_val[]   is x
+'
+'rmi_r_all   is x
+'$allowupdate(retcode)
+'getparm(parmfile)
+'getoption(option)
+'
+'retcode = read(client, rmi_readdst[])
+'rmi_val[] = dst(rmi_readdst[])[]
+'rmi_read = toJSON(rmi_readdst[], rmi_val[])
+'if $uc(rmi_r_all) = "Y" then
+'   rmi_read = "[" + rmi_read
+'   retcode = nextRec(client, rmi_readdst[])
+'   do while retcode < 2
+'      rmi_val[] = dst(rmi_readdst[])
+'      rmi_read += "," + toJSON(rmi_readdst[], rmi_val[])
+'      retcode = nextRec(client, rmi_readdst[])
+'   enddo
+'   rmi_read += "]"
+'endif
+'end rmi_read
+
 '-------------------------------------------------
 public dynamic function rmi_add(parmfile, option, client, retcode) is x
 parmfile    is x
@@ -281,10 +311,12 @@ i        is b
 i = 0
 toJSON = "{"
 do while ++i < $maxarray(key[])
-   value[i] = value[i]
-   toJSON += x"22" + key[i] + x"22" + ":" + x"22" + $replace(x"22", `"\" + x"22"`, value[i]) + x"22" + ","
+   'value[i] = value[i]
+   if value[i] dp then value[i] = $replace(x"22", `"\" + x"22"`, value[i]) endif
+   toJSON += x"22" + key[i] + x"22" + ":" + x"22" + value[i] + x"22" + ","
 enddo
-toJSON += x"22" + key[i] + x"22" + ":" + x"22" + $replace(x"22", `"\" + x"22"`, value[i]) + x"22" + "}"
+if value[i] dp then value[i] = $replace(x"22", `"\" + x"22"`, value[i]) endif
+toJSON += x"22" + key[i] + x"22" + ":" + x"22" + value[i] + x"22" + "}"
 end toJSON
 
 
@@ -320,6 +352,24 @@ lock        is x
 if lock = "Y" then $dblock() endif 
 nextRec = $dbreadnextdst(_masterDB, _masterReg, _masterList)
 end nextRec
+
+'-------------------------------------------------
+public dynamic function readuid(register, uid, dst[], lock) is b
+register    is x
+uid         is n
+dst[]       is x
+lock        is x
+
+if register dp then setReg(register) endif
+
+if _masterReg !dp then (void)$dbstart(_masterDB, _masterReg) endif
+
+if dst[] dp then setDsts(dst[]) endif
+
+if lock = "Y" then $dblock() endif
+
+readuid = $dbreaduid(uid, _masterDB, _masterReg, _masterList)
+end readuid
 
 '-------------------------------------------------
 public dynamic function unlock() is null
@@ -389,6 +439,22 @@ end updateByValue
    
       
    
+'-------------------------------------------------
+public dynamic function updateByUid(register, uid, dst[], value[]) is b
+register    is x
+uid         is n
+dst[]       is x
+value[]     is x
+
+if register dp then setReg(register) endif
+
+if dst[] dp then setDsts(dst[]) endif
+put(dst[], value[])
+$dblock()
+updateByUid = $dbupdateuid(uid, _masterDb, _masterReg,  _masterList)
+
+end updatebyuid
+
 '-------------------------------------------------
 public dynamic function add(register,dst[],value[]) is b
 register    is x
