@@ -28,8 +28,12 @@
 '  ~ tweaked the days of authorization table to match the published draft um guidelines
 '     https://cmbhslst.dshs.state.tx.us/cmbhs/Documents/Adult%20Uniform%20Assessment%20-%20Release%201/DRAFT%20Adult%20UM%20Guidelines%20Effective%20Sept.2013.FY14.doc
 '     * should probably make options to override the authorization days defaults...
-
-%version 0.0.1.2 7/18/2013 gcc
+'
+'RHW  0.0.2.x 7/25/2013
+'  ^ fixed issues with reading all of the needed DST in the adult UA for logic to work
+'  + added logic to determine if an adult UA LOCA1 expired along with consideration for extended review
+'  + added some sample logic to use freetds to determine if a crisis service had been provided (LOCR 1M and 1S logic)
+%version 0.0.1.3 7/25/2013 gcc
 
 start RDMtoTRR(parmfile, option, clientid, retcode)
 'arguments
@@ -114,6 +118,8 @@ rdm.a.hous        is x
 rdm.a.cops        is x
 rdm.a.crim        is x
 rdm.a.meds        is x
+rdm.a.exrv				is x  'RHW RDM Extended Review
+rdm.a.exdays      is b
 
 rdm.c.rec         is v
 rdm.c.date        is v
@@ -177,6 +183,7 @@ $setvartype(trr.c.endd, "X")
 migrate_date = 9/1/2013
 auditOnly = "Y"
 doReport = "Y"
+reportinactive = "Y"
 
 trr.def.dreaso = "MIGRATION"
 trr.def.astaff = "MIGRATION"
@@ -229,7 +236,7 @@ er_crisis_crit[2] = "51,52"
 
 'dst defaults
 clientdb = 2
-c.age      = "C.AGE"
+c.age      = "C.AGE.YEAR"
 'adult rdm
 rdm.a.rec  = "C.UABD"
 rdm.a.type = "C.UABD.PUR"
@@ -245,12 +252,14 @@ rdm.a.hous = "C.UABD.HOUS"
 rdm.a.cops = "C.UABD.COPSD"
 rdm.a.crim = "C.UABD.CRIM"
 rdm.a.meds = "C.UABD.MED"
+rdm.a.exrv = "C.UABD.EXTD"   'RHW
 'child rdm
 rdm.c.rec  = "C.CABD.REC"
 rdm.c.loca = "C.CABD.ALOC"
 rdm.c.type = "C.CABD.ASS"
 rdm.c.date = "C.CABD.DATE3"
-rdm.c.tcom = "C.CABD.TCOOMI"
+'rdm.c.tcom = "C.CABD.TCOOMI"
+rdm.c.tcom = ""
 rdm.c.jj   = "C.CABD.JJ"
 'adult trr
 trr.a.rec  = "C.ANSA.REC"
@@ -289,6 +298,7 @@ $setvarname(rdm.a.hous, rdm.a.hous)
 $setvarname(rdm.a.cops, rdm.a.cops)
 $setvarname(rdm.a.crim, rdm.a.crim)
 $setvarname(rdm.a.meds, rdm.a.meds)
+$setvarname(rdm.a.exrv, rdm.a.exrv)		'RHW
 $setvarname(rdm.c.rec , rdm.c.rec )
 $setvarname(rdm.c.loca, rdm.c.loca)
 $setvarname(rdm.c.type, rdm.c.type)
@@ -405,10 +415,12 @@ _REC-PROC:
       select rdm.a.loca
          case "1"    '1m or 1s
                      're-read top layer to get all trag scores
-                     rc = $dbread(clientdb, read-id, rdm.a.rec, rdm.a.loca, rdm.a.type, 
+'RHW	added rdm.a.date, rdm.a.locr and rdm.a.exrv
+                     rc = $dbread(clientdb, read-id, rdm.a.rec, rdm.a.date, rdm.a.locr, rdm.a.loca, rdm.a.type, 
                         rdm.a.harm, rdm.a.supp,rdm.a.hosp,rdm.a.impr,rdm.a.empl,rdm.a.hous,
-                        rdm.a.cops,rdm.a.crim,rdm.a.meds)
-                     do while rc < 2
+                        rdm.a.cops,rdm.a.crim,rdm.a.meds, rdm.a.exrv)
+'RHW    added logic to the do while loop to stop looking at UA's once the oldest got to earler than 8/31/2013
+                     do while rc < 2 and rdm.a.date > 08/31/2012
                         select rdm.a.type
                            case rdm_disch_type
                               if last-ua-type dp then
@@ -422,7 +434,15 @@ _REC-PROC:
                                  trr.a.loca = trr_a_skill
                               endif
                            case other  'must be update
-                              if ( last-ua-date dp and `last-ua-date - rdm.a.date` > 1 )
+                              
+'RHW  Added logic to determine if the UA is extended review and set the default days to expire
+                              if rdm.a.exrv = "Y"
+                              	rdm.a.exdays = 365
+                              else
+                              	rdm.a.exdays = 180
+                              endif
+                              
+                              if ( last-ua-date dp and `last-ua-date - rdm.a.date` > rdm.a.exdays )
                               or rdm.a.loca != "1" or rdm.a.locr != "1"
                               or (rdm.a.harm != "1"
                               or rdm.a.supp != "1"
@@ -440,16 +460,29 @@ _REC-PROC:
                         if trr.a.loca !dp then
                            last-ua-type = rdm.a.type
                            last-ua-date = rdm.a.date
-                           rc = $dbreadnextdst(clientdb, read-id, rdm.a.rec, rdm.a.loca, rdm.a.type,
+'RHW    added logic to the do while loop to stop looking at UA's once the oldest got to earler than 8/31/2013
+                           rc = $dbreadnextdst(clientdb, read-id, rdm.a.rec, rdm.a.date, rdm.a.locr, rdm.a.loca, rdm.a.type,
                               rdm.a.harm, rdm.a.supp,rdm.a.hosp,rdm.a.impr,rdm.a.empl,rdm.a.hous,
-                              rdm.a.cops,rdm.a.crim,rdm.a.meds)
+                              rdm.a.cops,rdm.a.crim,rdm.a.meds,rdm.a.exrv)
 
                         else
                            rc = 99
                         endif
                      enddo
-                     
-                     if trr.a.loca !dp then
+'RHW - If you want to use a SQL query to determine crisis service, uncomment this section.                     
+'                     if trr.a.loca !dp then
+'                     	trrcrisis is x
+'                     	trrcrisis = "N"
+'                     	hascrisis(read-id,trrcrisis)
+'                     	
+'                     		if trrcrisis = "Y"
+'                     			trr.a.loca = trr_a_skill
+'                     		endif
+'                    endif
+'RHW Uncomment to here to use SQL,
+
+'RHW Otherwise, leave this setion uncommented.
+
                         'look for crisis encounters:
                         rc = $startevents(, read-id, migrate_date)
                         rc = $readnextevent()
@@ -471,7 +504,7 @@ _REC-PROC:
                            endif
                         enddo
                      endif
-                     
+ 'RHW to here                    
                      'auth < 8/31/12 with no gaps or discharges
                      'AND all assessments have locr = 1 and loca = 1
                      'AND all TRAG scores = 1
@@ -630,3 +663,61 @@ print-line = $format(read-id, dst1, dst2, dst3, dst4, dst5, dst6, fmt)
 report = $print(reportNbr, print-line)
 
 end report  
+
+function hascrisis(cid,trrcrisis) is alpha
+
+cid				is alpha
+trrcrisis	is alpha
+cntcrisis is alpha
+
+rc				 is i
+dsn        is x
+sql				 is x
+db				 is i
+i					 is i
+data			 is x
+
+o_sql       is x
+o_user      is x
+o_pass      is x
+o_ds        is x
+o_db        is x
+
+o_user	= "sqltransfer"
+o_pass = "xxxxxxxxx"
+o_ds   = "svrsql"
+o_db		= "CMHC_Export"
+
+dsn = o_user + ":" + o_pass + ":" + o_ds + ":" + o_db
+
+rc = $loadlib(db,"LIB-freetds")
+
+db:setDSN(dsn)
+
+cid = cid
+
+sql = `"SELECT [CrisisCount] FROM [CMHC_Export].[dbo].[v_RHW_CrisisEncPerCID] WHERE CID = '" + cid + "' "`
+
+sql = sql
+
+'$trace("on.path", "/c4/EXPORT2/trace/PNE_Read.txt")
+
+rc = db:q(sql,data)
+
+data = data
+
+$parsem(data,1,"|",cntcrisis)
+
+cntcrisis = cntcrisis
+
+if cntcrisis != "0" then
+	trrcrisis = "Y"
+else
+	trrcrisis = "N"
+endif
+
+
+$allowupdate(trrcrisis)
+end hascrisis
+
+ 
