@@ -42,13 +42,15 @@
 '     appendfile to open file in 'extend' mode and append instead of override
 '     noemptyfile to skip building file if clients[] is !dp
 '        only applies when appendfile option != "Y"
-'     
 'TJM 20130530 .007
 '  ^ fixed buggs around new .006 options
 'RHW 20130709 .008
 '  ^ Removed logic to place "<?xml version='1.0'?>" at the beginning of the xml batch file.
 '       DSHS has notified that this string is not needed for proper processing of our xml batch
 '       and has updated sample xml files on the CMBHS Documentation website accordingly.
+'  ^ fixed buggs around new .006 options 
+'TJM 20130725 .009
+'  + $REGID system variable template support
 
 %define lf x"0a"
 '%define d_parmfile "CANSXML"
@@ -56,9 +58,9 @@
 %define d_tpl "/c0/forms/cans.xml"
 %define d_rootnode "Batch"
 
-%version 01.0.008 07/09/2013 GCC
+%version 01.0.009 07/25/2013 GCC
 
-start xml_build2(parmfile,option,clients[],retcode)
+start xml_build2(parmfile,option,clients[],retcode, uids[])
 
 $looplimit = 32000
 
@@ -66,6 +68,7 @@ $looplimit = 32000
    option         is x
    clients[]      is x
    retcode        is x
+   uids[]         is n
 
    appendfile     is x
    fileheader     is x
@@ -77,6 +80,7 @@ $looplimit = 32000
    tplBuf[]       is x
 
    list[]         is x
+   list-uid[]     is n
 
    dst[]          is x
    values[]       is x
@@ -121,7 +125,12 @@ __MAIN:
    '' process clients
    do while ptr_c++ < $maxarray(list[])
       $clear(buf,values[])
-      rc = _dst:read(list[ptr_c],dst[])
+      $regid = list[ptr_c]
+      if uids[ptr_c] dp then
+         rc = _dst:readuid(list[ptr_c], list-uid[ptr_c], dst[])
+      else
+         rc = _dst:read(list[ptr_c],dst[])
+      endif
       if rc > 1 then
          $errmsg1 = $fmt(rc,"dbread rc:99")
          $errmsg2 = $errmsg
@@ -164,6 +173,7 @@ _TplMe:
       do while j > 0
          '*dst formatting based on type
          if values[i] dp and dstinfo[5] = "D" then
+'         if values[i] dp and dsttype[i] = "D" then
             values[i] = $fmt(`$date(values[i])`,"YYYY-MM-DD")
          endif
 
@@ -207,6 +217,8 @@ _TplMe:
          if tmp[4] !dp then tmp[4] = "D" endif
          xOut = $dct(tmp[2],values[j],tmp[4])
          tplBuf[i] = $replace(T,xOut,tplBuf[i])
+      elseif $find("$REGID",tplBuf[i], 1, "F") > 0 then
+         tplBuf[i] = $replace("$REGID", clients[ptr_c], tplBuf[i])
       endif
       i = $find("$",tplBuf[],++i)
    enddo
@@ -232,10 +244,13 @@ __INIT:
    GetOption(option)
 
    if clients[] dp then
-      rc = $arrayMerge(list[],clients[])
+      i = $maxarray(list[])
+      rc = $arrInsert(list[i], clients[])
+      rc = $arrInsert(list-uid[i], uids[])
+'      rc = $arrayMerge(list[],clients[])
    endif
 
-   rc = $sort(list[])
+   rc = $sort(list[], list-uid[])
 
    gosub __READTPL
    gosub __DST
@@ -264,10 +279,12 @@ __DST:
          T = xml_content(tplData[i])
          T = $uc(T)
          T = $seg(T,2,`$len(T) - 2`)
-         '*dups:
-         if $find(T,dst[],,"F") = 0 then
-            (void)$arrPush(dst[],T)
-         endif
+'         '*dups:
+'            j = $maxarray(dst[]) + 1
+'            dst[j] = T
+'            gosub __CHECKDST
+'            '(void)$arrPush(dst[],T)
+'         endif
       endif
 
       if $find("$EDIT",tplData[i]) > 0 OR
@@ -276,10 +293,31 @@ __DST:
          $find("$DCT",tplData[i]) > 0 then
          T = xml_content(tplData[i])
          $parsem(T,1,"|",tmp[])
-         tmp[3] = $uc(tmp[3])
-         if $find(tmp[3],dst[],,"F") = 0 then
-            (void)$arrPush(dst[],tmp[3])
-         endif
+         T = $uc(tmp[3])
+'         tmp[3] = $uc(tmp[3])
+'         if $find(tmp[3],dst[],,"F") = 0 then
+'            j = $maxarray(
+'            (void)$arrPush(dst[],tmp[3])
+'         endif
+      endif
+
+'      ' build unduplicated dst list
+      if $find(T,dst[],,"F") = 0 then
+         j = $maxarray(dst[]) + 1
+         dst[j] = T
+'         rc = $dstinfo(dst[j], dstinfo[])
+'         if rc > 0 then
+'            $errmsg1 = $fmt(rc, "DSTINFO ERROR - VERIFY TEMPLATE!! RC=99")
+'            $errmsg2 = "DST: " + dst[i]
+'            return
+'         else
+''            dsttype[j] = dstinfo[5]
+''            if list-uid[] dp then
+''               if dstinfo[16] dp then
+''                  if uidRecord !dp then uidRecord = dstinfo[16] endif
+''                  if uidRecord = dstinfo[16] then
+''                     rc = uid-dst[
+'         endif
       endif
 
    enddo
