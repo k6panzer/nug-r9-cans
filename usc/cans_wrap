@@ -32,8 +32,16 @@
 'tim 0.2.1 7/23/2013
 '  + ansa batching functionality
 '  ~ still working on the uid look up functionality for multi layer batching support.
+'
+'tim 0.2.1.2 7/24/2013
+'  + ansa batching functionality
+'  ~ still working on the uid look up functionality for multi layer batching support.
+'
+' 0.2.2 7/25/2013
+'  ^ fixed ansa batching functionality so that it actually works
+'  ~ continuting to have issues with uid look up functionality. currently disabled.
 
-%version 0.2 6/11/2013 TxACE
+%version 0.2.2 7/25/2013 TxACE
 
 %define CANS_TYPE617 "1"
 %define CANS_TYPE35 "2"
@@ -69,12 +77,18 @@ useSearch      is x
 scrit[]        is x
 include617     is x
 include35      is x
+includeAnsa    is x
 
 'sequential read
 c.cans.rec     is h
 c.cans.compd   is d
 c.cans.caredt  is d
 c.cans.canstype    is x
+
+c.ansa.rec     is h
+c.ansa.compd   is d
+c.ansa.caredt  is d
+
 read_day_limit is b
 too-old-date   is d
 
@@ -133,7 +147,8 @@ clt_err[]      is x
 T              is x
 i              is b
 rc             is b
-uid            is uid
+rec-idx        is b
+uid            is n
 
 'Set script default values:
 email_notify = "tim@gcmhmr.com"
@@ -203,47 +218,76 @@ if client dp then          'treat the client argument as a savedlist name
       'error retrieving saved list
       return
    endif
-   
-   select listType
-      case "35"    list35[] = list[]   $clear(list[])
-      case "617"   list617[] = list[]  $clear(list[])
-      case "ANSA"  listAnsa[] = list[] $clear(list[])
-      case other   'leave as default
-   endselect
-endif
 
-if list[] !dp then
+   'sort the list
+   i = 0
+   do while i++ < $maxarray(list[])
+      client = list[i]
+      rc = $dbread(2, client, c.cans.rec, c.cans.compd, c.cans.caredt, c.cans.canstype,
+         c.ansa.rec, c.ansa.compd, c.ansa.caredt)
+      gosub _DBREAD
+   enddo
+   
+'   select listType
+'      case "35"    list35[] = list[]   $clear(list[])
+'      case "617"   list617[] = list[]  $clear(list[])
+'      case "ANSA"  listAnsa[] = list[] $clear(list[])
+'      case other   'leave as default
+'   endselect
+
+else
+   
+'endif
+'
+'if list[] !dp then
    if $uc(useSearch) = "Y" then                                                       'db search
       scrit[1] = "\DP"                                                           'has a complete date
       scrit[2] = "\DNP"                                                          'has not been batched
       $clear(T)
       if $uc(include617) = "Y" then
          scrit[3] = CANS_TYPE617
-         list617[] = canssearch(scrit[])
-         i = 0
-         do while i++ < $maxarray(list617[])
-            client = list617[i]
-            rc = $dbread(2, client, c.cans.rec, c.cans.compd, c.cans.caredt, c.cans.canstype)
-            gosub _DBREAD
-         enddo
+         list[] = canssearch(scrit[])
+'         list617[] = canssearch(scrit[])
+'         i = 0
+'         do while i++ < $maxarray(list617[])
+'            client = list617[i]
+'            rc = $dbread(2, client, c.cans.rec, c.cans.compd, c.cans.caredt, c.cans.canstype,
+'               c.ansa.rec, c.ansa.compd, c.ansa.caredt)
+'            gosub _DBREAD
+'         enddo
       endif
       if $uc(include35) = "Y" then
          scrit[3] = CANS_TYPE35
          list35[] = canssearch(scrit[])
-         i = 0
-         do while i++ < $maxarray(list35[])
-            client = list35[i]
-            rc = $dbread(2, client, c.cans.rec, c.cans.compd, c.cans.caredt, c.cans.canstype)
-            gosub _DBREAD
-         enddo
+'         i = 0
+'         do while i++ < $maxarray(list35[])
+'            client = list35[i]
+'            rc = $dbread(2, client, c.cans.rec, c.cans.compd, c.cans.caredt, c.cans.canstype,
+'               c.ansa.rec, c.ansa.compd, c.ansa.caredt)
+'            gosub _DBREAD
+'         enddo
       endif
+      if $uc(includeAnsa) = "Y" then
+         listAnsa[] = ansasearch()
+      endif
+      
+      (void)$arraymerge(list[], list35[], listAnsa[])
+      i = 0
+      do while i++ < $maxarray(list[])
+         client = list[i]
+'         rec-idx = i
+         rc = $dbread(2, client, c.cans.rec, c.cans.compd, c.cans.caredt, c.cans.canstype,
+            c.ansa.rec, c.ansa.compd, c.ansa.caredt)
+         gosub _DBREAD
+      enddo
    
    else                                                                          'sequential read
       'set the read day limit
       too-old-date = $today - read_day_limit
       (void)$dbstart(2, client)
       $dblock()   'lock to generate uids.
-      rc = $dbread(2, client, c.cans.rec, c.cans.compd, c.cans.caredt, c.cans.canstype)
+      rc = $dbread(2, client, c.cans.rec, c.cans.compd, c.cans.caredt, c.cans.canstype,
+               c.ansa.rec, c.ansa.compd, c.ansa.caredt)
       do while rc < 3
          gosub _DBREAD
 '         do while rc < 2
@@ -267,7 +311,8 @@ if list[] !dp then
 '         enddo
          i = 0
 '         $loopcount = 0 ' clear the loop count while reading db
-         rc = $dbreadnext(2, client, c.cans.rec, c.cans.compd, c.cans.caredt, c.cans.canstype)
+         rc = $dbreadnext(2, client, c.cans.rec, c.cans.compd, c.cans.caredt, c.cans.canstype,
+               c.ansa.rec, c.ansa.compd, c.ansa.caredt)
       enddo
    endif
 endif
@@ -319,39 +364,50 @@ else                         'xml batch
    
    'default list
    i = 1
-   out-file[i] = buildxml(xml_script, xml_Default, xml_dir, xml-file, xml_default_sx, xml-option, list[])
-   arc-dir[i] = arc_dir_default
+'   out-file[i] = buildxml(xml_script, xml_Default, xml_dir, xml-file, xml_default_sx, xml-option, list[])
+'   arc-dir[i] = arc_dir_default
+   list35uid[] = list35uid[]
+   list617uid[] = list617uid[]
+   listAnsauid[] = listAnsauid[]
+   
    
    'cans 3-5 list
-   if buildOneFile = "Y" then 
-      xml-option = "fileHeader`!NONE;filefooter`!NONE;"
-   else
-      $clear(xml-option)
-      i++ 
-      arc-dir[i] = arc_dir_35
+   if list35[] dp then
+      if buildOneFile = "Y" then 
+         xml-option = "fileHeader`!NONE;filefooter`!NONE;"
+      else
+         $clear(xml-option)
+         i++ 
+         arc-dir[i] = arc_dir_35
+      endif
+   '   list35uid[] = list35uid[]
+      out-file[i] = buildxml(xml_script, xml_35, xml_dir, xml-file, xml_35_sx, xml-option, list35[], list35uid[])
    endif
-   list35uid[] = list35uid[]
-   out-file[i] = buildxml(xml_script, xml_35, xml_dir, xml-file, xml_35_sx, xml-option, list35[], list35uid[])
    
    'cans 6-17 list
-   if buildOneFile = "Y" then
-      xml-option = "fileHeader`!NONE;filefooter`</Batch>;"
-   else
-      $clear(xml-option)
-      i++
-      arc-dir[i] = arc_dir_617
+   if list617[] dp then
+      if buildOneFile = "Y" then
+         xml-option = "fileHeader`!NONE;filefooter`</Batch>;"
+      else
+         $clear(xml-option)
+         i++
+         arc-dir[i] = arc_dir_617
+      endif
+      
+      out-file[i] = buildxml(xml_script, xml_617, xml_dir, xml-file, xml_617_sx, xml-option, list617[], list617uid[])
    endif
-   out-file[i] = buildxml(xml_script, xml_617, xml_dir, xml-file, xml_617_sx, xml-option, list617[], list617uid[])
 
    'ansa list
-   if buildOneFile = "Y" then
-      xml-option = "fileHeader`!NONE;filefooter`</Batch>;"
-   else
-      $clear(xml-option)
-      i++
-      arc-dir[i] = arc_dir_ansa
+   if listAnsa[] dp then
+      if buildOneFile = "Y" then
+         xml-option = "fileHeader`!NONE;filefooter`</Batch>;"
+      else
+         $clear(xml-option)
+         i++
+         arc-dir[i] = arc_dir_ansa
+      endif
+      out-file[i] = buildxml(xml_script, xml_ansa, xml_dir, xml-file, xml_ansa_sx, xml-option, listAnsa[], listAnsaUid[])
    endif
-   out-file[i] = buildxml(xml_script, xml_ansa, xml_dir, xml-file, xml_ansa_sx, xml-option, listAnsa[], listAnsaUid[])
 
 endif
 
@@ -497,31 +553,34 @@ _DBREAD:
 '   do while rc < 3
       do while rc < 2
          if c.cans.compd dp and c.cans.caredt !dp then
+            
             uid = c.cans.rec[uid]
             select c.cans.canstype
-               case CANS_TYPE617    if i = 0 then i = $maxarray(list617[]) + 1 endif
-                                    list617[i] = client
-                                    list617uid[i] = uid
-                                    '(void)$arrPush(list617uid[], uid)
-               case CANS_TYPE35     if i = 0 then i = $maxarray(list35[]) + 1 endif
-                                    list35[i] = client
-                                    list35uid[i] = uid
-                                    '(void)$arrPush(list35uid[], uid)
+               case CANS_TYPE617    rec-idx = $maxarray(list617[]) + 1 
+                                    list617[rec-idx] = client
+'                                    list617uid[rec-idx] = uid
+'                                    (void)$arrPush(list617uid[], uid)
+               case CANS_TYPE35     rec-idx = $maxarray(list35[]) + 1 
+                                    list35[rec-idx] = client
+'                                    list35uid[rec-idx] = uid
+'                                    (void)$arrPush(list35uid[], uid)
                case other           '##thumb -- skip?? log invalid cans types??
             endselect
             'rc = 99
          endif
          if c.ansa.compd dp and c.ansa.caredt !dp then
             uid = c.ansa.rec[uid]
-            if i = 0 then i = $maxarray(listAnsa[]) + 1 endif
-            listAnsa[i] = client
-            listAnsaUid[i] = uid 
+            rec-idx = $maxarray(listAnsa[]) + 1 
+            listAnsa[rec-idx] = client
+'            listAnsaUid[rec-idx] = uid 
          endif
          if (c.cans.compd dp and c.cans.compd[effd] < Too-Old-Date )
          or (c.ansa.compd dp and c.ansa.compd[effd] < Too-old-date ) then
             rc = 99
          else
-            rc = $dbreadnextdst(2, client, c.cans.rec, c.cans.compd, c.cans.caredt, c.cans.canstype)
+            rc = $dbreadnextdst(2, client, c.cans.rec, c.cans.compd, c.cans.caredt, c.cans.canstype,
+               c.ansa.rec, c.ansa.compd, c.ansa.caredt)
+            'pull down the current client 
          endif
       enddo
       $loopcount = 0 ' clear the loop count while reading db
@@ -554,6 +613,25 @@ endif
 
 canssearch[] = list[]
 end canssearch
+
+'search db 2 for complete CANS that have not been submitted
+dynamic function ansasearch(crit[])[] is x
+crit[]      is x
+list[]      is x
+c.ansa.compd   is d
+c.ansa.caredt  is d
+c.ansa.canstype    is x
+
+if $searchinit(c.ansa.compd, c.ansa.caredt, c.ansa.canstype) > 0 then
+   $abort(1, "search init fail")
+endif
+
+if $search(crit[],,,,list[]) > 0 then
+   $abort(2, "search execute error")
+endif
+
+ansasearch[] = list[]
+end ansasearch
 
 
 'build the option string for xml building script and call script
