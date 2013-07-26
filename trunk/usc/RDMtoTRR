@@ -37,8 +37,17 @@
 'RHW  0.0.3.x 7/26/2013
 '  ^ fixed issue when SP 1M should be migrated as 111
 '  + Added option to create a pipe "|" delimited file of migration data to facilitate importing into SQL
+'
+'TJM 0.0.4.x 7/26/2013
+'  ~ changed the crisis event checking by sql piece to be an option
+'        sql_crisis_check = Y | N
+'        function hascrisis() removed
+'  ~ some minor moving around / variable renamed
+'  + exit logic for crisis check when using sequental method
+'  ^ fixed record layer vs reporting issue (was reporting last read layer instead of most current)
+'  ^ fixed crisis to NOT migrate expired crisis uas (as of migration_date)
 
-%version 0.0.1.3 7/26/2013 gcc
+%version 0.0.4.9 7/26/2013 gcc
 
 start RDMtoTRR(parmfile, option, clientid, retcode)
 'arguments
@@ -53,9 +62,11 @@ doReport          is x
 reportinactive    is x
 delim_path        is x
 migrate_date      is d
+sql_crisis_check  is x
 
 er_crisis_flags[] is x
 er_crisis_crit[]  is x
+er_date           is v
 
 trr_a_crisi       is b
 trr_a_trans       is b
@@ -109,6 +120,17 @@ trr_disch_type    is b
 clientdb          is b
 c.age             is v
 
+'sql crisis search options
+o_sql       is x
+o_user      is x
+o_pass      is x
+o_ds        is x
+o_db        is x
+o_data      is x
+o_dsn       is x
+l-sql       is b
+x-sql       is x
+
 'rdm ua
 rdm.a.rec         is v
 rdm.a.date        is v
@@ -124,7 +146,7 @@ rdm.a.hous        is x
 rdm.a.cops        is x
 rdm.a.crim        is x
 rdm.a.meds        is x
-rdm.a.exrv				is x  'RHW RDM Extended Review
+rdm.a.exrv           is x  'RHW RDM Extended Review
 rdm.a.exdays      is b
 
 rdm.c.rec         is v
@@ -166,6 +188,7 @@ trr-rec[]         is x
 trr-val[]         is x
 last-ua-type      is x
 last-ua-date      is d
+curr-loca         is x
 
 er-obj            is x
 er-crisis-vals[]  is x
@@ -185,17 +208,14 @@ $setvartype(trr.a.endd, "X")
 $setvartype(trr.c.rec, "X")
 $setvartype(trr.c.date, "X")
 $setvartype(trr.c.endd, "X")
+$setvartype(er_date, "X")
 
 migrate_date = 9/1/2013
 auditOnly = "Y"
 doReport = "Y"
 reportinactive = "Y"
 
-delim_path = "/c0/SQLTRANSFER/t_rdm2trr.txt"     'define a path and the script will create a pipe delimited file
-if delim_path dp
-	rc = $unix("rm /c0/SQLTRANSFER/t_rdm2trr.txt")
-endif
-
+'delim_path = "/c0/SQLTRANSFER/t_rdm2trr.txt"     'define a path and the script will create a pipe delimited file
 
 trr.def.dreaso = "MIGRATION"
 trr.def.astaff = "MIGRATION"
@@ -246,6 +266,8 @@ er_crisis_flags[2] = "E.PROJ"
 er_crisis_crit[1] = "5422"
 er_crisis_crit[2] = "51,52"
 
+er_date = "E.DATE"
+
 'dst defaults
 clientdb = 2
 c.age      = "C.AGE.YEAR"
@@ -264,14 +286,15 @@ rdm.a.hous = "C.UABD.HOUS"
 rdm.a.cops = "C.UABD.COPSD"
 rdm.a.crim = "C.UABD.CRIM"
 rdm.a.meds = "C.UABD.MED"
-rdm.a.exrv = "C.UABD.EXTD"   'RHW
+'rdm.a.exrv = "C.UABD.EXTD"   'RHW
+rdm.a.exrv = ""
 'child rdm
 rdm.c.rec  = "C.CABD.REC"
 rdm.c.loca = "C.CABD.ALOC"
 rdm.c.type = "C.CABD.ASS"
 rdm.c.date = "C.CABD.DATE3"
-'rdm.c.tcom = "C.CABD.TCOOMI"
-rdm.c.tcom = ""
+rdm.c.tcom = "C.CABD.TCOOMI"
+'rdm.c.tcom = ""
 rdm.c.jj   = "C.CABD.JJ"
 'adult trr
 trr.a.rec  = "C.ANSA.REC"
@@ -286,11 +309,20 @@ trr.c.rec  = "C.CANS.REC"
 trr.c.loca = "C.CANS.ALOC"
 trr.c.locd = "C.CANS.DLOC"
 trr.c.locr = "C.CANS.RLOC"
+trr.c.date = "C.CANS.ALOCDATE"
+trr.c.endd = "C.CANS.ALOCEDATE"
+trr.c.devo = "C.CANS.DEVOTH"
 
 trr_crisis_type = 11
 trr_intake_type = 1
 trr_update_type = 2
 trr_disch_type = 3
+
+o_user   = "sqltransfer"
+o_pass = "xxxxxxxxx"
+o_ds   = "svrsql"
+o_db     = "CMHC_Export"
+o_sql = "SELECT [CrisisCount] FROM [CMHC_Export].[dbo].[v_RHW_CrisisEncPerCID] WHERE CID = '%CID%'"
 
 getparm(parmfile)
 getoption(option)
@@ -310,7 +342,7 @@ $setvarname(rdm.a.hous, rdm.a.hous)
 $setvarname(rdm.a.cops, rdm.a.cops)
 $setvarname(rdm.a.crim, rdm.a.crim)
 $setvarname(rdm.a.meds, rdm.a.meds)
-$setvarname(rdm.a.exrv, rdm.a.exrv)		'RHW
+$setvarname(rdm.a.exrv, rdm.a.exrv)    'RHW
 $setvarname(rdm.c.rec , rdm.c.rec )
 $setvarname(rdm.c.loca, rdm.c.loca)
 $setvarname(rdm.c.type, rdm.c.type)
@@ -331,6 +363,8 @@ $setvarname(trr.c.loca, trr.c.loca)
 $setvarname(trr.c.locd, trr.c.locd)  
 $setvarname(trr.c.locr, trr.c.locr)  
 
+$setvarname(er_date, er_Date)  
+
 
 $setvartype(c.age, "B")
 $setvartype(rdm.a.rec, "H")
@@ -343,6 +377,7 @@ $setvartype(trr.a.endd, "D")
 $setvartype(trr.c.rec, "H")
 $setvartype(trr.c.date, "D")
 $setvartype(trr.c.endd, "D")
+$setvartype(er_date, "D")
 
 'migration record defaults
 trr.def.dreaso = "MIGRATION"
@@ -381,10 +416,26 @@ trr_type_table[trr_update_type] = rdm_update_type
 trr_type_table[trr_intake_type] = rdm_intake_type
 trr_type_table[trr_disch_type] = rdm_disch_type
 
+if delim_path dp then
+   x-sql = "rm " + delim_path
+   rc = $unix(x-sql)
+endif
+
 i = 0
 do while i++ < $maxarray(er_crisis_crit[])
    er_crisis_crit[i] = "," + er_crisis_crit[i] + ","
 enddo
+
+if sql_crisis_check = "Y" then
+   if $loadlib(l-sql,"LIB-freetds") > 0 then return endif
+   if o_user dp and o_pass dp and o_ds dp and o_db dp and o_sql dp then
+      o_dsn = o_user + ":" + o_pass + ":" + o_ds + ":" + o_db
+      l-sql:setDSN(o_dsn)
+   else
+      sql_crisis_check = "N"
+   endif
+endif
+
 
 'read the db
 if clientid dp then 
@@ -398,18 +449,18 @@ $brmsg("...Migrating...", 1, "EC" )
 if doReport = "Y" then report("START", rdm.a.type, rdm.a.loca, trr.a.loca, rdm.c.type, rdm.c.loca, trr.c.loca, delim_path) endif
 
 $dblock()
-rc = $dbread(clientdb, read-id, c.age, rdm.a.rec, rdm.a.type, rdm.a.loca, rdm.c.rec, rdm.c.type, rdm.c.loca, rdm.c.tcom, rdm.c.jj)
+rc = $dbread(clientdb, read-id, c.age, rdm.a.rec, rdm.a.date, rdm.a.type, rdm.a.loca, rdm.c.rec, rdm.c.date, rdm.c.type, rdm.c.loca, rdm.c.tcom, rdm.c.jj)
 gosub _REC-PROC
 
 'stop hear or rip through rest of db
 $dblock()
-rc = $dbreadnext(clientdb, read-id, c.age, rdm.a.rec, rdm.a.type, rdm.a.loca, rdm.c.rec, rdm.c.type, rdm.c.loca, rdm.c.tcom, rdm.c.jj)
+rc = $dbreadnext(clientdb, read-id, c.age, rdm.a.rec, rdm.a.date, rdm.a.type, rdm.a.loca, rdm.c.rec, rdm.c.date, rdm.c.type, rdm.c.loca, rdm.c.tcom, rdm.c.jj)
 if clientid dp then rc = 99 endif
 do while rc < 3
    $loopcount = 0
    gosub _REC-PROC
    $dblock()
-   rc = $dbreadnext(clientdb, read-id, c.age, rdm.a.rec, rdm.a.type, rdm.a.loca, rdm.c.rec, rdm.c.type, rdm.c.loca, rdm.c.tcom, rdm.c.jj)
+   rc = $dbreadnext(clientdb, read-id, c.age, rdm.a.rec, rdm.a.date, rdm.a.type, rdm.a.loca, rdm.c.rec, rdm.c.date, rdm.c.type, rdm.c.loca, rdm.c.tcom, rdm.c.jj)
 enddo
 
 if doReport = "Y" then report("END") endif
@@ -421,17 +472,20 @@ return
 _REC-PROC:
    $clear(trr.a.loca, trr.c.loca)
    'calculate new locr
-   if rdm.a.type = rdm_disch_type or rdm.c.type = rdm_disch_type then
+   if rdm.a.type = rdm_disch_type or rdm.c.type = rdm_disch_type           'discharged
+   or (rdm.a.type = rdm_crisis_type and `rdm.a.date + 7` < migrate_date)   'expired crisis
+   or (rdm.c.type = rdm_crisis_type and `rdm.c.date + 7` < migrate_date) then
       'not migrating inactive clients
    elseif rdm.a.loca dp then
       select rdm.a.loca
          case "1"    '1m or 1s
                      're-read top layer to get all trag scores
-'RHW	added rdm.a.date, rdm.a.locr and rdm.a.exrv
+'RHW  added rdm.a.date, rdm.a.locr and rdm.a.exrv
                      rc = $dbread(clientdb, read-id, rdm.a.rec, rdm.a.date, rdm.a.locr, rdm.a.loca, rdm.a.type, 
                         rdm.a.harm, rdm.a.supp,rdm.a.hosp,rdm.a.impr,rdm.a.empl,rdm.a.hous,
                         rdm.a.cops,rdm.a.crim,rdm.a.meds, rdm.a.exrv)
 'RHW    added logic to the do while loop to stop looking at UA's once the oldest got to earler than 8/31/2013
+                     curr-loca = rdm.a.loca
                      do while rc < 2 and rdm.a.date > 08/31/2012
                         select rdm.a.type
                            case rdm_disch_type
@@ -449,9 +503,9 @@ _REC-PROC:
                               
 'RHW  Added logic to determine if the UA is extended review and set the default days to expire
                               if rdm.a.exrv = "Y"
-                              	rdm.a.exdays = 365
+                                 rdm.a.exdays = 365
                               else
-                              	rdm.a.exdays = 180
+                                 rdm.a.exdays = 180
                               endif
                               
                               if ( last-ua-date dp and `last-ua-date - rdm.a.date` > rdm.a.exdays )
@@ -481,40 +535,44 @@ _REC-PROC:
                            rc = 99
                         endif
                      enddo
-'RHW - If you want to use a SQL query to determine crisis service, uncomment this section.                     
-'                     if trr.a.loca !dp then
-'                     	trrcrisis is x
-'                     	trrcrisis = "N"
-'                     	hascrisis(read-id,trrcrisis)
-'                     	
-'                     		if trrcrisis = "Y"
-'                     			trr.a.loca = trr_a_skill
-'                     		endif
-'                    endif
-'RHW Uncomment to here to use SQL,
+                     rdm.a.loca = curr-loca
 
-'RHW Otherwise, leave this setion uncommented.
+                     if trr.a.loca !dp then
+                        if sql_crisis_check = "Y" then
+                           x-sql = $replace("%CID%", read-id, o_sql)
+                           rc = l-sql:q(x-sql,o_data)
 
-                        'look for crisis encounters:
-                        rc = $startevents(, read-id, migrate_date)
-                        rc = $readnextevent()
-                        do while rc = 0
-                           rc = $geterrec(er-obj)
-                           rc = $getervars(er-obj, er_crisis_flags[], er-crisis-vals[])
-                           i = 0
-                           do while i++ < $maxarray(er_crisis_flags[])
-                              er-crit = "," + er-crisis-vals[i] + ","
-                              if $find(er-crit, er_crisis_crit[i], 1, "F") > 0 then
-                                 trr.a.loca = trr_a_skill
-                                 i = $maxarray(er_crisis_flags[])
+                           'data = data
+
+                           o_data = $parse(o_data,1,"|")
+
+                           if o_data != "0" then
+                              trr.a.loca = trr_a_skill
+                           endif
+                        else
+
+                           'look for crisis encounters:
+                           $loopcount = 0
+                           rc = $startevents(, read-id, migrate_date)
+                           rc = $readnextevent(er_date)
+                           do while rc = 0 and er_date > 8/31/2011
+                              rc = $geterrec(er-obj)
+                              rc = $getervars(er-obj, er_date, er_crisis_flags[], er-crisis-vals[])
+                              i = 0
+                              do while i++ < $maxarray(er_crisis_flags[])
+                                 er-crit = "," + er-crisis-vals[i] + ","
+                                 if $find(er-crit, er_crisis_crit[i], 1, "F") > 0 then
+                                    trr.a.loca = trr_a_skill
+                                    i = $maxarray(er_crisis_flags[])
+                                 endif
+                              enddo
+                              if trr.a.loca dp then
+                                 rc = 99
+                              else
+                                 rc = $readnextevent(er_date)
                               endif
                            enddo
-                           if trr.a.loca dp then
-                              rc = 99
-                           else
-                              rc = $readnextevent()
-                           endif
-                        enddo
+                        endif
                      endif
  'RHW to here                    
                      'auth < 8/31/12 with no gaps or discharges
@@ -522,7 +580,7 @@ _REC-PROC:
                      'AND all TRAG scores = 1
                      'AND No Crisis encounters = 1 M
                      if trr.a.loca !dp then
-                        trr.a.loca = "1M"
+                        trr.a.loca = trr_a_medis
                      endif
 
          case other  trr.a.loca = migrate_a_table[`$casti(rdm.a.loca) + 10`]
@@ -614,7 +672,7 @@ len            is b
 reportNbr      is b
 print-line     is x
 
-delim_path		 is x
+delim_path      is x
 delim_string   is x
 |              is x   | = "|"
 
@@ -678,66 +736,8 @@ print-line = $format(read-id, dst1, dst2, dst3, dst4, dst5, dst6, fmt)
 report = $print(reportNbr, print-line)
 
 if delim_path dp
-	delim_string = read-id + | + dst1 + | + dst2 + | + dst3 + | + dst4 + | + dst5 + | + dst6 + |
-	$log(delim_string,delim_path)
+   delim_string = read-id + | + dst1 + | + dst2 + | + dst3 + | + dst4 + | + dst5 + | + dst6 + |
+   $log(delim_string,delim_path)
 endif
 
 end report  
-
-function hascrisis(cid,trrcrisis) is alpha
-
-cid				is alpha
-trrcrisis	is alpha
-cntcrisis is alpha
-
-rc				 is i
-dsn        is x
-sql				 is x
-db				 is i
-i					 is i
-data			 is x
-
-o_sql       is x
-o_user      is x
-o_pass      is x
-o_ds        is x
-o_db        is x
-
-o_user	= "sqltransfer"
-o_pass = "xxxxxxxxx"
-o_ds   = "svrsql"
-o_db		= "CMHC_Export"
-
-dsn = o_user + ":" + o_pass + ":" + o_ds + ":" + o_db
-
-rc = $loadlib(db,"LIB-freetds")
-
-db:setDSN(dsn)
-
-cid = cid
-
-sql = `"SELECT [CrisisCount] FROM [CMHC_Export].[dbo].[v_RHW_CrisisEncPerCID] WHERE CID = '" + cid + "' "`
-
-sql = sql
-
-'$trace("on.path", "/c4/EXPORT2/trace/PNE_Read.txt")
-
-rc = db:q(sql,data)
-
-data = data
-
-$parsem(data,1,"|",cntcrisis)
-
-cntcrisis = cntcrisis
-
-if cntcrisis != "0" then
-	trrcrisis = "Y"
-else
-	trrcrisis = "N"
-endif
-
-
-$allowupdate(trrcrisis)
-end hascrisis
-
- 
