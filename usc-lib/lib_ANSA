@@ -110,11 +110,11 @@ on load do:
    case "106" EndDate = c.ansa.alocdate + 90
    case "108" EndDate = c.ansa.alocdate + 90   
    case "109" EndDate = c.ansa.alocdate + 90
-   case "111" EndDate = c.ansa.alocdate + 90   
-   case "112" EndDate = c.ansa.alocdate + 90   
-   case "113" EndDate = c.ansa.alocdate + 90   
-   case "114" EndDate = c.ansa.alocdate + 90   
-   case "115" EndDate = c.ansa.alocdate + 90
+   case "111" EndDate = c.ansa.alocdate + 365   
+   case "112" EndDate = c.ansa.alocdate + 180   
+   case "113" EndDate = c.ansa.alocdate + 180   
+   case "114" EndDate = c.ansa.alocdate + 180   
+   case "115" EndDate = c.ansa.alocdate + 180
    case other EndDate = c.ansa.alocdate
   endselect 
  end EndDate
