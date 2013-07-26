@@ -33,7 +33,12 @@
 '  ^ fixed issues with reading all of the needed DST in the adult UA for logic to work
 '  + added logic to determine if an adult UA LOCA1 expired along with consideration for extended review
 '  + added some sample logic to use freetds to determine if a crisis service had been provided (LOCR 1M and 1S logic)
-%version 0.0.1.3 7/25/2013 gcc
+'
+'RHW  0.0.3.x 7/26/2013
+'  ^ fixed issue when SP 1M should be migrated as 111
+'  + Added option to create a pipe "|" delimited file of migration data to facilitate importing into SQL
+
+%version 0.0.1.3 7/26/2013 gcc
 
 start RDMtoTRR(parmfile, option, clientid, retcode)
 'arguments
@@ -46,6 +51,7 @@ retcode           is b
 auditOnly         is x
 doReport          is x
 reportinactive    is x
+delim_path        is x
 migrate_date      is d
 
 er_crisis_flags[] is x
@@ -184,6 +190,12 @@ migrate_date = 9/1/2013
 auditOnly = "Y"
 doReport = "Y"
 reportinactive = "Y"
+
+delim_path = "/c0/SQLTRANSFER/t_rdm2trr.txt"     'define a path and the script will create a pipe delimited file
+if delim_path dp
+	rc = $unix("rm /c0/SQLTRANSFER/t_rdm2trr.txt")
+endif
+
 
 trr.def.dreaso = "MIGRATION"
 trr.def.astaff = "MIGRATION"
@@ -383,7 +395,7 @@ endif
 
 $brmsg("...Migrating...", 1, "EC" )
 
-if doReport = "Y" then report("START", rdm.a.type, rdm.a.loca, trr.a.loca, rdm.c.type, rdm.c.loca, trr.c.loca) endif
+if doReport = "Y" then report("START", rdm.a.type, rdm.a.loca, trr.a.loca, rdm.c.type, rdm.c.loca, trr.c.loca, delim_path) endif
 
 $dblock()
 rc = $dbread(clientdb, read-id, c.age, rdm.a.rec, rdm.a.type, rdm.a.loca, rdm.c.rec, rdm.c.type, rdm.c.loca, rdm.c.tcom, rdm.c.jj)
@@ -569,7 +581,7 @@ _REC-PROC:
    'log report
    if doReport = "Y" then 
       if trr.a.loca dp or trr.c.loca dp or ReportInactive = "Y" then 
-         report(read-id, rdm.a.type, rdm.a.loca, trr.a.loca, rdm.c.type, rdm.c.loca, trr.c.loca) 
+         report(read-id, rdm.a.type, rdm.a.loca, trr.a.loca, rdm.c.type, rdm.c.loca, trr.c.loca, delim_path) 
       endif
    endif
    
@@ -586,7 +598,7 @@ end RDMtoTRR
 %include inc_GetParm
 %include inc_GetOption
 
-static function report(read-id, dst1, dst2, dst3, dst4, dst5, dst6) is binary
+static function report(read-id, dst1, dst2, dst3, dst4, dst5, dst6, delim_path) is binary
 read-id        is x
 dst1           is v
 dst2           is v
@@ -602,6 +614,9 @@ len            is b
 reportNbr      is b
 print-line     is x
 
+delim_path		 is x
+delim_string   is x
+|              is x   | = "|"
 
 if read-id = "START" then
    hdr[1] = "Date: ^DATE^^C^RDM to TRR Migration Report^R^Page: ^PAGE^"                        ' Header Line 1
@@ -661,6 +676,11 @@ endif
 
 print-line = $format(read-id, dst1, dst2, dst3, dst4, dst5, dst6, fmt)
 report = $print(reportNbr, print-line)
+
+if delim_path dp
+	delim_string = read-id + | + dst1 + | + dst2 + | + dst3 + | + dst4 + | + dst5 + | + dst6 + |
+	$log(delim_string,delim_path)
+endif
 
 end report  
 
