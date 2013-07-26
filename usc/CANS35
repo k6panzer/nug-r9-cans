@@ -1051,6 +1051,37 @@ function ChildRisk() is null
  $endfieldset()
 end ChildRisk
 
+function ChildRiskCrisis() is null
+ bgcolor = "white"
+ if $find(cr_errortxt,errors[],,"F") > 0
+  bgcolor = "red"
+ endif
+ $fieldset("Child Risk Behaviors: Crisis",,"datatag")
+  ChildRiskScoring()
+  $table($funcname,,`table_wbgcolor`)
+   $row()
+    $col("center",,"50%")
+    $col("center",,"10%")$text("NA")
+	radio_index = -1
+	do while radio_index++ < 3
+     $col("center",,"10%")$text(radio_index)
+	enddo	
+   $row()
+    radio_index = 0
+	do while radio_index++ < 6
+     $col()$tag("<hr/>")
+	enddo     
+   $row(,row_color1)
+    $col()$text(q_text_cr_sfharm)
+	$col("center")
+	radio_index = -1
+	do while radio_index++ < 3
+     $col("center")$radio(c.cans.cr.sfharm,,$castx(radio_index))
+	enddo	
+  $endtable($funcname)
+ $endfieldset()
+end ChildRiskCrisis
+
 'School Module
 function School() is null
  bgcolor = "white" 
@@ -1514,14 +1545,18 @@ function ChildRiskRpt() is null
     $col(,,"40%")$text(q_text_cr_sfharm)
     $col("center",,"10%")$text(c.cans.cr.sfharm)
     $col(,,"50%")                     
-   $row()
-    $col()$text(q_text_cr_aggbeh )
-    $col("center")$text(c.cans.cr.aggbeh )
-    $col()                          
-   $row()
-    $col()$text(q_text_cr_socbeh)
-    $col("center")$text(c.cans.cr.socbeh)
-    $col()                          
+   if c.cans.cr.aggbeh dp
+    $row()
+     $col()$text(q_text_cr_aggbeh )
+     $col("center")$text(c.cans.cr.aggbeh)
+     $col()                          
+   endif
+   if c.cans.cr.socbeh dp
+    $row()
+     $col()$text(q_text_cr_socbeh)
+     $col("center")$text(c.cans.cr.socbeh)
+     $col()                          
+   endif
   $endtable($funcname)
  endif
 end ChildRiskRpt
@@ -1934,12 +1969,17 @@ function Validate1() is i
    endif
    
    if c.cans.type = "2" and c.cans.cr.sfharm = "3"   
-    (void)$arrpush(errors[],crisis_errortxt)
+    (void)$arrpush(errors[],crisis1_errortxt)
    endif
    
-   if c.cans.cr.sfharm !dp or c.cans.cr.aggbeh !dp or c.cans.cr.socbeh !dp
-    (void)$arrpush(errors[],cr_errortxt)
-   endif   
+   if c.cans.type = "11" 
+    if c.cans.cr.sfharm != "3"
+     (void)$arrpush(errors[],crisis2_errortxt)   
+    endif
+    if c.cans.cr.sfharm !dp
+     (void)$arrpush(errors[],cr_errortxt)
+    endif   
+   endif	
   
    if errors[1] dp	
     Validate1 = 1
@@ -2062,15 +2102,23 @@ function Page1() is null
    $br()ReportHdr()
    OtherQuestionRpt()
    $tag("<hr/>")
+   $br()
+   if c.cans.type = "11"
+    $table("1",,table_nobgcolor)
+     $row()
+      $col(,,"50%")ChildRiskCrisis()
+      $col()
+    $endtable("1")
     $br()
+   endif 
+   if c.cans.type = "1" or c.cans.type = "2" or (c.cans.type = "3" and c.cans.disreas = "9") or c.cans.type = "12"
     $table("1",,table_nobgcolor)
      $row()
       $col(,,"50%")ChildRisk()
-	  $col()
+      $col()
     $endtable("1")
-    $br()
-   if c.cans.type = "1" or c.cans.type = "2" or (c.cans.type = "3" and c.cans.disreas = "9") or c.cans.type = "12"
-    $tag("<hr/>")
+    $br()    
+	$tag("<hr/>")
     $br()
     $table("2",,table_nobgcolor)
      $row()
@@ -3078,16 +3126,18 @@ function StaffComments() is null
 end StaffComments 
 
 function ClearPage1() is null
- if c.cans.type != "11"
+ if c.cans.type = "11"
+  $clear(c.cans.cr.aggbeh,c.cans.cr.socbeh)
+ else 
   $clear(c.cans.cr.sfharm,c.cans.cr.aggbeh,c.cans.cr.socbeh)
+  $clear(c.cans.cf.birthw,c.cans.cf.pica,c.cans.cf.prenat,c.cans.cf.labdel,c.cans.cf.subexp,c.cans.cf.psprob,c.cans.cf.matava,c.cans.cf.abuse)
+  $clear(c.cans.cb.attach,c.cans.cb.regula,c.cans.cb.fthriv,c.cans.cb.depres,c.cans.cb.anxity,c.cans.cb.atypic,c.cans.cb.implsv,c.cans.cb.oppdef,c.cans.cb.adjtrm)
+  $clear(c.cans.ld.family,c.cans.ld.livsit,c.cans.ld.preday,c.cans.ld.socFun,c.cans.ld.recret,c.cans.ld.develp,c.cans.ld.motor,c.cans.ld.commun,c.cans.ld.medicl,c.cans.ld.physcl,c.cans.ld.sleep ,c.cans.ld.relper )
+  $clear(c.cans.cg.super,c.cans.cg.involv,c.cans.cg.knoldg,c.cans.cg.empath,c.cans.cg.organz,c.cans.cg.socres,c.cans.cg.ressbl,c.cans.cg.physcl)
+  $clear(c.cans.cg.menhth,c.cans.cg.subabs,c.cans.cg.develp,c.cans.cg.chldcr,c.cans.cg.miltra,c.cans.cg.famsts,c.cans.cg.safety,c.cans.cg.marvio)
+  $clear(c.cans.cs.family,c.cans.cs.extfam,c.cans.cs.intper,c.cans.cs.adapt,c.cans.cs.persis,c.cans.cs.curios)
+  $clear(c.cans.ac.langua,c.cans.ac.identy,c.cans.ac.ritual,c.cans.ac.culstr,c.cans.ac.culdif)
  endif
- $clear(c.cans.cf.birthw,c.cans.cf.pica,c.cans.cf.prenat,c.cans.cf.labdel,c.cans.cf.subexp,c.cans.cf.psprob,c.cans.cf.matava,c.cans.cf.abuse)
- $clear(c.cans.cb.attach,c.cans.cb.regula,c.cans.cb.fthriv,c.cans.cb.depres,c.cans.cb.anxity,c.cans.cb.atypic,c.cans.cb.implsv,c.cans.cb.oppdef,c.cans.cb.adjtrm)
- $clear(c.cans.ld.family,c.cans.ld.livsit,c.cans.ld.preday,c.cans.ld.socFun,c.cans.ld.recret,c.cans.ld.develp,c.cans.ld.motor,c.cans.ld.commun,c.cans.ld.medicl,c.cans.ld.physcl,c.cans.ld.sleep ,c.cans.ld.relper )
- $clear(c.cans.cg.super,c.cans.cg.involv,c.cans.cg.knoldg,c.cans.cg.empath,c.cans.cg.organz,c.cans.cg.socres,c.cans.cg.ressbl,c.cans.cg.physcl)
- $clear(c.cans.cg.menhth,c.cans.cg.subabs,c.cans.cg.develp,c.cans.cg.chldcr,c.cans.cg.miltra,c.cans.cg.famsts,c.cans.cg.safety,c.cans.cg.marvio)
- $clear(c.cans.cs.family,c.cans.cs.extfam,c.cans.cs.intper,c.cans.cs.adapt,c.cans.cs.persis,c.cans.cs.curios)
- $clear(c.cans.ac.langua,c.cans.ac.identy,c.cans.ac.ritual,c.cans.ac.culstr,c.cans.ac.culdif)
 end ClearPage1
 
 function ClearPage2() is null

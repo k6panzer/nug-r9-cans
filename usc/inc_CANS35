@@ -444,7 +444,8 @@ errors[] is x  'array for capturing errors by section
 %define aloc11_errortxt "Due to the Discharge Reason, the ALOC will be changed to Ineligible"
 %define dloc_errortxt "The LOC requested for deviation is the same as the Recommended LOC. It will be unselected now. You can either leave the field blank or select another LOC."
 %define staff_errortxt "You cannot authorize your own assessment, another UM staff must authorize it."
-%define crisis_errortxt "Client is currently in crisis, please resolve this crisis and re-assess"
+%define crisis1_errortxt "Client is currently in crisis, please resolve this crisis and re-assess"
+%define crisis2_errortxt "Scoring does not indicate a crisis episode"
 
 rc_cans_dstlist = $dstlist(cans_dstlist,02,
 c.cans.rec,c.cans.staff,c.cans.ver,c.cans.date,c.cans.age,c.cans.aloc,c.cans.rloc,c.cans.dloc,c.cans.compd,c.cans.type,

@@ -1,4 +1,5 @@
 library lib_ANSA()
+on load do:
  %include inc_SCHIZALG
  %include inc_QIDSALG
  %include inc_BIPOLARALG
@@ -22,6 +23,10 @@ library lib_ANSA()
   $clear(assessments[])
   $allowupdate(assessments[])
   Last_Assessment(clientid,c.ansa.type,c.ansa.staff,c.ansa.ver,c.ansa.date,c.ansa.age,c.ansa.aloc,c.ansa.rloc,c.ansa.dloc,c.ansa.compd,c.ansa.alocdate)
+
+'/////remove later
+  c.ansa.type = "D"
+
   select c.ansa.type
    'no prior assessment
    case !dp  (void)$arrpush(assessments[],"1")
@@ -441,16 +446,13 @@ library lib_ANSA()
   $sendform($funcname)
   if $endbutton != "CANCEL" and $endbutton != "SUBMIT"
    $dblock()
-   rc = $dbpoint(2,$regid,
-   c.schiz.rec,c.schiz.susp,c.schiz.thou,c.schiz.hall,c.schiz.cond,c.schiz.psrs,c.schiz.resp,c.schiz.emot,c.schiz.socl,c.schiz.grhy,c.schiz.bnsa,c.schiz.pati,c.schiz.parn,c.schiz.prof,c.schiz.char,c.schiz.conf,c.schiz.drug,c.schiz.rapp,
-    c.schiz.nega,c.schiz.unco,c.schiz.diso,c.schiz.othr,c.schiz.staf,c.schiz.date,c.schiz.comm)
+   rc = $dbpoint(2,$regid,schiz_dstlist)
    c.schiz.rec[effd] = c.schiz.date			   
    c.schiz.staf = $operstaffid
    if c_schiz_othr != "Y"
     $clear(c.schiz.othr)
    endif 
-   rc = $dbadddst(2,$regid,c.schiz.rec,c.schiz.susp,c.schiz.thou,c.schiz.hall,c.schiz.cond,c.schiz.psrs,c.schiz.resp,c.schiz.emot,c.schiz.socl,c.schiz.grhy,c.schiz.bnsa,c.schiz.pati,c.schiz.parn,c.schiz.prof,c.schiz.char,c.schiz.conf,c.schiz.drug,
-                           c.schiz.rapp,c.schiz.nega,c.schiz.unco,c.schiz.diso,c.schiz.othr,c.schiz.staf,c.schiz.date,c.schiz.comm)
+   rc = $dbadddst(2,$regid,schiz_dstlist)
    if rc = 0
     $brmsg("Data Successfully Added to Database!", 1,"W","Process Complete")
     SCHIZALGRpt = "Y" 
@@ -757,12 +759,10 @@ library lib_ANSA()
   $sendform($funcname)
   if $endbutton != "CANCEL" and $endbutton != "SUBMIT"
    $dblock()
-   rc = $dbpoint(2,$regid,c.qids.rec,c.qids.fall,c.qids.slep,c.qids.wake,c.qids.much,c.qids.sad,c.qids.appd,c.qids.appi,c.qids.weid,c.qids.weii,c.qids.conc,c.qids.self,c.qids.deat,c.qids.intr,c.qids.enrg,c.qids.slow,c.qids.rest,c.qids.totl,c.qids.staf,
-                          c.qids.date,c.qids.vers,c.qids.comm)
+   rc = $dbpoint(2,$regid,qids_dstlist)
    c.qids.rec[effd] = c.qids.date
    c.qids.staf = $operstaffid  
-   rc = $dbadddst(2,$regid,c.qids.rec,c.qids.fall,c.qids.slep,c.qids.wake,c.qids.much,c.qids.sad,c.qids.appd,c.qids.appi,c.qids.weid,c.qids.weii,c.qids.conc,c.qids.self,c.qids.deat,c.qids.intr,c.qids.enrg,c.qids.slow,c.qids.rest,c.qids.totl,c.qids.staf,
-                           c.qids.date,c.qids.vers,c.qids.comm) 
+   rc = $dbadddst(2,$regid,qids_dstlist)
    if rc = 0
     $brmsg("Data Successfully Added to Database!",1,"W","Process Complete")
      QIDSALGRpt = "Y"
@@ -1088,12 +1088,10 @@ library lib_ANSA()
   ''***************************************SAVE DATA ROUTINE************************************
   if $endbutton != "CANCEL" and $endbutton != "SUBMIT"
    $dblock()
-   rc = $dbpoint(2,$regid,c.bdss.rec,c.bdss.host,c.bdss.mood,c.bdss.gran,c.bdss.depr,c.bdss.anxi,c.bdss.thou,c.bdss.exci,c.bdss.moto,c.bdss.emot,c.bdss.blun,c.bdss.pati,c.bdss.parn,c.bdss.prof,c.bdss.char,c.bdss.conf,c.bdss.drug,c.bdss.rapp,c.bdss.nega,
-                          c.bdss.unco,c.bdss.diso,c.bdss.othr,c.bdss.staf,c.bdss.date,c.bdss.score,c.bdss.comm)		    
+   rc = $dbpoint(2,$regid,bdss_dstlist)
    c.bdss.rec[effd] =  c.bdss.date
    c.bdss.staf = $operstaffid   
-   rc = $dbadddst(2,$regid,c.bdss.rec,c.bdss.host,c.bdss.mood,c.bdss.gran,c.bdss.depr,c.bdss.anxi,c.bdss.thou,c.bdss.exci,c.bdss.moto,c.bdss.emot,c.bdss.blun,c.bdss.pati,c.bdss.parn,c.bdss.prof,c.bdss.char,c.bdss.conf,c.bdss.drug,c.bdss.rapp,c.bdss.nega,
-                           c.bdss.unco,c.bdss.diso,c.bdss.othr,c.bdss.staf,c.bdss.date,c.bdss.score,c.bdss.comm)
+   rc = $dbadddst(2,$regid,bdss_dstlist)
    if rc = 0
     $brmsg("Data Successfully Added to Database!", 1, "W", "Process Complete")
     BipolarAlgRpt = "Y"
@@ -1109,53 +1107,45 @@ library lib_ANSA()
   endif
  end BipolarAlgRpt  
 
- function GETDX(DXType, DX, DXCat, DXDate,DXGaf) is null
+ function GETDX(DXType,DX,DXCat,DXDate,DXGaf) is null
   DXType is x
   DX     is x
   DXCat  is x
   DXDate is d
   DXGaf  is i
-  rc     is b
-  
-  dx_dct = 400
-  dx_dct2 = dx_dct
-  dx_dct3 = dx_dct
-  dx_dct4 = dx_dct
-  dx_dct5 = dx_dct
-  dx_dct6 = dx_dct
- 
-  rc = $dbread(02, $regid, c.dsmiiir,c.diag,c.dxaxi2,c.dxaxi3,c.dxaxi4,c.dxaxi5,c.dxaxi6,c.dxaxvc,c.dxdate)  
+  rc     is b 
 
+  rc = $dbread(02, $regid, dx_dstlist)  
   dxtype = $dct(dx_dct, c.diag, "1")
   DX = c.diag
   DXGaf = c.dxaxvc
  
   if dxtype = "O" and C.DXAXI2 dp
-   dxtype = $dct(dx_dct2, C.DXAXI2, "1")
+   dxtype = $dct(dx_dct, C.DXAXI2, "1")
    if dxtype = "S" or dxtype = "B" or dxtype = "D"
  	DX = C.DXAXI2
    endif
   endif
   if dxtype = "O" and C.DXAXI3 dp
-   dxtype = $dct(dx_dct3, C.DXAXI3, "1")
+   dxtype = $dct(dx_dct, C.DXAXI3, "1")
    if dxtype = "S" or dxtype = "B" or dxtype = "D"
     DX = C.DXAXI3
    endif
   endif
   if dxtype = "O" and C.DXAXI4 dp
-   dxtype = $dct(dx_dct4, C.DXAXI4, "1")
+   dxtype = $dct(dx_dct, C.DXAXI4, "1")
    if dxtype = "S" or dxtype = "B" or dxtype = "D"
     DX = C.DXAXI4
    endif
   endif
   if dxtype = "O" and C.DXAXI5 dp
-   dxtype = $dct(dx_dct5, C.DXAXI5, "1")
+   dxtype = $dct(dx_dct, C.DXAXI5, "1")
    if dxtype = "S" or dxtype = "B" or dxtype = "D"
     DX = C.DXAXI5
    endif
   endif
   if dxtype = "O" and C.DXAXI6 dp
-   dxtype = $dct(dx_dct6, C.DXAXI6, "1")
+   dxtype = $dct(dx_dct, C.DXAXI6, "1")
    if dxtype = "S" or dxtype = "B" or dxtype = "D"
     DX = C.DXAXI6
    endif
@@ -1507,7 +1497,7 @@ library lib_ANSA()
  ScaleAge    is i
  rc          is i
  select DXType
-  case "S" rc = $dbread(02,$regid,c.schiz.rec,c.schiz.date)
+  case "S" rc = $dbread(02,$regid,schiz_dstlist)
            if rc = 0
             ScaleAge = c.ansa.date - c.schiz.date
 			if ScaleAge < 90
@@ -1519,7 +1509,7 @@ library lib_ANSA()
 		    DXScaleRequired = "Y"
 		   endif
 		   $clear(c.schiz.date)	
-  case "D" rc = $dbread(02,$regid,c.qids.rec,c.qids.date)
+  case "D" rc = $dbread(02,$regid,qids_dstlist)
            if rc = 0
             ScaleAge = c.ansa.date - c.qids.date
 			if ScaleAge < 90
@@ -1531,7 +1521,7 @@ library lib_ANSA()
 		    DXScaleRequired = "Y"
 		   endif
 		   $clear(c.qids.date)	  
-  case "B" rc = $dbread(02,$regid,c.bdss.rec,c.bdss.date)
+  case "B" rc = $dbread(02,$regid,bdss_dstlist)
            if rc = 0
             ScaleAge = c.ansa.date - c.bdss.date
 			if ScaleAge < 90
@@ -1552,7 +1542,7 @@ function GetSchizScore(c.ansa.scaledt,c.ansa.psrs,c.ansa.bnsa) is null
  c.ansa.psrs    is x
  c.ansa.bnsa    is x
  rc             is i
- rc = $dbread(2,$regid,c.schiz.rec,c.schiz.date,c.schiz.psrs,c.schiz.bnsa)
+ rc = $dbread(2,$regid,schiz_dstlist)
  c.ansa.scaledt = c.schiz.date
  c.ansa.psrs = c.schiz.psrs
  c.ansa.bnsa = c.schiz.bnsa
@@ -1564,7 +1554,7 @@ function GetQIDSScore(c.ansa.scaledt,c.ansa.qids,c.ansa.qidsver) is null
  c.ansa.qids    is x
  c.ansa.qidsver is x
  rc             is i
- rc = $dbread(2,$regid,c.qids.rec,c.qids.date,c.qids.totl,c.qids.vers)
+ rc = $dbread(2,$regid,qids_dstlist)
  c.ansa.scaledt = c.qids.date
  c.ansa.qids = c.qids.totl
  c.ansa.qidsver = c.qids.vers 
@@ -1575,8 +1565,19 @@ function GetBipolarScore(c.ansa.scaledt,c.ansa.bdss) is null
  c.ansa.scaledt is d
  c.ansa.bdss    is x
  rc             is i
- rc = $dbread(2,$regid,c.bdss.rec,c.bdss.date,c.bdss.score)
+ rc = $dbread(2,$regid,bdss_dstlist)
  c.ansa.scaledt = c.bdss.date
  c.ansa.bdss = c.bdss.score
  $allowupdate(c.ansa.scaledt,c.ansa.bdss)
 end GetBipolarScore	
+
+function NonPPPage() is null
+ $submitopt("off", "CONTINUE")
+ $cancelopt("off", "BACK")
+ $form($funcname)
+  $br()$text("This person does not appear to be a member of the DSHS Texas Resilience and Recovery (TR&R) Target Population but is a member of the DSHS Priority Population.")  
+  $br()$text("If this person is currently a Medicaid recipient and there is medical necessity for TR&R Medicaid services, this person must be overridden into an appropriate level of care.")
+  $br()$text("If this person is not a Medicaid recipient, the person's need for services should be carefully evaluated.  If the person has a high level of need or a low level of functional ")
+       $text("ability you may clinically override this person into an appropriate level of care.  Otherwise this person may be placed on a waiting list for services if there is currently insufficient capacity to serve this person.")
+ $sendform($funcname)
+end NonPPPage

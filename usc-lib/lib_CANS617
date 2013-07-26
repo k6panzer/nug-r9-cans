@@ -187,7 +187,8 @@ function BehEmoRpt(q_text_cb_psychs,c.cans.cb.psychs,q_text_cb_mania,c.cans.cb.m
 				   q_text_tr_wtocom,c.cans.tr.wtocom,
 				   q_text_tr_wcrime,c.cans.tr.wcrime,q_text_tr_waraff,c.cans.tr.waraff,q_text_tr_teraff,c.cans.tr.teraff,
 				   q_text_ad_affreg,c.cans.ad.affreg,q_text_ad_intrus,c.cans.ad.intrus,q_text_ad_attach,c.cans.ad.attach,q_text_ad_dissoc,c.cans.ad.dissoc,q_text_ad_timb4t,c.cans.ad.timb4t,
-				   q_text_sa_severe,c.cans.sa.severe,q_text_sa_durati,c.cans.sa.durati,q_text_sa_stgrec,c.cans.sa.stgrec,q_text_sa_perinf,c.cans.sa.perinf,q_text_sa_parinf,c.cans.sa.parinf,q_text_sa_envinf,c.cans.sa.envinf) is null
+				   q_text_sa_severe,c.cans.sa.severe,q_text_sa_durati,c.cans.sa.durati,q_text_sa_stgrec,c.cans.sa.stgrec,q_text_sa_perinf,c.cans.sa.perinf,q_text_sa_parinf,c.cans.sa.parinf,q_text_sa_envinf,c.cans.sa.envinf,
+				   c.cans.type,c.cans.disreas) is null
  q_text_cb_psychs is x
  c.cans.cb.psychs is x
  q_text_cb_mania  is x
@@ -264,6 +265,8 @@ function BehEmoRpt(q_text_cb_psychs,c.cans.cb.psychs,q_text_cb_mania,c.cans.cb.m
  c.cans.sa.parinf is x
  q_text_sa_envinf is x
  c.cans.sa.envinf is x
+ c.cans.type      is x
+ c.cans.disreas   is x
  $br()   
  $table($funcname,,"width='100%' cellspacing='0' cellpadding='2' bgcolor='White' style='border-style: solid; border-width: 1px'")
   $row(,col_color_multi)
@@ -271,60 +274,62 @@ function BehEmoRpt(q_text_cb_psychs,c.cans.cb.psychs,q_text_cb_mania,c.cans.cb.m
   $row(,row_color2)
    $col(,,"40%")$text(q_text_cb_psychs)
    $col("center",,"10%")$text(c.cans.cb.psychs)
-   $col(,,"50%")                               
-  $row()                                      
-   $col()$text(q_text_cb_mania)
-   $col("center")$text(c.cans.cb.mania)
-   $col()                                      
-  $row()                                      
-   $col()$text(q_text_cb_implsv)
-   $col("center")$text(c.cans.cb.implsv)
-   $col()                                      
-  $row()                                      
-   $col()$text(q_text_cb_depres)
-   $col("center")$text(c.cans.cb.depres)
-   $col()                                      
-  $row()                                      
-   $col()$text(q_text_cb_anxity)
-   $col("center")$text(c.cans.cb.anxity)
-   $col(,,"50%")                               
-  $row()                                      
-   $col()$text(q_text_cb_oppdef)
-   $col("center")$text(c.cans.cb.oppdef)
-   $col()                                      
-  $row()                                      
-   $col()$text(q_text_cb_condct)
-   $col("center")$text(c.cans.cb.condct)
-   $col()                                      
-  $row()                                      
-   $col()$text(q_text_cb_adjtrm)$text("{sup}7{/sup}")
-   $col("center")$text(c.cans.cb.adjtrm)
-	   if $num(c.cans.cb.adjtrm) > 0
- 	    $col()TraumaRpt(q_text_tr_sexabs,c.cans.tr.sexabs,q_text_tr_emclos,c.cans.tr.emclos,q_text_tr_freq,c.cans.tr.freq,q_text_tr_durat,c.cans.tr.durat,q_text_tr_force,c.cans.tr.force,q_text_tr_react,c.cans.tr.react,
-                        q_text_tr_phyabs,c.cans.tr.phyabs,q_text_tr_victim,c.cans.tr.victim,q_text_tr_emoabs,c.cans.tr.emoabs,q_text_tr_medtrm,c.cans.tr.medtrm,q_text_tr_natdis,c.cans.tr.natdis,q_text_tr_wtofam,c.cans.tr.wtocom,
-						q_text_tr_wcrime,c.cans.tr.wcrime,
-                        q_text_tr_waraff,c.cans.tr.waraff,q_text_tr_teraff,c.cans.tr.teraff)
-		      $br()AdjustRpt(q_text_ad_affreg,c.cans.ad.affreg,q_text_ad_intrus,c.cans.ad.intrus,q_text_ad_attach,c.cans.ad.attach,q_text_ad_dissoc,c.cans.ad.dissoc,q_text_ad_timb4t,c.cans.ad.timb4t)
-	   else
-		$col()
-	   endif
-   $col()                                      
-  $row()                                      
-   $col()$text(q_text_cb_angctr)
-   $col("center")$text(c.cans.cb.angctr)
-   $col()                                      
-  $row()                                      
-   $col()$text(q_text_cb_subabs)$text("{sup}8{/sup}")
-   $col("center")$text(c.cans.cb.subabs)
-	   if $num(c.cans.cb.subabs) > 0
- 	    $col()SubUseRpt(q_text_sa_severe,c.cans.sa.severe,q_text_sa_durati,c.cans.sa.durati,q_text_sa_stgrec,c.cans.sa.stgrec,q_text_sa_perinf,c.cans.sa.perinf,q_text_sa_parinf,c.cans.sa.parinf,q_text_sa_envinf,c.cans.sa.envinf)
-	   else
-		$col()
-	   endif
-  $row()                                      
-   $col()$text(q_text_cb_eatdst) 
-   $col("center")$text(c.cans.cb.eatdst)
-   $col()                
+   $col(,,"50%")                                 
+  if c.cans.type = "1" or c.cans.type = "2" or (c.cans.type = "3" and c.cans.disreas = "9") or c.cans.type = "12"
+   $row()                                      
+    $col()$text(q_text_cb_mania)
+    $col("center")$text(c.cans.cb.mania)
+    $col()                                      
+   $row()                                      
+    $col()$text(q_text_cb_implsv)
+    $col("center")$text(c.cans.cb.implsv)
+    $col()                                      
+   $row()                                      
+    $col()$text(q_text_cb_depres)
+    $col("center")$text(c.cans.cb.depres)
+    $col()                                      
+   $row()                                      
+    $col()$text(q_text_cb_anxity)
+    $col("center")$text(c.cans.cb.anxity)
+    $col(,,"50%")                               
+   $row()                                      
+    $col()$text(q_text_cb_oppdef)
+    $col("center")$text(c.cans.cb.oppdef)
+    $col()                                      
+   $row()                                      
+    $col()$text(q_text_cb_condct)
+    $col("center")$text(c.cans.cb.condct)
+    $col()                                      
+   $row()                                      
+    $col()$text(q_text_cb_adjtrm)$text("{sup}7{/sup}")
+    $col("center")$text(c.cans.cb.adjtrm)
+	    if $num(c.cans.cb.adjtrm) > 0
+ 	     $col()TraumaRpt(q_text_tr_sexabs,c.cans.tr.sexabs,q_text_tr_emclos,c.cans.tr.emclos,q_text_tr_freq,c.cans.tr.freq,q_text_tr_durat,c.cans.tr.durat,q_text_tr_force,c.cans.tr.force,q_text_tr_react,c.cans.tr.react,
+                         q_text_tr_phyabs,c.cans.tr.phyabs,q_text_tr_victim,c.cans.tr.victim,q_text_tr_emoabs,c.cans.tr.emoabs,q_text_tr_medtrm,c.cans.tr.medtrm,q_text_tr_natdis,c.cans.tr.natdis,q_text_tr_wtofam,c.cans.tr.wtocom,
+						 q_text_tr_wcrime,c.cans.tr.wcrime,
+                         q_text_tr_waraff,c.cans.tr.waraff,q_text_tr_teraff,c.cans.tr.teraff)
+		       $br()AdjustRpt(q_text_ad_affreg,c.cans.ad.affreg,q_text_ad_intrus,c.cans.ad.intrus,q_text_ad_attach,c.cans.ad.attach,q_text_ad_dissoc,c.cans.ad.dissoc,q_text_ad_timb4t,c.cans.ad.timb4t)
+	    else
+		 $col()
+	    endif
+    $col()                                      
+   $row()                                      
+    $col()$text(q_text_cb_angctr)
+    $col("center")$text(c.cans.cb.angctr)
+    $col()                                      
+   $row()                                      
+    $col()$text(q_text_cb_subabs)$text("{sup}8{/sup}")
+    $col("center")$text(c.cans.cb.subabs)
+	    if $num(c.cans.cb.subabs) > 0
+ 	     $col()SubUseRpt(q_text_sa_severe,c.cans.sa.severe,q_text_sa_durati,c.cans.sa.durati,q_text_sa_stgrec,c.cans.sa.stgrec,q_text_sa_perinf,c.cans.sa.perinf,q_text_sa_parinf,c.cans.sa.parinf,q_text_sa_envinf,c.cans.sa.envinf)
+	    else
+		 $col()
+	    endif
+   $row()                                      
+    $col()$text(q_text_cb_eatdst) 
+    $col("center")$text(c.cans.cb.eatdst)
+    $col()                
+  endif
  $endtable($funcname)
 end BehEmoRpt
 
@@ -646,7 +651,7 @@ function ChildRiskRpt(q_text_cr_suicid,c.cans.cr.suicid,q_text_cr_smutil,c.cans.
     $col("center",,"10%")$text(c.cans.cr.suicid)
     $col(,,"50%")if $num(c.cans.cr.suicid) > 0
                   $br()SuicideRiskRpt(q_text_hissui,c.cans.sr.hissui,q_text_hfmsui,c.cans.sr.hfmsui,q_text_firear,c.cans.sr.firear)
-			  endif
+			     endif
    $row()
     $col()$text(q_text_cr_smutil)
     $col("center")$text(c.cans.cr.smutil)
@@ -665,16 +670,19 @@ function ChildRiskRpt(q_text_cr_suicid,c.cans.cr.suicid,q_text_cr_smutil,c.cans.
 	  else
 	   $col()
 	  endif 
-   $row()                         
-    $col()$text(q_text_cr_sexagr)$text("{sup}3{/sup}")
-    $col("center")$text(c.cans.cr.sexagr)
-      if $num(c.cans.cr.sexagr) > 0
-      $col()SABRpt(q_text_sb_relton,c.cans.sb.relton,q_text_sb_phyfrc,c.cans.sb.phyfrc,q_text_sb_planin,c.cans.sb.planin,q_text_sb_agedif,c.cans.sb.agedif,q_text_sb_typsex,c.cans.sb.typsex,q_text_sb_resacc,c.cans.sb.resacc,
-                    q_text_sb_temcon,c.cans.sb.temcon,q_text_sb_hxsxbh,c.cans.sb.hxsxbh,q_text_sb_svsxab,c.cans.sb.svsxab,q_text_sb_prirtx,c.cans.sb.prirtx)
-	  else
-	   $col()
-	  endif 
+   if c.cans.cr.sexagr dp
     $row()                         
+     $col()$text(q_text_cr_sexagr)$text("{sup}3{/sup}")
+     $col("center")$text(c.cans.cr.sexagr)
+       if $num(c.cans.cr.sexagr) > 0
+       $col()SABRpt(q_text_sb_relton,c.cans.sb.relton,q_text_sb_phyfrc,c.cans.sb.phyfrc,q_text_sb_planin,c.cans.sb.planin,q_text_sb_agedif,c.cans.sb.agedif,q_text_sb_typsex,c.cans.sb.typsex,q_text_sb_resacc,c.cans.sb.resacc,
+                     q_text_sb_temcon,c.cans.sb.temcon,q_text_sb_hxsxbh,c.cans.sb.hxsxbh,q_text_sb_svsxab,c.cans.sb.svsxab,q_text_sb_prirtx,c.cans.sb.prirtx)
+	   else
+	    $col()
+	   endif 
+   endif
+   if c.cans.cr.runawy dp
+	$row()                         
      $col()$text(q_text_cr_runawy)$text("{sup}4{/sup}")
      $col("center")$text(c.cans.cr.runawy)
 	  if $num(c.cans.cr.runawy) > 0
@@ -684,15 +692,18 @@ function ChildRiskRpt(q_text_cr_suicid,c.cans.cr.suicid,q_text_cr_smutil,c.cans.
 	 else
 	  $col()
 	 endif 
-   $row()                         
-    $col()$text(q_text_cr_delqcy)$text("{sup}5{/sup}")
-    $col("center")$text(c.cans.cr.delqcy)
-      if $num(c.cans.cr.delqcy) > 0
-       $col()JJRpt(q_text_jj_serios,c.cans.jj.serios,q_text_jj_histry,c.cans.jj.histry,q_text_jj_arrest,c.cans.jj.arrest,q_text_jj_planin,c.cans.jj.planin,q_text_jj_comsaf,c.cans.jj.comsaf,q_text_jj_lefcom,c.cans.jj.lefcom,
-                   q_text_jj_perinf,c.cans.jj.perinf,q_text_jj_parinf,c.cans.jj.parinf,q_text_jj_envinf,c.cans.jj.envinf)
-	  else
-	   $col()
-	  endif 
+   endif
+   if c.cans.cr.delqcy dp
+    $row()                         
+     $col()$text(q_text_cr_delqcy)$text("{sup}5{/sup}")
+     $col("center")$text(c.cans.cr.delqcy)
+       if $num(c.cans.cr.delqcy) > 0
+        $col()JJRpt(q_text_jj_serios,c.cans.jj.serios,q_text_jj_histry,c.cans.jj.histry,q_text_jj_arrest,c.cans.jj.arrest,q_text_jj_planin,c.cans.jj.planin,q_text_jj_comsaf,c.cans.jj.comsaf,q_text_jj_lefcom,c.cans.jj.lefcom,
+                    q_text_jj_perinf,c.cans.jj.perinf,q_text_jj_parinf,c.cans.jj.parinf,q_text_jj_envinf,c.cans.jj.envinf)
+	   else
+	    $col()
+	   endif 
+   endif
    $row()                         
     $col()$text(q_text_cr_firset)$text("{sup}6{/sup}")
     $col("center")$text(c.cans.cr.firset)
@@ -702,14 +713,18 @@ function ChildRiskRpt(q_text_cr_suicid,c.cans.cr.suicid,q_text_cr_smutil,c.cans.
 	  else
 	   $col()
 	  endif 
-   $row()                         
-    $col()$text(q_text_cr_socbeh)
-    $col("center")$text(c.cans.cr.socbeh)
-    $col()                         
-   $row()                         
-    $col()$text(q_text_cr_bully)
-    $col("center")$text(c.cans.cr.bully)
-    $col()                         
+   if c.cans.cr.socbeh dp
+    $row()                         
+     $col()$text(q_text_cr_socbeh)
+     $col("center")$text(c.cans.cr.socbeh)
+     $col()                         
+   endif
+   if c.cans.cr.bully dp
+    $row()                         
+     $col()$text(q_text_cr_bully)
+     $col("center")$text(c.cans.cr.bully)
+     $col()                         
+   endif
   $endtable($funcname)
  endif
 end ChildRiskRpt
