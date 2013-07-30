@@ -391,7 +391,7 @@ start ANSA(parmfile,option,client,retcode)
     endif
    elseif Page = "Validate4"
     if Validate4() = 0
-     c.ansa.rloc = {"lib_ANSA"}RLOC(c.ansa.b.depres,c.ansa.b.subabs,c.ansa.cr.episds,c.ansa.dn.cog,c.ansa.hs.num180,c.ansa.hs.numg30,c.ansa.hs.numl30,c.ansa.ld.employ,c.ansa.ld.family,c.ansa.ld.living,c.ansa.ld.restab,
+     c.ansa.rloc = {"lib_ANSA"}RLOC(c.ansa.b.depres,c.ansa.b.subabs,c.ansa.cr.episds,c.ansa.b.cog,c.ansa.hs.num180,c.ansa.hs.numg30,c.ansa.hs.numl30,c.ansa.ld.employ,c.ansa.ld.family,c.ansa.ld.living,c.ansa.ld.restab,
      c.ansa.ld.slfcre,c.ansa.qids,c.ansa.r.crimbe,c.ansa.r.dangot,c.ansa.r.suicid,c.ansa.sr.hist,c.ansa.sr.idea,c.ansa.sr.intent,c.ansa.sr.plan,c.ansa.st.natsup,c.ansa.type,DXcat,DXgaf,DXtype)
      if c.ansa.type = "3"
       $clear(c.ansa.rloc,c.ansa.aloc,c.ansa.dloc)
@@ -423,7 +423,7 @@ start ANSA(parmfile,option,client,retcode)
      DisplayErrors()
     endif
    elseif Page = "Report"
-    c.ansa.rloc = {"lib_ANSA"}RLOC(c.ansa.b.depres,c.ansa.b.subabs,c.ansa.cr.episds,c.ansa.dn.cog,c.ansa.hs.num180,c.ansa.hs.numg30,c.ansa.hs.numl30,c.ansa.ld.employ,c.ansa.ld.family,c.ansa.ld.living,c.ansa.ld.restab,
+    c.ansa.rloc = {"lib_ANSA"}RLOC(c.ansa.b.depres,c.ansa.b.subabs,c.ansa.cr.episds,c.ansa.b.cog,c.ansa.hs.num180,c.ansa.hs.numg30,c.ansa.hs.numl30,c.ansa.ld.employ,c.ansa.ld.family,c.ansa.ld.living,c.ansa.ld.restab,
                                                          c.ansa.ld.slfcre,c.ansa.qids,c.ansa.r.crimbe,c.ansa.r.dangot,c.ansa.r.suicid,c.ansa.sr.hist,c.ansa.sr.idea,c.ansa.sr.intent,c.ansa.sr.plan,c.ansa.st.natsup,c.ansa.type,DXcat,DXgaf,DXtype)
               if c.ansa.type = "3"
                $clear(c.ansa.rloc,c.ansa.aloc,c.ansa.dloc)
@@ -471,7 +471,7 @@ start ANSA(parmfile,option,client,retcode)
 	  endif 
 	 endif
    elseif Page = "Authorize"
-    c.ansa.rloc = {"lib_ANSA"}RLOC(c.ansa.b.depres,c.ansa.b.subabs,c.ansa.cr.episds,c.ansa.dn.cog,c.ansa.hs.num180,c.ansa.hs.numg30,c.ansa.hs.numl30,c.ansa.ld.employ,c.ansa.ld.family,c.ansa.ld.living,c.ansa.ld.restab,
+    c.ansa.rloc = {"lib_ANSA"}RLOC(c.ansa.b.depres,c.ansa.b.subabs,c.ansa.cr.episds,c.ansa.b.cog,c.ansa.hs.num180,c.ansa.hs.numg30,c.ansa.hs.numl30,c.ansa.ld.employ,c.ansa.ld.family,c.ansa.ld.living,c.ansa.ld.restab,
                                    c.ansa.ld.slfcre,c.ansa.qids,c.ansa.r.crimbe,c.ansa.r.dangot,c.ansa.r.suicid,c.ansa.sr.hist,c.ansa.sr.idea,c.ansa.sr.intent,c.ansa.sr.plan,c.ansa.st.natsup,c.ansa.type,DXcat,DXgaf,DXtype)
     if c.ansa.type = "3"
      $clear(c.ansa.rloc,c.ansa.aloc,c.ansa.dloc)
@@ -2298,12 +2298,12 @@ function DevelopmentalRpt() is null
    $col("center",,,"2"  )$text(q_text_dn, "datatag")
   $row(,row_color2)
    $col(,,"50%")$text(q_text_dn_cog)
-   $col("center")  $text(c.ansa.dn.cog)
+   $col("center")$text(c.ansa.dn.cog)
   $row()
-   $col()  $text(q_text_dn_comm) 
+   $col()$text(q_text_dn_comm) 
    $col("center")$text(c.ansa.dn.comm)
   $row()
-   $col()  $text(q_text_dn_dev)
+   $col()$text(q_text_dn_dev)
    $col("center")$text(c.ansa.dn.dev)
  $endtable($funcname)
 end DevelopmentalRpt
@@ -2854,7 +2854,7 @@ function Validate1() is i
    (void)$arrpush(errors[],`ld_errortext`)
   endif
  
-  if $num(c.ansa.r.suicid) < 2 and c.ansa.r.dangot != "3" and c.ansa.ld.slfcre != "3" and c.ansa.b.subabs != "3"
+  if $num(c.ansa.r.suicid) < 2 and c.ansa.r.dangot != "3" and c.ansa.ld.slfcre != "3" and c.ansa.b.subabs != "3" and c.ansa.b.cog != "3"
    (void)$arrpush(errors[],crisis2_errortxt)
   endif 
  endif     
@@ -3001,7 +3001,7 @@ function Validate2() is i
   endif 
  endif
 
- if ($num(c.ansa.r.suicid) = "2" and (c.ansa.sr.idea != "3" and $num(c.ansa.sr.intent) < 2 and $num(c.ansa.sr.plan) < 2 and $num(c.ansa.sr.hist) < 2)) and c.ansa.dn.cog != "3"
+ if ($num(c.ansa.r.suicid) = "2" and (c.ansa.sr.idea != "3" and $num(c.ansa.sr.intent) < 2 and $num(c.ansa.sr.plan) < 2 and $num(c.ansa.sr.hist) < 2)) and c.ansa.b.cog != "3"
   (void)$arrpush(errors[],crisis2_errortxt)
  endif 
 
