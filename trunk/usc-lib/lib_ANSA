@@ -24,9 +24,6 @@ on load do:
   $allowupdate(assessments[])
   Last_Assessment(clientid,c.ansa.type,c.ansa.staff,c.ansa.ver,c.ansa.date,c.ansa.age,c.ansa.aloc,c.ansa.rloc,c.ansa.dloc,c.ansa.compd,c.ansa.alocdate)
 
-'/////remove later
-  c.ansa.type = "D"
-
   select c.ansa.type
    'no prior assessment
    case !dp  (void)$arrpush(assessments[],"1")
