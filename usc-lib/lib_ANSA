@@ -1165,12 +1165,12 @@ on load do:
   $allowupdate(dxtype, DX, dxcat, DXGAF)
  end GETDX
  
- function RLOC(c.ansa.b.depress,c.ansa.b.subabs,c.ansa.cr.episds,c.ansa.dn.cog,c.ansa.hs.num180,c.ansa.hs.numg30,c.ansa.hs.numl30,c.ansa.ld.employ,c.ansa.ld.family,c.ansa.ld.living,c.ansa.ld.restab,c.ansa.ld.slfcre,
+ function RLOC(c.ansa.b.depress,c.ansa.b.subabs,c.ansa.cr.episds,c.ansa.b.cog,c.ansa.hs.num180,c.ansa.hs.numg30,c.ansa.hs.numl30,c.ansa.ld.employ,c.ansa.ld.family,c.ansa.ld.living,c.ansa.ld.restab,c.ansa.ld.slfcre,
                c.ansa.qids,c.ansa.r.crimbe,c.ansa.r.dangot,c.ansa.r.suicid,c.ansa.sr.hist,c.ansa.sr.idea,c.ansa.sr.intent,c.ansa.sr.plan,c.ansa.st.natsup,c.ansa.type,DXcat,DXgaf,DXtype) is x 
   c.ansa.b.depress is x 
   c.ansa.b.subabs  is x 
   c.ansa.cr.episds is x 
-  c.ansa.dn.cog    is x 
+  c.ansa.b.cog     is x 
   c.ansa.hs.num180 is x 
   c.ansa.hs.numg30 is x 
   c.ansa.hs.numl30 is x 
@@ -1212,7 +1212,7 @@ on load do:
 'Crisis
   if c.ansa.type = "1" or c.ansa.type = "11"
    if c.ansa.r.suicid = "3" or (c.ansa.r.suicid = "2" and (c.ansa.sr.idea = "3" or $num(c.ansa.sr.intent) > 1 or $num(c.ansa.sr.plan) > 1 or $num(c.ansa.sr.hist) > 1)) or 
-   c.ansa.r.dangot = "3" or c.ansa.ld.slfcre = "3" or c.ansa.dn.cog = "3" or c.ansa.b.subabs = "3"
+   c.ansa.r.dangot = "3" or c.ansa.ld.slfcre = "3" or c.ansa.b.cog = "3" or c.ansa.b.subabs = "3"
 	c.ansa.type = "11"
 	$allowupdate(c.ansa.type)
 	RLOC = crisis
