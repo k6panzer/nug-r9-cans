@@ -836,6 +836,12 @@ function BehavioralCrisis() is null
   CBScoring()
   $table($funcname,,`table_wbgcolor`)
    $row(,row_color1)
+    $col()$text(q_text_b_cog)
+	radio_index = -1
+	do while radio_index++ < 3
+     $col("center")$radio(c.ansa.b.cog,,$castx(radio_index))
+	enddo
+   $row(,row_color2)
     $col()$text(q_text_b_subabs)
 	radio_index = -1
 	do while radio_index++ < 1
@@ -994,14 +1000,6 @@ function LifeDomainCrisis() is null
   LDScoring()
   $table($funcname,,`table_wbgcolor`)
    $row(,row_color1)
-    $col()$text(q_text_ld_indliv)
-    $col()
-    $col("center")$radio(c.ansa.ld.indliv,,"0")
-	radio_index = 0
-	do while radio_index++ < 3
-     $col("center",,,,,col_color_multi)$radio(c.ansa.ld.indliv,,$castx(radio_index))
-	enddo
-   $row(,row_color2)
     $col()$text(q_text_ld_slfcre)
     $col()
 	radio_index = -1
@@ -2164,15 +2162,9 @@ function LifeDomainRpt() is null
    $col("center",,,"3"  )$text(q_text_ld,"datatag")
   if c.ansa.type = "11"
    $row()
-    $col(,,"40%")$text(q_text_ld_indliv)
-    $col("center",,"10%")$text(c.ansa.ld.indliv)
-    $col(,,"50%")if $num(c.ansa.ld.indliv) > 0
-		          DevelopmentalRpt()
-		         endif  
-   $row()
-    $col()$text(q_text_ld_slfcre)
-    $col("center")$text(c.ansa.ld.slfcre)
-    $col()
+    $col(,,"40%")$text(q_text_ld_slfcre)
+    $col("center",,"10%")$text(c.ansa.ld.slfcre)
+    $col(,,"50%")
   endif
   if c.ansa.type = "1" or c.ansa.type = "2" or (c.ansa.type = "3" and c.ansa.disreas = "9") or c.ansa.type = "12"
    $row(,row_color2)
@@ -2484,11 +2476,15 @@ function BehavioralRpt() is null
    $col("center",,,"3"  )$text(q_text_b,"datatag")
   if c.ansa.type = "11"
    $row(,row_color2)
-    $col(,,"40%")$text(q_text_b_subabs)
-    $col("center",,"10%")$text(c.ansa.b.subabs)
-    $col(,,"50%")if $num(c.ansa.b.subabs) > 1
-                  SubAbsRpt()
-		         endif  
+    $col(,,"40%")$text(q_text_b_cog)
+    $col("center",,"10%")$text(c.ansa.b.cog)
+    $col(,,"50%")
+   $row(,row_color2)
+    $col()$text(q_text_b_subabs)
+    $col("center")$text(c.ansa.b.subabs)
+    $col()if $num(c.ansa.b.subabs) > 1
+           SubAbsRpt()
+		  endif  
   endif
   if c.ansa.type = "1" or c.ansa.type = "2" or (c.ansa.type = "3" and c.ansa.disreas = "9") or c.ansa.type = "12"
    $row(,row_color2)
@@ -2845,12 +2841,12 @@ function Validate1() is i
   endif 
 
 'Behaviorial
-  if c.ansa.b.subabs !dp
+  if c.ansa.b.cog !dp or c.ansa.b.subabs !dp
    (void)$arrpush(errors[],`b_errortext`)
   endif 
  
 'Life Domain
-  if c.ansa.ld.slfcre !dp and c.ansa.ld.indliv !dp
+  if c.ansa.ld.slfcre !dp
    (void)$arrpush(errors[],`ld_errortext`)
   endif
  
