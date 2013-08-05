@@ -1375,7 +1375,7 @@ function Page2() is null
      $col(,,"50%")$br()PhysicalMedical()
      $col()
    endif
-   if $num(c.ansa.ld.employ) > 0
+   if $num(c.ansa.ld.employ) > 0 and c.ansa.ld.employ != "9"
     $row()
      $col(,,"50%")$br()Vocational()
      $col()
@@ -2892,7 +2892,7 @@ function Validate1() is i
  endif
  
 'Vocational/Career
- if $num(c.ansa.ld.employ) = 0
+ if $num(c.ansa.ld.employ) = 0 or c.ansa.ld.employ = "9"
   $clear(c.ansa.vc.career, c.ansa.vc.jtime, c.ansa.vc.jatt, c.ansa.vc.jper, c.ansa.vc.jrel, c.ansa.vc.jskill)
  endif 
 
