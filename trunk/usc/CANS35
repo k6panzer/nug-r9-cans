@@ -37,7 +37,7 @@ start CANS35(parmfile,option,client,retcode)
  RptTitle is x
  ReportID  is x
 
- Title = "CANS (6-17) Report" 
+ Title = "CANS (3-5) Report" 
  RptTitle = Title
  ReportID = "CANS"  
  
