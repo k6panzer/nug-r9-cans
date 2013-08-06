@@ -2180,7 +2180,7 @@ function LifeDomainRpt() is null
    $row()
     $col()$text(q_text_ld_employ)
     $col("center")$text(c.ansa.ld.employ)
-    $col()if $num(c.ansa.ld.employ) > 0
+    $col()if $num(c.ansa.ld.employ) > 0 and c.ansa.ld.employ != "9"
            VocationalRpt()
 		  endif
    $row()
@@ -2988,7 +2988,7 @@ function Validate2() is i
   endif 
 
 'Vocational/Career
-  if $num(c.ansa.ld.employ) > 0
+  if $num(c.ansa.ld.employ) > 0 and c.ansa.ld.employ != "9"
    if c.ansa.vc.career !dp or c.ansa.vc.jtime !dp or c.ansa.vc.jatt !dp or c.ansa.vc.jper !dp or c.ansa.vc.jrel !dp or c.ansa.vc.jskill !dp
     (void)$arrpush(errors[],`vc_errortext`) 
    endif
@@ -3078,7 +3078,7 @@ function CanSkipPage2() is x
 	$num(c.ansa.b.adjtrm) > 1 or 
 	$num(c.ansa.b.subabs) > 1 or
     $num(c.ansa.ld.phymed) > 1 or	
-	$num(c.ansa.ld.employ) > 0 or
+	($num(c.ansa.ld.employ) > 0 and c.ansa.ld.employ != "9") or
 	$num(c.ansa.ld.indliv) > 0
   CanSkipPage2 = "N"
  endif	

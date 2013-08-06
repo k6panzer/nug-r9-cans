@@ -1494,8 +1494,8 @@ on load do:
  ScaleAge    is i
  rc          is i
  select DXType
-  case "S" rc = $dbread(02,$regid,schiz_dstlist)
-           if rc = 0
+  case "S" rc = $dbread(02,$regid,c.schiz.rec,c.schiz.date)
+           if c.schiz.date dp
             ScaleAge = c.ansa.date - c.schiz.date
 			if ScaleAge < 90
 			 DXScaleRequired = "N"
@@ -1506,8 +1506,8 @@ on load do:
 		    DXScaleRequired = "Y"
 		   endif
 		   $clear(c.schiz.date)	
-  case "D" rc = $dbread(02,$regid,qids_dstlist)
-           if rc = 0
+  case "D" rc = $dbread(02,$regid,c.qids.rec,c.qids.date)
+           if c.qids.date dp
             ScaleAge = c.ansa.date - c.qids.date
 			if ScaleAge < 90
 			 DXScaleRequired = "N"
@@ -1518,8 +1518,8 @@ on load do:
 		    DXScaleRequired = "Y"
 		   endif
 		   $clear(c.qids.date)	  
-  case "B" rc = $dbread(02,$regid,bdss_dstlist)
-           if rc = 0
+  case "B" rc = $dbread(02,$regid,c.bdss.rec,c.bdss.date)
+           if c.bdss.date dp
             ScaleAge = c.ansa.date - c.bdss.date
 			if ScaleAge < 90
 			 DXScaleRequired = "N"
