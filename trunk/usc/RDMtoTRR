@@ -213,9 +213,10 @@ $setvartype(er_date, "X")
 migrate_date = 9/1/2013
 auditOnly = "Y"
 doReport = "Y"
-reportinactive = "Y"
+reportinactive = "N"
+sql_crisis_check = "Y"
 
-'delim_path = "/c0/SQLTRANSFER/t_rdm2trr.txt"     'define a path and the script will create a pipe delimited file
+delim_path = "/c0/SQLTRANSFER/t_rdm2trr.txt"     'define a path and the script will create a pipe delimited file
 
 trr.def.dreaso = "MIGRATION"
 trr.def.astaff = "MIGRATION"
@@ -293,7 +294,7 @@ rdm.c.rec  = "C.CABD.REC"
 rdm.c.loca = "C.CABD.ALOC"
 rdm.c.type = "C.CABD.ASS"
 rdm.c.date = "C.CABD.DATE3"
-rdm.c.tcom = "C.CABD.TCOOMI"
+rdm.c.tcom = ""
 'rdm.c.tcom = ""
 rdm.c.jj   = "C.CABD.JJ"
 'adult trr
@@ -319,7 +320,7 @@ trr_update_type = 2
 trr_disch_type = 3
 
 o_user   = "sqltransfer"
-o_pass = "xxxxxxxxx"
+o_pass = "sqltransfer"
 o_ds   = "svrsql"
 o_db     = "CMHC_Export"
 o_sql = "SELECT [CrisisCount] FROM [CMHC_Export].[dbo].[v_RHW_CrisisEncPerCID] WHERE CID = '%CID%'"
@@ -458,6 +459,14 @@ rc = $dbreadnext(clientdb, read-id, c.age, rdm.a.rec, rdm.a.date, rdm.a.type, rd
 if clientid dp then rc = 99 endif
 do while rc < 3
    $loopcount = 0
+'Adult - If the top record is started but not yet authorized then read the next layer
+   if rdm.a.rec dp and rdm.a.type dp and rdm.a.loca !dp and rdm.a.type != rdm_disch_type
+    (void)$dbreadnextdst(clientdb, read-id, rdm.a.rec, rdm.a.date, rdm.a.type, rdm.a.loca)   
+   endif
+'Child - If the top record is started but not yet authorized then read the next layer
+   if rdm.c.rec dp and rdm.c.type dp and rdm.c.loca !dp and rdm.c.type != rdm_disch_type
+    (void)$dbreadnextdst(clientdb, read-id, rdm.c.rec, rdm.c.date, rdm.c.type, rdm.c.loca, rdm.c.tcom, rdm.c.jj)
+   endif
    gosub _REC-PROC
    $dblock()
    rc = $dbreadnext(clientdb, read-id, c.age, rdm.a.rec, rdm.a.date, rdm.a.type, rdm.a.loca, rdm.c.rec, rdm.c.date, rdm.c.type, rdm.c.loca, rdm.c.tcom, rdm.c.jj)
@@ -472,7 +481,8 @@ return
 _REC-PROC:
    $clear(trr.a.loca, trr.c.loca)
    'calculate new locr
-   if rdm.a.type = rdm_disch_type or rdm.c.type = rdm_disch_type           'discharged
+'lovec - Need to be sure not to exclude a client when they've transitioned from child to adult packages
+   if rdm.a.type = rdm_disch_type or (rdm.c.type = rdm_disch_type and (rdm.a.type != "I" and rdm.a.type != "U"))           'discharged
    or (rdm.a.type = rdm_crisis_type and `rdm.a.date + 7` < migrate_date)   'expired crisis
    or (rdm.c.type = rdm_crisis_type and `rdm.c.date + 7` < migrate_date) then
       'not migrating inactive clients
@@ -740,4 +750,4 @@ if delim_path dp
    $log(delim_string,delim_path)
 endif
 
-end report  
+end report
