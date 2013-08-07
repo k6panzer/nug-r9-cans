@@ -1162,9 +1162,9 @@ on load do:
   $allowupdate(dxtype, DX, dxcat, DXGAF)
  end GETDX
  
- function RLOC(c.ansa.b.depress,c.ansa.b.subabs,c.ansa.cr.episds,c.ansa.b.cog,c.ansa.hs.num180,c.ansa.hs.numg30,c.ansa.hs.numl30,c.ansa.ld.employ,c.ansa.ld.family,c.ansa.ld.living,c.ansa.ld.restab,c.ansa.ld.slfcre,
+ function RLOC(c.ansa.b.depres,c.ansa.b.subabs,c.ansa.cr.episds,c.ansa.b.cog,c.ansa.hs.num180,c.ansa.hs.numg30,c.ansa.hs.numl30,c.ansa.ld.employ,c.ansa.ld.family,c.ansa.ld.living,c.ansa.ld.restab,c.ansa.ld.slfcre,
                c.ansa.qids,c.ansa.r.crimbe,c.ansa.r.dangot,c.ansa.r.suicid,c.ansa.sr.hist,c.ansa.sr.idea,c.ansa.sr.intent,c.ansa.sr.plan,c.ansa.st.natsup,c.ansa.type,DXcat,DXgaf,DXtype) is x 
-  c.ansa.b.depress is x 
+  c.ansa.b.depres is x 
   c.ansa.b.subabs  is x 
   c.ansa.cr.episds is x 
   c.ansa.b.cog     is x 
@@ -1234,7 +1234,7 @@ on load do:
    $num(c.ansa.ld.family) > 1 and c.ansa.st.natsup > 1 and 
    ($num(c.ansa.ld.employ) > 1 or $num(c.ansa.ld.restab) > 1 or c.ansa.b.subabs = "2" or $num(c.ansa.r.crimbe) > 1 or c.ansa.cr.episds = "3")
     if DXType = "D"
-     if c.ansa.b.depress = "3" and $num(c.ansa.qids) > 15
+     if c.ansa.b.depres = "3" and $num(c.ansa.qids) > 15
 	  RLOC = Intensive
 	  return
 	 endif
@@ -1245,11 +1245,11 @@ on load do:
    endif
 
 '2/113/Basic   
-   if c.ansa.r.suicid = "0" or 
-   ((c.ansa.r.suicid = "1" or c.ansa.r.suicid = "2") and $num(c.ansa.sr.idea) < 3 and $num(c.ansa.sr.intent) < 2 and $num(c.ansa.sr.hist) < 2 and $num(c.ansa.sr.plan) < 2) and
-   $num(c.ansa.r.dangot) < 3 and $num(c.ansa.b.depress) > 0 and
-   ($num(c.ansa.ld.living) > 0 or (c.ansa.ld.slfcre = "1" or c.ansa.ld.slfcre = "2")) and 
-   ($num(c.ansa.qids) > 5 and $num(c.ansa.qids) < 16)
+   if (c.ansa.r.suicid = "0" or ((c.ansa.r.suicid = "1" or c.ansa.r.suicid = "2") and $num(c.ansa.sr.idea) < 3 and $num(c.ansa.sr.intent) < 2 and $num(c.ansa.sr.hist) < 2 and $num(c.ansa.sr.plan) < 2)) and
+    $num(c.ansa.r.dangot) < 3 and 
+    $num(c.ansa.b.depres) > 0 and
+    ($num(c.ansa.ld.living) > 0 or (c.ansa.ld.slfcre = "1" or c.ansa.ld.slfcre = "2")) and 
+    ($num(c.ansa.qids) > 5 and $num(c.ansa.qids) < 16)
     select DXCat
      case "MDD - With Psychotic Features" if ($num(c.ansa.ld.employ) < 2 or c.ansa.ld.employ = "9") and
 	                                      $num(c.ansa.ld.restab) < 2 and 
@@ -1267,7 +1267,7 @@ on load do:
    endif
 
 '1-M/111/Basic-Med Management
-   if $num(c.ansa.r.suicid) < 2 and $num(c.ansa.r.dangot) < 2 and $num(c.ansa.b.depress) < 2 and $num(c.ansa.ld.restab) < 2 and  $num(c.ansa.b.subabs) < 2 and $num(c.ansa.r.crimbe) < 2 and c.ansa.cr.episds = "0"
+   if $num(c.ansa.r.suicid) < 2 and $num(c.ansa.r.dangot) < 2 and $num(c.ansa.b.depres) < 2 and $num(c.ansa.ld.restab) < 2 and  $num(c.ansa.b.subabs) < 2 and $num(c.ansa.r.crimbe) < 2 and c.ansa.cr.episds = "0"
     if DXType = "D"
 	 if $num(c.ansa.qids) < 11
 	  if HistoryTest() = 0

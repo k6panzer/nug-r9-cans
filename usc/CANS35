@@ -1768,6 +1768,10 @@ function CareGiveRpt() is null
      $col()$text(q_text_cg_safety)
      $col("center")$text(c.cans.cg.safety)
      $col()
+    $row()                                      
+     $col()$text(q_text_cg_marvio)
+     $col("center")$text(c.cans.cg.marvio)
+     $col()
   $endtable($funcname)
  endif  
 end CareGiveRpt
