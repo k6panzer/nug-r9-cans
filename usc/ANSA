@@ -250,7 +250,7 @@ start ANSA(parmfile,option,client,retcode)
      $clear(c.ansa.bdss,c.ansa.psrs,c.ansa.bnsa)
 	 {"lib_ANSA"}QidsAlg()
      if $endbutton = "SUBMIT"
-      if {"lib_ANSA"}QidsAlgRpt(c.ansa.scaledt,,c.ansa.qids,c.ansa.qidsver) = "Y"
+      if {"lib_ANSA"}QidsAlgRpt(c.ansa.scaledt,c.ansa.qids,c.ansa.qidsver) = "Y"
        Page = "4"
 	  else
        Validate3()
