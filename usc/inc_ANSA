@@ -21,6 +21,10 @@ AnsaGradeDCT     = 9710
 AnsaResTypeDCT   = 9714
 '*******************************************************
 
+'*********Medical Necessity Statement*******************
+%define MedicalNecessity "As a Licensed Professional of Healing Arts (LPHA), I verify that the services authorized in the 'Authorized Level Of Care' section above are medically necessary and I concur with the plan of care."
+'*******************************************************
+
 %global ansa_dstlist
 %global c.ansa.rec,c.ansa.staff,c.ansa.ver,c.ansa.date,c.ansa.caredt,c.ansa.title,c.ansa.title35,c.ansa.age,c.ansa.aloc,c.ansa.rloc,c.ansa.dloc,c.ansa.compd,c.ansa.type
 %global c.ansa.arrest,c.ansa.grade,c.ansa.restype,c.ansa.resother1,c.ansa.emptype,c.ansa.labor,c.ansa.laboroth,c.ansa.minor,c.ansa.scaledt
