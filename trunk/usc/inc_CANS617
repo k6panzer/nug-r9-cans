@@ -21,8 +21,10 @@ CansGradeDCT     = 9710
 CansResTypeDCT   = 9012
 '*******************************************************
 
-'*********Medical Necessity Statement*******************
+'*********Medical Necessity Statement Related***********
 %define MedicalNecessity "As a Licensed Professional of Healing Arts (LPHA), I verify that the services authorized in the 'Authorized Level Of Care' section above are medically necessary and I concur with the plan of care."
+%global chk_MedNec
+chk_MedNec is x 
 '*******************************************************
 
 %global cans_dstlist
