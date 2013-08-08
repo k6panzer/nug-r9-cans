@@ -3780,6 +3780,9 @@ function ALOC() is null
    $row()
     $col("right",,"50%")$text(q_text_acomment,"datatag")
     $col()$textblock(c.ansa.acomment,5,,,,255,"width:100%;")$countbox(c.ansa.acomment,"(max chars is 255)")  
+   $row()
+    $col("right")$text("Include LPHA Medical Necessity Statement?")
+	$col()$checkbox(chk_MedNec, "Yes", "Y")	
   $endtable($funcname)
 
   else
@@ -3862,7 +3865,9 @@ function ALOCRpt(RptTitle,ReportID) is null
     $col()$text(c.ansa.acomment) 
   endif
  $endtable($funcname)
- $br(2)$text(MedicalNecessity,"siginfo")
+ if chk_MedNec = "Y"
+  $br(2)$text(MedicalNecessity,"siginfo")
+ endif 
  $br()
  {"l_snapLibSC"}sn_CreateReport(RptTitle,,,ReportID)
 end ALOCRpt
