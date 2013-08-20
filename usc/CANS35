@@ -113,6 +113,7 @@ start CANS35(parmfile,option,client,retcode)
 		                      $brmsg("The assessment will restart now.",2,"W")
 							  Page = "0"
 							  PromptNED = 1
+							  {"lib_UACOMMON"}RemUMMonitor($regid,$scriptid)							  
                        case 2 rc = $dbread(02, $regid, cans_dstlist)
                               GetEvent(e.ser,e.ru,e.start,e.dur,e.loc)
 		                      Page = "0"	
@@ -123,6 +124,7 @@ start CANS35(parmfile,option,client,retcode)
 		                      $brmsg("CANS Assessment Successfully Removed from the Database!",1,"C","Process Complete")
 		                      $brmsg("The assessment will exit now.",2,"W")
 							  PromptNED = 3
+							  {"lib_UACOMMON"}RemUMMonitor($regid,$scriptid)
 		                      return
                        case 4 PromptNED = 4
 					          return
@@ -298,6 +300,7 @@ start CANS35(parmfile,option,client,retcode)
    case "ValidateReport" select ValidateReport()
                           case 0 if SaveData() = 0
 					             Page = "Exit"
+								 {"lib_UACOMMON"}AddUMMonitor($regid,$scriptid)
 								endif 
                           case 1 Page = "Report"
 						         DisplayErrors()
@@ -345,6 +348,7 @@ start CANS35(parmfile,option,client,retcode)
 								   endif 
 					 case other if SaveData() = 0
 								 Page = "Exit"
+								 {"lib_UACOMMON"}RemUMMonitor($regid,$scriptid)
 								endif 
 					endselect
    case "Authorize" c.cans.rloc = RLOC()
