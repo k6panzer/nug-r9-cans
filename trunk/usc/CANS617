@@ -115,6 +115,7 @@ start CANS617(parmfile,option,client,retcode)
      $brmsg("CANS Assessment Successfully Removed from the Database!",1,"C","Process Complete")
      $brmsg("The assessment will restart now.",2,"W")
 	 Page = "0"
+	 {"lib_UACOMMON"}RemUMMonitor($regid,$scriptid)	 
 	elseif PromptNED = 2
      rc = $dbread(02, $regid, cans_dstlist)
      {"lib_UACOMMON"}GetEvent(c.cans.isn,e.ser,e.ru,e.start,e.dur,e.loc)
@@ -125,6 +126,7 @@ start CANS617(parmfile,option,client,retcode)
      rc = $dbremovedst(02, $regid, c.cans.rec,c.cans.date)
      $brmsg("CANS Assessment Successfully Removed from the Database!",1,"C","Process Complete")
      $brmsg("The assessment will exit now.",2,"W")
+	 {"lib_UACOMMON"}RemUMMonitor($regid,$scriptid)	 
      return
 	elseif PromptNED = 4
 	 return
@@ -328,6 +330,7 @@ start CANS617(parmfile,option,client,retcode)
    if ValidateReport() = 0
     if SaveData() = 0
      Page = "Exit"
+	 {"lib_UACOMMON"}AddUMMonitor($regid,$scriptid)
     endif
    else
     Page = "Report"
@@ -390,6 +393,7 @@ start CANS617(parmfile,option,client,retcode)
    else	
     if SaveData() = 0
      Page = "Exit"
+	 {"lib_UACOMMON"}RemUMMonitor($regid,$scriptid)
     endif
    endif
   elseif Page = "Authorize" 
