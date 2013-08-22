@@ -178,259 +178,197 @@ function GetClientID() is x
 end GetClientID
 
 function AddUMMonitor(CID[],scriptid) is null
- CID[]    is x
- scriptid is x
- rc       is i
- index    is i
-
+ CID[]      is x
+ scriptid   is x
+ rc         is i
+ index      is i
  ansa_sl    is x
  cans35_sl  is x
  cans617_sl is x
  cabd_sl    is x
  uabd_sl    is x
-'Existing saved lists registers
- current_ansa_sl[] is x
- crnt_cans35_sl[]  is x
- crnt_cans617_sl[] is x
- current_uabd_sl[] is x
- current_cabd_sl[] is x 
- 
- new_ansa_opt    is x
- new_cans35_opt  is x
- new_cans617_opt is x
- new_uabd_opt    is x
- new_cabd_opt    is x
-
-'Saved list descriptions
- ansa_sl_desc    is x
- cans35_sl_desc  is x
- cans617_sl_desc is x
- uabd_sl_desc    is x
- cabd_sl_desc    is x  
-
+'Saved Lists
  ansa_sl    = "ANSAP"
  cans35_sl  = "CANS35P"
  cans617_sl = "CANS617P"
  cabd_sl    = "CABDP"
  uabd_sl    = "UABDP" 
- 
- ansa_sl_desc = "ANSA Pending List"
- cans35_sl_desc = "CANS35 Pending List"
- cans617_sl_desc = "CANS617 Pending List"
- uabd_sl_desc = "UABD Pending List"
- cabd_sl_desc = "CABD Pending List"
- 
- new_ansa_opt    = "A"
- new_cans35_opt  = "A"
- new_cans617_opt = "A"
- new_uabd_opt    = "A"
- new_cabd_opt    = "A"
-
- select scriptid
-  case "ANSA"     	 rc = $getlist(current_ansa_sl[],2,ansa_sl,,ansa_sl_desc)
-                     index = $find(cid[1],current_ansa_sl[],,"F")
-					 if index = 0
-					  rc = $putlist(cid[],2,ansa_sl,ansa_sl_desc,new_ansa_opt,"UM")
-					 endif
-  case "CANS35"   	 rc = $getlist(crnt_cans35_sl[],2,cans35_sl,,cans35_sl_desc)
-                     index = $find(cid[1],crnt_cans35_sl[],,"F")
-					 if index = 0
-					  rc = $putlist(cid[],2,cans35_sl,cans35_sl_desc,new_cans35_opt,"UM")
-					 endif					 
-  case "CANS617"  	 rc = $getlist(crnt_cans617_sl[],2,cans617_sl,,cans617_sl_desc)
-                     index = $find(cid[1],crnt_cans617_sl[],,"F")
-					 if index = 0
-                      rc = $putlist(cid[],2,cans617_sl,cans617_sl_desc,new_cans617_opt,"UM")					  
-					 endif					 
-  case "UABDFORM" 	 rc = $getlist(current_uabd_sl[],2,uabd_sl,,uabd_sl_desc)
-                     index = $find(cid[1],current_uabd_sl[],,"F")
-					 if index = 0
-					  rc = $putlist(cid[],2,uabd_sl,uabd_sl_desc,new_uabd_opt,"UM")
-					 endif					 
-  case "CABDFORM" 	 rc = $getlist(current_cabd_sl[],2,uabd_sl,,uabd_sl_desc)
-                     index = $find(cid[1],current_cabd_sl[],,"F")
-					 if index = 0
-					  rc = $putlist(cid[],2,cabd_sl,cabd_sl_desc,new_cabd_opt,"UM")
-					 endif					 
-  case "lib_CABDRPT" rc = $getlist(current_cabd_sl[],2,uabd_sl,,uabd_sl_desc)
-                     index = $find(cid[1],current_cabd_sl[],,"F")
-					 if index = 0
-					  rc = $putlist(cid[],2,cabd_sl,cabd_sl_desc,new_cabd_opt,"UM")
-					 endif					 
- endselect    
- end AddUMMonitor
-
-function RemUMMonitor(CID,scriptid) is null
- CID      is x
- scriptid is x
- index    is i
- rc       is i
- ansa_sl    is x
- cans35_sl  is x
- cans617_sl is x
- cabd_sl    is x
- uabd_sl    is x
 'Existing saved lists registers
  current_ansa_sl[] is x
  crnt_cans35_sl[]  is x
  crnt_cans617_sl[] is x
  current_uabd_sl[] is x
  current_cabd_sl[] is x
-'The new saved lists registers
- new_ansa_sl[]     is x
- new_cans35_sl[]   is x
- new_cans617_sl[]  is x
- new_uabd_sl[]     is x
- new_cabd_sl[]     is x
-'Option
- new_ansa_opt      is x
- new_cans35_opt    is x
- new_cans617_opt   is x
- new_uabd_opt      is x
- new_cabd_opt      is x
-'Saved list descriptions
+'Descriptions, may modify later to include the count
+ ansa_sl_desc    is x
+ cans35_sl_desc  is x
+ cans617_sl_desc is x
+ uabd_sl_desc    is x
+ cabd_sl_desc    is x
+ 
+ select scriptid
+  case "ANSA"     	 rc = $getlist(current_ansa_sl[],2,ansa_sl,,ansa_sl_desc)
+                     index = $find(cid[1],current_ansa_sl[],,"F")
+					 if index = 0
+					  rc = $putlist(cid[],2,ansa_sl,ansa_sl_desc,"A","UM")
+					 endif
+  case "CANS35"   	 rc = $getlist(crnt_cans35_sl[],2,cans35_sl,,cans35_sl_desc)
+                     index = $find(cid[1],crnt_cans35_sl[],,"F")
+					 if index = 0
+					  rc = $putlist(cid[],2,cans35_sl,cans35_sl_desc,"A","UM")
+					 endif					 
+  case "CANS617"  	 rc = $getlist(crnt_cans617_sl[],2,cans617_sl,,cans617_sl_desc)
+                     index = $find(cid[1],crnt_cans617_sl[],,"F")
+					 if index = 0
+                      rc = $putlist(cid[],2,cans617_sl,cans617_sl_desc,"A","UM")					  
+					 endif					 
+  case "UABDFORM" 	 rc = $getlist(current_uabd_sl[],2,uabd_sl,,uabd_sl_desc)
+                     index = $find(cid[1],current_uabd_sl[],,"F")
+					 if index = 0
+					  rc = $putlist(cid[],2,uabd_sl,uabd_sl_desc,"A","UM")
+					 endif					 
+  case "CABDFORM" 	 rc = $getlist(current_cabd_sl[],2,uabd_sl,,uabd_sl_desc)
+                     index = $find(cid[1],current_cabd_sl[],,"F")
+					 if index = 0
+					  rc = $putlist(cid[],2,cabd_sl,cabd_sl_desc,"A","UM")
+					 endif					 
+  case "lib_CABDRPT" rc = $getlist(current_cabd_sl[],2,uabd_sl,,uabd_sl_desc)
+                     index = $find(cid[1],current_cabd_sl[],,"F")
+					 if index = 0
+					  rc = $putlist(cid[],2,cabd_sl,cabd_sl_desc,"A","UM")
+					 endif					 
+ endselect    
+ end AddUMMonitor
+
+function RemUMMonitor(CID,scriptid) is null
+ CID        is x
+ scriptid   is x
+ index      is i
+ rc         is i
+ ansa_sl    is x
+ cans35_sl  is x
+ cans617_sl is x
+ cabd_sl    is x
+ uabd_sl    is x
+'Saved lists
+ ansa_sl    = "ANSAP"
+ cans35_sl  = "CANS35P"
+ cans617_sl = "CANS617P"
+ cabd_sl    = "CABDP"
+ uabd_sl    = "UABDP"   
+'Existing saved lists registers
+ current_ansa_sl[] is x
+ crnt_cans35_sl[]  is x
+ crnt_cans617_sl[] is x
+ current_uabd_sl[] is x
+ current_cabd_sl[] is x
+'Descriptions, may modify later to include the count
+ ansa_sl_desc    is x
+ cans35_sl_desc  is x
+ cans617_sl_desc is x
+ uabd_sl_desc    is x
+ cabd_sl_desc    is x 
+
+ select scriptid
+  case "ANSA"     	 rc = $getlist(current_ansa_sl[],2,ansa_sl,,ansa_sl_desc)
+                     index = $find(cid,current_ansa_sl[],,"F")
+					 if index > 0
+					  rc = $arrremove(current_ansa_sl[index])
+					  rc = $putlist(current_ansa_sl[],2,ansa_sl,ansa_sl_desc,"R","UM")
+					 endif
+  case "CANS35"   	 rc = $getlist(crnt_cans35_sl[],2,cans35_sl,,cans35_sl_desc)
+                     index = $find(cid,crnt_cans35_sl[],,"F")
+					 if index > 0
+					  rc = $arrremove(crnt_cans35_sl[index])
+					  rc = $putlist(crnt_cans35_sl[],2,cans35_sl,cans35_sl_desc,"R","UM")
+					 endif					 
+  case "CANS617"  	 rc = $getlist(crnt_cans617_sl[],2,cans617_sl,,cans617_sl_desc)
+                     index = $find(cid,crnt_cans617_sl[],,"F")
+					 if index > 0
+					  rc = $arrremove(crnt_cans617_sl[index])
+                      rc = $putlist(crnt_cans617_sl[],2,cans617_sl,cans617_sl_desc,"R","UM")					  
+					 endif					 
+  case "UABDFORM" 	 rc = $getlist(current_uabd_sl[],2,uabd_sl,,uabd_sl_desc)
+                     index = $find(cid,current_uabd_sl[],,"F")
+					 if index > 0
+					  rc = $arrremove(current_uabd_sl[index])
+					  rc = $putlist(current_uabd_sl[],2,uabd_sl,uabd_sl_desc,"R","UM")
+					 endif					 
+  case "CABDFORM" 	 rc = $getlist(current_cabd_sl[],2,uabd_sl,,uabd_sl_desc)
+                     index = $find(cid,current_cabd_sl[],,"F")
+					 if index > 0
+					  rc = $arrremove(current_cabd_sl[index])
+					  rc = $putlist(current_cabd_sl[],2,cabd_sl,cabd_sl_desc,"R","UM")
+					 endif					 
+  case "lib_CABDRPT" rc = $getlist(current_cabd_sl[],2,uabd_sl,,uabd_sl_desc)
+                     index = $find(cid,current_cabd_sl[],,"F")
+					 if index > 0
+					  rc = $arrremove(current_cabd_sl[index])
+					  rc = $putlist(current_cabd_sl[],2,cabd_sl,cabd_sl_desc,"R","UM")
+					 endif					 
+ endselect  
+end RemUMMonitor
+
+function AddBATCH(CID[],scriptid) is null
+ CID[]      is x
+ scriptid   is x
+ rc         is i
+ index      is i
+ ansa_sl    is x
+ cans35_sl  is x
+ cans617_sl is x
+ cabd_sl    is x
+ uabd_sl    is x
+
+'Saved lists
+ ansa_sl    = "ANSAB"
+ cans35_sl  = "CANS35B"
+ cans617_sl = "CANS617B"
+ cabd_sl    = "CABDB"
+ uabd_sl    = "UABDB" 
+'Existing saved lists registers
+ current_ansa_sl[] is x
+ crnt_cans35_sl[]  is x
+ crnt_cans617_sl[] is x
+ current_uabd_sl[] is x
+ current_cabd_sl[] is x
+'Descriptions, may modify later to include the count
  ansa_sl_desc    is x
  cans35_sl_desc  is x
  cans617_sl_desc is x
  uabd_sl_desc    is x
  cabd_sl_desc    is x 
  
-  ansa_sl   = "ANSAP"
- cans35_sl  = "CANS35P"
- cans617_sl = "CANS617P"
- cabd_sl    = "CABDP"
- uabd_sl    = "UABDP"  
-
- new_ansa_opt    = "R"
- new_cans35_opt  = "R"
- new_cans617_opt = "R"
- new_uabd_opt    = "R"
- new_cabd_opt    = "R" 
- select scriptid
-  case "ANSA"     	 rc = $getlist(current_ansa_sl[],2,ansa_sl,,ansa_sl_desc)
-                     index = $find(cid,current_ansa_sl[],,"F")
-					 if index > 0
-					  rc = $arrremove(current_ansa_sl[index])
-					  rc = $putlist(current_ansa_sl[],2,ansa_sl,ansa_sl_desc,new_ansa_opt,"UM")
-					 endif
-  case "CANS35"   	 rc = $getlist(crnt_cans35_sl[],2,cans35_sl,,cans35_sl_desc)
-                     index = $find(cid,crnt_cans35_sl[],,"F")
-					 if index > 0
-					  rc = $arrremove(crnt_cans35_sl[index])
-					  rc = $putlist(crnt_cans35_sl[],2,cans35_sl,cans35_sl_desc,new_cans35_opt,"UM")
-					 endif					 
-  case "CANS617"  	 rc = $getlist(crnt_cans617_sl[],2,cans617_sl,,cans617_sl_desc)
-                     index = $find(cid,crnt_cans617_sl[],,"F")
-					 if index > 0
-					  rc = $arrremove(crnt_cans617_sl[index])
-                      rc = $putlist(crnt_cans617_sl[],2,cans617_sl,cans617_sl_desc,new_cans617_opt,"UM")					  
-					 endif					 
-  case "UABDFORM" 	 rc = $getlist(current_uabd_sl[],2,uabd_sl,,uabd_sl_desc)
-                     index = $find(cid,current_uabd_sl[],,"F")
-					 if index > 0
-					  rc = $arrremove(current_uabd_sl[index])
-					  rc = $putlist(current_uabd_sl[],2,uabd_sl,uabd_sl_desc,new_uabd_opt,"UM")
-					 endif					 
-  case "CABDFORM" 	 rc = $getlist(current_cabd_sl[],2,uabd_sl,,uabd_sl_desc)
-                     index = $find(cid,current_cabd_sl[],,"F")
-					 if index > 0
-					  rc = $arrremove(current_cabd_sl[index])
-					  rc = $putlist(current_cabd_sl[],2,cabd_sl,cabd_sl_desc,new_cabd_opt,"UM")
-					 endif					 
-  case "lib_CABDRPT" rc = $getlist(current_cabd_sl[],2,uabd_sl,,uabd_sl_desc)
-                     index = $find(cid,current_cabd_sl[],,"F")
-					 if index > 0
-					  rc = $arrremove(current_cabd_sl[index])
-					  rc = $putlist(current_cabd_sl[],2,cabd_sl,cabd_sl_desc,new_cabd_opt,"UM")
-					 endif					 
- endselect  
-end RemUMMonitor
-
-function AddBATCH(CID[],scriptid) is null
- CID[]    is x
- scriptid is x
- rc       is i
- index    is i
- ansa_sl    is x
- cans35_sl  is x
- cans617_sl is x
- cabd_sl    is x
- uabd_sl    is x
-
-'Existing saved lists registers
- current_ansa_sl[] is x
- crnt_cans35_sl[]  is x
- crnt_cans617_sl[] is x
- current_uabd_sl[] is x
- current_cabd_sl[] is x
-' Saved list descriptions
- ansa_sl_desc    is x
- cans35_sl_desc  is x
- cans617_sl_desc is x
- uabd_sl_desc    is x
- cabd_sl_desc    is x
-
-'Option
- new_ansa_opt      is x
- new_cans35_opt    is x
- new_cans617_opt   is x
- new_uabd_opt      is x
- new_cabd_opt      is x   
-
- ansa_sl    = "ANSAB"
- cans35_sl  = "CANS35B"
- cans617_sl = "CANS617B"
- cabd_sl    = "CABDB"
- uabd_sl    = "UABDB"
- 
- new_ansa_opt    = "A"
- new_cans35_opt  = "A"
- new_cans617_opt = "A"
- new_uabd_opt    = "A"
- new_cabd_opt    = "A"  
- 
- ansa_sl_desc = "ANSA Batch List"
- cans35_sl_desc = "CANS35 Batch List"
- cans617_sl_desc = "CANS617 Batch List"
- uabd_sl_desc = "UABD Batch List"
- cabd_sl_desc = "CABD Batch List"
- 
- new_ansa_opt    = "A"
- new_cans35_opt  = "A"
- new_cans617_opt = "A"
- new_uabd_opt    = "A"
- new_cabd_opt    = "A"
-
  select scriptid
   case "ANSA"     	 rc = $getlist(current_ansa_sl[],2,ansa_sl,,ansa_sl_desc)
                      index = $find(cid[1],current_ansa_sl[],,"F")
 					 if index = 0
-					  rc = $putlist(cid[],2,ansa_sl,ansa_sl_desc,new_ansa_opt,"UM")
+					  rc = $putlist(cid[],2,ansa_sl,ansa_sl_desc,"A","UM")
 					 endif
   case "CANS35"   	 rc = $getlist(crnt_cans35_sl[],2,cans35_sl,,cans35_sl_desc)
                      index = $find(cid[1],crnt_cans35_sl[],,"F")
 					 if index = 0
-					  rc = $putlist(cid[],2,cans35_sl,cans35_sl_desc,new_cans35_opt,"UM")
+					  rc = $putlist(cid[],2,cans35_sl,cans35_sl_desc,"A","UM")
 					 endif					 
   case "CANS617"  	 rc = $getlist(crnt_cans617_sl[],2,cans617_sl,,cans617_sl_desc)
                      index = $find(cid[1],crnt_cans617_sl[],,"F")
 					 if index = 0
-                      rc = $putlist(cid[],2,cans617_sl,cans617_sl_desc,new_cans617_opt,"UM")					  
+                      rc = $putlist(cid[],2,cans617_sl,cans617_sl_desc,"A","UM")					  
 					 endif					 
   case "UABDFORM" 	 rc = $getlist(current_uabd_sl[],2,uabd_sl,,uabd_sl_desc)
                      index = $find(cid[1],current_uabd_sl[],,"F")
 					 if index = 0
-					  rc = $putlist(cid[],2,uabd_sl,uabd_sl_desc,new_uabd_opt,"UM")
+					  rc = $putlist(cid[],2,uabd_sl,uabd_sl_desc,"A","UM")
 					 endif					 
   case "CABDFORM" 	 rc = $getlist(current_cabd_sl[],2,uabd_sl,,uabd_sl_desc)
                      index = $find(cid[1],current_cabd_sl[],,"F")
 					 if index = 0
-					  rc = $putlist(cid[],2,cabd_sl,cabd_sl_desc,new_cabd_opt,"UM")
+					  rc = $putlist(cid[],2,cabd_sl,cabd_sl_desc,"A","UM")
 					 endif					 
   case "lib_CABDRPT" rc = $getlist(current_cabd_sl[],2,uabd_sl,,uabd_sl_desc)
                      index = $find(cid[1],current_cabd_sl[],,"F")
 					 if index = 0
-					  rc = $putlist(cid[],2,cabd_sl,cabd_sl_desc,new_cabd_opt,"UM")
+					  rc = $putlist(cid[],2,cabd_sl,cabd_sl_desc,"A","UM")
 					 endif					 
  endselect    
 end AddBATCH
