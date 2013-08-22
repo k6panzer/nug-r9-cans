@@ -237,7 +237,7 @@ function AddUMMonitor(CID[],scriptid) is null
 					 if index = 0
 					  rc = $putlist(cid[],2,cans35_sl,cans35_sl_desc,new_cans35_opt,"UM")
 					 endif					 
-  case "CANS617"  	 rc = $getlist(crnt_cans617_sl[],2,cans35_sl,,cans35_sl_desc)
+  case "CANS617"  	 rc = $getlist(crnt_cans617_sl[],2,cans617_sl,,cans617_sl_desc)
                      index = $find(cid[1],crnt_cans617_sl[],,"F")
 					 if index = 0
                       rc = $putlist(cid[],2,cans617_sl,cans617_sl_desc,new_cans617_opt,"UM")					  
@@ -319,7 +319,7 @@ function RemUMMonitor(CID,scriptid) is null
 					  rc = $arrremove(crnt_cans35_sl[index])
 					  rc = $putlist(crnt_cans35_sl[],2,cans35_sl,cans35_sl_desc,new_cans35_opt,"UM")
 					 endif					 
-  case "CANS617"  	 rc = $getlist(crnt_cans617_sl[],2,cans35_sl,,cans35_sl_desc)
+  case "CANS617"  	 rc = $getlist(crnt_cans617_sl[],2,cans617_sl,,cans617_sl_desc)
                      index = $find(cid,crnt_cans617_sl[],,"F")
 					 if index > 0
 					  rc = $arrremove(crnt_cans617_sl[index])
@@ -412,7 +412,7 @@ function AddBATCH(CID[],scriptid) is null
 					 if index = 0
 					  rc = $putlist(cid[],2,cans35_sl,cans35_sl_desc,new_cans35_opt,"UM")
 					 endif					 
-  case "CANS617"  	 rc = $getlist(crnt_cans617_sl[],2,cans35_sl,,cans35_sl_desc)
+  case "CANS617"  	 rc = $getlist(crnt_cans617_sl[],2,cans617_sl,,cans617_sl_desc)
                      index = $find(cid[1],crnt_cans617_sl[],,"F")
 					 if index = 0
                       rc = $putlist(cid[],2,cans617_sl,cans617_sl_desc,new_cans617_opt,"UM")					  
