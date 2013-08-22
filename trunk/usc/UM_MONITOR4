@@ -29,18 +29,6 @@ start UM_MONITOR4()
  c.cans.compd    is d
  c.cans.canstype is x
 
-'Existing saved lists registers
- current_ansa_sl[]    is x
- crnt_cans35_sl[]  is x
- crnt_cans617_sl[] is x
- current_uabd_sl[]    is x
- current_cabd_sl[]    is x
-'New registers to add
- add_ansa_sl[]    	  is x
- add_cans35_sl[]  	  is x
- add_cans617_sl[] 	  is x
- add_uabd_sl[]    	  is x
- add_cabd_sl[]    	  is x
 'The new saved lists registers
  new_ansa_sl[]    is x
  new_cans35_sl[]  is x
@@ -48,83 +36,16 @@ start UM_MONITOR4()
  new_uabd_sl[]    is x
  new_cabd_sl[]    is x 
 
-'Saved list descriptions
- ansa_sl_desc    is x
- cans35_sl_desc  is x
- cans617_sl_desc is x
- uabd_sl_desc    is x
- cabd_sl_desc    is x 
-
- get_ansa_sl    is i
- get_cans35_sl  is i
- get_cans617_sl is i
- get_uabd_sl    is i
- get_cabd_sl    is i
-
- new_ansa_opt    is x
- new_cans35_opt  is x
- new_cans617_opt is x
- new_uabd_opt    is x
- new_cabd_opt    is x 
-
- get_ansa_sl    = $getlist(current_ansa_sl[],2,ansa_sl,,ansa_sl_desc)
- get_cans35_sl  = $getlist(crnt_cans35_sl[],2,cans35_sl,,cans35_sl_desc)
- get_cans617_sl = $getlist(crnt_cans617_sl[],2,cans617_sl,,cans617_sl_desc)
- get_uabd_sl    = $getlist(current_uabd_sl[],2,uabd_sl,,uabd_sl_desc)
- get_cabd_sl    = $getlist(current_cabd_sl[],2,cabd_sl,,cabd_sl_desc)
- 
-'Description for lists, category will be UM
- if ansa_sl_desc !dp
-  ansa_sl_desc = "ANSA Pending List"
- endif
- if cans35_sl_desc !dp
-  cans35_sl_desc = "CANS35 Pending List"
- endif
- if cans617_sl_desc !dp
-  cans617_sl_desc = "CANS617 Pending List"
- endif
- if uabd_sl_desc !dp
-  uabd_sl_desc = "UABD Pending List"
- endif
- if cabd_sl_desc !dp
-  cabd_sl_desc = "CABD Pending List"
- endif
- 
-'Replace or create the lists?
- if get_ansa_sl = 0
-  new_ansa_opt = "R"
- else 
-  new_ansa_opt = "C" 
- endif
- if get_cans35_sl = 0
-  new_cans35_opt = "R"
- else
-  new_cans35_opt = "C"  
- endif
- if get_cans617_sl = 0
-  new_cans617_opt = "R"
- else
-  new_cans617_opt = "C" 
- endif
- if get_uabd_sl = 0
-  new_uabd_opt = "R"
- else
-  new_uabd_opt = "C"
- endif
- if get_cabd_sl = 0
-  new_cabd_opt = "R"
- else
-  new_cabd_opt = "C"  
- endif  
- 
+ rc = $deletelist(2,ansa_sl)
+ rc = $deletelist(2,cans35_sl)
+ rc = $deletelist(2,cans617_sl)
+ rc = $deletelist(2,uabd_sl)
+ rc = $deletelist(2,cabd_sl) 
  rc = $dbstart(02, CID, "I")
  do while rc < 3
-  rc = $dbreadnext(02,CID,c.uabd, c.uabd.date,c.uabd.stat,c.uabd.rloc,
-                          c.cabd.rec, c.cabd.stat, c.cabd.lphaid,c.cabd.locr,
-						  c.ansa.rec, c.ansa.compd,
-						  c.cans.rec,c.cans.compd,c.cans.canstype)
+  rc = $dbreadnext(02,CID,c.uabd, c.uabd.date,c.uabd.stat,c.uabd.rloc,c.cabd.rec, c.cabd.stat, c.cabd.lphaid,c.cabd.locr,c.ansa.rec, c.ansa.compd,c.cans.rec,c.cans.compd,c.cans.canstype)
   if c.uabd.date dp and c.uabd.stat = "1" and c.uabd.rloc dp
-   (void)$arrpush(new_uabd_sl[],CID)  
+   (void)$arrpush(new_uabd_sl[],CID)   
   endif
   if c.cabd.date dp and c.cabd.stat = "1" and c.cabd.lphaid dp and c.cabd.locr dp
    (void)$arrpush(new_cabd_sl[],CID)
@@ -138,23 +59,10 @@ start UM_MONITOR4()
   if c.ansa.rec dp and c.ansa.compd !dp
    (void)$arrpush(new_ansa_sl[],CID)
   endif
- enddo
-
- rc = $arraymerge(new_ansa_sl[],current_ansa_sl[],new_ansa_sl[])
- rc = $arraymerge(new_cans35_sl[],crnt_cans35_sl[],new_cans35_sl[])
- rc = $arraymerge(new_cans617_sl[],crnt_cans617_sl[],new_cans617_sl[])
- rc = $arraymerge(new_uabd_sl[],current_uabd_sl[],new_uabd_sl[])
- rc = $arraymerge(new_cabd_sl[],current_cabd_sl[],new_cabd_sl[])
-
- rc = $sortu(new_ansa_sl[])
- rc = $sortu(new_cans35_sl[])
- rc = $sortu(new_cans617_sl[])
- rc = $sortu(new_uabd_sl[])
- rc = $sortu(new_cabd_sl[])
-  
- rc = $putlist(new_ansa_sl[],2,ansa_sl,ansa_sl_desc,new_ansa_opt,"UM")
- rc = $putlist(new_cans35_sl[],2,cans35_sl,cans35_sl_desc,new_cans35_opt,"UM")
- rc = $putlist(new_cans617_sl[],2,cans617_sl,cans617_sl_desc,new_cans617_opt,"UM")
- rc = $putlist(new_uabd_sl[],2,uabd_sl,uabd_sl_desc,new_uabd_opt,"UM")
- rc = $putlist(new_cabd_sl[],2,cabd_sl,cabd_sl_desc,new_cabd_opt,"UM") 
+ enddo  
+ rc = $putlist(new_ansa_sl[],2,ansa_sl,"ANSA Pending List","C","UM")
+ rc = $putlist(new_cans35_sl[],2,cans35_sl,"CANS35 Pending List","C","UM")
+ rc = $putlist(new_cans617_sl[],2,cans617_sl,"CANS617 Pending List","C","UM")
+ rc = $putlist(new_uabd_sl[],2,uabd_sl,"UABD Pending List","C","UM")
+ rc = $putlist(new_cabd_sl[],2,cabd_sl,"CABD Pending List","C","UM") 
 end UM_MONITOR4

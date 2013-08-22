@@ -337,6 +337,7 @@ function GetSavedLists() is null
  c.ansa.rloc  is x
  c.ansa.dloc  is x
  c.ansa.staff is x
+ c.ansa.compd is d
 'CANS35/CANS617
  c.cans.rec   is h
  c.cans.date  is d
@@ -344,114 +345,173 @@ function GetSavedLists() is null
  c.cans.rloc  is x
  c.cans.dloc  is x
  c.cans.staff is x
+ c.cans.compd is d
 'RDM Adult UA
- c.uabd       is h
- c.uabd.date  is d
- c.uabd.pur   is x
- c.uabd.rloc  is x
- c.uabd.request  is x
- c.uabd.staff1 is x
+ c.uabd         is h
+ c.uabd.date    is d
+ c.uabd.pur     is x
+ c.uabd.rloc    is x
+ c.uabd.request is x
+ c.uabd.staff1  is x
+ c.uabd.stat    is x
 'RDM Child UA
- c.cabd.rec   is h
- c.cabd.date  is d
- c.cabd.ass   is x
- c.cabd.rloc  is x
- c.cabd.request  is x
- c.cabd.staff is x
+ c.cabd.rec    is h
+ c.cabd.date    is d
+ c.cabd.ass     is x
+ c.cabd.rloc    is x
+ c.cabd.request is x
+ c.cabd.staff   is x
+ c.cabd.stat    is x
+
+'Option
+ new_ansa_opt      is x
+ new_cans35_opt    is x
+ new_cans617_opt   is x
+ new_uabd_opt      is x
+ new_cabd_opt      is x
+'Saved list descriptions
+ ansa_sl_desc    is x
+ cans35_sl_desc  is x
+ cans617_sl_desc is x
+ uabd_sl_desc    is x
+ cabd_sl_desc    is x 
+ 
+ ansa_sl   = "ANSAP"
+ cans35_sl  = "CANS35P"
+ cans617_sl = "CANS617P"
+ cabd_sl    = "CABDP"
+ uabd_sl    = "UABDP"  
+
 
  $clear(assessment_adate[],assessment_date[],assessment_ID[],assessment_name[],assessment[],assessment_type[],assessment_rloc[],assessment_dloc[],assessment_staff[],assessment_sname[])  
- rc = $getlist(ansa_list[],2,ansa_sl)
+ rc = $getlist(ansa_list[],2,ansa_sl,,ansa_sl_desc)
  index = 0
  ansa_count = $maxarray(ansa_list[])
  do while index++ < ansa_count
-  rc = $dbread(2,ansa_list[index],c.fn,c.ln,c.ansa.rec,c.ansa.date,c.ansa.type,c.ansa.rloc,c.ansa.dloc,c.ansa.staff)
-  rc = $dbread(3,c.ansa.staff,s.fn,s.ln)
-  assessment[index]       = "ANSA"
-  assessment_date[index]  = c.ansa.date
-  assessment_ID[index]    = ansa_list[index]
-  assessment_name[index]  = c.fn + " " + c.ln
-  assessment_type[index]  = $ncs($dct(9700,c.ansa.type))
-  assessment_rloc[index]  = $ncs($dct(9712,c.ansa.rloc))
-  assessment_dloc[index]  = $ncs($dct(9712,c.ansa.dloc))
-  assessment_adate[index] = c.ansa.date + 14
-  assessment_staff[index] = c.ansa.staff
-  assessment_sname[index] = s.fn + " " + s.ln
+  rc = $dbread(2,ansa_list[index],c.fn,c.ln,c.ansa.rec,c.ansa.date,c.ansa.type,c.ansa.rloc,c.ansa.dloc,c.ansa.staff,c.ansa.compd)
+  if c.ansa.compd !dp
+   {"lib_COMMON"}RemUMMonitor(ansa_list[index],"CABDFORM")
+   (void)$arrremove(ansa_list[index])
+   index--  
+  else  
+   rc = $dbread(3,c.ansa.staff,s.fn,s.ln)
+   assessment[index]       = "ANSA"
+   assessment_date[index]  = c.ansa.date
+   assessment_ID[index]    = ansa_list[index]
+   assessment_name[index]  = c.fn + " " + c.ln
+   assessment_type[index]  = $ncs($dct(9700,c.ansa.type))
+   assessment_rloc[index]  = $ncs($dct(9712,c.ansa.rloc))
+   assessment_dloc[index]  = $ncs($dct(9712,c.ansa.dloc))
+   assessment_adate[index] = c.ansa.date + 14
+   assessment_staff[index] = c.ansa.staff
+   assessment_sname[index] = s.fn + " " + s.ln
+  endif
  enddo 
 
- rc = $getlist(cans35_list[],2,cans35_sl)
+ rc = $getlist(cans35_list[],2,cans35_sl,,cans35_sl_desc)
  index = 0
  cans35_count = $maxarray(cans35_list[])
  do while index++ < cans35_count
-  rc = $dbread(2,cans35_list[index],c.fn,c.ln,c.cans.rec,c.cans.date,c.cans.type,c.cans.rloc,c.cans.dloc,c.cans.staff)
-  rc = $dbread(3,c.cans.staff,s.fn,s.ln)
-  assessment[index]       = "CANS35"
-  assessment_date[index]  = c.cans.date
-  assessment_ID[index]    = cans35_list[index]
-  assessment_name[index]  = c.fn + " " + c.ln
-  assessment_type[index]  = $ncs($dct(9700,c.cans.type))
-  assessment_rloc[index]  = $ncs($dct(9705,c.cans.rloc))
-  assessment_dloc[index]  = $ncs($dct(9705,c.cans.dloc))
-  assessment_adate[index] = c.cans.date + 14
-  assessment_staff[index] = c.cans.staff
-  assessment_sname[index] = s.fn + " " + s.ln
+  rc = $dbread(2,cans35_list[index],c.fn,c.ln,c.cans.rec,c.cans.date,c.cans.type,c.cans.rloc,c.cans.dloc,c.cans.staff, c.cans.compd)
+  if c.cans.compd !dp
+   {"lib_COMMON"}RemUMMonitor(cans35_list[index],"CABDFORM")
+   (void)$arrremove(cans35_list[index])
+   index--  
+  else
+   rc = $dbread(3,c.cans.staff,s.fn,s.ln)
+   assessment[index]       = "CANS35"
+   assessment_date[index]  = c.cans.date
+   assessment_ID[index]    = cans35_list[index]
+   assessment_name[index]  = c.fn + " " + c.ln
+   assessment_type[index]  = $ncs($dct(9700,c.cans.type))
+   assessment_rloc[index]  = $ncs($dct(9705,c.cans.rloc))
+   assessment_dloc[index]  = $ncs($dct(9705,c.cans.dloc))
+   assessment_adate[index] = c.cans.date + 14
+   assessment_staff[index] = c.cans.staff
+   assessment_sname[index] = s.fn + " " + s.ln
+  endif
  enddo  
 
- rc = $getlist(cans617_list[],2,cans617_sl)
+ rc = $getlist(cans617_list[],2,cans617_sl,,cans617_sl_desc)
  index = 0
  cans617_count = $maxarray(cans617_list[])
  do while index++ < cans617_count
-  rc = $dbread(2,cans617_list[index],c.fn,c.ln,c.cans.rec,c.cans.date,c.cans.type,c.cans.rloc,c.cans.dloc,c.cans.staff)
-  rc = $dbread(3,c.cans.staff,s.fn,s.ln)
-  assessment[index]       = "CANS617"
-  assessment_date[index]  = c.cans.date
-  assessment_ID[index]    = cans617_list[index]
-  assessment_name[index]  = c.fn + " " + c.ln
-  assessment_type[index]  = $ncs($dct(9700,c.cans.type))
-  assessment_rloc[index]  = $ncs($dct(9705,c.cans.rloc))
-  assessment_dloc[index]  = $ncs($dct(9705,c.cans.dloc))
-  assessment_adate[index] = c.cans.date + 14
-  assessment_staff[index] = c.cans.staff
-  assessment_sname[index] = s.fn + " " + s.ln
+  rc = $dbread(2,cans617_list[index],c.fn,c.ln,c.cans.rec,c.cans.date,c.cans.type,c.cans.rloc,c.cans.dloc,c.cans.staff,c.cans.compd)
+  if c.cans.compd !dp
+   {"lib_COMMON"}RemUMMonitor(cans617_list[index],"CABDFORM")
+   (void)$arrremove(cans617_list[index])
+   index--  
+  else
+   rc = $dbread(3,c.cans.staff,s.fn,s.ln)
+   assessment[index]       = "CANS617"
+   assessment_date[index]  = c.cans.date
+   assessment_ID[index]    = cans617_list[index]
+   assessment_name[index]  = c.fn + " " + c.ln
+   assessment_type[index]  = $ncs($dct(9700,c.cans.type))
+   assessment_rloc[index]  = $ncs($dct(9705,c.cans.rloc))
+   assessment_dloc[index]  = $ncs($dct(9705,c.cans.dloc))
+   assessment_adate[index] = c.cans.date + 14
+   assessment_staff[index] = c.cans.staff
+   assessment_sname[index] = s.fn + " " + s.ln
+  endif
  enddo
 
- rc = $getlist(uabd_list[],2,uabd_sl)
+ rc = $getlist(uabd_list[],2,uabd_sl,,uabd_sl_desc)
  index = 0
  uabd_count = $maxarray(uabd_list[])
  do while index++ < uabd_count
-  rc = $dbread(2,uabd_list[index],c.fn,c.ln,c.uabd,c.uabd.date,c.uabd.pur,c.uabd.rloc,c.uabd.request,c.uabd.staff1)
-  rc = $dbread(3,c.uabd.staff1,s.fn,s.ln)
-  assessment[index]       = "UABD"
-  assessment_date[index]  = c.uabd.date
-  assessment_ID[index]    = uabd_list[index]
-  assessment_name[index]  = c.fn + " " + c.ln
-  assessment_type[index]  = $ncs($dct(9000,c.uabd.pur))
-  assessment_rloc[index]  = $ncs($dct(9001,c.uabd.rloc))
-  assessment_dloc[index]  = $ncs($dct(9001,c.uabd.request))
-  assessment_adate[index] = c.uabd.date + 14
-  assessment_staff[index] = c.uabd.staff1
-  assessment_sname[index] = s.fn + " " + s.ln
+  rc = $dbread(2,uabd_list[index],c.fn,c.ln,c.uabd,c.uabd.date,c.uabd.pur,c.uabd.rloc,c.uabd.request,c.uabd.staff1,c.uabd.stat)
+  if c.uabd.stat = "2"
+   {"lib_COMMON"}RemUMMonitor(uabd_list[index],"UABDFORM")
+   (void)$arrremove(uabd_list[index])
+   index--  
+  elseif c.uabd.stat = "1"
+   rc = $dbread(3,c.uabd.staff1,s.fn,s.ln)
+   assessment[index]       = "UABD"
+   assessment_date[index]  = c.uabd.date
+   assessment_ID[index]    = uabd_list[index]
+   assessment_name[index]  = c.fn + " " + c.ln
+   assessment_type[index]  = $ncs($dct(9000,c.uabd.pur))
+   assessment_rloc[index]  = $ncs($dct(9001,c.uabd.rloc))
+   assessment_dloc[index]  = $ncs($dct(9001,c.uabd.request))
+   assessment_adate[index] = c.uabd.date + 14
+   assessment_staff[index] = c.uabd.staff1
+   assessment_sname[index] = s.fn + " " + s.ln
+  endif
  enddo     
 
- rc = $getlist(cabd_list[],2,cabd_sl)
+ rc = $getlist(cabd_list[],2,cabd_sl,,uabd_sl_desc)
  index = 0
  cabd_count = $maxarray(cabd_list[])
  do while index++ < cabd_count
-  rc = $dbread(2,cabd_list[index],c.fn,c.ln,c.cabd.rec,c.cabd.date,c.cabd.ass,c.cabd.rloc,c.cabd.request,c.cabd.staff)
-  rc = $dbread(3,c.cabd.staff,s.fn,s.ln)
-  assessment[index]       = "CABD"
-  assessment_date[index]  = c.cabd.date
-  assessment_ID[index]    = cabd_list[index]
-  assessment_name[index]  = c.fn + " " + c.ln
-  assessment_type[index]  = $ncs($dct(9000,c.cabd.ass))
-  assessment_rloc[index]  = $ncs($dct(9014,c.cabd.rloc))
-  assessment_dloc[index]  = $ncs($dct(9014,c.cabd.request))
-  assessment_adate[index] = c.cabd.date + 14
-  assessment_staff[index] = c.cabd.staff
-  assessment_sname[index] = s.fn + " " + s.ln
+  rc = $dbread(2,cabd_list[index],c.fn,c.ln,c.cabd.rec,c.cabd.date,c.cabd.ass,c.cabd.rloc,c.cabd.request,c.cabd.staff, c.cabd.stat)
+  if c.uabd.stat = "2"
+   {"lib_COMMON"}RemUMMonitor(cabd_list[index],"CABDFORM")
+   (void)$arrremove(cabd_list[index])
+   index--
+  elseif c.uabd.stat = "1"
+   rc = $dbread(3,c.cabd.staff,s.fn,s.ln)
+   assessment[index]       = "CABD"
+   assessment_date[index]  = c.cabd.date
+   assessment_ID[index]    = cabd_list[index]
+   assessment_name[index]  = c.fn + " " + c.ln
+   assessment_type[index]  = $ncs($dct(9000,c.cabd.ass))
+   assessment_rloc[index]  = $ncs($dct(9014,c.cabd.rloc))
+   assessment_dloc[index]  = $ncs($dct(9014,c.cabd.request))
+   assessment_adate[index] = c.cabd.date + 14
+   assessment_staff[index] = c.cabd.staff
+   assessment_sname[index] = s.fn + " " + s.ln
+  endif
  enddo      
 
  rc = $sort(assessment_adate[],"A",assessment_date[],"A",assessment_ID[],assessment_name[],assessment[],assessment_type[],assessment_rloc[],assessment_dloc[],assessment_staff[],assessment_sname[])
  pending = cans35_count + cans617_count + ansa_count + uabd_count + cabd_count
+ 
+ rc = $putlist(ansa_list[],2,ansa_sl,ansa_sl_desc,"R","UM")
+ rc = $putlist(cans35_list[],2,cans35_sl,cans35_sl_desc,"R","UM")
+ rc = $putlist(cans617_list[],2,cans617_sl,cans617_sl_desc,"R","UM")
+ rc = $putlist(uabd_list[],2,uabd_sl,uabd_sl_desc,"R","UM")
+ rc = $putlist(cabd_list[],2,cabd_sl,cabd_sl_desc,"R","UM") 
 end GetSavedLists
 
 function ConfirmANSA(cid) is i
