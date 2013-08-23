@@ -390,7 +390,7 @@ function GetSavedLists() is null
  do while index++ < ansa_count
   rc = $dbread(2,ansa_list[index],c.fn,c.ln,c.ansa.rec,c.ansa.date,c.ansa.type,c.ansa.rloc,c.ansa.dloc,c.ansa.staff,c.ansa.compd)
   if c.ansa.compd !dp
-   {"lib_COMMON"}RemUMMonitor(ansa_list[index],"CABDFORM")
+   {"lib_UACOMMON"}RemUMMonitor(ansa_list[index],"ANSA")
    (void)$arrremove(ansa_list[index])
    index--  
   else  
@@ -414,7 +414,7 @@ function GetSavedLists() is null
  do while index++ < cans35_count
   rc = $dbread(2,cans35_list[index],c.fn,c.ln,c.cans.rec,c.cans.date,c.cans.type,c.cans.rloc,c.cans.dloc,c.cans.staff, c.cans.compd)
   if c.cans.compd !dp
-   {"lib_COMMON"}RemUMMonitor(cans35_list[index],"CABDFORM")
+   {"lib_UACOMMON"}RemUMMonitor(cans35_list[index],"CANS35")
    (void)$arrremove(cans35_list[index])
    index--  
   else
@@ -438,7 +438,7 @@ function GetSavedLists() is null
  do while index++ < cans617_count
   rc = $dbread(2,cans617_list[index],c.fn,c.ln,c.cans.rec,c.cans.date,c.cans.type,c.cans.rloc,c.cans.dloc,c.cans.staff,c.cans.compd)
   if c.cans.compd !dp
-   {"lib_COMMON"}RemUMMonitor(cans617_list[index],"CABDFORM")
+   {"lib_UACOMMON"}RemUMMonitor(cans617_list[index],"CANS617")
    (void)$arrremove(cans617_list[index])
    index--  
   else
@@ -462,7 +462,7 @@ function GetSavedLists() is null
  do while index++ < uabd_count
   rc = $dbread(2,uabd_list[index],c.fn,c.ln,c.uabd,c.uabd.date,c.uabd.pur,c.uabd.rloc,c.uabd.request,c.uabd.staff1,c.uabd.stat)
   if c.uabd.stat = "2"
-   {"lib_COMMON"}RemUMMonitor(uabd_list[index],"UABDFORM")
+   {"lib_UACOMMON"}RemUMMonitor(uabd_list[index],"UABDFORM")
    (void)$arrremove(uabd_list[index])
    index--  
   elseif c.uabd.stat = "1"
@@ -486,7 +486,7 @@ function GetSavedLists() is null
  do while index++ < cabd_count
   rc = $dbread(2,cabd_list[index],c.fn,c.ln,c.cabd.rec,c.cabd.date,c.cabd.ass,c.cabd.rloc,c.cabd.request,c.cabd.staff, c.cabd.stat)
   if c.uabd.stat = "2"
-   {"lib_COMMON"}RemUMMonitor(cabd_list[index],"CABDFORM")
+   {"lib_UACOMMON"}RemUMMonitor(cabd_list[index],"CABDFORM")
    (void)$arrremove(cabd_list[index])
    index--
   elseif c.uabd.stat = "1"
