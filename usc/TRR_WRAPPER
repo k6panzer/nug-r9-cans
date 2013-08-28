@@ -1,0 +1,48 @@
+start TRR_WRAPPER(client,option) 
+ client          is x
+ option          is x
+ age             is i
+ c.ansa.rec      is x
+ c.cans.rec      is x
+ c.cans.canstype is x
+ cans617_btn     is x
+ cans35_btn      is x
+ if $regid !dp
+  if client dp
+   $regid = client
+  else
+   $regid = {"lib_UACOMMON"}GetClientID()
+   if $regid !dp
+    return
+   endif
+  endif
+ elseif ($regid dp and client dp) and client != $regid
+  $regid = {"lib_UACOMMON"}GetClientID()
+  if $regid !dp
+   return
+  endif
+ endif
+ age = {"lib_UACOMMON"}ClientAge($regid)
+ if age > 17
+  call "ANSA"()
+ elseif age > 6 and age < 17
+  call "CANS617"()
+ elseif age = 6
+  (void)$dbread(2,$regid,c.cans.rec,c.cans.canstype)
+  if c.cans.canstype = "1"
+   call "CANS617"()
+  else
+   $submitopt("off", "")
+   $cancelopt("off", "CANCEL")
+   $form($scriptid)   
+    $tag("<center>")
+	 $br(3)$text("Due to the clients age you may choose to continue using the CANS 3-5 version of the assessment or the 6-17 version.","datatag")
+	 $br()$text("Note: If you decide to use the 6-17 version that is what will be the default for future assessments.","datatag")
+  	 $br(2)$submit(cans35_btn,"3-5")$ctag("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;")$submit(cans617_btn,"6-17")
+	$tag("</center>")
+   $sendform($scriptid)
+  endif 
+ elseif age < 6
+  call "CANS35"   
+ endif
+end TRR_WRAPPER 
