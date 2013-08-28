@@ -2946,6 +2946,7 @@ function ALOCRpt(RptTitle,ReportID) is null
   $br(2)$text(MedicalNecessity,"siginfo")
  endif 
  $br()
+ {"lib_UACOMMON"}ChangeTitle($scriptid)
  {"l_snapLibSC"}sn_CreateReport(RptTitle,,,ReportID)
  end ALOCRpt
 

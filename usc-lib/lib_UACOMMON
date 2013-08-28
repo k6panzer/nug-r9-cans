@@ -317,3 +317,24 @@ function AddBATCH(CID[],scriptid) is null
   endif
  endif  
 end AddBATCH
+
+'old function, needed for medical records
+function changetitle(scriptid) is null
+ scriptid    is x
+ center_name is x
+ newtitle    is x
+ XTemp       is x 
+ c.fn        is x
+ c.ln        is x
+ center_name = "Helen Farabee Centers"
+ (void)$dbread(2,$regid,c.fn,c.ln)
+ select scriptid
+  case "ANSA"    newtitle = center_name + " ID:" + $regid + "Name:" + c.ln + ", " + c.fn + "Form: ANSA"
+  case "CANS35"  newtitle = center_name + " ID:" + $regid + "Name:" + c.ln + ", " + c.fn + "Form: CANS 3-5"
+  case "CANS617" newtitle = center_name + " ID:" + $regid + "Name:" + c.ln + ", " + c.fn + "Form: CANS 6-17"
+ endselect 
+ $ctag("<script language='Javascript'>")
+ XTemp = "    document.title=" + x"22" + newtitle + x"22" + ";"
+ $ctag(XTemp)
+ $ctag("</script>")
+end changetitle
