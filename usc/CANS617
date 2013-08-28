@@ -67,7 +67,7 @@ start CANS617(parmfile,option,client,retcode)
   return
  endif 
 
- if {"lib_UACOMMON"}StaffCanDo($scriptid,"Y") = 1
+ if {"lib_UACOMMON"}StaffCanDo() = 1
   return
  endif
 
