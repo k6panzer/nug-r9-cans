@@ -178,197 +178,142 @@ function GetClientID() is x
 end GetClientID
 
 function AddUMMonitor(CID[],scriptid) is null
- CID[]      is x
- scriptid   is x
- rc         is i
- index      is i
- ansa_sl    is x
- cans35_sl  is x
- cans617_sl is x
- cabd_sl    is x
- uabd_sl    is x
-'Saved Lists
+ CID[]          is x
+ scriptid       is x
+ index          is i
+ ansa_sl        is x
+ cans35_sl      is x
+ cans617_sl     is x
+ cabd_sl        is x
+ uabd_sl        is x
+ get_list       is i
+ create_list    is i
+ add_to_list    is i
+ entries        is i 
+ list_name      is x
+ list_desc      is x
+ current_list[] is x 
+'Saved Lists names
  ansa_sl    = "ANSAP"
  cans35_sl  = "CANS35P"
  cans617_sl = "CANS617P"
  cabd_sl    = "CABDP"
- uabd_sl    = "UABDP" 
-'Existing saved lists registers
- current_ansa_sl[] is x
- crnt_cans35_sl[]  is x
- crnt_cans617_sl[] is x
- current_uabd_sl[] is x
- current_cabd_sl[] is x
-'Descriptions, may modify later to include the count
- ansa_sl_desc    is x
- cans35_sl_desc  is x
- cans617_sl_desc is x
- uabd_sl_desc    is x
- cabd_sl_desc    is x
- 
+ uabd_sl    = "UABDP"  
+ $clear(list_name)
  select scriptid
-  case "ANSA"     	 rc = $getlist(current_ansa_sl[],2,ansa_sl,,ansa_sl_desc)
-                     index = $find(cid[1],current_ansa_sl[],,"F")
-					 if index = 0
-					  rc = $putlist(cid[],2,ansa_sl,ansa_sl_desc,"A","UM")
-					 endif
-  case "CANS35"   	 rc = $getlist(crnt_cans35_sl[],2,cans35_sl,,cans35_sl_desc)
-                     index = $find(cid[1],crnt_cans35_sl[],,"F")
-					 if index = 0
-					  rc = $putlist(cid[],2,cans35_sl,cans35_sl_desc,"A","UM")
-					 endif					 
-  case "CANS617"  	 rc = $getlist(crnt_cans617_sl[],2,cans617_sl,,cans617_sl_desc)
-                     index = $find(cid[1],crnt_cans617_sl[],,"F")
-					 if index = 0
-                      rc = $putlist(cid[],2,cans617_sl,cans617_sl_desc,"A","UM")					  
-					 endif					 
-  case "UABDFORM" 	 rc = $getlist(current_uabd_sl[],2,uabd_sl,,uabd_sl_desc)
-                     index = $find(cid[1],current_uabd_sl[],,"F")
-					 if index = 0
-					  rc = $putlist(cid[],2,uabd_sl,uabd_sl_desc,"A","UM")
-					 endif					 
-  case "CABDFORM" 	 rc = $getlist(current_cabd_sl[],2,uabd_sl,,uabd_sl_desc)
-                     index = $find(cid[1],current_cabd_sl[],,"F")
-					 if index = 0
-					  rc = $putlist(cid[],2,cabd_sl,cabd_sl_desc,"A","UM")
-					 endif					 
-  case "lib_CABDRPT" rc = $getlist(current_cabd_sl[],2,uabd_sl,,uabd_sl_desc)
-                     index = $find(cid[1],current_cabd_sl[],,"F")
-					 if index = 0
-					  rc = $putlist(cid[],2,cabd_sl,cabd_sl_desc,"A","UM")
-					 endif					 
- endselect    
- end AddUMMonitor
+  case "ANSA"        list_name = ansa_sl
+  case "CANS35"      list_name = cans35_sl
+  case "CANS617"     list_name = cans617_sl
+  case "UABDFORM"    list_name = uabd_sl
+  case "CABDFORM"    list_name = cabd_sl
+  case "lib_CABDRPT" list_name = cabd_sl  
+ endselect
+ if list_name dp
+  get_list = $getlist(current_list[],2,list_name,entries,list_desc)
+  if get_list = 1
+   list_desc = "Pending: " + scriptid
+   create_list = $putlist(cid[],2,list_name,list_desc,"C","UM")			   
+  else
+   index = 0
+   do while index++ < $maxarray(cid[])
+    if $find(cid[index],current_list[],,"F") = 0
+     add_to_list = $putlist(cid[],2,list_name,list_desc,"C","UM")			   
+    endif
+   enddo
+  endif
+ endif
+end AddUMMonitor
 
-function RemUMMonitor(CID,scriptid) is null
- CID        is x
- scriptid   is x
- index      is i
- rc         is i
- ansa_sl    is x
- cans35_sl  is x
- cans617_sl is x
- cabd_sl    is x
- uabd_sl    is x
-'Saved lists
+function RemUMMonitor(CID[],scriptid) is null
+ CID[]          is x
+ scriptid       is x
+ index          is i
+ ansa_sl        is x
+ cans35_sl      is x
+ cans617_sl     is x
+ cabd_sl        is x
+ uabd_sl        is x
+ get_list       is i
+ replace_list   is i
+ remove_index   is i
+ entries        is i 
+ list_name      is x
+ list_desc      is x
+ current_list[] is x 
+'Saved lists names
  ansa_sl    = "ANSAP"
  cans35_sl  = "CANS35P"
  cans617_sl = "CANS617P"
  cabd_sl    = "CABDP"
  uabd_sl    = "UABDP"   
-'Existing saved lists registers
- current_ansa_sl[] is x
- crnt_cans35_sl[]  is x
- crnt_cans617_sl[] is x
- current_uabd_sl[] is x
- current_cabd_sl[] is x
-'Descriptions, may modify later to include the count
- ansa_sl_desc    is x
- cans35_sl_desc  is x
- cans617_sl_desc is x
- uabd_sl_desc    is x
- cabd_sl_desc    is x 
-
+ $clear(list_name)
  select scriptid
-  case "ANSA"     	 rc = $getlist(current_ansa_sl[],2,ansa_sl,,ansa_sl_desc)
-                     index = $find(cid,current_ansa_sl[],,"F")
-					 if index > 0
-					  rc = $arrremove(current_ansa_sl[index])
-					  rc = $putlist(current_ansa_sl[],2,ansa_sl,ansa_sl_desc,"R","UM")
-					 endif
-  case "CANS35"   	 rc = $getlist(crnt_cans35_sl[],2,cans35_sl,,cans35_sl_desc)
-                     index = $find(cid,crnt_cans35_sl[],,"F")
-					 if index > 0
-					  rc = $arrremove(crnt_cans35_sl[index])
-					  rc = $putlist(crnt_cans35_sl[],2,cans35_sl,cans35_sl_desc,"R","UM")
-					 endif					 
-  case "CANS617"  	 rc = $getlist(crnt_cans617_sl[],2,cans617_sl,,cans617_sl_desc)
-                     index = $find(cid,crnt_cans617_sl[],,"F")
-					 if index > 0
-					  rc = $arrremove(crnt_cans617_sl[index])
-                      rc = $putlist(crnt_cans617_sl[],2,cans617_sl,cans617_sl_desc,"R","UM")					  
-					 endif					 
-  case "UABDFORM" 	 rc = $getlist(current_uabd_sl[],2,uabd_sl,,uabd_sl_desc)
-                     index = $find(cid,current_uabd_sl[],,"F")
-					 if index > 0
-					  rc = $arrremove(current_uabd_sl[index])
-					  rc = $putlist(current_uabd_sl[],2,uabd_sl,uabd_sl_desc,"R","UM")
-					 endif					 
-  case "CABDFORM" 	 rc = $getlist(current_cabd_sl[],2,uabd_sl,,uabd_sl_desc)
-                     index = $find(cid,current_cabd_sl[],,"F")
-					 if index > 0
-					  rc = $arrremove(current_cabd_sl[index])
-					  rc = $putlist(current_cabd_sl[],2,cabd_sl,cabd_sl_desc,"R","UM")
-					 endif					 
-  case "lib_CABDRPT" rc = $getlist(current_cabd_sl[],2,uabd_sl,,uabd_sl_desc)
-                     index = $find(cid,current_cabd_sl[],,"F")
-					 if index > 0
-					  rc = $arrremove(current_cabd_sl[index])
-					  rc = $putlist(current_cabd_sl[],2,cabd_sl,cabd_sl_desc,"R","UM")
-					 endif					 
- endselect  
+  case "ANSA"        list_name = ansa_sl
+  case "CANS35"      list_name = cans35_sl
+  case "CANS617"     list_name = cans617_sl
+  case "UABDFORM"    list_name = uabd_sl
+  case "CABDFORM"    list_name = cabd_sl
+  case "lib_CABDRPT" list_name = cabd_sl  
+ endselect
+ if list_name dp
+  get_list = $getlist(current_list[],2,list_name,entries,list_desc)
+  if get_list = 0
+   index = 0
+   do while index++ < $maxarray(cid[])
+    remove_index = $find(cid[index],current_list[],,"F")
+	if remove_index > 0
+	 (void)$arrremove(current_list[remove_index])
+	endif
+   enddo
+   replace_list = $putlist(current_list[],2,list_name,list_desc,"R","UM")   
+  endif
+ endif
 end RemUMMonitor
 
 function AddBATCH(CID[],scriptid) is null
- CID[]      is x
- scriptid   is x
- rc         is i
- index      is i
- ansa_sl    is x
- cans35_sl  is x
- cans617_sl is x
- cabd_sl    is x
- uabd_sl    is x
-
-'Saved lists
+ CID[]          is x
+ scriptid       is x
+ index          is i
+ ansa_sl        is x
+ cans35_sl      is x
+ cans617_sl     is x
+ cabd_sl        is x
+ uabd_sl        is x
+ get_list       is i
+ create_list    is i
+ add_to_list    is i
+ entries        is i
+ add_index      is i
+ list_name      is x
+ list_desc      is x
+ current_list[] is x 
+'Saved lists to batch from
  ansa_sl    = "ANSAB"
  cans35_sl  = "CANS35B"
  cans617_sl = "CANS617B"
  cabd_sl    = "CABDB"
- uabd_sl    = "UABDB" 
-'Existing saved lists registers
- current_ansa_sl[] is x
- crnt_cans35_sl[]  is x
- crnt_cans617_sl[] is x
- current_uabd_sl[] is x
- current_cabd_sl[] is x
-'Descriptions, may modify later to include the count
- ansa_sl_desc    is x
- cans35_sl_desc  is x
- cans617_sl_desc is x
- uabd_sl_desc    is x
- cabd_sl_desc    is x 
- 
+ uabd_sl    = "UABDB"     
+ $clear(list_name)
  select scriptid
-  case "ANSA"     	 rc = $getlist(current_ansa_sl[],2,ansa_sl,,ansa_sl_desc)
-                     index = $find(cid[1],current_ansa_sl[],,"F")
-					 if index = 0
-					  rc = $putlist(cid[],2,ansa_sl,ansa_sl_desc,"A","UM")
-					 endif
-  case "CANS35"   	 rc = $getlist(crnt_cans35_sl[],2,cans35_sl,,cans35_sl_desc)
-                     index = $find(cid[1],crnt_cans35_sl[],,"F")
-					 if index = 0
-					  rc = $putlist(cid[],2,cans35_sl,cans35_sl_desc,"A","UM")
-					 endif					 
-  case "CANS617"  	 rc = $getlist(crnt_cans617_sl[],2,cans617_sl,,cans617_sl_desc)
-                     index = $find(cid[1],crnt_cans617_sl[],,"F")
-					 if index = 0
-                      rc = $putlist(cid[],2,cans617_sl,cans617_sl_desc,"A","UM")					  
-					 endif					 
-  case "UABDFORM" 	 rc = $getlist(current_uabd_sl[],2,uabd_sl,,uabd_sl_desc)
-                     index = $find(cid[1],current_uabd_sl[],,"F")
-					 if index = 0
-					  rc = $putlist(cid[],2,uabd_sl,uabd_sl_desc,"A","UM")
-					 endif					 
-  case "CABDFORM" 	 rc = $getlist(current_cabd_sl[],2,uabd_sl,,uabd_sl_desc)
-                     index = $find(cid[1],current_cabd_sl[],,"F")
-					 if index = 0
-					  rc = $putlist(cid[],2,cabd_sl,cabd_sl_desc,"A","UM")
-					 endif					 
-  case "lib_CABDRPT" rc = $getlist(current_cabd_sl[],2,uabd_sl,,uabd_sl_desc)
-                     index = $find(cid[1],current_cabd_sl[],,"F")
-					 if index = 0
-					  rc = $putlist(cid[],2,cabd_sl,cabd_sl_desc,"A","UM")
-					 endif					 
- endselect    
+  case "ANSA"        list_name = ansa_sl
+  case "CANS35"      list_name = cans35_sl
+  case "CANS617"     list_name = cans617_sl
+  case "UABDFORM"    list_name = uabd_sl
+  case "CABDFORM"    list_name = cabd_sl
+  case "lib_CABDRPT" list_name = cabd_sl  
+ endselect
+ if list_name dp
+  get_list = $getlist(current_list[],2,list_name,entries,list_desc)
+  if get_list = 1
+   list_desc = "Pending: " + scriptid
+   create_list = $putlist(cid[],2,list_name,list_desc,"C","UM")			   
+  else
+   index = 0
+   do while index++ < $maxarray(cid[])
+    if $find(cid[index],current_list[],,"F") = 0
+     add_to_list = $putlist(cid[index],2,list_name,list_desc,"A","UM")			   
+    endif
+   enddo
+  endif
+ endif  
 end AddBATCH
