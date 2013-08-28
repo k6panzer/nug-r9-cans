@@ -217,7 +217,7 @@ function AddUMMonitor(CID[],scriptid) is null
    index = 0
    do while index++ < $maxarray(cid[])
     if $find(cid[index],current_list[],,"F") = 0
-     add_to_list = $putlist(cid[],2,list_name,list_desc,"C","UM")			   
+     add_to_list = $putlist(cid[],2,list_name,list_desc,"A","UM")			   
     endif
    enddo
   endif
