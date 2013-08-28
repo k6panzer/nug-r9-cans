@@ -70,6 +70,7 @@ start CANS617(parmfile,option,client,retcode)
  if {"lib_UACOMMON"}StaffCanDo() = 1
   return
  endif
+ call "CHECK_UACREDENTIALS"() 
 
  if Validate() = 1
   DisplayErrors()

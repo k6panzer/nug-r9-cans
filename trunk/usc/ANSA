@@ -80,7 +80,8 @@ start ANSA(parmfile,option,client,retcode)
 
  if {"lib_UACOMMON"}StaffCanDo() = 1
   return
- endif
+ endif 
+ call "CHECK_UACREDENTIALS"() 
  
  {"lib_ANSA"}GETDX(DXType, DX, DXCat, DXDate, DXGaf)
 
