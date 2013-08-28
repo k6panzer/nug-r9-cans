@@ -349,6 +349,7 @@ start CANS35(parmfile,option,client,retcode)
 					 case other if SaveData() = 0
 								 Page = "Exit"
 								 {"lib_UACOMMON"}RemUMMonitor($regid,$scriptid)
+ 	                             {"lib_UACOMMON"}AddBatch($regid,$scriptid)	   								 
 								endif 
 					endselect
    case "Authorize" c.cans.rloc = RLOC()

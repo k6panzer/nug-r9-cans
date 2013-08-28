@@ -394,6 +394,7 @@ start CANS617(parmfile,option,client,retcode)
     if SaveData() = 0
      Page = "Exit"
 	 {"lib_UACOMMON"}RemUMMonitor($regid,$scriptid)
+	 {"lib_UACOMMON"}AddBatch($regid,$scriptid)	   	 
     endif
    endif
   elseif Page = "Authorize" 
