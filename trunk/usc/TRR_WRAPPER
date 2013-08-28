@@ -41,8 +41,15 @@ start TRR_WRAPPER(client,option)
   	 $br(2)$submit(cans35_btn,"3-5")$ctag("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;")$submit(cans617_btn,"6-17")
 	$tag("</center>")
    $sendform($scriptid)
+   if $endbutton dp
+    return
+   elseif cans35_btn = "Y"
+    call "CANS35"()      
+   elseif cans617_btn = "Y"
+    call "CANS617"()      
+   endif
   endif 
  elseif age < 6
-  call "CANS35"   
+  call "CANS35"()   
  endif
 end TRR_WRAPPER 
