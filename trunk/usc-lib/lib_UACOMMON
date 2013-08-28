@@ -1,16 +1,12 @@
 library lib_UACOMMON()
 
-function StaffCanDo(script) is i
- script is x
- select script
-  case "CANS" if (MISStaff() = "Y") or ($operstaffid = "3479")
-               StaffCanDo = 0
-              endif
-  case "ANSA" if (MISStaff() = "Y") or ($operstaffid = "3479")
-               StaffCanDo = 0
-              endif
- endselect
- if StaffCanDo != 0
+function StaffCanDo() is i
+ s.trr.certified is x
+ (void)$dbread(3,$operstaffid,s.trr.certified)
+ if s.trr.certified = "Y" or MISStaff() = "Y" or UMStaff() = "Y"
+  StaffCanDo = 0
+ else
+  StaffCanDo = 1
   $brmsg("You are not authorized to use this function!", 1, "W", "ERROR")
  endif
 end StaffCanDo
@@ -45,7 +41,6 @@ function MISStaff(staff[]) is x
  staff[2] = "1343"  'Scott Reeves
  staff[3] = "3737"  'Chris Love
  staff[4] = "3956"  'Chris Ashley
- staff[5] = "C001"  'Greg Anderson
 
  (void)$dbread(3,$operstaffid,s.ru)
  if s.ru = MIS_ru
