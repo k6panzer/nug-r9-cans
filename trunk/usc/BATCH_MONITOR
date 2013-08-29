@@ -1,0 +1,226 @@
+start BATCH_MONITOR()
+ if {"lib_UACOMMON"}UMStaff() != "Y"
+  $brmsg("You Are Not Authorized for this Function",1,"W","ERROR")
+  return
+ endif
+ %global bgcolor, row_color, formtimeout
+ %global assessment_date, assessment_ID, assessment_name, assessment, assessment_type, assessment_rloc, assessment_aloc, assessment_compd, assessment_staff,assessment_sname
+ %global ansa_sl, cans35_sl, cans617_sl
+ %global pending, cans35_count, cans617_count, ansa_count
+ bgcolor     is x
+ row_color   is x
+ formtimeout is i
+ ansa_sl     is x
+ cans35_sl   is x
+ cans617_sl  is x
+'*****************************Change these******************************************************************
+ %define table_wbgcolor "width='100%' cellspacing='0' cellpadding='0' bgcolor='" + bgcolor + "'"
+ %define table_nobgcolor "width='100%' cellspacing='0' cellpadding='0'"
+ %define row_odd "bgcolor='White'"
+ %define row_even "bgcolor='CornSilk'"
+ %define row_color3 "bgcolor='PaleGreen'"
+ %define old_assessment "bgcolor='LightSalmon'" 
+ %define crisis_color "bgcolor='Crimson'" 
+ %define override_color "bgcolor='YellowGreen'" 
+'How often to refresh the main form in seconds
+ formtimeout = 60
+'Pending saved List
+ ansa_sl    = "ANSAB"
+ cans35_sl  = "CANS35B"
+ cans617_sl = "CANS617B"
+'*********************************************************************************************************** 
+ $looplimit = 0
+ assessments[]      is x
+ file-list[]        is x
+ file-name[]        is x
+ assessment_date[]  is d
+ assessment_ID[]    is x
+ assessment_name[]  is x
+ assessment[]       is x
+ assessment_type[]  is x
+ assessment_rloc[]  is x
+ assessment_aloc[]  is x
+ assessment_compd[] is x
+ assessment_staff[] is x
+ assessment_sname[] is x
+ pending            is i
+ cans35_count       is i
+ cans617_count      is i
+ ansa_count         is i
+ do while 1 = 1
+  GetSavedLists()
+  ViewLists()
+  select $endbutton
+   case "SUBMIT"
+   case "CANCEL" return
+  endselect
+ enddo
+end BATCH_MONITOR
+
+function ViewLists() is null
+ index is i
+ $submitopt("off", "Refresh")
+ $cancelopt("off", "Exit")
+ $form($funcname)
+  $setformtimeout(formtimeout)
+  $br()
+  $table($funcname)
+   $row()
+    $col(,,"10%")$text("Ready to Batch: ","datatag")
+	$col(,,"10%")$text(pending,"error")
+	$col(,,"80%")
+   $row()
+    $col()$text("ANSA: ","datatag")
+    $col()$text(ansa_count,"error")
+    $col()	
+   $row()
+    $col()$text("CANS 3-5: ","datatag")
+    $col()$text(cans35_count,"error")
+    $col()	
+   $row()
+    $col()$text("CANS 6-17: ","datatag")
+    $col()$text(cans617_count,"error")
+    $col()		
+  $endtable($funcname)
+  $br()
+  $table($funcname)
+   $row()
+    $col()$text("Date","datatag")
+    $col()$text("ID","datatag")
+    $col()$text("Name","datatag")
+    $col()$text("Assessment","datatag")
+	$col()$text("Type","datatag")
+	$col()$text("RLOC","datatag")
+    $col()$text("ALOC","datatag")
+    $col()$text("Completion Date","datatag")
+	$col()$text("Staff","datatag")	
+	$col()$text("Staff Name","datatag")		
+   $row()
+    $col()$tag("<hr/>")	
+    $col()$tag("<hr/>")	
+    $col()$tag("<hr/>")	
+    $col()$tag("<hr/>")	
+    $col()$tag("<hr/>")	
+	$col()$tag("<hr/>")	
+    $col()$tag("<hr/>")	
+	$col()$tag("<hr/>")
+    $col()$tag("<hr/>")	
+    $col()$tag("<hr/>")	
+   index = 0
+   $bstyle("link","link")
+   do while index++ < pending
+    if $mod(index,2) = 0
+	 row_color = row_odd
+	else
+	 row_color = row_even
+	endif
+    if assessment_aloc[index] dp and assessment_aloc[index] != assessment_rloc[index]
+	 row_color = override_color
+	endif
+	if assessment_compd[index] <= $today
+	 row_color = old_assessment
+	endif	
+	if assessment_aloc[index]) = "100"
+     row_color = crisis_color
+    endif
+    $row(,row_color)           
+     $col()$text(assessment_date[index])
+     $col()$text(assessment_id[index]) 
+     $col()$text(assessment_name[index]) 
+     $col()$text(assessment[index])
+     $col()$text(assessment_type[index])
+     $col()$text(assessment_rloc[index])
+     $col()$text(assessment_aloc[index])
+     $col()$text(assessment_compd[index])   
+     $col()$text(assessment_staff[index])   				  
+     $col()$text(assessment_sname[index])   				  				  	
+   enddo		
+  $endtable($funcname)
+ $sendform($funcname)
+end ViewLists
+
+function GetSavedLists() is null
+ rc    			is i
+ index 			is i
+ index2		    is i
+ ansa_list[]    is x
+ cans35_list[]  is x
+ cans617_list[] is x 
+ s.fn 		    is x
+ s.ln 		    is x
+ c.fn 		    is x
+ c.ln 		    is x
+ c.ansa.rec     is h
+ c.ansa.date    is d
+ c.ansa.type    is x
+ c.ansa.rloc    is x
+ c.ansa.aloc    is x
+ c.ansa.staff   is x
+ c.ansa.compd   is d
+ c.cans.rec     is h
+ c.cans.date    is d
+ c.cans.type    is x
+ c.cans.rloc    is x
+ c.cans.aloc    is x
+ c.cans.staff   is x
+ c.cans.compd   is d
+ 
+ $clear(assessment_compd[],assessment_date[],assessment_ID[],assessment_name[],assessment[],assessment_type[],assessment_rloc[],assessment_aloc[],assessment_staff[],assessment_sname[])  
+ rc = $getlist(ansa_list[],2,ansa_sl)
+ index = 0
+ index2 = 0
+ do while index++ < $maxarray(ansa_list[])
+  rc = $dbread(2,ansa_list[index],c.fn,c.ln,c.ansa.rec,c.ansa.date,c.ansa.type,c.ansa.rloc,c.ansa.aloc,c.ansa.staff,c.ansa.compd)
+  rc = $dbread(3,c.ansa.staff,s.fn,s.ln)
+  assessment[++index2]       = "ANSA"
+  assessment_date[index2]  = c.ansa.date
+  assessment_ID[index2]    = ansa_list[index2]
+  assessment_name[index2]  = c.fn + " " + c.ln
+  assessment_type[index2]  = $ncs($dct(9700,c.ansa.type))
+  assessment_rloc[index2]  = $ncs($dct(9712,c.ansa.rloc))
+  assessment_aloc[index2]  = $ncs($dct(9712,c.ansa.aloc))
+  assessment_compd[index2] = c.ansa.compd
+  assessment_staff[index2] = c.ansa.staff
+  assessment_sname[index2] = s.fn + " " + s.ln
+ enddo 
+
+ rc = $getlist(cans35_list[],2,cans35_sl)
+ index = 0
+ do while index++ < $maxarray(cans35_list[])
+  rc = $dbread(2,cans35_list[index],c.fn,c.ln,c.cans.rec,c.cans.date,c.cans.type,c.cans.rloc,c.cans.aloc,c.cans.staff, c.cans.compd)
+  rc = $dbread(3,c.cans.staff,s.fn,s.ln)
+  assessment[++index2]       = "CANS35"
+  assessment_date[index2]  = c.cans.date
+  assessment_ID[index2]    = cans35_list[index2]
+  assessment_name[index2]  = c.fn + " " + c.ln
+  assessment_type[index2]  = $ncs($dct(9700,c.cans.type))
+  assessment_rloc[index2]  = $ncs($dct(9705,c.cans.rloc))
+  assessment_aloc[index2]  = $ncs($dct(9705,c.cans.aloc))
+  assessment_compd[index2] = c.cans.compd
+  assessment_staff[index2] = c.cans.staff
+  assessment_sname[index2] = s.fn + " " + s.ln
+ enddo  
+
+ rc = $getlist(cans617_list[],2,cans617_sl)
+ index = 0
+ do while index++ < $maxarray(cans617_list[])
+  rc = $dbread(2,cans617_list[index],c.fn,c.ln,c.cans.rec,c.cans.date,c.cans.type,c.cans.rloc,c.cans.aloc,c.cans.staff,c.cans.compd)
+  rc = $dbread(3,c.cans.staff,s.fn,s.ln)
+  assessment[++index2]       = "CANS617"
+  assessment_date[index2]  = c.cans.date
+  assessment_ID[index2]    = cans617_list[index2]
+  assessment_name[index2]  = c.fn + " " + c.ln
+  assessment_type[index2]  = $ncs($dct(9700,c.cans.type))
+  assessment_rloc[index2]  = $ncs($dct(9705,c.cans.rloc))
+  assessment_aloc[index2]  = $ncs($dct(9705,c.cans.aloc))
+  assessment_compd[index2] = c.cans.compd
+  assessment_staff[index2] = c.cans.staff
+  assessment_sname[index2] = s.fn + " " + s.ln
+ enddo
+ 
+ rc = $sort(assessment_compd[],"A",assessment_date[],"A",assessment_ID[],assessment_name[],assessment[],assessment_type[],assessment_rloc[],assessment_aloc[],assessment_staff[],assessment_sname[])
+ ansa_count    = $maxarray(ansa_list[])
+ cans35_count  = $maxarray(cans35_list[])
+ cans617_count = $maxarray(cans617_list[])
+ pending = cans35_count + cans617_count + ansa_count
+end GetSavedLists
