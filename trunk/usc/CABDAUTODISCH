@@ -84,11 +84,12 @@ start CABDAUTODISCH()
    LapseDate = c.cabd.date + 90
   endif
   if (
-      (ua_age >= 90 and c.cabd.compd dp and c.cabd.aloc != "9" and c.cabd.aloc != "0" and c.cabd.aloc != "6" and c.cabd.aloc != "8" and (c.cabd.extd = "N" or c.cabd.extd !dp))
+      (LapseDate < 9/1/2013 and c.cabd.compd dp and c.cabd.aloc != "9" and c.cabd.aloc != "0" and c.cabd.aloc != "6" and c.cabd.aloc != "8" and (c.cabd.extd = "N" or c.cabd.extd !dp))
        or
-	  (ua_age >= 180 and c.cabd.compd dp and c.cabd.extd = "Y" and c.cabd.aloc = "4")
+	  (LapseDate < 9/1/2013 and c.cabd.compd dp and c.cabd.extd = "Y" and c.cabd.aloc = "4")
 	  )	
    and (c.cabd.ass = "I" or c.cabd.ass = "U")  
+   LapseDate = $today - 1
 'Lapse all open tc & ho assignments as of 90 days from last ua or last applicable svc date whichever is older.
    if LapseCB = "Y"
     $dblock()
@@ -117,7 +118,7 @@ start CABDAUTODISCH()
     do while $$as.rec dp
      'If this is a child asr, the seg will contain "CSP"
       if $seg($$as.con, 1, 3) = "CSP" and $$as.lap >= LapseDate
-        $$as.lap = LapseDate - 1
+        $$as.lap = LapseDate
         rc = $dbupdate(02, CID, $$as.rec, $$as.lap)
         $dblock()
 	    rc = $dbread(02, CID, $$as.rec, $$as.con, $$as.lap)
@@ -129,22 +130,21 @@ start CABDAUTODISCH()
 'Add the ua discharge record
    $dblock()
    rc = $dbread(02,CID,c.cabd.rec,c.cabd.ass,c.cabd.act,c.cabd.disch,c.cabd.disdt,c.cabd.dischref,c.cabd.date3,c.cabd.staff3,c.cabd.stat,c.cabd.compd,c.cabd.caredt,c.cabd.autodis,c.cabd.aalocd)
-   c.cabd.rec[effd] = ($today - 1)
-   c.cabd.ass = "D"
-   c.cabd.act = "A"
-   c.cabd.disch = "Z"
-   c.cabd.disdt = (LapseDate - 1)
-   c.cabd.dischref = "9"
-   c.cabd.date3 = ($today - 1)
-    c.cabd.disdt = $today
-   c.cabd.staff3 = DischargeStaff
-   c.cabd.stat = "2"
-   c.cabd.compd = ($today - 1)
-   c.cabd.autodis = "AUTODISCHARGE"
-   c.cabd.aalocd = LapseDate
+   c.cabd.rec[effd] = LapseDate
+   c.cabd.ass       = "D"
+   c.cabd.act       = "A"
+   c.cabd.disch     = "Z"
+   c.cabd.disdt     = LapseDate
+   c.cabd.dischref  = "9"
+   c.cabd.date3     = LapseDate
+   c.cabd.staff3    = DischargeStaff
+   c.cabd.stat      = "2"
+   c.cabd.compd     = LapseDate
+   c.cabd.autodis   = "AUTODISCHARGE"
+   c.cabd.aalocd    = LapseDate
    $clear(c.cabd.caredt) 
    rc = $dbadddst(02,CID,c.cabd.rec,c.cabd.ass,c.cabd.act,c.cabd.disch,c.cabd.disdt,c.cabd.dischref,c.cabd.date3,c.cabd.staff3,c.cabd.stat,c.cabd.compd,c.cabd.caredt,c.cabd.autodis,c.cabd.aalocd)
-   $log(`$castx($today) + "|" + c.cabd.aloc + "|" + CID + "|" + "AUTOCLOSE CHILD"`,logfile)
+   $log(`$castx($today) + "|" + c.cabd.aloc + "|" + CID + "|" + "TRR AUTOCLOSE CHILD"`,logfile)
   endif
   $loopcount = 0
  enddo

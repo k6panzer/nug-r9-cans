@@ -89,13 +89,14 @@ start UABDAUTODISCH()
    if c.uabd.aloc = "5"
     LapseDate = c.uabd.date + 90
    endif
-   if ((ua_age >= 90 and c.uabd.compd dp and c.uabd.aloc != "9" and c.uabd.aloc != "0" and c.uabd.aloc != "6" and c.uabd.aloc != "8" and c.uabd.extd != "Y" and c.uabd.annual != "Y")
+   if ((LapseDate < 9/1/2013 and c.uabd.compd dp and c.uabd.aloc != "9" and c.uabd.aloc != "0" and c.uabd.aloc != "6" and c.uabd.aloc != "8" and c.uabd.extd != "Y" and c.uabd.annual != "Y")
       or
-       (ua_age >= 180 and c.uabd.compd dp and c.uabd.aloc != "9" and c.uabd.aloc != "0" and c.uabd.aloc != "6" and c.uabd.aloc != "8" and c.uabd.extd = "Y" and c.uabd.annual != "Y")
+       (LapseDate < 9/1/2013 and c.uabd.compd dp and c.uabd.aloc != "9" and c.uabd.aloc != "0" and c.uabd.aloc != "6" and c.uabd.aloc != "8" and c.uabd.extd = "Y" and c.uabd.annual != "Y")
       or
-       (ua_age >= 365 and c.uabd.compd dp and c.uabd.aloc != "9" and c.uabd.aloc != "0" and c.uabd.aloc != "6" and c.uabd.aloc != "8" and c.uabd.annual = "Y")) and (c.uabd.pur = "I" or c.uabd.pur = "U")
+       (LapseDate < 9/1/2013 and c.uabd.compd dp and c.uabd.aloc != "9" and c.uabd.aloc != "0" and c.uabd.aloc != "6" and c.uabd.aloc != "8" and c.uabd.annual = "Y")) and (c.uabd.pur = "I" or c.uabd.pur = "U")
 'Lapse all open tc & ho assignments as of 90 days from last ua or last applicable svc date whichever is older.
-    if LapseCB = "Y"  
+    LapseDate = $today - 1
+	if LapseCB = "Y"  
      $dblock()
      rc = $dbread(02, CID, c.cb.asn.r, c.cb.asn, c.cb.laps, c.cb.sdate, c.cb.type, c.cb.autoclos)
      do while c.cb.asn.r dp
@@ -120,7 +121,7 @@ start UABDAUTODISCH()
      rc = $dbread(02, CID, $$as.rec, $$as.con, $$as.lap)
      do while $$as.rec dp
       if $seg($$as.con, 1, 3) = "ASP" and $$as.lap >= LapseDate
-       $$as.lap = LapseDate - 1
+       $$as.lap = LapseDate
        rc = $dbupdate(02, CID, $$as.rec, $$as.lap)
        $dblock()
 	   rc = $dbread(02, CID, $$as.rec, $$as.con, $$as.lap)
@@ -131,21 +132,21 @@ start UABDAUTODISCH()
 'Add the ua discharge record
     $dblock()
     rc = $dbread(02,CID,c.uabd,c.uabd.pur,c.uabd.act,c.uabd.disch,c.uabd.disdt,c.uabd.dischref,c.uabd.date,c.uabd.staff1,c.uabd.stat,c.uabd.compd,c.uabd.caredt,c.uabd.autodis) 
-    c.uabd[effd] = $today
-    c.uabd.pur = "D"
-    c.uabd.act = "A"
-    c.uabd.disch = "Z"
+    c.uabd[effd]    = LapseDate
+    c.uabd.pur      = "D"
+    c.uabd.act      = "A"
+    c.uabd.disch    = "Z"
     c.uabd.dischref = "9"
-    c.uabd.date = LapseDate
-    c.uabd.disdt = LapseDate
-    c.uabd.staff1 = DischargeStaff
-    c.uabd.stat = "2"
-    c.uabd.compd = $today
-    c.uabd.autodis = "AUTODISCHARGE"
+    c.uabd.date     = LapseDate
+    c.uabd.disdt    = LapseDate
+    c.uabd.staff1   = DischargeStaff
+    c.uabd.stat     = "2"
+    c.uabd.compd    = $today
+    c.uabd.autodis  = "AUTODISCHARGE"
     $clear(c.uabd.caredt)  
     rc = $dbadddst(02,CID,c.uabd,c.uabd.pur,c.uabd.act,c.uabd.disch,c.uabd.disdt,c.uabd.dischref,c.uabd.date,c.uabd.staff1,c.uabd.stat,c.uabd.compd,c.uabd.caredt,c.uabd.autodis)
 'Write to the logfile
-    $log(`$castx($today) + "|" + c.uabd.aloc + "|" + CID + "|" + "AUTOCLOSE ADULT"`,logfile)  
+    $log(`$castx($today) + "|" + c.uabd.aloc + "|" + CID + "|" + "TRR AUTOCLOSE ADULT"`,logfile)  
    endif	  
   endif
   $loopcount = 0
