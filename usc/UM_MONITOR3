@@ -228,6 +228,7 @@ function ViewLists() is null
                   $col()$submit(view_btn[index],`assessment_date[index]`)
                   $col()$text(assessment_id[index]) 
                   $col()$text(assessment_name[index]) 
+                  $col()$text(assessment[index])
                   if $maxarray(assessment_type[]) > 0
 				   $col()$text(assessment_type[index])
                   endif
