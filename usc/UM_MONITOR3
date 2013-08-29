@@ -320,6 +320,7 @@ end ViewLists
 function GetSavedLists() is null
  rc    			is i
  index 			is i
+ index2		    is i
  ansa_list[]    is x
  cans35_list[]  is x
  cans617_list[] is x
@@ -386,6 +387,7 @@ function GetSavedLists() is null
  $clear(assessment_adate[],assessment_date[],assessment_ID[],assessment_name[],assessment[],assessment_type[],assessment_rloc[],assessment_dloc[],assessment_staff[],assessment_sname[])  
  rc = $getlist(ansa_list[],2,ansa_sl,,ansa_sl_desc)
  index = 0
+ index2 = 0
  ansa_count = $maxarray(ansa_list[])
  do while index++ < ansa_count
   rc = $dbread(2,ansa_list[index],c.fn,c.ln,c.ansa.rec,c.ansa.date,c.ansa.type,c.ansa.rloc,c.ansa.dloc,c.ansa.staff,c.ansa.compd)
@@ -395,16 +397,16 @@ function GetSavedLists() is null
    index--  
   else  
    rc = $dbread(3,c.ansa.staff,s.fn,s.ln)
-   assessment[index]       = "ANSA"
-   assessment_date[index]  = c.ansa.date
-   assessment_ID[index]    = ansa_list[index]
-   assessment_name[index]  = c.fn + " " + c.ln
-   assessment_type[index]  = $ncs($dct(9700,c.ansa.type))
-   assessment_rloc[index]  = $ncs($dct(9712,c.ansa.rloc))
-   assessment_dloc[index]  = $ncs($dct(9712,c.ansa.dloc))
-   assessment_adate[index] = c.ansa.date + 14
-   assessment_staff[index] = c.ansa.staff
-   assessment_sname[index] = s.fn + " " + s.ln
+   assessment[++index2]       = "ANSA"
+   assessment_date[index2]  = c.ansa.date
+   assessment_ID[index2]    = ansa_list[index2]
+   assessment_name[index2]  = c.fn + " " + c.ln
+   assessment_type[index2]  = $ncs($dct(9700,c.ansa.type))
+   assessment_rloc[index2]  = $ncs($dct(9712,c.ansa.rloc))
+   assessment_dloc[index2]  = $ncs($dct(9712,c.ansa.dloc))
+   assessment_adate[index2] = c.ansa.date + 14
+   assessment_staff[index2] = c.ansa.staff
+   assessment_sname[index2] = s.fn + " " + s.ln
   endif
  enddo 
 
@@ -419,16 +421,16 @@ function GetSavedLists() is null
    index--  
   else
    rc = $dbread(3,c.cans.staff,s.fn,s.ln)
-   assessment[index]       = "CANS35"
-   assessment_date[index]  = c.cans.date
-   assessment_ID[index]    = cans35_list[index]
-   assessment_name[index]  = c.fn + " " + c.ln
-   assessment_type[index]  = $ncs($dct(9700,c.cans.type))
-   assessment_rloc[index]  = $ncs($dct(9705,c.cans.rloc))
-   assessment_dloc[index]  = $ncs($dct(9705,c.cans.dloc))
-   assessment_adate[index] = c.cans.date + 14
-   assessment_staff[index] = c.cans.staff
-   assessment_sname[index] = s.fn + " " + s.ln
+   assessment[++index2]       = "CANS35"
+   assessment_date[index2]  = c.cans.date
+   assessment_ID[index2]    = cans35_list[index2]
+   assessment_name[index2]  = c.fn + " " + c.ln
+   assessment_type[index2]  = $ncs($dct(9700,c.cans.type))
+   assessment_rloc[index2]  = $ncs($dct(9705,c.cans.rloc))
+   assessment_dloc[index2]  = $ncs($dct(9705,c.cans.dloc))
+   assessment_adate[index2] = c.cans.date + 14
+   assessment_staff[index2] = c.cans.staff
+   assessment_sname[index2] = s.fn + " " + s.ln
   endif
  enddo  
 
@@ -443,16 +445,16 @@ function GetSavedLists() is null
    index--  
   else
    rc = $dbread(3,c.cans.staff,s.fn,s.ln)
-   assessment[index]       = "CANS617"
-   assessment_date[index]  = c.cans.date
-   assessment_ID[index]    = cans617_list[index]
-   assessment_name[index]  = c.fn + " " + c.ln
-   assessment_type[index]  = $ncs($dct(9700,c.cans.type))
-   assessment_rloc[index]  = $ncs($dct(9705,c.cans.rloc))
-   assessment_dloc[index]  = $ncs($dct(9705,c.cans.dloc))
-   assessment_adate[index] = c.cans.date + 14
-   assessment_staff[index] = c.cans.staff
-   assessment_sname[index] = s.fn + " " + s.ln
+   assessment[++index2]       = "CANS617"
+   assessment_date[index2]  = c.cans.date
+   assessment_ID[index2]    = cans617_list[index2]
+   assessment_name[index2]  = c.fn + " " + c.ln
+   assessment_type[index2]  = $ncs($dct(9700,c.cans.type))
+   assessment_rloc[index2]  = $ncs($dct(9705,c.cans.rloc))
+   assessment_dloc[index2]  = $ncs($dct(9705,c.cans.dloc))
+   assessment_adate[index2] = c.cans.date + 14
+   assessment_staff[index2] = c.cans.staff
+   assessment_sname[index2] = s.fn + " " + s.ln
   endif
  enddo
 
@@ -467,16 +469,16 @@ function GetSavedLists() is null
    index--  
   elseif c.uabd.stat = "1"
    rc = $dbread(3,c.uabd.staff1,s.fn,s.ln)
-   assessment[index]       = "UABD"
-   assessment_date[index]  = c.uabd.date
-   assessment_ID[index]    = uabd_list[index]
-   assessment_name[index]  = c.fn + " " + c.ln
-   assessment_type[index]  = $ncs($dct(9000,c.uabd.pur))
-   assessment_rloc[index]  = $ncs($dct(9001,c.uabd.rloc))
-   assessment_dloc[index]  = $ncs($dct(9001,c.uabd.request))
-   assessment_adate[index] = c.uabd.date + 14
-   assessment_staff[index] = c.uabd.staff1
-   assessment_sname[index] = s.fn + " " + s.ln
+   assessment[++index2]       = "UABD"
+   assessment_date[index2]  = c.uabd.date
+   assessment_ID[index2]    = uabd_list[index2]
+   assessment_name[index2]  = c.fn + " " + c.ln
+   assessment_type[index2]  = $ncs($dct(9000,c.uabd.pur))
+   assessment_rloc[index2]  = $ncs($dct(9001,c.uabd.rloc))
+   assessment_dloc[index2]  = $ncs($dct(9001,c.uabd.request))
+   assessment_adate[index2] = c.uabd.date + 14
+   assessment_staff[index2] = c.uabd.staff1
+   assessment_sname[index2] = s.fn + " " + s.ln
   endif
  enddo     
 
@@ -491,27 +493,22 @@ function GetSavedLists() is null
    index--
   elseif c.uabd.stat = "1"
    rc = $dbread(3,c.cabd.staff,s.fn,s.ln)
-   assessment[index]       = "CABD"
-   assessment_date[index]  = c.cabd.date
-   assessment_ID[index]    = cabd_list[index]
-   assessment_name[index]  = c.fn + " " + c.ln
-   assessment_type[index]  = $ncs($dct(9000,c.cabd.ass))
-   assessment_rloc[index]  = $ncs($dct(9014,c.cabd.locr))
-   assessment_dloc[index]  = $ncs($dct(9014,c.cabd.request))
-   assessment_adate[index] = c.cabd.date + 14
-   assessment_staff[index] = c.cabd.staff
-   assessment_sname[index] = s.fn + " " + s.ln
+   assessment[++index2]       = "CABD"
+   assessment_date[index2]  = c.cabd.date
+   assessment_ID[index2]    = cabd_list[index2]
+   assessment_name[index2]  = c.fn + " " + c.ln
+   assessment_type[index2]  = $ncs($dct(9000,c.cabd.ass))
+   assessment_rloc[index2]  = $ncs($dct(9014,c.cabd.locr))
+   assessment_dloc[index2]  = $ncs($dct(9014,c.cabd.request))
+   assessment_adate[index2] = c.cabd.date + 14
+   assessment_staff[index2] = c.cabd.staff
+   assessment_sname[index2] = s.fn + " " + s.ln
   endif
  enddo      
 
  rc = $sort(assessment_adate[],"A",assessment_date[],"A",assessment_ID[],assessment_name[],assessment[],assessment_type[],assessment_rloc[],assessment_dloc[],assessment_staff[],assessment_sname[])
- pending = cans35_count + cans617_count + ansa_count + uabd_count + cabd_count
- 
- rc = $putlist(ansa_list[],2,ansa_sl,ansa_sl_desc,"R","UM")
- rc = $putlist(cans35_list[],2,cans35_sl,cans35_sl_desc,"R","UM")
- rc = $putlist(cans617_list[],2,cans617_sl,cans617_sl_desc,"R","UM")
- rc = $putlist(uabd_list[],2,uabd_sl,uabd_sl_desc,"R","UM")
- rc = $putlist(cabd_list[],2,cabd_sl,cabd_sl_desc,"R","UM") 
+ pending = $maxarray(assessment_id[])
+ pending = cans35_count + cans617_count + ansa_count + uabd_count + cabd_count 
 end GetSavedLists
 
 function ConfirmANSA(cid) is i
