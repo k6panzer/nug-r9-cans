@@ -358,7 +358,7 @@ function GetSavedLists() is null
  c.cabd.rec    is h
  c.cabd.date    is d
  c.cabd.ass     is x
- c.cabd.rloc    is x
+ c.cabd.locr    is x
  c.cabd.request is x
  c.cabd.staff   is x
  c.cabd.stat    is x
@@ -484,7 +484,7 @@ function GetSavedLists() is null
  index = 0
  cabd_count = $maxarray(cabd_list[])
  do while index++ < cabd_count
-  rc = $dbread(2,cabd_list[index],c.fn,c.ln,c.cabd.rec,c.cabd.date,c.cabd.ass,c.cabd.rloc,c.cabd.request,c.cabd.staff, c.cabd.stat)
+  rc = $dbread(2,cabd_list[index],c.fn,c.ln,c.cabd.rec,c.cabd.date,c.cabd.ass,c.cabd.locr,c.cabd.request,c.cabd.staff, c.cabd.stat)
   if c.uabd.stat = "2"
    {"lib_UACOMMON"}RemUMMonitor(cabd_list[index],"CABDFORM")
    (void)$arrremove(cabd_list[index])
@@ -496,7 +496,7 @@ function GetSavedLists() is null
    assessment_ID[index]    = cabd_list[index]
    assessment_name[index]  = c.fn + " " + c.ln
    assessment_type[index]  = $ncs($dct(9000,c.cabd.ass))
-   assessment_rloc[index]  = $ncs($dct(9014,c.cabd.rloc))
+   assessment_rloc[index]  = $ncs($dct(9014,c.cabd.locr))
    assessment_dloc[index]  = $ncs($dct(9014,c.cabd.request))
    assessment_adate[index] = c.cabd.date + 14
    assessment_staff[index] = c.cabd.staff
