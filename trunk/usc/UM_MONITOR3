@@ -83,13 +83,13 @@ start UM_MONITOR3()
 							else 
 							 call assessment[index](,,assessment_id[index])
 				            endif
-	            case "UABD" if ConfirmUABD(assessment_id[index]) = 1
+	            case "UABDFORM" if ConfirmUABD(assessment_id[index]) = 1
 	                         (void)$arrremove(file-name[index],1,assessment_date[],assessment_ID[],assessment_name[],assessment[],assessment_type[],assessment_rloc[],assessment_dloc[],assessment_adate[],assessment_staff[], assessment_sname[])
                              $brmsg("This assessment has already been authorized before the screen refreshed.",1,"W","Assessment Already Authorized")
 							else 
 							 call assessment[index](,,assessment_id[index])
 				            endif
-	            case "CABD" if ConfirmCABD(assessment_id[index]) = 1
+	            case "CABDFORM" if ConfirmCABD(assessment_id[index]) = 1
 	                         (void)$arrremove(file-name[index],1,assessment_date[],assessment_ID[],assessment_name[],assessment[],assessment_type[],assessment_rloc[],assessment_dloc[],assessment_adate[],assessment_staff[], assessment_sname[])
                              $brmsg("This assessment has already been authorized before the screen refreshed.",1,"W","Assessment Already Authorized")
 							else 
@@ -201,10 +201,10 @@ function ViewLists() is null
 	 row_color = old_assessment
 	endif	
 	select assessment[index])
-	 case "UABD" select assessment_rloc[index])  
+	 case "UABDFORM" select assessment_rloc[index])  
 	                  case "0" row_color = crisis_color
 	                 endselect
-	 case "CABD" select assessment_rloc[index])  
+	 case "CABDFORM" select assessment_rloc[index])  
 	                  case "0" row_color = crisis_color
 	                 endselect
 	 case "ANSA" select assessment_rloc[index])  
@@ -259,7 +259,7 @@ function ViewLists() is null
 					 if $maxarray(assessment_dloc[]) > 0
 					  $col()$text(assessment_dloc[index])
 				     endif
-	 case "UABD" $row(,row_color)
+	 case "UABDFORM" $row(,row_color)
                       $col()$submit(view_btn[index],`assessment_date[index]`)
                       $col()$text(assessment_id[index])
                       $col()$text(assessment_name[index]) 
@@ -273,7 +273,7 @@ function ViewLists() is null
 					  if $maxarray(assessment_dloc[]) > 0
 					   $col()$text(assessment_dloc[index])
 				      endif
-	 case "CABD" $row(,row_color)
+	 case "CABDFORM" $row(,row_color)
                       $col()$submit(view_btn[index],`assessment_date[index]`)
                       $col()$text(assessment_id[index])
                       $col()$text(assessment_name[index]) 
@@ -431,7 +431,7 @@ function GetSavedLists() is null
    index--  
   elseif c.uabd.stat = "1"
    rc = $dbread(3,c.uabd.staff1,s.fn,s.ln)
-   assessment[++index2]       = "UABD"
+   assessment[++index2]       = "UABDFORM"
    assessment_date[index2]  = c.uabd.date
    assessment_ID[index2]    = uabd_list[index2]
    assessment_name[index2]  = c.fn + " " + c.ln
@@ -454,7 +454,7 @@ function GetSavedLists() is null
    index--
   elseif c.uabd.stat = "1"
    rc = $dbread(3,c.cabd.staff,s.fn,s.ln)
-   assessment[++index2]       = "CABD"
+   assessment[++index2]       = "CABDFORM"
    assessment_date[index2]  = c.cabd.date
    assessment_ID[index2]    = cabd_list[index2]
    assessment_name[index2]  = c.fn + " " + c.ln
