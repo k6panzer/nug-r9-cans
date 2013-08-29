@@ -7,6 +7,12 @@ start TRR_WRAPPER(client,option)
  c.cans.canstype is x
  cans617_btn     is x
  cans35_btn      is x
+ 
+ if $today < 09/01/2013
+ 	$brmsg("CANS/ANSA Cannot be used before 9/1/2013!",1,"W")
+ 	return
+ endif
+ 
  if $regid !dp
   if client dp
    $regid = client
