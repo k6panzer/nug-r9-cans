@@ -354,7 +354,7 @@ function GetSavedLists() is null
  rc = $getlist(ansa_list[],2,ansa_sl)
  index = 0
  index2 = 0
- do while index++ < $maxarray(cans35_list[])
+ do while index++ < $maxarray(ansa_list[])
   rc = $dbread(2,ansa_list[index],c.fn,c.ln,c.ansa.rec,c.ansa.date,c.ansa.type,c.ansa.rloc,c.ansa.dloc,c.ansa.staff,c.ansa.compd)
   if c.ansa.compd !dp
    {"lib_UACOMMON"}RemUMMonitor(ansa_list[index],"ANSA")
@@ -466,10 +466,10 @@ function GetSavedLists() is null
    assessment_sname[index2] = s.fn + " " + s.ln
   endif
  enddo      
-
+ 
  rc = $sort(assessment_adate[],"A",assessment_date[],"A",assessment_ID[],assessment_name[],assessment[],assessment_type[],assessment_rloc[],assessment_dloc[],assessment_staff[],assessment_sname[])
  ansa_count    = $maxarray(ansa_list[])
- cans35_count = $maxarray(cans35_list[])
+ cans35_count  = $maxarray(cans35_list[])
  cans617_count = $maxarray(cans617_list[])
  uabd_count    = $maxarray(uabd_list[])
  cabd_count    = $maxarray(cabd_list[])
