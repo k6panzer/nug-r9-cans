@@ -1,23 +1,16 @@
 start UM_MONITOR3()
  %global bgcolor, row_color, formtimeout
  %global assessment_date, assessment_ID, assessment_name, assessment, assessment_type, assessment_rloc, assessment_dloc, assessment_adate, assessment_pfile, assessment_opt, view_btn, assessment_staff,assessment_sname
- %global ansa_sl, cans35_sl, cans617_sl, ansa_bsl, cans35_bsl, cans617_bsl, cabd_sl, uabd_sl, cabd_bsl, uabd_bsl
+ %global ansa_sl, cans35_sl, cans617_sl, cabd_sl, uabd_sl
+ %global pending, cans35_count, cans617_count, ansa_count, uabd_count, cabd_count
  bgcolor     is x
  row_color   is x
  formtimeout is i
-
  ansa_sl     is x
  cans35_sl   is x
  cans617_sl  is x
  cabd_sl     is x
  uabd_sl     is x
-
- ansa_bsl    is x
- cans35_bsl  is x
- cans617_bsl is x
- cabd_bsl    is x
- uabd_bsl    is x
-
 '*****************************Change these******************************************************************
  %define table_wbgcolor "width='100%' cellspacing='0' cellpadding='0' bgcolor='" + bgcolor + "'"
  %define table_nobgcolor "width='100%' cellspacing='0' cellpadding='0'"
@@ -28,7 +21,7 @@ start UM_MONITOR3()
  %define crisis_color "bgcolor='Crimson'" 
  %define override_color "bgcolor='YellowGreen'" 
  %define col_color_multi "bgcolor='LightGrey'"
-'How often to refresh the main form
+'How often to refresh the main form in seconds
  formtimeout = 60
 'Pending saved List
  ansa_sl    = "ANSAP"
@@ -36,15 +29,7 @@ start UM_MONITOR3()
  cans617_sl = "CANS617P"
  cabd_sl    = "CABDP"
  uabd_sl    = "UABDP"
- 
-'Ready to batch saved lists
- ansa_bsl    = "ANSAB"
- cans35_bsl  = "CANS35B"
- cans617_bsl = "CANS617B" 
- cabd_bsl    = "CABDB"
- uabd_bsl    = "UABDB"
 '*********************************************************************************************************** 
-
  $looplimit = 0
  assessments[]      is x
  view_btn[]         is x
@@ -62,18 +47,14 @@ start UM_MONITOR3()
  assessment_opt[]   is x
  assessment_staff[] is x
  assessment_sname[] is x
- 
- %global pending, cans35_count, cans617_count, ansa_count, uabd_count, cabd_count
  pending       is i
  cans35_count  is i
  cans617_count is i
  ansa_count    is i
  uabd_count    is i
  cabd_count    is i
-
  index         is i
  rc            is i 
- 
  do while 1 = 1
    GetSavedLists()
    ViewLists()
@@ -363,33 +344,17 @@ function GetSavedLists() is null
  c.cabd.request is x
  c.cabd.staff   is x
  c.cabd.stat    is x
-
-'Option
- new_ansa_opt      is x
- new_cans35_opt    is x
- new_cans617_opt   is x
- new_uabd_opt      is x
- new_cabd_opt      is x
-'Saved list descriptions
- ansa_sl_desc    is x
- cans35_sl_desc  is x
- cans617_sl_desc is x
- uabd_sl_desc    is x
- cabd_sl_desc    is x 
- 
  ansa_sl   = "ANSAP"
  cans35_sl  = "CANS35P"
  cans617_sl = "CANS617P"
  cabd_sl    = "CABDP"
- uabd_sl    = "UABDP"  
-
+ uabd_sl    = "UABDP"
 
  $clear(assessment_adate[],assessment_date[],assessment_ID[],assessment_name[],assessment[],assessment_type[],assessment_rloc[],assessment_dloc[],assessment_staff[],assessment_sname[])  
- rc = $getlist(ansa_list[],2,ansa_sl,,ansa_sl_desc)
+ rc = $getlist(ansa_list[],2,ansa_sl)
  index = 0
  index2 = 0
- ansa_count = $maxarray(ansa_list[])
- do while index++ < ansa_count
+ do while index++ < $maxarray(cans35_list[])
   rc = $dbread(2,ansa_list[index],c.fn,c.ln,c.ansa.rec,c.ansa.date,c.ansa.type,c.ansa.rloc,c.ansa.dloc,c.ansa.staff,c.ansa.compd)
   if c.ansa.compd !dp
    {"lib_UACOMMON"}RemUMMonitor(ansa_list[index],"ANSA")
@@ -410,10 +375,9 @@ function GetSavedLists() is null
   endif
  enddo 
 
- rc = $getlist(cans35_list[],2,cans35_sl,,cans35_sl_desc)
+ rc = $getlist(cans35_list[],2,cans35_sl)
  index = 0
- cans35_count = $maxarray(cans35_list[])
- do while index++ < cans35_count
+ do while index++ < $maxarray(cans35_list[])
   rc = $dbread(2,cans35_list[index],c.fn,c.ln,c.cans.rec,c.cans.date,c.cans.type,c.cans.rloc,c.cans.dloc,c.cans.staff, c.cans.compd)
   if c.cans.compd !dp
    {"lib_UACOMMON"}RemUMMonitor(cans35_list[index],"CANS35")
@@ -434,10 +398,9 @@ function GetSavedLists() is null
   endif
  enddo  
 
- rc = $getlist(cans617_list[],2,cans617_sl,,cans617_sl_desc)
+ rc = $getlist(cans617_list[],2,cans617_sl)
  index = 0
- cans617_count = $maxarray(cans617_list[])
- do while index++ < cans617_count
+ do while index++ < $maxarray(cans617_list[])
   rc = $dbread(2,cans617_list[index],c.fn,c.ln,c.cans.rec,c.cans.date,c.cans.type,c.cans.rloc,c.cans.dloc,c.cans.staff,c.cans.compd)
   if c.cans.compd !dp
    {"lib_UACOMMON"}RemUMMonitor(cans617_list[index],"CANS617")
@@ -458,10 +421,9 @@ function GetSavedLists() is null
   endif
  enddo
 
- rc = $getlist(uabd_list[],2,uabd_sl,,uabd_sl_desc)
+ rc = $getlist(uabd_list[],2,uabd_sl)
  index = 0
- uabd_count = $maxarray(uabd_list[])
- do while index++ < uabd_count
+ do while index++ < $maxarray(uabd_list[])
   rc = $dbread(2,uabd_list[index],c.fn,c.ln,c.uabd,c.uabd.date,c.uabd.pur,c.uabd.rloc,c.uabd.request,c.uabd.staff1,c.uabd.stat)
   if c.uabd.stat = "2"
    {"lib_UACOMMON"}RemUMMonitor(uabd_list[index],"UABDFORM")
@@ -482,10 +444,9 @@ function GetSavedLists() is null
   endif
  enddo     
 
- rc = $getlist(cabd_list[],2,cabd_sl,,uabd_sl_desc)
+ rc = $getlist(cabd_list[],2,cabd_sl)
  index = 0
- cabd_count = $maxarray(cabd_list[])
- do while index++ < cabd_count
+ do while index++ < $maxarray(cabd_list[])
   rc = $dbread(2,cabd_list[index],c.fn,c.ln,c.cabd.rec,c.cabd.date,c.cabd.ass,c.cabd.locr,c.cabd.request,c.cabd.staff, c.cabd.stat)
   if c.uabd.stat = "2"
    {"lib_UACOMMON"}RemUMMonitor(cabd_list[index],"CABDFORM")
@@ -507,7 +468,11 @@ function GetSavedLists() is null
  enddo      
 
  rc = $sort(assessment_adate[],"A",assessment_date[],"A",assessment_ID[],assessment_name[],assessment[],assessment_type[],assessment_rloc[],assessment_dloc[],assessment_staff[],assessment_sname[])
- pending = $maxarray(assessment_id[])
+ ansa_count    = $maxarray(ansa_list[])
+ cans35_count = $maxarray(cans35_list[])
+ cans617_count = $maxarray(cans617_list[])
+ uabd_count    = $maxarray(uabd_list[])
+ cabd_count    = $maxarray(cabd_list[])
  pending = cans35_count + cans617_count + ansa_count + uabd_count + cabd_count 
 end GetSavedLists
 
@@ -570,4 +535,3 @@ function ConfirmMRSVC(cid) is i
   ConfirmMRSVC = 0
  endif
 end ConfirmMRSVC
-
