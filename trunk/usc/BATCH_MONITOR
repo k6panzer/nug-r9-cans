@@ -18,10 +18,6 @@ start BATCH_MONITOR()
  %define table_nobgcolor "width='100%' cellspacing='0' cellpadding='0'"
  %define row_odd "bgcolor='White'"
  %define row_even "bgcolor='CornSilk'"
- %define row_color3 "bgcolor='PaleGreen'"
- %define old_assessment "bgcolor='LightSalmon'" 
- %define crisis_color "bgcolor='Crimson'" 
- %define override_color "bgcolor='YellowGreen'" 
 'How often to refresh the main form in seconds
  formtimeout = 60
 'Pending saved List
@@ -114,15 +110,6 @@ function ViewLists() is null
 	else
 	 row_color = row_even
 	endif
-    if assessment_aloc[index] dp and assessment_aloc[index] != assessment_rloc[index]
-	 row_color = override_color
-	endif
-	if assessment_compd[index] <= $today
-	 row_color = old_assessment
-	endif	
-	if assessment_aloc[index]) = "100"
-     row_color = crisis_color
-    endif
     $row(,row_color)           
      $col()$text(assessment_date[index])
      $col()$text(assessment_id[index]) 
