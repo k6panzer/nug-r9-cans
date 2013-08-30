@@ -1770,7 +1770,7 @@ function CriminalBehavior() is null
  if $find(`cb_errortext`,errors[],,"F") > 0
   bgcolor = "red"
  endif
- $fieldset(q_text_sb,,"datatag")                                                                          
+ $fieldset(q_text_cb,,"datatag")                                                                          
   $table($funcname,,`table_wbgcolor`)
    $row()
     $col("center",,"50%")
