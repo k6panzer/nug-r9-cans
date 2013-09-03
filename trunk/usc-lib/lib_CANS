@@ -1,4 +1,5 @@
 library lib_CANS()
+ %version 1.0.000 09/03/2013
  function Allow_Assesment(clientid,assessments[]) is null
   clientid        is x
   c.cans.rec      is h

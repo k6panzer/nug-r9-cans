@@ -1,4 +1,5 @@
 library lib_ANSA()
+ %version 1.0.000 09/03/2013
 on load do:
  %include inc_SCHIZALG
  %include inc_QIDSALG

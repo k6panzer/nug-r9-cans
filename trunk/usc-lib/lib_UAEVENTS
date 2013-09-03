@@ -1,8 +1,6 @@
-'THIS LIBRARY CONTAINS FUNCTIONS THAT ARE USED BY CALLING SCRIPTS TO ENTER AND VALIDATE 
-'EVENTS.
-
+'THIS LIBRARY CONTAINS FUNCTIONS THAT ARE USED BY CALLING SCRIPTS TO ENTER AND VALIDATE EVENTS.
 library lib_UAEVENTS()
-
+ %version 1.0.000 09/03/2013
 '********************************************************************************************
 'THIS FUNCTION PROMPTS THE USER TO SELECT WHETHER THEY WISH TO CREATE AN EVENT.  IF SO,
 'THE USER MUST ENTER ALL OF THE SERVICE INFORMATION.  IF NOT, NO FURTHER ACTION IS NEEDED.
@@ -10,177 +8,97 @@ library lib_UAEVENTS()
 'AUTHOR: SCOTT B.
 'DATE: 5/17/2004
 '********************************************************************************************
-
-function event(e_ser, e_ru, e_start, e_dur, e_loc, addsal, video) is alpha
-
-'Variables
-e_ser       is alpha     'EVENT SERVICE CODE
-e_ru        is binary    'EVENT RU
-e_start     is time      'EVENT START TIME
-e_dur       is time      'EVENT DURATION
-e_loc       is alpha     'EVENT LOCATION
-addsal      is alpha     'ADD EVENT RADIO BUTTON
-video       is alpha     'VIDEO CONFERENCE CHECKBOX
-continue    is alpha     'CONTINUE TO EXECUTE VARIABLE
-
-$allowupdate(e_ser, e_ru, e_start, e_dur, e_loc, addsal, video)
-
-continue = "Y" 
-do while continue = "Y"
-
+function event(e_ser, e_ru, e_start, e_dur, e_loc, addsal, video) is x
+ e_ser    is x 'EVENT SERVICE CODE
+ e_ru     is b 'EVENT RU
+ e_start  is t 'EVENT START TIME
+ e_dur    is t 'EVENT DURATION
+ e_loc    is x 'EVENT LOCATION
+ addsal   is x 'ADD EVENT RADIO BUTTON
+ video    is x 'VIDEO CONFERENCE CHECKBOX
+ continue is x 'CONTINUE TO EXECUTE VARIABLE
+ $allowupdate(e_ser, e_ru, e_start, e_dur, e_loc, addsal, video)
+ continue = "Y" 
+ do while continue = "Y"
   $submitopt("off", "Submit")
   $cancelopt("off", "Back")
-
   $form()
-
-  $text("{H1}Do You Wish To Add SAL Data?{/H1}")
-  $tag("<CENTER>")
-  $text("Do you wish to add SAL data now?: ")
-  $radio(addsal, "YES", "YES",,,"ADDSAL","ADDSAL")
-  $radio(addsal, "NO", "NO")
-  $tag("</CENTER>")
-
-  $block("ADDSAL","ADDSAL")       
+   $text("{H1}Do You Wish To Add SAL Data?{/H1}")
+   $tag("<CENTER>")
+   $text("Do you wish to add SAL data now?: ")
+   $radio(addsal, "YES", "YES",,,"ADDSAL","ADDSAL")
+   $radio(addsal, "NO", "NO")
+   $tag("</CENTER>")
+   $block("ADDSAL","ADDSAL")       
     $ctag("<div align='center'>")
-    $table("t1", , "border='1' width='90%' cellspacing='0' cellpadding='0'")                     
-    $row(, "align='center' bgcolor='gainsboro'")
-    $col() $text("SAC", "datatag")
-    $col() $text("RU", "datatag")
-    $col() $text("LOCATION", "datatag")
-    $col() $text("START TIME", "datatag")
-    $col() $text("DURATION", "datatag")
-    $col() $text("VIDEO", "datatag")
-  
-    $row(, "align='center' bgcolor='gainsboro'")
-    $col() $text(e_ser)
-    $col() $textbox(e_ru,"RUA",3,3,"Y")
-    $col() $textbox(e_loc,"DCV``13",1,2,"Y")
-    $col() $textbox(e_start,"TIME",5,3,"Y")
-    $col() $textbox(e_dur,"DUR",5,2,"Y")
-    $col() $checkbox(video, "","Y")
-
-    $endtable("t1")
+     $table("t1", , "border='1' width='90%' cellspacing='0' cellpadding='0'")                     
+      $row(,"align='center' bgcolor='gainsboro'")
+       $col()$text("SAC", "datatag")
+       $col()$text("RU", "datatag")
+       $col()$text("LOCATION", "datatag")
+       $col()$text("START TIME", "datatag")
+       $col()$text("DURATION", "datatag")
+       $col()$text("VIDEO", "datatag")  
+      $row(,"align='center' bgcolor='gainsboro'")
+       $col()$text(e_ser)
+       $col()$textbox(e_ru,"RUA",3,3,"Y")
+       $col()$textbox(e_loc,"DCV``13",1,2,"Y")
+       $col()$textbox(e_start,"TIME",5,3,"Y")
+       $col()$textbox(e_dur,"DUR",5,2,"Y")
+       $col()$checkbox(video, "","Y")
+     $endtable("t1")
     $ctag("</div>")
-  $endblock("ADDSAL","ADDSAL")
+   $endblock("ADDSAL","ADDSAL")
   $sendform()
-
-  if e_dur > 4:00 and addsal = "YES" then 
-    $brmsg("You entered a duration greater than 4 hours!", 1, "W", "ERROR")
-  elseif e_start < 6:00 and addsal = "YES" then
-    $brmsg("You Entered A Time Prior To 6a.m. If correct ignore this message.", 1, "W", "Warning")
-	continue = "N"
+  if e_dur > 4:00 and addsal = "YES"
+   $brmsg("You entered a duration greater than 4 hours!", 1, "W", "ERROR")
+  elseif e_start < 6:00 and addsal = "YES"
+   $brmsg("You Entered A Time Prior To 6a.m. If correct ignore this message.", 1, "W", "Warning")
+   continue = "N"
   else
-    continue = "N"
+   continue = "N"
   endif
-
-enddo
-
+ enddo
 end event
-
-'********************************************************************************************
-'THIS FUNCTION FORCES THE USER TO ENTER SERVICE DATA. THIS FUNCTION DOES NOT ACTUALLY CREATE THE EVENT.
-'AUTHOR: SCOTT B.
-'DATE: 5/09/2008
-'********************************************************************************************
-
-function enterevent(e_ser, e_ru, e_start, e_dur, respcrisis, video) is alpha
-
-'Variables
-e_ser       is binary    'EVENT SERVICE CODE
-e_ru        is binary    'EVENT RU
-e_start     is time      'EVENT START TIME
-e_dur       is time      'EVENT DURATION
-respcrisis  is alpha     'RESPONSE TO CRISIS
-video       is alpha     'VIDEO CONFERENCE CHECKBOX
-
-$allowupdate(e_ser, e_ru, e_start, e_dur, respcrisis, video)
-
-$submitopt("off", "NEXT")
-$cancelopt("off", "")
-$form()
-$text("{H1}Add Service Activity Data{/H1}")
-
-$ctag("<div align='center'>")
-$table("t1", , "border='1' width='90%' cellspacing='0' cellpadding='0'")
-$row(, "align='center' bgcolor='gainsboro'")
-$col() $text("SAC", "datatag")
-$col() $text("RU", "datatag")
-$col() $text("LOC", "datatag")
-$col() $text("START TIME", "datatag")
-$col() $text("DURATION", "datatag")
-$col() $text("RECIP", "datatag")
-$col() $text("ATT", "datatag")  
-$col() $text("VIDEO?", "datatag")
-$col() $text("CRISIS?", "datatag")
-  
-$row(, "align='center' bgcolor='gainsboro'")
-$col() $text(e_ser)
-$col() $textbox(e_ru,"RUA",3,3,"Y")
-$col() $text("1")
-$col() $textbox(e_start,"TIME",5,3,"Y")
-$col() $textbox(e_dur,"DUR",5,2,"Y")
-$col() $text("1")
-$col() $text("1")
-$col() $checkbox(video, "Yes", "Y")
-$col() $radio(respcrisis, "Yes", "Y") $radio(respcrisis, "No", "N")
-$endtable("t1")
-$ctag("</div>")
-$sendform()
-
-if e_dur > 3:00 then 
-  $brmsg("You entered a duration > 3 hours. Use back button on next screen to change", 1, "W", "WARNING")
-elseif e_start < 6:00 then
-  $brmsg("You Entered A Time Prior To 6a.m. Use back button on next screen to change.", 1, "W", "WARNING")
-endif
-
-end enterevent
 
 '********************************************************************************************
 'THIS FUNCTION WILL PRINT SERVICE DATA ON A BUI FORM IN TABLE FORMAT
 'AUTHOR: SCOTT B.
 'DATE: 5/17/2004
 '********************************************************************************************
-
-function report(e_ser, e_ru, e_start, e_dur, e_loc, video) is alpha
-
-'Variables
-e_ser       is binary    'EVENT SERVICE CODE
-e_ru        is binary    'EVENT RU
-e_start     is time      'EVENT START TIME
-e_dur       is time      'EVENT DURATION
-e_loc       is alpha     'EVENT LOCATION
-video       is alpha     'VIDEO CONFERENCE VARIABLE
-endtime     is time      'SERVICE ENDTIME
-
-endtime = e_start + e_dur
-$table("t1", , "border='1' cellspacing='0' width='100%'")
-
-$row(, "align='center' bgcolor='#EEEEEE'")
-$col() $text("SAC")
-$col() $text("RU")
-$col() $text("Loc")
-$col() $text("Start")
-$col() $text("Cl Dur")
-$col() $text("Staff Dur")
-$col() $text("Endtime")
-$col() $text("Video")
-  
-$row(, "align='center' bgcolor='#EEEEEE'")
-$col() $text(e_ser)
-$col() $text(e_ru)
-$col() $text(e_loc)
-$col() $text(e_start)
-$col() $text(`$format(e_dur, "HH.MM")`)
-$col() $text(`$format(e_dur, "HH.MM")`)
-$col() $text(endtime)
-$col() if video dp
-        $text(video)
-	   else
-	    $ctag("&nbsp;")
-	   endif	
-
-$endtable("t1")
-
+function report(e_ser, e_ru, e_start, e_dur, e_loc, video) is x
+ e_ser   is b 'EVENT SERVICE CODE
+ e_ru    is b 'EVENT RU
+ e_start is t 'EVENT START TIME
+ e_dur   is t 'EVENT DURATION
+ e_loc   is x 'EVENT LOCATION
+ video   is x 'VIDEO CONFERENCE VARIABLE
+ endtime is t 'SERVICE ENDTIME
+ endtime = e_start + e_dur
+ $table("t1",,"border='1' cellspacing='0' width='100%'")
+  $row(,"align='center' bgcolor='#EEEEEE'")
+   $col()$text("SAC")
+   $col()$text("RU")
+   $col()$text("Loc")
+   $col()$text("Start")
+   $col()$text("Cl Dur")
+   $col()$text("Staff Dur")
+   $col()$text("Endtime")
+   $col()$text("Video")  
+  $row(,"align='center' bgcolor='#EEEEEE'")
+   $col()$text(e_ser)
+   $col()$text(e_ru)
+   $col()$text(e_loc)
+   $col()$text(e_start)
+   $col()$text(`$format(e_dur, "HH.MM")`)
+   $col()$text(`$format(e_dur, "HH.MM")`)
+   $col()$text(endtime)
+   $col()if video dp
+          $text(video)
+	     else
+	      $ctag("&nbsp;")
+	     endif	
+ $endtable("t1")
 end report
 
 '********************************************************************************************
@@ -190,536 +108,46 @@ end report
 'AUTHOR: SCOTT B.
 'DATE: 5/17/2004
 '********************************************************************************************
-
-function overlap(err-msg, e.ser, e.start, e.dur, e.date, e.staff) is alpha
-
-'Variables
-e.ser       is binary    'EVENT SERVICE DST
-e.staff     is alpha     'EVENT STAFF ID DST
-e.date      is date      'EVENT DATE DST
-e.start     is time      'EVENT START TIME DST
-e.dur       is time      'EVENT DURATION DST
-rc          is binary    'RETURN CODE
-e_date      is date      'DATE COMPARISON VARIABLE
-e_start     is time      'START TIME COMPARISON VARIABLE
-e_start2    is time      'START TIME COMPARISON VARIABLE
-e_end       is time      'END TIME COMPARISON VARIABLE
-e_end2      is time      'END TIME COMPARISON VARIABLE
-e_dur       is time      'DURATION COMPARISON VARIABLE
-e_dur2      is time      'DURATION COMPARISON VARIABLE
-x_e_end     is t
-err-msg     is alpha     'ERROR MESSAGE VARIABLE
-
-$allowupdate(err-msg)
-$clear(err-msg)
-
-e_start = e.start
-e_dur = e.dur
-e_end = e.start + e_dur
-e_date = e.date
-
-
-rc = $startevents(e.staff,,e_date)
-rc = $readnextevent(e.date, e.start, e.dur, e.ser)
-
-do while e.date = e_date and rc = 0
-  if e.ser < 620 or e.ser > 670 and (e.ser != 1500 and e.ser != 1501) then
+function overlap(err-msg, e.ser, e.start, e.dur, e.date, e.staff) is x
+ e.ser    is b 'EVENT SERVICE DST
+ e.staff  is x 'EVENT STAFF ID DST
+ e.date   is d 'EVENT DATE DST
+ e.start  is t 'EVENT START TIME DST
+ e.dur    is t 'EVENT DURATION DST
+ rc       is b 'RETURN CODE
+ e_date   is d 'DATE COMPARISON VARIABLE
+ e_start  is t 'START TIME COMPARISON VARIABLE
+ e_start2 is t 'START TIME COMPARISON VARIABLE
+ e_end    is t 'END TIME COMPARISON VARIABLE
+ e_end2   is t 'END TIME COMPARISON VARIABLE
+ e_dur    is t 'DURATION COMPARISON VARIABLE
+ e_dur2   is t 'DURATION COMPARISON VARIABLE
+ x_e_end  is t
+ err-msg  is x 'ERROR MESSAGE VARIABLE
+ $allowupdate(err-msg)
+ $clear(err-msg)
+ e_start = e.start
+ e_dur = e.dur
+ e_end = e.start + e_dur
+ e_date = e.date
+ rc = $startevents(e.staff,,e_date)
+ rc = $readnextevent(e.date, e.start, e.dur, e.ser)
+ do while e.date = e_date and rc = 0
+  if e.ser < 620 or e.ser > 670 and (e.ser != 1500 and e.ser != 1501)
    x_e_end = e.start + e.dur
-    if e.start >= e_start and e.start < e_end and e.dur > 0 and
-    e_dur > 0 then
-      err-msg = "ERROR - THIS EVENT OVERLAPS AN EXISTING EVENT!"
-    endif
-    e_start2 = e.start
-    e_dur2 = e.dur
-    e_end2 = e.start + e_dur2
-    if e_start >= e_start2 and e_start < e_end2 and e_dur2 > 0 and e_dur > 0 then
-      err-msg = "ERROR - THIS EVENT OVERLAPS AN EXISTING EVENT!"
-    endif	
-'    if e_start <= e.start and e_end >= x_e_end
-'      err-msg = "ERROR - THIS EVENT OVERLAPS AN EXISTING EVENT!"
-'    endif
+   if e.start >= e_start and e.start < e_end and e.dur > 0 and e_dur > 0
+    err-msg = "ERROR - THIS EVENT OVERLAPS AN EXISTING EVENT!"
+   endif
+   e_start2 = e.start
+   e_dur2 = e.dur
+   e_end2 = e.start + e_dur2
+   if e_start >= e_start2 and e_start < e_end2 and e_dur2 > 0 and e_dur > 0
+    err-msg = "ERROR - THIS EVENT OVERLAPS AN EXISTING EVENT!"
+   endif	
+'  if e_start <= e.start and e_end >= x_e_end
+'   err-msg = "ERROR - THIS EVENT OVERLAPS AN EXISTING EVENT!"
+'  endif
   endif
   rc = $readnextevent(e.date, e.start, e.ser, e.dur)
-enddo
-
+ enddo
 end overlap
-
-'********************************************************************************************
-'**FUNCTION EDITED ON 12/11/2007 TO JUST RETURN THE SP AT THE DATE OF SERVICE TO THE CALLING SCRIPT
-'AUTHOR: SCOTT B.
-'DATE: 2/24/2006
-
-'Modified 11/3/2011 - RHW
-'
-'Changes - Function will also return the status of certain addons (skills ind & group, 
-'					 Supported employment) for adults and (Group and Family Counseling) for Children.
-'********************************************************************************************
-
-function svccheck(Client, sdate, sp, a_add_stg, a_add_sti, a_add_se, c_addfca, c_addgca) is alpha
-
-'Variables
-Client       is alpha     'CLIENT ID
-sdate        is date      'EVENT DATE
-c.bd         is date      'CLIENT BIRD DATE DST
-c.uabd       is header    'ADULT UA RECORD HEADER
-c.uabd.date1 is date      'ADULT UA DATE
-c.uabd.extd  is alpha     'ADULT UA EXTENDED REVIEW
-c.uabd.annual is x
-c.uabd.pur   is alpha     'ADULT UA TYPE
-c.uabd.disdt is date      'ADULT UA DISCHARGE DATE
-c.uabd.aloc  is alpha     'ADULT UA SERVICE PACKAGE
-c.uabd.date  is date      'TRAG Date
-c.uabd.addonstg is alpha   'Adult UA Skills Training Group Add on
-c.uabd.addonse  is alpha   'Adult UA Skills Supported Employment Add on
-c.uabd.addonsti is alpha   'Adult UA Skills Training Individual Add on
-
-a_add_stg				is alpha	'Var to hold YN Skills Training Group
-a_add_sti				is alpha	'Var to hold YN Skills Training Indiv
-a_add_se				is alpha	'Var to hold YN Skills Supported Employment
-
-c.cabd.rec   is header    'CHILD UA RECORD HEADER
-c.cabd.date3 is date      'CHILD UA DATE
-c.cabd.extd  is alpha     'CHILD UA EXTENDED REVIEW
-c.cabd.ass   is alpha     'CHILD UA TYPE
-c.cabd.disdt is date      'CHILD UA DISCHARGE DATE
-c.cabd.aloc  is alpha     'CHILD UA SERVICE PACKAGE
-c.cabd.date  is date      'TRAG Date
-c.cabd.addonfca is alpha  'Child UA Addon Family Counseling
-c.cabd.addongca is alpha  'Child UA Addon Group Counseling
-
-c_addfca				is alpha	'Var to hold YN Family Counseling
-c_addgca				is alpha	'Var to hold YN Group Counseling
-
-sp           is alpha     'SERVICE PACKATE ON DATE OF SERVICE
-rc           is binary    'RETURN CODE
-age          is binary    'CLIENT AGE
-overdue      is date      'OVERDUE DATE
-
-'Procedure Section
-
-'COMPUTE CLIENT AGE
-rc = $dbread(02, Client, c.bd)
-age = {"lib_COMMON"}ClientAge(client, sdate)
-
-'READ EITHER ADULT UA OR CHILD UA BASED ON AGE ON DATE OF SERVICE
-if age >= 18 then
-  rc = $dbread(02, Client, c.uabd, c.uabd.date1, c.uabd.pur, c.uabd.extd, c.uabd.disdt, c.uabd.aloc, c.uabd.date, c.uabd.annual, 
-                           c.uabd.addonstg, c.uabd.addonse, c.uabd.addonsti)
-elseif age < 18 then
-  rc = $dbread(02, Client, c.cabd.rec, c.cabd.date3, c.cabd.ass, c.cabd.extd, c.cabd.disdt, c.cabd.aloc, c.cabd.date,
-                           c.cabd.addonfca, c.cabd.addongca)
-else
-  return
-endif
-
-if age >= 18 then
-'IF THE SERVICE DATE IS BEFORE THE MOST RECENT AUTHORIZATION THEN READ PREVIOUS ASSESSMENT
-  do while (rc < 2 and c.uabd.pur != "E" and sdate < c.uabd.date1) or (c.uabd.pur = "D") or (c.uabd.pur = "E" and sdate < c.uabd.date)
-    $clear(c.uabd.addonstg, c.uabd.addonse, c.uabd.addonsti)
-    rc = $dbreadnextdst(02, Client, c.uabd, c.uabd.date1, c.uabd.pur, c.uabd.extd, c.uabd.disdt, c.uabd.aloc, c.uabd.date, c.uabd.annual,
-                                    c.uabd.addonstg, c.uabd.addonse, c.uabd.addonsti)
-  enddo
-  if (c.uabd.pur = "I" or c.uabd.pur = "U") and (c.uabd.extd = "Y") then
-    overdue = c.uabd.date1 + 183
-  elseif (c.uabd.pur = "I" or c.uabd.pur = "U") and (c.uabd.extd != "Y" and c.uabd.aloc != "5" and c.uabd.annual != "Y") then 
-    overdue = c.uabd.date1 + 93
-  elseif c.uabd.pur = "D" and c.uabd.disdt dp then
-    overdue = c.uabd.disdt + 1
-  elseif c.uabd.aloc = "5" then
-    overdue = c.uabd.date1 + 93
-  elseif c.uabd.aloc = "0"  and c.uabd.pur = "E" then
-    overdue = c.uabd.date + 7
-  elseif c.uabd.pur !dp then
-    overdue = sdate - 1
-  elseif c.uabd.aloc = "1" and c.uabd.annual = "Y"
-    overdue = c.uabd.date + 368
-  endif
-  sp = c.uabd.aloc
-  if overdue <= sdate and overdue dp then
-    sp = "overdue"
-  endif
-endif
-
-if age < 18 then
-'IF THE SERVICE DATE IS BEFORE THE MOST RECENT AUTHORIZATION THEN READ PREVIOUS ASSESSMENT
-  do while (rc < 2 and c.cabd.ass != "E" and sdate < c.cabd.date3) or (c.cabd.ass = "D") or (c.cabd.ass = "E" and sdate < c.cabd.date)
-    $clear(c.cabd.addonfca, c.cabd.addongca)
-    rc = $dbreadnextdst(02, Client, c.cabd.rec, c.cabd.date3, c.cabd.ass, c.cabd.extd, c.cabd.disdt, c.cabd.aloc, c.cabd.date, 
-                                    c.cabd.addonfca, c.cabd.addongca)
-  enddo
-  if (c.cabd.ass = "I" or c.cabd.ass = "U") and (c.cabd.extd = "Y") then
-    overdue = c.cabd.date3 + 183
-  elseif (c.cabd.ass = "I" or c.cabd.ass = "U") and (c.cabd.extd != "Y" and c.cabd.aloc != "5") then
-    overdue = c.cabd.date3 + 93
-  elseif c.cabd.ass = "D" and c.cabd.disdt dp then
-    overdue = c.cabd.disdt + 1
-  elseif c.cabd.aloc = "5" then
-    overdue = c.cabd.date3 + 93
-  elseif c.cabd.aloc = "0"  and c.cabd.ass = "E" then
-    overdue = c.cabd.date + 7
-  elseif c.cabd.ass !dp then
-    overdue = sdate - 1
-  endif
-  sp = c.cabd.aloc
-  if overdue <= sdate and overdue dp then
-    sp = "overdue"
-  endif
-endif
-
-a_add_stg	= c.uabd.addonstg
-a_add_sti	= c.uabd.addonsti
-a_add_se	= c.uabd.addonse 
-c_addfca	= c.cabd.addonfca
-c_addgca	= c.cabd.addongca
-
-$allowupdate(sp, a_add_stg, a_add_sti, a_add_se, c_addfca, c_addgca)
-
-end svccheck
-
-'********************************************************************************************
-'THIS FUNCTION IS USED WITH NOTE ENTRY AND WRITES A TEMPORARY FILE CONTAINING THE DETAILS
-'OF AN EVENT TO BE ACCESSED LATER TO RECOMPUTE THE EVENT FEE.
-'AUTHOR: SCOTT B.
-'DATE: 2/24/2006
-'********************************************************************************************
-
-function writefile(Client, notestaff, sdate, lsru, stime, sdur, sac) is alpha
-
-'Variables
-Client       is alpha     'CLIENT ID
-notestaff    is alpha     'EVENT SERVICE STAFF
-sdate        is date      'EVENT SERVICE DATE
-stime        is time      'EVENT START TIME
-lsru         is binary    'EVENT SERVICE RU
-sac          is binary    'EVENT SERVICE CODE
-cldur        is time      'EVENT CLIENT DURATION
-sdur         is time      'EVENT STAFF DURATION
-sac_x        is alpha     'ALPHA SERVICE CODE
-sdate_x      is alpha     'ALPHA DATE
-lsru_x       is alpha     'ALPHA RU
-stime_x      is alpha     'ALPHA START TIME
-rc           is binary    'RETURN CODE
-directory    is alpha     'DIRECTORY TO CREATE THE FILE IN
-string       is alpha     'FILE LINE STRING
-
-'PROCEDURE SECTION
-
-'SET UNIX DIRECTORY
-directory = "/c0/EXPORT/HFCNOTES/" + notestaff
-'SET ALPHA VARIABLE VALUES
-sac_x = sac
-sdate_x = sdate
-lsru_x = lsru
-stime_x = stime
-'CONCATENATE STRING TO BE WRITTEN
-string = notestaff + "," + Client + "," + sac_x + "," + sdate_x + "," + lsru_x + "," + stime_x
-'PUT THE NEW FILE IN THE DIRECTORY NAMING IT BY STAFF ID
-rc = $putfile(string, directory)
-
-end writefile
-
-'02/27/2008 No longer needed
-function CrisisAddon(Client,sdate) is null
-' rc              is i
- Client          is x
- sdate           is d
-' c.fn            is x
-' c.ln            is x
-' c.crisis.rec    is h 
-' c.crisis.eff    is d  'Effective Date
-' c.crisis.lapse  is d  'Lapse Date
-' c.crisis.staff  is x  'Addon staff 
-' email_addr[]    is x
-' email_sub       is x
-' email_body[]    is x
-' logfile         is x
-' email_addr[1] = "um@helenfarabee.org"
-' email_addr[2] = "lovec@helenfarabee.org"
-' logfile = "/c0/EXPORT/LOGS/crisis_addon_notification.txt"
-' rc = $dbread(02, Client, c.fn, c.ln)
-' $dblock()
-' rc = $dbread(02, Client, c.crisis.rec, c.crisis.lapse, c.crisis.staff)
-' if (c.crisis.lapse dp and c.crisis.lapse <= sdate) or c.crisis.lapse !dp
-'  email_sub  = "Adult Crisis Services Addon / " + Client + "   " + c.fn + " " + c.ln
-'  email_body[1] = "Case#: " + Client
-'  email_body[2] = "Name:  " + c.fn + " " + c.ln
-'  c.crisis.rec[effd] = $today
-'  c.crisis.staff = $operstaffid
-'  rc = $dbadddst(02,Client,c.crisis.rec,c.crisis.staff)
-'  rc = $email(email_addr[],email_sub,email_body[])
-'  rc = $putfile(`Client + "|" + sdate + "|" + c.crisis.lapse + "|" + c.crisis.staff`,logfile)
-' else
-'  $dbunlock()
-' endif
-end CrisisAddon
-
-'********************************************************************************************
-'THIS FUNCTION WILL CHECK TO SEE IF THE RU TYPE IS DIRECT
-'AUTHOR: SCOTT B.
-'DATE: 01/09/2008
-'********************************************************************************************
-
-function rucheck(ru, rutype) is alpha
-
-'Variables
-ru         is binary
-rutype     is alpha
-
-'Procedure Section
-$allowupdate(rutype)
-rutype = $ru(ru, "T")
-
-end rucheck
-
-'********************************************************************************************
-'THIS FUNCTION READS PLANNED EVENTS FOR THE CLIENT AND STAFF FOR THE DATE OF SERVICE AND 
-'ALLOWS THE USER TO SELECT WHICH PLANNED EVENTS THEY WANT TO RECONCILE.
-'AUTHOR: SCOTT B.
-'DATE: 03/06/2008
-'********************************************************************************************
-
-function pecheck(CID, date, pe_key[]) is alpha
-
-CID             is alpha    'CLIENT ID
-pe_staff[]      is alpha    'PLANNED EVENT STAFF ARRAY
-pe_date[]       is date     'PLANNED EVENT DATE ARRAY
-pe_time[]       is time     'PLANNED EVENT TIME ARRAY
-pe_client[]     is alpha    'PLANNED EVENT CLIENT ARRAY
-pe_service[]    is binary   'PLANNED EVENT SERVICE ARRAY
-pe_desc[]       is alpha    'PLANNED EVENT DESCRIPTION ARRAY
-pe_ru[]         is binary   'PLANNED EVENT RU ARRAY
-pe_duration[]   is time     'PLANNED EVENT DURATION ARRAY
-pe_key[]        is alpha    'PLANNED EVENT KEY ARRAY
-pe_chk[]        is alpha    'PLANNED EVENT CHECKBOX
-unplanned_chk   is alpha    'UNPLANNED EVENT CHECKBOX
-date            is date     'PLANNED EVENT DATE
-counter         is numeric  'ARRAY COUNTER
-rc              is binary   'RETURN CODE
-
-$allowupdate(pe_key[])
-
-$clear(pe_staff[], pe_date[], pe_time[], pe_client[], pe_service[], pe_desc[], pe_ru[], pe_duration[], pe_key[], pe_chk[],
-       unplanned_chk)
-counter = 1
-rc = $pertoarray($operstaffid,CID,date,date,pe_staff[],,,pe_date[],pe_time[],pe_client[],,,pe_service[],pe_desc[],pe_ru[],pe_duration[],,,,,pe_key[])
-
-if pe_date[1] dp
-  $submitopt("off", "NEXT")
-  $cancelopt("off", "")
-  $form()
-   $text("{H1}RECONCILE PLANNED EVENT{/H1}")
-   $text("* Your related planned events for today are listed below.  Selecting any of the planned events below will reconcile those ")
-   $text("planned events with the services you are currently entering.  If the services that you are currently entering do not correspond ")
-   $text("to any of the planned events listed below, then select Unplanned Event and click Next.")
-   $br(3)
-   $table("t1", , "border='1' cellspacing='0' cellpadding='0' width='100%'")
-   $row(, "align='center' bgcolor='gainsboro'")
-   $col()$text("Select", "datatag")
-   $col()$text("Staff", "datatag")
-   $col()$text("Client", "datatag")
-   $col()$text("Date", "datatag")
-   $col()$text("Time", "datatag")
-   $col()$text("SAC", "datatag")
-   $col()$text("Desc", "datatag")
-   $col()$text("RU", "datatag")
-   $col()$text("Duration", "datatag")   
-   do while counter <= $maxarray(pe_date[])
-     $row(, "align='center' bgcolor='gainsboro'")
-     pe_chk[counter] = "Y"
-	 $col()$checkbox(pe_chk[counter], " ", "Y")
-	 $col()$text(pe_staff[counter])
-     $col()$text(pe_client[counter])
-     $col()$text(pe_date[counter])
-     $col()$text(pe_time[counter])
-     $col()$text(pe_service[counter])
-     $col()$text(pe_desc[counter])
-     $col()$text(pe_ru[counter])
-	 $col()$text(`$format(pe_duration[counter], "HH.MM")`)
-     counter = counter + 1
-   enddo   
-   $endtable("t1")
-   $br(2)
-   $checkbox(unplanned_chk, "Unplanned Event", "Y") 
-  $sendform()  
-
-  if unplanned_chk != "Y" then
-    counter = 1
-	do while counter <= $maxarray(pe_key[])
-      if pe_chk[counter] != "Y" then
-        rc = $arrRemove(pe_key[counter],,pe_chk[])
-      else
-		counter = counter + 1
-      endif
-	enddo
-  else
-    $clear(pe_key[])
-  endif
-endif
-
-end pecheck 
-
-function PNE_ReadSQL(sac,sp,age,valid,errormsg) is null
-
-'Created By:  R. Whaite
-'Created Date:  11/2/2011
-'
-'This function will read a sql table and determine if the current SAC, SP and AGE that are passed to this
-'function are all appropriate.  
-
-starttm is t
-endtm		is t
-
-sac 				is i		'sac = 2360
-data  			is x
-sp					is x		'sp	= 1
-age					is i		'age = 47
-valid				is x
-errormsg		is x
-
-spreq				is x
-sps					is x
-sp_allow[]	is x
-A_sp    		is x
-C_sp    		is x
-pne_age 		is x
-found				 is i
-
-   rc					 is i
-   dsn         is x
-   sql				 is x
-   db					 is i
-   i					 is i
-
-   o_sql       is x
-   o_user      is x
-   o_pass      is x
-   o_ds        is x
-   o_db        is x
-
-	 o_user	= "sqltransfer"
-	 o_pass = "sqltransfer"
-	 o_ds   = "svrsql"
-	 o_db		= "CMHC_Export"
-	 
-	 dsn = o_user + ":" + o_pass + ":" + o_ds + ":" + o_db
-	 
-	 rc = $loadlib(db,"LIB-freetds")
-	 
-	 db:setDSN(dsn)
-	 
-   sql = `"SELECT  pne_spreq, pne_A_sp, pne_C_sp, pne_age FROM dbo.t_pne WHERE (pne_sac = " + $castx(sac) + ") "`
-   
-
-'$trace("on.path", "/c4/EXPORT2/trace/PNE_Read.txt")
-
-   rc = db:q(sql,data)
-	 
-	 $parsem(data,1,"|",spreq, A_sp, C_sp, pne_age)
-	 
-'Determine if the SAC requires Auhorization and if it does, determine whch SQL field to parse into an array
-'of allowed SP values.
-	 if spreq !dp or spreq = "N" or spreq = "n"
-	 	$clear(sps)
-	 elseif age >= pne_age
-	 	$parsem(A_sp,1,",",sp_allow[])
-	 elseif age < pne_age
-	 	$parsem(C_sp,1,",",sp_allow[])
-	 endif
-
-		  i = 0
-
-'			do while i++ < $maxarray(sp_allow[])
-'				sp_allow[i] = sp_allow[i]
-'			enddo
-	
-	if spreq = "Y"
-
-		 found = $find(sp,sp_allow[],1)
-	
-		$clear(valid,errormsg)
-
-		if found > 0
-			valid = "Y"
-			$allowupdate(valid)
-		else
-			valid = "N"	
-			errormsg = "Service not authorized for this consumer. Use code 998. LN: "
-			$allowupdate(valid,errormsg)
-		endif
-	 endif
-
-end PNE_ReadSQL 
-
-function PNE_ReadDB(sac,sp,age,cldur,valid,errormsg) is null
-
-'Created By:  R. Whaite
-'Created Date:  11/2/2011
-'
-'This function will read a sql table and determine if the current SAC, SP and AGE that are passed to this
-'function are all appropriate.  
-
-sac 				is i		'sac = 2360
-sp					is x		'sp	= 1
-age					is i		'age = 47
-cldur				is t
-valid				is x
-errormsg		is x
-
-sp_allow[]	is x
-found				 is i
-sps					is x
-
-pne_id			is x
-pne_spreq		is x
-pne_a_sp		is x
-pne_c_sp		is x
-pne_age			is i
-pne_min_dur is t
-
-rc					is i
-	 
-	 rc = $dbread(67, $castx(sac), pne_spreq, pne_a_sp, pne_c_sp, pne_age, pne_min_dur)
-	 
-'Determine if the SAC requires Auhorization and if it does, determine whch SQL field to parse into an array
-'of allowed SP values.
-	 if pne_spreq !dp or pne_spreq = "N" or pne_spreq = "n"
-	 	$clear(sp_allow[])
-	 elseif age >= pne_age
-	 	sps = pne_A_sp
-	 	$parsem(pne_A_sp,1,",",sp_allow[])
-	 elseif age < pne_age
-	 	sps = pne_C_sp
-	 	$parsem(pne_C_sp,1,",",sp_allow[])
-	 endif
-
-	
-	if pne_spreq = "Y"
-
-		 	found = $find(sp,sp_allow[],1)
-			$clear(valid,errormsg)
-
-		if found > 0
-			valid = "Y"
-			if pne_min_dur dp
-				if cldur < pne_min_dur
-					valid = "N"
-					errormsg = `"The minimum duration for SAC " + $castx(sac) + " is " + $castx(pne_min_dur) + " please revise or use code 998.  ln "`
-				else
-					valid = "Y"
-				endif
-			else
-				valid = "Y"
-			endif
-		else
-			valid = "N"	
-			errormsg = `"SAC " + $castx(sac) + " is only valid with the following service packages: " + sps + " Please correct or use code 998. LN: "`
-		endif
-	endif
-
-$allowupdate(valid,errormsg)
-
-
-end PNE_ReadDB
-
-
-
