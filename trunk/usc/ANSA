@@ -1,5 +1,5 @@
 start ANSA(parmfile,option,client,retcode)
- %version 1.0.000 09/03/2013
+ %version 1.0.001 09/03/2013
  %global test
  test is x
  $looplimit = 0
@@ -1525,19 +1525,19 @@ function Page4Rpt() is null
  elseif c.ansa.emptype = "4"
   c_ansa_emptype = "Not In The Labor Force"
  endif
- if c_ansa_labor =  "1"
+ if c.ansa.labor =  "1"
   c_ansa_labor = "Receiving SSI/SSDI and can't work"
  elseif c_ansa_labor = "2"
   c_ansa_labor = "Receiving SSI/SSDI and worries that work will effect benefit"
- elseif c_ansa_labor = "3"
+ elseif c.ansa.labor = "3"
   c_ansa_labor = "Does not want or need work"
- elseif c_ansa_labor = "4"
+ elseif c.ansa.labor = "4"
   c_ansa_labor = "Unable to find or keep a job"
- elseif c_ansa_labor = "5"
+ elseif c.ansa.labor = "5"
   c_ansa_labor = "Stay-at-home parent, homemaker, or full-time student"
- elseif c_ansa_labor = "6"
+ elseif c.ansa.labor = "6"
   c_ansa_labor = "Over 65 or retired"
- elseif c_ansa_labor = "7"
+ elseif c.ansa.labor = "7"
   c_ansa_labor = "Other"
  endif
  $table($funcname,,"width='100%' cellspacing='0' cellpadding='2' bgcolor='White'  style='border-style: solid; border-width: 1px'")
