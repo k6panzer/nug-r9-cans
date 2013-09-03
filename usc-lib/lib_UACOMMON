@@ -324,7 +324,10 @@ function changetitle(scriptid) is null
  XTemp       is x 
  c.fn        is x
  c.ln        is x
- center_name = "Helen Farabee Centers"
+' center_name = "Helen Farabee Centers"
+ if center_name !dp
+ center_name = $mscname
+ endif 
  (void)$dbread(2,$regid,c.fn,c.ln)
  select scriptid
   case "ANSA"    newtitle = center_name + " ID:" + $regid + "Name:" + c.ln + ", " + c.fn + "Form: ANSA"
