@@ -3000,9 +3000,11 @@ function Validate2() is i
   endif 
  endif
 
- if ($num(c.ansa.r.suicid) = "2" and (c.ansa.sr.idea != "3" and $num(c.ansa.sr.intent) < 2 and $num(c.ansa.sr.plan) < 2 and $num(c.ansa.sr.hist) < 2)) and c.ansa.b.cog != "3"
-  (void)$arrpush(errors[],crisis2_errortxt)
- endif 
+ if c.ansa.type = "11"
+  if ($num(c.ansa.r.suicid) = "2" and (c.ansa.sr.idea != "3" and $num(c.ansa.sr.intent) < 2 and $num(c.ansa.sr.plan) < 2 and $num(c.ansa.sr.hist) < 2)) and c.ansa.b.cog != "3"
+   (void)$arrpush(errors[],crisis2_errortxt)
+  endif 
+ endif
 
  if errors[1] dp
   Validate2 = 1
