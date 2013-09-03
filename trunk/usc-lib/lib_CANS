@@ -92,19 +92,15 @@ $allowupdate(c.cans.type,c.cans.staff,c.cans.ver,c.cans.date,c.cans.age,c.cans.a
    $setvarname(c.cans.type,     "C.CABD.ASS")
    $setvarname(c.cans.alocdate, "C.CABD.DATE3")
    rc = $dbread(02,clientid,c.cans.rec,c.cans.type,c.cans.staff,
-                           'c.cans.ver,
                            c.cans.date,
-                           'c.cans.age,c.cans.aloc,
+						   c.cans.aloc,
                            c.cans.rloc,
-                           'c.cans.dloc,
                            c.cans.compd,c.cans.alocdate)
      do until c.cans.compd dp or rc = 2
       rc = $dbreadnextdst(02,clientid,c.cans.rec,c.cans.type,c.cans.staff,
-                           'c.cans.ver,
                            c.cans.date,
-                           'c.cans.age,c.cans.aloc,
+						   c.cans.aloc,
                            c.cans.rloc,
-                           'c.cans.dloc,
                            c.cans.compd,c.cans.alocdate)
      enddo
      if c.cans.aloc = "8" or c.cans.aloc = "9" then 'clear any previous inital non admit assessments
