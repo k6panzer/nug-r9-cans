@@ -447,7 +447,7 @@ start ANSA(parmfile,option,client,retcode)
 	   if c.ansa.type = "1" and c.ansa.isn !dp
 	    Page = "SAL"
 	   else
-		if CanSkipPage4 = "Y"
+		if CanSkipPage4() = "Y"
 		 if CanSkipPage3() = "Y"
 		  if CanSkipPage2() = "Y"
                     if CanSkipPage1() = "Y"
