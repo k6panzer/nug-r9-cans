@@ -1,4 +1,5 @@
 start CANS617(parmfile,option,client,retcode)
+ %version 1.0.000 09/03/2013
  $looplimit = 0
  %include inc_CANS617
  e.ser     is b
