@@ -3907,7 +3907,7 @@ end RLOCRpt
 function ClearPage1() is null
  if c.ansa.type = "11"
   $clear(c.ansa.r.smutil,c.ansa.r.oslfhr,c.ansa.r.exploit,c.ansa.r.gamble,c.ansa.r.sexagr,c.ansa.r.crimbe)
-  $clear(c.ansa.b.psychs,c.ansa.b.cog,c.ansa.b.depres,c.ansa.b.anxity,c.ansa.b.mania,c.ansa.b.implsv,c.ansa.b.inter,c.ansa.b.antisoc,c.ansa.b.adjtrm,c.ansa.b.angctr,c.ansa.b.eatdst)
+  $clear(c.ansa.b.psychs,c.ansa.b.depres,c.ansa.b.anxity,c.ansa.b.mania,c.ansa.b.implsv,c.ansa.b.inter,c.ansa.b.antisoc,c.ansa.b.adjtrm,c.ansa.b.angctr,c.ansa.b.eatdst)
   $clear(c.ansa.ld.phymed,c.ansa.ld.family,c.ansa.ld.employ,c.ansa.ld.socfun,c.ansa.ld.recret,c.ansa.ld.sexdev,c.ansa.ld.living,c.ansa.ld.restab,c.ansa.ld.legal,c.ansa.ld.sleep,c.ansa.ld.decisi,c.ansa.ld.invrec)
   $clear(c.ansa.ld.trans)
  else
