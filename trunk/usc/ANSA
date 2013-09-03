@@ -1,5 +1,5 @@
 start ANSA(parmfile,option,client,retcode)
- %version 1.0.001 09/03/2013
+ %version 1.0.002 09/03/2013
  %global test
  test is x
  $looplimit = 0
@@ -2837,6 +2837,10 @@ function Validate1() is i
   endif
  endif
  
+ if c.ansa.type = "2" and (c.ansa.r.suicid = "3" or c.ansa.r.dangot = "3" or c.ansa.ld.slfcre = "3" or c.ansa.b.cog = "3" or c.ansa.b.subabs = "3")
+  (void)$arrpush(errors[],crisis1_errortxt)      
+ endif
+ 
  if c.ansa.type = "11"
 'Risk
   if c.ansa.r.suicid !dp or c.ansa.r.dangot !dp
@@ -2998,6 +3002,11 @@ function Validate2() is i
   else
    $clear(c.ansa.vc.career, c.ansa.vc.jtime, c.ansa.vc.jatt, c.ansa.vc.jper, c.ansa.vc.jrel, c.ansa.vc.jskill)
   endif 
+ endif
+
+ if c.ansa.type = "2" and (c.ansa.r.suicid = "3" or (c.ansa.r.suicid = "2" and (c.ansa.sr.idea = "3" or $num(c.ansa.sr.intent) > 1 or $num(c.ansa.sr.plan) > 1 or $num(c.ansa.sr.hist) > 1)) or
+                                                     c.ansa.r.dangot = "3" or c.ansa.ld.slfcre = "3" or c.ansa.b.cog = "3" or c.ansa.b.subabs = "3")
+  (void)$arrpush(errors[],crisis1_errortxt)      
  endif
 
  if c.ansa.type = "11"
