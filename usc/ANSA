@@ -3610,6 +3610,10 @@ function ValidateReport() is i
   (void)$arrpush(errors[],dloc_errortxt)
   $clear(c.ansa.dloc)
  endif 
+ if c.ansa.dloc = "111" and c.ansa.rloc != "111"
+  (void)$arrpush(errors[],dloc2_errortxt)
+  $clear(c.ansa.dloc)
+ endif 
  if errors[1] dp	
   ValidateReport = 1
  else

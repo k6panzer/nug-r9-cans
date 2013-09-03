@@ -9,6 +9,7 @@ AnsaAuthLevelDCT is b
 AnsaDeviationDCT is b
 AnsaGradeDCT     is b
 AnsaResTypeDCT   is b
+CenterName       is x
 
 '*********Datacode Tables, Change These*****************
 AnsaTypeDCT      = 9700
@@ -540,6 +541,7 @@ errors[] is x
 %define aloc13_errortxt "LOC 6: Consumer Refuses Services cannot be authorized when the assessment type is Intake"
 %define aloc14_errortxt "LOC 9: Inligible cannot be authorized when the assessment type is Intake"
 %define dloc_errortxt "The LOC requested for deviation is the same as the Recommended LOC. It will be unselected now. You can either leave the field blank or select another LOC."
+%define dloc2_errortxt "LOC 1M cannot be requested for deviation, it must be Recommended by the Assessment. It will be unselected now. You can either leave the field blank or select another LOC."
 %define crisis1_errortxt "Client is currently in crisis, please resolve this crisis and re-assess"
 %define crisis2_errortxt "Scoring does not indicate a crisis episode"
 %define loc9_1_errortxt "Change this Assessment Type to a Discharge or continue with the Update assessment by selecting an LOC Deviation"
