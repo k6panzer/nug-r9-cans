@@ -1,5 +1,5 @@
 start ANSA(parmfile,option,client,retcode)
- %version 1.0.003 09/04/2013
+ %version 1.0.002 09/03/2013
  %global test
  test is x
  $looplimit = 0
@@ -3291,8 +3291,6 @@ function SaveData() is i
  endif
  if SaveData = 0
   $brmsg("ANSA Assessment Successfully saved to Database!",1,"W","Process Complete")
- elseif SaveData = 4 
-  $brmsg("Client is currently locked by another process, please wait a moment and retry",1,"W","Please Retry") 
  else
   $brmsg(`"Error Saving Data,  RC=" + SaveData`,1,"W","Error Saving")
  endif
