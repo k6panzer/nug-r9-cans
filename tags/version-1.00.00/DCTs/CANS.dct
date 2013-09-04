@@ -1,0 +1,124 @@
+DESC|9700|CANS/ANSA Assessment Type|
+CODE|9700|1|A|Initial|I|||
+CODE|9700|11|A|Crisis|E|||
+CODE|9700|12|A|Initial Non Admission|I|9||
+CODE|9700|2|A|Update|U|||
+CODE|9700|3|A|Discharge|D|||
+DESC|9701|CANS Service Levels|
+CODE|9701|100|A|Crisis Services|0|||
+CODE|9701|101|A|Medication Management|1|||
+CODE|9701|102|A|Targeted Services|2|||
+CODE|9701|103|A|Complex Services|3|||
+CODE|9701|104|A|Intensive Family Services|4|||
+CODE|9701|105|A|Young Child|YC|||
+CODE|9701|106|A|Transitional Services|5|||
+CODE|9701|107|A|YES Waiver|YES|||
+DESC|9702|CANS Referaal source|
+CODE|9702|1|A|Another Division Within Center||||
+CODE|9702|2|A|Child Protective Services||||
+CODE|9702|3|A|Family/Self||||
+CODE|9702|4|A|MH Facility||||
+CODE|9702|5|I|Other||||
+CODE|9702|6|A|Primary Care or Med Facility||||
+CODE|9702|7|A|School||||
+CODE|9702|8|A|Texas Juvenile Justice Dept||||
+CODE|9702|9|A|Unknown||||
+DESC|9703|4ANS/ANSA Discharge Reasons|
+CODE|9703|1|A|Change NorthSTAR Eligibility||||
+CODE|9703|10|A|Termination request by Family||||
+CODE|9703|11|A|Texas Juvenile Justice Dept||||
+CODE|9703|2|A|Death||||
+CODE|9703|3|A|Elected a New Provider||||
+CODE|9703|4|A|Inpatient Treatment Setting||||
+CODE|9703|5|A|Moved out of Service Area||||
+CODE|9703|6|A|Never Returned||||
+CODE|9703|7|I|Other||||
+CODE|9703|8|A|Residential Treatment||||
+CODE|9703|9|A|Completed Outpatient Services||||
+DESC|9704|CANS/ANSA Discharge Referral|
+CODE|9704|1|A|Comm Indigent Health Clinic||||
+CODE|9704|10|A|Unknown||||
+CODE|9704|11|A|Private Practitioner||||
+CODE|9704|2|A|Different Center||||
+CODE|9704|3|A|Fed. Qualified Health Home||||
+CODE|9704|4|A|Juvenile Justice System||||
+CODE|9704|5|A|No Service||||
+CODE|9704|6|A|Nursing Home||||
+CODE|9704|7|A|Other Public Provider||||
+CODE|9704|8|A|Relinquishment of Custody||||
+CODE|9704|9|A|Residential Treatment||||
+DESC|9705|CANS Service Levels|
+CODE|9705|100|A|Crisis Services|0|||
+CODE|9705|101|A|Medication Management|1|||
+CODE|9705|102|A|Targeted Services|2|||
+CODE|9705|103|A|Complex Services|3|||
+CODE|9705|104|A|Intensive Family Services|4|||
+CODE|9705|105|A|Young Child|YC|||
+CODE|9705|106|A|Transitional Services|5|||
+CODE|9705|107|A|YES Waiver|YES|||
+CODE|9705|108|A|Consumer Refuses|6|||
+CODE|9705|109|A|Waiting for All Authorized Ser|8|||
+CODE|9705|110|A|Ineligible|9|||
+DESC|9706|CANS/ANSA Deviation Reasons|
+CODE|9706|1|A|Resource Limitations||||
+CODE|9706|2|A|Consumer Refused||||
+CODE|9706|3|A|Clinical Need||||
+CODE|9706|4|A|Continuity of Care||||
+CODE|9706|5|I|Other||||
+DESC|9700|CANS/ANSA Assessment Type|
+CODE|9700|1|A|Initial|I|||
+CODE|9700|11|A|Crisis|E|||
+CODE|9700|12|A|Initial Non Admission|I|9||
+CODE|9700|2|A|Update|U|||
+CODE|9700|3|A|Discharge|D|||
+DESC|9701|CANS Service Levels|
+CODE|9701|100|A|Crisis Services|0|||
+CODE|9701|101|A|Medication Management|1|||
+CODE|9701|102|A|Targeted Services|2|||
+CODE|9701|103|A|Complex Services|3|||
+CODE|9701|104|A|Intensive Family Services|4|||
+CODE|9701|105|A|Young Child|YC|||
+CODE|9701|106|A|Transitional Services|5|||
+CODE|9701|107|A|YES Waiver|YES|||
+DESC|9702|CANS Referaal source|
+CODE|9702|1|A|Another Division Within Center||||
+CODE|9702|2|A|Child Protective Services||||
+CODE|9702|3|A|Family/Self||||
+CODE|9702|4|A|MH Facility||||
+CODE|9702|5|I|Other||||
+CODE|9702|6|A|Primary Care or Med Facility||||
+CODE|9702|7|A|School||||
+CODE|9702|8|A|Texas Juvenile Justice Dept||||
+CODE|9702|9|A|Unknown||||
+DESC|9703|4ANS/ANSA Discharge Reasons|
+CODE|9703|1|A|Change NorthSTAR Eligibility||||
+CODE|9703|10|A|Termination request by Family||||
+CODE|9703|11|A|Texas Juvenile Justice Dept||||
+CODE|9703|2|A|Death||||
+CODE|9703|3|A|Elected a New Provider||||
+CODE|9703|4|A|Inpatient Treatment Setting||||
+CODE|9703|5|A|Moved out of Service Area||||
+CODE|9703|6|A|Never Returned||||
+CODE|9703|7|I|Other||||
+CODE|9703|8|A|Residential Treatment||||
+CODE|9703|9|A|Completed Outpatient Services||||
+DESC|9704|CANS/ANSA Discharge Referral|
+CODE|9704|1|A|Comm Indigent Health Clinic||||
+CODE|9704|10|A|Unknown||||
+CODE|9704|11|A|Private Practitioner||||
+CODE|9704|2|A|Different Center||||
+CODE|9704|3|A|Fed. Qualified Health Home||||
+CODE|9704|4|A|Juvenile Justice System||||
+CODE|9704|5|A|No Service||||
+CODE|9704|6|A|Nursing Home||||
+CODE|9704|7|A|Other Public Provider||||
+CODE|9704|8|A|Relinquishment of Custody||||
+CODE|9704|9|A|Residential Treatment||||
+DESC|9705|CANS Service Levels|
+CODE|9705|100|A|Crisis Services|0|||
+CODE|9705|101|A|Medication Management|1|||
+CODE|9705|102|A|Targeted Services|2|||
+CODE|9705|103|A|Complex Services|3|||
+CODE|9705|104|A|Intensive Family Services|4|||
+CODE|9705|105|A|Young Child|YC|||
+CODE|97

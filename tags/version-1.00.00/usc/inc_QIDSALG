@@ -1,0 +1,116 @@
+'%include file for the QIDS Depressions Algorithm, used by the scripts QIDSALG and ANSA
+
+%global QidsFallDCT,QidsSlepDCT,QidsWakeDCT,QidsMuchDCT,QidsSadDCT,QidsAppdDCT,QidsAppiDCT,QidsWeidDCT,QidsWeiiDCT,QidsConcDCT,QidsSelfDCT,QidsDeatDCT,QidsIntrDCT,QidsEnrgDCT,QidsSlowDCT,QidsRestDCT,QidsVersDCT,
+QidsFallDCT is b
+QidsSlepDCT is b
+QidsWakeDCT is b
+QidsMuchDCT is b
+QidsSadDCT  is b
+QidsAppdDCT is b
+QidsAppiDCT is b
+QidsWeidDCT is b
+QidsWeiiDCT is b
+QidsConcDCT is b
+QidsSelfDCT is b
+QidsDeatDCT is b
+QidsIntrDCT is b
+QidsEnrgDCT is b
+QidsSlowDCT is b
+QidsRestDCT is b
+QidsVersDCT is b
+
+'*********Datacode Tables, Change These*****************
+QidsFallDCT = 9018
+QidsSlepDCT = 9019
+QidsWakeDCT = 9020
+QidsMuchDCT = 9021
+QidsSadDCT  = 9022
+QidsAppdDCT = 9023
+QidsAppiDCT = 9024
+QidsWeidDCT = 9025
+QidsWeiiDCT = 9026
+QidsConcDCT = 9027
+QidsSelfDCT = 9028
+QidsDeatDCT = 9029
+QidsIntrDCT = 9030
+QidsEnrgDCT = 9031
+QidsSlowDCT = 9032
+QidsRestDCT = 9033
+QidsVersDCT = 9007
+'*******************************************************
+
+%global qids_dstlist
+%global c.qids.rec,c.qids.fall,c.qids.slep,c.qids.wake,c.qids.much,c.qids.sad,c.qids.appd,c.qids.appi,c.qids.weid,c.qids.weii,c.qids.conc,c.qids.self,c.qids.deat,c.qids.intr,c.qids.enrg,c.qids.slow,c.qids.rest,c.qids.totl,c.qids.staf,c.qids.date
+%global c.qids.vers,c.qids.comm
+
+rc_qids_dstlist is i
+qids_dstlist    is dstlist
+c.qids.rec		is h      'TIMA QIDS RECORD HEADER                          
+c.qids.fall 	is x      'TIMA QIDS FALLING ASLEEP                             
+c.qids.slep     is x	  'TIMA QIDS SLEEP AT NIGHT                           
+c.qids.wake     is x	  'TIMA QIDS WAKE UP EARLY                              
+c.qids.much     is x	  'TIMA QIDS SLEEP TOO MUCH                              
+c.qids.sad      is x	  'TIMA QIDS FEELING SAD                                 
+c.qids.appd     is x	  'TIMA QIDS DECREASED APPETITE                          
+c.qids.appi     is x	  'TIMA QIDS INCREASED APPETITE                       
+c.qids.weid     is x	  'TIMA QIDS DECREASED WEIGHT                            
+c.qids.weii     is x	  'TIMA QIDS INCREASED WEIGHT                             
+c.qids.conc     is x	  'TIMA QIDS CONCENTRATION                                
+c.qids.self     is x	  'TIMA QIDS VIEW OF SELF                                 
+c.qids.deat     is x	  'TIMA QIDS DEATH/SUICIDE                                
+c.qids.intr     is x	  'TIMA QIDS GENERAL INTEREST                             
+c.qids.enrg     is x	  'TIMA QIDS ENERGY LEVEL                                
+c.qids.slow     is x	  'TIMA QIDS SLOWED DOWN                                 
+c.qids.rest     is x	  'TIMA QIDS FEEL RESTLESS                               
+c.qids.totl     is x	  'TIMA QUIDS TOTAL SCORE                                
+c.qids.staf     is x	  'TIMA QIDS SCALE STAFF                                 
+c.qids.date     is d	  'TIMA QIDS SCALE DATE                                  
+c.qids.vers     is x	  'TIMA QIDS VERSION
+c.qids.comm     is dbtext 'TIMA QIDS COMMENTS DST
+
+%define QIDSTitle "Depression Algorithm"
+%define QIDSReportID "DEPALG"
+%define QIDSRptTitle "Depression Algorithm"
+%define q_text_qids_fall "Section 1: Falling Asleep"
+%define q_text_qids_slep "Section 2: Sleep During the Night"
+%define q_text_qids_wake "Section 3: Waking Up Too Early"
+%define q_text_qids_much "Section 4: Sleeping Too Much"
+%define q_text_qids_sad "Section 5: Feeling Sad"
+%define q_text_qids_appd "Section 6: Decreased Appetite"
+%define q_text_qids_appi "Section 7: Increased Appetite"
+%define q_text_qids_weid "Section 8: Decreased Weight(Within Last Two Weeks)"
+%define q_text_qids_weii "Section 9: Increased Weight(Within Last Two Weeks)"
+%define q_text_qids_conc "Section 10: Concentration/Decision Making"
+%define q_text_qids_self "Section 11: View of Myself"
+%define q_text_qids_deat "Section 12: Thoughts of Death or Suicide"
+%define q_text_qids_intr "Section 13: General Interest"
+%define q_text_qids_enrg "Section 14: Energy Level"
+%define q_text_qids_slow "Section 15: Feeling Slowed Down"
+%define q_text_qids_rest "Section 16: Feeling Restless"
+%define q_text_qids_totl "QIDS Score:"
+%define q_text_qids_staf
+%define q_text_qids_date "Assessment Date:"
+%define q_text_qids_vers "Version Category:"
+%define q_text_qids_comm "Additional Comments:"
+
+%define qids_link1 "http://websvr/HFRnet/ClinRecDoc/QIDS/FallingAsleep.htm"
+%define qids_link2 "http://websvr/HFRnet/ClinRecDoc/QIDS/SleepDuringNight.htm"
+%define qids_link3 "http://websvr/HFRnet/ClinRecDoc/QIDS/WakingUpTooEarly.htm"
+%define qids_link4 "http://websvr/HFRnet/ClinRecDoc/QIDS/SleepingTooMuch.htm"
+%define qids_link5 "http://websvr/HFRnet/ClinRecDoc/QIDS/FeelingSad.htm"
+%define qids_link6 "http://websvr/HFRnet/ClinRecDoc/QIDS/DecreasedAppetite.htm"
+%define qids_link7 "http://websvr/HFRnet/ClinRecDoc/QIDS/IncreasedAppetite.htm"
+%define qids_link8 "http://websvr/HFRnet/ClinRecDoc/QIDS/DecreasedWeight.htm"
+%define qids_link9 "http://websvr/HFRnet/ClinRecDoc/QIDS/IncreasedWeight.htm"
+%define qids_link10 "http://websvr/HFRnet/ClinRecDoc/QIDS/ConcentrationDecisionMaking.htm"
+%define qids_link11 "http://websvr/HFRnet/ClinRecDoc/QIDS/ViewofMyself.htm"
+%define qids_link12 "http://websvr/HFRnet/ClinRecDoc/QIDS/ThoughtsofDeathorSuicide.htm"
+%define qids_link13 "http://websvr/HFRnet/ClinRecDoc/QIDS/GeneralInterest.htm"
+%define qids_link14 "http://websvr/HFRnet/ClinRecDoc/QIDS/EnergyLevel.htm"
+%define qids_link15 "http://websvr/HFRnet/ClinRecDoc/QIDS/FeelingSlowedDown.htm"
+%define qids_link16 "http://websvr/HFRnet/ClinRecDoc/QIDS/FeelingRestless.htm"
+
+
+rc_qids_dstlist = $dstlist(qids_dstlist,02,
+c.qids.rec,c.qids.fall,c.qids.slep,c.qids.wake,c.qids.much,c.qids.sad,c.qids.appd,c.qids.appi,c.qids.weid,c.qids.weii,c.qids.conc,c.qids.self,c.qids.deat,c.qids.intr,c.qids.enrg,c.qids.slow,c.qids.rest,c.qids.totl,c.qids.staf,c.qids.date,
+c.qids.vers,c.qids.comm) 

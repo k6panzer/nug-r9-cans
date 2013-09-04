@@ -1,0 +1,153 @@
+'THIS LIBRARY CONTAINS FUNCTIONS THAT ARE USED BY CALLING SCRIPTS TO ENTER AND VALIDATE EVENTS.
+library lib_UAEVENTS()
+ %version 1.0.000 09/03/2013
+'********************************************************************************************
+'THIS FUNCTION PROMPTS THE USER TO SELECT WHETHER THEY WISH TO CREATE AN EVENT.  IF SO,
+'THE USER MUST ENTER ALL OF THE SERVICE INFORMATION.  IF NOT, NO FURTHER ACTION IS NEEDED.
+'THIS FUNCTION DOES NOT ACTUALLY CREATE THE EVENT.
+'AUTHOR: SCOTT B.
+'DATE: 5/17/2004
+'********************************************************************************************
+function event(e_ser, e_ru, e_start, e_dur, e_loc, addsal, video) is x
+ e_ser    is x 'EVENT SERVICE CODE
+ e_ru     is b 'EVENT RU
+ e_start  is t 'EVENT START TIME
+ e_dur    is t 'EVENT DURATION
+ e_loc    is x 'EVENT LOCATION
+ addsal   is x 'ADD EVENT RADIO BUTTON
+ video    is x 'VIDEO CONFERENCE CHECKBOX
+ continue is x 'CONTINUE TO EXECUTE VARIABLE
+ $allowupdate(e_ser, e_ru, e_start, e_dur, e_loc, addsal, video)
+ continue = "Y" 
+ do while continue = "Y"
+  $submitopt("off", "Submit")
+  $cancelopt("off", "Back")
+  $form()
+   $text("{H1}Do You Wish To Add SAL Data?{/H1}")
+   $tag("<CENTER>")
+   $text("Do you wish to add SAL data now?: ")
+   $radio(addsal, "YES", "YES",,,"ADDSAL","ADDSAL")
+   $radio(addsal, "NO", "NO")
+   $tag("</CENTER>")
+   $block("ADDSAL","ADDSAL")       
+    $ctag("<div align='center'>")
+     $table("t1", , "border='1' width='90%' cellspacing='0' cellpadding='0'")                     
+      $row(,"align='center' bgcolor='gainsboro'")
+       $col()$text("SAC", "datatag")
+       $col()$text("RU", "datatag")
+       $col()$text("LOCATION", "datatag")
+       $col()$text("START TIME", "datatag")
+       $col()$text("DURATION", "datatag")
+       $col()$text("VIDEO", "datatag")  
+      $row(,"align='center' bgcolor='gainsboro'")
+       $col()$text(e_ser)
+       $col()$textbox(e_ru,"RUA",3,3,"Y")
+       $col()$textbox(e_loc,"DCV``13",1,2,"Y")
+       $col()$textbox(e_start,"TIME",5,3,"Y")
+       $col()$textbox(e_dur,"DUR",5,2,"Y")
+       $col()$checkbox(video, "","Y")
+     $endtable("t1")
+    $ctag("</div>")
+   $endblock("ADDSAL","ADDSAL")
+  $sendform()
+  if e_dur > 4:00 and addsal = "YES"
+   $brmsg("You entered a duration greater than 4 hours!", 1, "W", "ERROR")
+  elseif e_start < 6:00 and addsal = "YES"
+   $brmsg("You Entered A Time Prior To 6a.m. If correct ignore this message.", 1, "W", "Warning")
+   continue = "N"
+  else
+   continue = "N"
+  endif
+ enddo
+end event
+
+'********************************************************************************************
+'THIS FUNCTION WILL PRINT SERVICE DATA ON A BUI FORM IN TABLE FORMAT
+'AUTHOR: SCOTT B.
+'DATE: 5/17/2004
+'********************************************************************************************
+function report(e_ser, e_ru, e_start, e_dur, e_loc, video) is x
+ e_ser   is b 'EVENT SERVICE CODE
+ e_ru    is b 'EVENT RU
+ e_start is t 'EVENT START TIME
+ e_dur   is t 'EVENT DURATION
+ e_loc   is x 'EVENT LOCATION
+ video   is x 'VIDEO CONFERENCE VARIABLE
+ endtime is t 'SERVICE ENDTIME
+ endtime = e_start + e_dur
+ $table("t1",,"border='1' cellspacing='0' width='100%'")
+  $row(,"align='center' bgcolor='#EEEEEE'")
+   $col()$text("SAC")
+   $col()$text("RU")
+   $col()$text("Loc")
+   $col()$text("Start")
+   $col()$text("Cl Dur")
+   $col()$text("Staff Dur")
+   $col()$text("Endtime")
+   $col()$text("Video")  
+  $row(,"align='center' bgcolor='#EEEEEE'")
+   $col()$text(e_ser)
+   $col()$text(e_ru)
+   $col()$text(e_loc)
+   $col()$text(e_start)
+   $col()$text(`$format(e_dur, "HH.MM")`)
+   $col()$text(`$format(e_dur, "HH.MM")`)
+   $col()$text(endtime)
+   $col()if video dp
+          $text(video)
+	     else
+	      $ctag("&nbsp;")
+	     endif	
+ $endtable("t1")
+end report
+
+'********************************************************************************************
+'THIS FUNCTION CHECKS FOR OVERLAPPING EVENTS BASED ON THE SERVICE DATA PASSED
+'TO THE FUNCTION.  THE FUNCTION RETURNS ERR-MSG AS EITHER DNP OR WITH AN 
+'ERROR MESSAGE.
+'AUTHOR: SCOTT B.
+'DATE: 5/17/2004
+'********************************************************************************************
+function overlap(err-msg, e.ser, e.start, e.dur, e.date, e.staff) is x
+ e.ser    is b 'EVENT SERVICE DST
+ e.staff  is x 'EVENT STAFF ID DST
+ e.date   is d 'EVENT DATE DST
+ e.start  is t 'EVENT START TIME DST
+ e.dur    is t 'EVENT DURATION DST
+ rc       is b 'RETURN CODE
+ e_date   is d 'DATE COMPARISON VARIABLE
+ e_start  is t 'START TIME COMPARISON VARIABLE
+ e_start2 is t 'START TIME COMPARISON VARIABLE
+ e_end    is t 'END TIME COMPARISON VARIABLE
+ e_end2   is t 'END TIME COMPARISON VARIABLE
+ e_dur    is t 'DURATION COMPARISON VARIABLE
+ e_dur2   is t 'DURATION COMPARISON VARIABLE
+ x_e_end  is t
+ err-msg  is x 'ERROR MESSAGE VARIABLE
+ $allowupdate(err-msg)
+ $clear(err-msg)
+ e_start = e.start
+ e_dur = e.dur
+ e_end = e.start + e_dur
+ e_date = e.date
+ rc = $startevents(e.staff,,e_date)
+ rc = $readnextevent(e.date, e.start, e.dur, e.ser)
+ do while e.date = e_date and rc = 0
+  if e.ser < 620 or e.ser > 670 and (e.ser != 1500 and e.ser != 1501)
+   x_e_end = e.start + e.dur
+   if e.start >= e_start and e.start < e_end and e.dur > 0 and e_dur > 0
+    err-msg = "ERROR - THIS EVENT OVERLAPS AN EXISTING EVENT!"
+   endif
+   e_start2 = e.start
+   e_dur2 = e.dur
+   e_end2 = e.start + e_dur2
+   if e_start >= e_start2 and e_start < e_end2 and e_dur2 > 0 and e_dur > 0
+    err-msg = "ERROR - THIS EVENT OVERLAPS AN EXISTING EVENT!"
+   endif	
+'  if e_start <= e.start and e_end >= x_e_end
+'   err-msg = "ERROR - THIS EVENT OVERLAPS AN EXISTING EVENT!"
+'  endif
+  endif
+  rc = $readnextevent(e.date, e.start, e.ser, e.dur)
+ enddo
+end overlap
