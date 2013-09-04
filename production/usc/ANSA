@@ -1527,7 +1527,7 @@ function Page4Rpt() is null
  endif
  if c.ansa.labor =  "1"
   c_ansa_labor = "Receiving SSI/SSDI and can't work"
- elseif c_ansa_labor = "2"
+ elseif c.ansa.labor = "2"
   c_ansa_labor = "Receiving SSI/SSDI and worries that work will effect benefit"
  elseif c.ansa.labor = "3"
   c_ansa_labor = "Does not want or need work"
