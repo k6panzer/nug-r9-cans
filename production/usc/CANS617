@@ -1,5 +1,5 @@
 start CANS617(parmfile,option,client,retcode)
- %version 1.0.001 09/04/2013
+ %version 1.0.004 09/04/2013
  $looplimit = 0
  %include inc_CANS617
  e.ser     is b
@@ -181,7 +181,7 @@ start CANS617(parmfile,option,client,retcode)
     endif
   endif
  else
-  rc = $dbread(02, $regid, c.cans.rec,c.cans.compd,c.cans.type,c.cans.staff)
+  PromptNED = {"lib_CANS"}PromptNewEditDel($regid)
   if PromptNED = 1
    $dblock()
    rc = $dbread(02, $regid, c.cans.rec,c.cans.date)	
@@ -551,13 +551,13 @@ function Report(RptTitle,ReportID,mode) is null
   endif
   if mode = "Report"
    if UM_StaffYN = "Y" and (c.cans.staff != $operstaffid and c.cans.staff dp)
-    $br(){"lib_CANS617"}StaffComments(q_text_comment,c.cans.comment)
+    $br(){"lib_CANS617"}StaffComments(q_text_comment,c.cans.comment,c.cans.staff)
     $br()ALOCRpt(RptTitle,ReportID)
    else
     $br()RLOCRpt()
    endif  
   else
-   $br(){"lib_CANS617"}StaffComments(q_text_comment,c.cans.comment)
+   $br(){"lib_CANS617"}StaffComments(q_text_comment,c.cans.comment,c.cans.staff)
    $br()ALOC()
   endif
  $sendform($funcname)
@@ -3442,7 +3442,9 @@ function ALOCRpt(RptTitle,ReportID) is null
  RptTitle is x
  ReportID is x
  
- sigline         = $dct(2071, $oper, "D")
+ sigline = $dct(2071, $oper, "D")
+ sigline += " (" + $operstaffid + ")" 
+ 
  c_cans_rloc     = $dct(CansAuthLevelDCT,c.cans.rloc)
  c_cans_dloc     = $dct(CansAuthLevelDCT,c.cans.dloc)
  c_cans_aloc     = $dct(CansAuthLevelDCT,c.cans.aloc)

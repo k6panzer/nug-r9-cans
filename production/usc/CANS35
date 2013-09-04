@@ -1,5 +1,5 @@
 start CANS35(parmfile,option,client,retcode)
- %version 1.0.001 09/04/2013
+ %version 1.0.004 09/04/2013
  $looplimit = 0
  %include inc_CANS35
  e.ser     is b
@@ -175,7 +175,6 @@ start CANS35(parmfile,option,client,retcode)
    endselect    
   endif
  else
-  rc = $dbread(02, $regid, c.cans.rec,c.cans.compd,c.cans.type,c.cans.staff)
   select {"lib_CANS"}PromptNewEditDel($regid)
    case 1 $dblock()
           rc = $dbread(02, $regid, c.cans.rec,c.cans.date)	
@@ -2875,7 +2874,9 @@ function ALOCRpt(RptTitle,ReportID) is null
  RptTitle is x
  ReportID is x
  
- sigline         = $dct(2071, $oper, "D")
+ sigline = $dct(2071, $oper, "D")
+ sigline += " (" + $operstaffid + ")" 
+ 
  c_cans_rloc     = $dct(CansAuthLevelDCT,c.cans.rloc)
  c_cans_dloc     = $dct(CansAuthLevelDCT,c.cans.dloc)
  c_cans_aloc     = $dct(CansAuthLevelDCT,c.cans.aloc)
@@ -3131,9 +3132,15 @@ end RLOCRpt
 
 
 function StaffComments() is null
+ s.fn is x
+ s.ln is x
+ (void)$dbread(3,c.cans.staff,s.fn,s.ln)
  $table($funcname,,"width='100%' cellspacing='0' cellpadding='2' bgcolor='White'  style='border-style: solid; border-width: 1px'")
   $row(,col_color_multi)
    $col("center",,,"2")$text("Staff Comments:","datatag")
+  $row()
+   $col("right",,"50%")$text("Assessor: ","datatag")
+   $col()$text(`s.fn + " " + s.ln + " (" + c.cans.staff + ")"`)
   $row()
    $col("right",,"50%")$text(q_text_comment,"datatag")
    $col() if c.cans.comment dp
