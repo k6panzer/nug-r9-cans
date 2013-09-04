@@ -1,0 +1,151 @@
+'THIS SCRIPT IS USED TO DETERMINE THE DUE DATE FOR CHILD ASSESSMENT.  THE
+'SCRIPT RUNS AUTOMATICALLY ON A CRON AND SENDS AN EMAIL TO THE CASE MANAGER AT
+'28, 14, AND OVERDUE DAYS FOR THE CHILDRENS ASSESSMENT.
+'MODIFIED ON 03/13/2008 TO CHECK FOR SAC 998 THAT HAS BECOME AUTHORIZED
+'AUTHOR: SCOTT B./CLove
+'DATE: 05/07/2003
+'08/08/2013 lovec adapted for RDM to TRR migration
+
+start CABDAUTODISCH()
+'HFC Lapse Community Based Assign Record
+ LapseCB  is x
+ LapseCB = "Y"
+
+'HFC Lapse ASR records
+ LapseASR is x
+ LapseASR = "Y"
+
+'HFC Discharge Staff
+ DischargeStaff is x
+ DischargeStaff = "3479"
+
+'Output file
+ logfile is x
+ logfile = "/c0/EXPORT/LOGS/CABDCLOSED_TRR.log"
+
+'***************************VARIABLE DECLARATIONS*******************************
+'COMMUNITY BASED ASSIGNMENT DSTS
+ c.cb.asn.r    is h 'Community based assignment record header       
+ c.cb.asn      is x 'community based assignment code                
+ c.cb.laps     is d 'community based assignment lapse date          
+ c.cb.sdate    is d 'community based assignment last service date   
+ c.cb.type     is x 'community based assignment type                
+ c.cb.autoclos is x 'community based assignment autoclose flag      
+                                                                   
+'ASR RECORD DSTS                                                   
+ $$as.rec      is h 'asr record header dst                          
+ $$as.con      is x 'asr contract dst                               
+ $$as.lap      is d 'asr lapse date dst                             
+                                                                   
+'CABD DSTS
+ c.cabd.rec      is h 'CABD header
+ c.cabd.act      is x 'CABD assessment action
+ c.cabd.date     is d 'CABD trag date
+ c.cabd.staff    is x 'CABD trag staff
+ c.cabd.staff3   is x 'CABD ALOC staff    
+ c.cabd.compd    is d 'CABD Completion date
+ c.cabd.aloc     is x 'CABD ALOC
+ c.cabd.lphaid   is x 'emailed status, was the actual staffid
+ c.cabd.ass      is x 'CABD assessment type, I,U,D
+ c.cabd.disch    is x 'CABD REASON FOR DISCHARGE
+ c.cabd.disdt    is d 'CABD DISCHARGE DATE
+ c.cabd.dischref is x 'CABD OUTSIDE REFERRAL
+ c.cabd.date3    is d 'CABD A-LOC DATE DST
+ c.cabd.stat     is x 'CABD COMPLETION STATUS DST
+ c.cabd.caredt   is d 'CABD Care date
+ c.cabd.autodis  is x 'CABD AUTODISCHARGED FLAG DST
+ c.cabd.aalocd   is d 'Actual CABD Authorization Date
+ c.cabd.extd     is x 'Extended review DST   Y/N value 
+
+'procedure variables
+ rc        is b 'RETURN CODE
+ rc1       is b 'RETURN CODE
+ rc2       is b 'RETURN CODE
+ CID       is x 'CLIENT ID VARIABLE
+ ua_age    is i 'ua_ageERENCE IN DATES
+ LapseDate is d 'XXX DAYS FROM TRAG DATE
+ seg       is x 'SEG VARIABLE
+
+'VARIABLE INITIALIZATION
+ rc = 0
+ rc1 = 0
+ rc2 = 0
+		  
+'***************************PROCEDURE SECTION***********************************
+'START THE CLIENT DB READ IN SEQUENTIAL ORDER
+ rc = $dbstart(02, CID, "I")
+ do while rc1 < 3
+  rc1 = $dbreadnext(02,CID,c.cabd.rec,c.cabd.date,c.cabd.staff,c.cabd.staff3,c.cabd.compd,c.cabd.aloc,c.cabd.lphaid,c.cabd.ass,c.cabd.extd,c.cabd.date3,c.cabd.stat)
+  if (c.cabd.extd = "N" or c.cabd.extd !dp) and c.cabd.aloc != "5"
+   LapseDate = c.cabd.date + 90
+  elseif (c.cabd.extd = "Y" and c.cabd.aloc = "4")
+   LapseDate = c.cabd.date + 180
+  elseif (c.cabd.aloc = "5")
+   LapseDate = c.cabd.date + 90
+  endif
+  if (
+      (LapseDate < 9/1/2013 and c.cabd.compd dp and c.cabd.aloc != "9" and c.cabd.aloc != "0" and c.cabd.aloc != "6" and c.cabd.aloc != "8" and (c.cabd.extd = "N" or c.cabd.extd !dp))
+       or
+	  (LapseDate < 9/1/2013 and c.cabd.compd dp and c.cabd.extd = "Y" and c.cabd.aloc = "4")
+	  )	
+   and (c.cabd.ass = "I" or c.cabd.ass = "U")  
+   LapseDate = $today - 1
+'Lapse all open tc & ho assignments as of 90 days from last ua or last applicable svc date whichever is older.
+   if LapseCB = "Y"
+    $dblock()
+    rc = $dbread(02, CID, c.cb.asn.r, c.cb.asn, c.cb.laps, c.cb.sdate, c.cb.type, c.cb.autoclos)
+    do while c.cb.asn.r dp
+	 if c.cb.asn dp and c.cb.laps !dp and $seg(c.cb.asn, 1, 2) != "R0" and c.cb.asn != "H050" and c.cb.asn != "TC50"
+	  if c.cb.sdate dp and c.cb.sdate < LapseDate
+	   c.cb.laps = c.cb.sdate
+	  else
+	   c.cb.laps = LapseDate
+	  endif
+      c.cb.type = "E"
+	  c.cb.autoclos = "Y"
+	  rc = $dbupdate(02, CID, c.cb.asn.r, c.cb.laps, c.cb.type, c.cb.autoclos)
+      $dblock()
+      rc = $dbread(02, CID, c.cb.asn.r, c.cb.asn, c.cb.laps, c.cb.sdate, c.cb.type, c.cb.autoclos)
+     endif
+     rc = $dbreadnextdst(02, CID, c.cb.asn.r, c.cb.asn, c.cb.laps, c.cb.sdate, c.cb.type, c.cb.autoclos)	
+    enddo
+   endif
+
+'Lapse authorizations
+   if LapseASR = "Y"
+    $dblock()
+    rc = $dbread(02, CID, $$as.rec, $$as.con, $$as.lap)
+    do while $$as.rec dp
+     'If this is a child asr, the seg will contain "CSP"
+      if $seg($$as.con, 1, 3) = "CSP" and $$as.lap >= LapseDate
+        $$as.lap = LapseDate
+        rc = $dbupdate(02, CID, $$as.rec, $$as.lap)
+        $dblock()
+	    rc = $dbread(02, CID, $$as.rec, $$as.con, $$as.lap)
+      endif
+      rc = $dbreadnextdst(02, CID, $$as.rec, $$as.con, $$as.lap)
+    enddo
+   endif
+   
+'Add the ua discharge record
+   $dblock()
+   rc = $dbread(02,CID,c.cabd.rec,c.cabd.ass,c.cabd.act,c.cabd.disch,c.cabd.disdt,c.cabd.dischref,c.cabd.date3,c.cabd.staff3,c.cabd.stat,c.cabd.compd,c.cabd.caredt,c.cabd.autodis,c.cabd.aalocd)
+   c.cabd.rec[effd] = LapseDate
+   c.cabd.ass       = "D"
+   c.cabd.act       = "A"
+   c.cabd.disch     = "Z"
+   c.cabd.disdt     = LapseDate
+   c.cabd.dischref  = "9"
+   c.cabd.date3     = LapseDate
+   c.cabd.staff3    = DischargeStaff
+   c.cabd.stat      = "2"
+   c.cabd.compd     = LapseDate
+   c.cabd.autodis   = "AUTODISCHARGE"
+   c.cabd.aalocd    = LapseDate
+   $clear(c.cabd.caredt) 
+   rc = $dbadddst(02,CID,c.cabd.rec,c.cabd.ass,c.cabd.act,c.cabd.disch,c.cabd.disdt,c.cabd.dischref,c.cabd.date3,c.cabd.staff3,c.cabd.stat,c.cabd.compd,c.cabd.caredt,c.cabd.autodis,c.cabd.aalocd)
+   $log(`$castx($today) + "|" + c.cabd.aloc + "|" + CID + "|" + "TRR AUTOCLOSE CHILD"`,logfile)
+  endif
+  $loopcount = 0
+ enddo
+end CABDAUTODISCH
