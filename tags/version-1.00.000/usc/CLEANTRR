@@ -1,0 +1,31 @@
+start CLEANTRR()
+ $looplimit = 0
+ dbread        is i
+ dbreadnextdst is i 
+ dbremove      is i
+ cid           is x
+ c.ansa.rec    is h
+ c.ansa.date   is d
+ c.cans.rec    is h
+ c.cans.date   is d
+ (void)$dbstart(02, CID)
+ $dblock()
+ dbread = $dbread(2,cid,c.ansa.rec,c.ansa.date,c.cans.rec,c.cans.date) 
+ do while dbread < 3
+  if c.ansa.rec dp
+   dbremove = $dbremovedst(2,cid,c.ansa.rec,c.ansa.date)
+   $dblock()
+   dbread = $dbread(2,cid,c.ansa.rec,c.ansa.date,c.cans.rec,c.cans.date)    
+  endif
+  if c.cans.rec dp
+   dbremove = $dbremovedst(2,cid,c.cans.rec,c.cans.date)  
+   $dblock()
+   dbread = $dbread(2,cid,c.ansa.rec,c.ansa.date,c.cans.rec,c.cans.date)    
+  endif
+  if c.ansa.rec !dp and c.cans.rec !dp
+   $dbunlock()  
+   $dblock()
+   dbread = $dbreadnext(2,cid,c.ansa.rec,c.ansa.date,c.cans.rec,c.cans.date)    
+  endif 
+ enddo
+end CLEANTRR 

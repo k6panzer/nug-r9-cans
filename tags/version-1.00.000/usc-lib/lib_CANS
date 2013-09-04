@@ -1,0 +1,173 @@
+library lib_CANS()
+ function Allow_Assesment(clientid,assessments[]) is null
+  clientid        is x
+  c.cans.rec      is h
+  c.cans.staff    is x
+  c.cans.ver      is x
+  c.cans.date     is d
+  c.cans.age      is i
+  c.cans.aloc     is x
+  c.cans.rloc     is x
+  c.cans.dloc     is x
+  c.cans.compd    is d
+  c.cans.type     is x
+  c.cans.alocdate is d  
+  rc              is i 
+  assessments[]   is x
+  $clear(assessments[])
+  $allowupdate(assessments[])
+  Last_Assessment(clientid,c.cans.type,c.cans.staff,c.cans.ver,c.cans.date,c.cans.age,c.cans.aloc,c.cans.rloc,c.cans.dloc,c.cans.compd,c.cans.alocdate)
+  select c.cans.type
+   'no prior assessment
+   case !dp  (void)$arrpush(assessments[],"1")
+             (void)$arrpush(assessments[],"11")
+   'Initial
+   case "1"  
+     or "I"  (void)$arrpush(assessments[],"2")
+             (void)$arrpush(assessments[],"3")
+   'Update
+   case "2"
+     or "U"  (void)$arrpush(assessments[],"2")
+	         (void)$arrpush(assessments[],"3")
+   'Discharge
+   case "3"  
+     or "D"  (void)$arrpush(assessments[],"1")
+             (void)$arrpush(assessments[],"11")   
+   'Crisis
+   case "11" 
+     or "E"  (void)$arrpush(assessments[],"1")
+             (void)$arrpush(assessments[],"11")   
+   'Initial Non Admission
+   case "12" (void)$arrpush(assessments[],"1")
+             (void)$arrpush(assessments[],"11")   
+  endselect 
+ end Allow_Assesment
+
+ dynamic function Last_Assessment(clientid,c.cans.type,c.cans.staff,c.cans.ver,c.cans.date,c.cans.age,c.cans.aloc,c.cans.rloc,c.cans.dloc,c.cans.compd,c.cans.alocdate) is null
+  clientid        is x
+  c.cans.rec      is h
+  c.cans.staff    is x
+  c.cans.ver      is x
+  c.cans.date     is d
+  c.cans.age      is i
+  c.cans.aloc     is x
+  c.cans.rloc     is x
+  c.cans.dloc     is x
+  c.cans.compd    is d
+  c.cans.type     is x
+  c.cans.alocdate is d  
+  rc              is i 
+
+'have to set these variable names incase the library doesn't get unloaded / reloaded and the names where changed previously
+$setvarname(c.cans.rec,      "C.CANS.REC")
+$setvarname(c.cans.staff,    "C.CANS.STAFF")
+'$setvarname(c.cans.ver,      "C.CABD.REC")
+$setvarname(c.cans.date,     "C.CANS.DATE")
+'$setvarname(c.cans.age,      "C.CABD.REC")
+$setvarname(c.cans.aloc,     "C.CANS.ALOC")
+$setvarname(c.cans.rloc,     "C.CANS.RLOC")
+'$setvarname(c.cans.dloc,     "C.CABD.REC")
+$setvarname(c.cans.compd,    "C.CANS.COMPD")
+$setvarname(c.cans.type,     "C.CANS.TYPE")
+$setvarname(c.cans.alocdate, "C.CANS.ALOCDATE")
+
+$allowupdate(c.cans.type,c.cans.staff,c.cans.ver,c.cans.date,c.cans.age,c.cans.aloc,c.cans.rloc,c.cans.dloc,c.cans.compd) 
+  rc = 0
+  do until c.cans.compd dp or rc > 1
+   rc = $dbreadnextdst(02,clientid,c.cans.rec,c.cans.type,c.cans.staff,c.cans.ver,c.cans.date,c.cans.age,c.cans.aloc,c.cans.rloc,c.cans.dloc,c.cans.compd,c.cans.alocdate)
+  enddo
+  
+  if rc = 2 then     'check the ua record
+   'rc = 0
+   $setvarname(c.cans.rec,      "C.CABD.REC")
+   $setvarname(c.cans.staff,    "C.CABD.STAFF")
+   '$setvarname(c.cans.ver,      "C.CABD.REC")
+   $setvarname(c.cans.date,     "C.CABD.ASDT")
+   '$setvarname(c.cans.age,      "C.CABD.REC")
+   $setvarname(c.cans.aloc,     "C.CABD.ALOC")
+   $setvarname(c.cans.rloc,     "C.CABD.LOCR")
+   '$setvarname(c.cans.dloc,     "C.CABD.REC")
+   $setvarname(c.cans.compd,    "C.CABD.COMPD")
+   $setvarname(c.cans.type,     "C.CABD.ASS")
+   $setvarname(c.cans.alocdate, "C.CABD.DATE3")
+   rc = $dbread(02,clientid,c.cans.rec,c.cans.type,c.cans.staff,
+                           'c.cans.ver,
+                           c.cans.date,
+                           'c.cans.age,c.cans.aloc,
+                           c.cans.rloc,
+                           'c.cans.dloc,
+                           c.cans.compd,c.cans.alocdate)
+     do until c.cans.compd dp or rc = 2
+      rc = $dbreadnextdst(02,clientid,c.cans.rec,c.cans.type,c.cans.staff,
+                           'c.cans.ver,
+                           c.cans.date,
+                           'c.cans.age,c.cans.aloc,
+                           c.cans.rloc,
+                           'c.cans.dloc,
+                           c.cans.compd,c.cans.alocdate)
+     enddo
+     if c.cans.aloc = "8" or c.cans.aloc = "9" then 'clear any previous inital non admit assessments
+      $clear(c.cans.type)
+     endif
+  endif
+ end Last_Assessment
+ 
+ function EndDate(c.cans.aloc,c.cans.alocdate) is d
+  c.cans.aloc     is x
+  c.cans.alocdate is d
+  select c.cans.aloc
+   case "100" EndDate = c.cans.alocdate + 7
+   case "101" EndDate = c.cans.alocdate + 90
+   case "102" EndDate = c.cans.alocdate + 90
+   case "103" EndDate = c.cans.alocdate + 90
+   case "104" EndDate = c.cans.alocdate + 90
+   case "105" EndDate = c.cans.alocdate + 90
+   case "106" EndDate = c.cans.alocdate + 90
+   case "107" EndDate = c.cans.alocdate + 7
+   case other EndDate = c.cans.alocdate
+  endselect 
+ end EndDate
+ 
+ function PromptNewEditDel(clientid) is i
+  clientid        is x
+  c.cans.rec      is h
+  c.cans.staff    is x
+  c.cans.ver      is x
+  c.cans.date     is d
+  c.cans.age      is i
+  c.cans.aloc     is x
+  c.cans.rloc     is x
+  c.cans.dloc     is x
+  c.cans.compd    is d
+  c.cans.type     is x
+  c.cans.alocdate is d
+  rc              is i
+  choice_btn[]    is x
+  rc = $dbread(02,clientid,c.cans.rec,c.cans.type,c.cans.staff,c.cans.date,c.cans.rloc,c.cans.compd)
+  if c.cans.staff = $operstaffid and c.cans.compd !dp
+   do while 1 = 1
+    $clear(choice_btn[])
+    $submitopt("off")
+    $cancelopt("off","Exit")
+    $form($funcname)
+     {"lib_UACOMMON"}ClientPageHeader($regid)
+	 $tag("<center>")
+	  $br(3)$text("There is a current CANS assessment that has not yet been authorized. How do you wish to proceed?","datatag")
+	  $br(2)$submit(choice_btn[1],"Restart Current")
+	  $br(2) $submit(choice_btn[2],"Edit Existing")
+	  $br(2) $submit(choice_btn[3],"Delete Existing and Exit")
+	  $br(2) $submit(choice_btn[4],"Exit with no changes")
+	 $tag("</center>")
+    $sendform($funcname)
+    select $endbutton
+     case "SUBMIT" 
+	 case "CANCEL" PromptNewEditDel = 4
+	               return
+	 case other PromptNewEditDel = $maxarray(choice_btn[])
+	            return
+    endselect    
+   enddo
+  elseif c.cans.staff dp and c.cans.staff != $operstaffid and c.cans.compd !dp
+   PromptNewEditDel = 5
+  endif
+ end PromptNewEditDel
