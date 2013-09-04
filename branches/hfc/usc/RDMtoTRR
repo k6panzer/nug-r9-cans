@@ -1,0 +1,753 @@
+'RDM to TRR Migration to mimic the DSHS' CARE to CMBHS Migration
+' DSHS Specs: https://cmbhslst.dshs.state.tx.us/cmbhs/Documents/Migration/
+'
+'Tim Markello
+'7/18/2013
+' 0.0.1 alpha release. Minor testing completed. Major testing needs to be completed
+'  to validate migration sorting logic.
+'
+'Assumptions
+'  DB does not contain any current TRR UA records
+'
+'Dependencies
+'  inc_GetParm, inc_GetOption
+'
+'Deviations from DSHS Specs
+'  Script does not update the 'migration' record with any assessment data -- 
+'     only assessment meta data ( type, date, end date, loc, etc)
+'
+'Configuration
+'  DST short names must be mapped to ensure successful migration
+'
+'Updates
+'
+'TJM 0.0.1.x 7/18/2013
+'  ^ fixed issues with non-clearing variables
+'  ^ fixed issue with defaulting to child ua when there is realy no ua
+'  + added reportInactive option to control reporting of clients that will not migrate
+'  ~ tweaked the days of authorization table to match the published draft um guidelines
+'     https://cmbhslst.dshs.state.tx.us/cmbhs/Documents/Adult%20Uniform%20Assessment%20-%20Release%201/DRAFT%20Adult%20UM%20Guidelines%20Effective%20Sept.2013.FY14.doc
+'     * should probably make options to override the authorization days defaults...
+'
+'RHW  0.0.2.x 7/25/2013
+'  ^ fixed issues with reading all of the needed DST in the adult UA for logic to work
+'  + added logic to determine if an adult UA LOCA1 expired along with consideration for extended review
+'  + added some sample logic to use freetds to determine if a crisis service had been provided (LOCR 1M and 1S logic)
+'
+'RHW  0.0.3.x 7/26/2013
+'  ^ fixed issue when SP 1M should be migrated as 111
+'  + Added option to create a pipe "|" delimited file of migration data to facilitate importing into SQL
+'
+'TJM 0.0.4.x 7/26/2013
+'  ~ changed the crisis event checking by sql piece to be an option
+'        sql_crisis_check = Y | N
+'        function hascrisis() removed
+'  ~ some minor moving around / variable renamed
+'  + exit logic for crisis check when using sequental method
+'  ^ fixed record layer vs reporting issue (was reporting last read layer instead of most current)
+'  ^ fixed crisis to NOT migrate expired crisis uas (as of migration_date)
+
+%version 0.0.4.9 7/26/2013 gcc
+
+start RDMtoTRR(parmfile, option, clientid, retcode)
+'arguments
+parmfile          is x
+option            is x
+clientid          is x
+retcode           is b
+
+'options
+auditOnly         is x
+doReport          is x
+reportinactive    is x
+delim_path        is x
+migrate_date      is d
+sql_crisis_check  is x
+
+er_crisis_flags[] is x
+er_crisis_crit[]  is x
+er_date           is v
+
+trr_a_crisi       is b
+trr_a_trans       is b
+trr_a_medis       is b
+trr_a_skill       is b
+trr_a_basic       is b
+trr_a_inten       is b
+trr_a_asser       is b      
+trr_a_waits       is b
+
+trr_c_crisi       is b
+trr_c_medis       is b
+trr_c_targe       is b
+trr_c_compl       is b
+trr_c_inten       is b
+trr_c_trans       is b
+trr_c_young       is b
+trr_c_yesss       is b
+trr_c_waits       is b
+
+rdm_a_0           is b
+rdm_a_1           is b
+rdm_a_2           is b
+rdm_a_3           is b
+rdm_a_4           is b
+rdm_a_5           is b
+rdm_a_8           is b
+
+rdm_c_0           is b
+rdm_c_5           is b
+rdm_c_8           is b
+
+trr_days_by_loc[] is x
+
+migrate_a_table[] is x
+migrate_c_table[] is x
+
+trr_type_table[]  is x
+
+rdm_disch_type    is x
+rdm_update_type   is x
+rdm_intake_type   is x
+rdm_crisis_type   is x
+
+trr_crisis_type   is b
+trr_update_type   is b
+trr_intake_type   is b
+trr_disch_type    is b
+
+'dsts definitions
+clientdb          is b
+c.age             is v
+
+'sql crisis search options
+o_sql       is x
+o_user      is x
+o_pass      is x
+o_ds        is x
+o_db        is x
+o_data      is x
+o_dsn       is x
+l-sql       is b
+x-sql       is x
+
+'rdm ua
+rdm.a.rec         is v
+rdm.a.date        is v
+rdm.a.type        is x
+rdm.a.loca        is x
+rdm.a.locr        is x
+rdm.a.harm        is x
+rdm.a.supp        is x
+rdm.a.hosp        is x
+rdm.a.impr        is x
+rdm.a.empl        is x
+rdm.a.hous        is x
+rdm.a.cops        is x
+rdm.a.crim        is x
+rdm.a.meds        is x
+rdm.a.exrv           is x  'RHW RDM Extended Review
+rdm.a.exdays      is b
+
+rdm.c.rec         is v
+rdm.c.date        is v
+rdm.c.type        is x
+rdm.c.loca        is x
+rdm.c.tcom        is x
+rdm.c.jj          is x
+
+'trr us rec
+trr.a.rec         is v
+trr.a.date        is v
+trr.a.endd        is v
+trr.a.type        is x
+trr.a.loca        is x
+trr.a.locr        is x
+trr.a.locd        is x
+trr.a.devo        is x
+trr.a.astf        is x
+
+trr.c.rec         is v
+trr.c.date        is v
+trr.c.endd        is v
+trr.c.type        is x
+trr.c.loca        is x
+trr.c.locr        is x
+trr.c.locd        is x
+trr.c.devo        is x
+trr.c.astf        is x
+
+trr.def.dreaso    is x
+trr.def.astaff    is x
+
+'private
+read-id           is x
+rdm-rec[]         is x
+rdm-val[]         is x
+trr-rec[]         is x
+trr-val[]         is x
+last-ua-type      is x
+last-ua-date      is d
+curr-loca         is x
+
+er-obj            is x
+er-crisis-vals[]  is x
+er-crit           is x
+
+rc                is b
+i                 is b
+
+$setvartype(c.age, "X")
+$setvartype(rdm.a.rec, "X")
+$setvartype(rdm.a.date, "X")
+$setvartype(rdm.c.rec, "X")
+$setvartype(rdm.c.date, "X")
+$setvartype(trr.a.rec, "X")
+$setvartype(trr.a.date, "X")
+$setvartype(trr.a.endd, "X")
+$setvartype(trr.c.rec, "X")
+$setvartype(trr.c.date, "X")
+$setvartype(trr.c.endd, "X")
+$setvartype(er_date, "X")
+
+migrate_date = 9/1/2013
+auditOnly = "Y"
+doReport = "Y"
+reportinactive = "N"
+sql_crisis_check = "Y"
+
+delim_path = "/c0/SQLTRANSFER/t_rdm2trr.txt"     'define a path and the script will create a pipe delimited file
+
+trr.def.dreaso = "MIGRATION"
+trr.def.astaff = "MIGRATION"
+
+'loc values
+trr_a_crisi = 100
+trr_a_trans = 106
+trr_a_medis = 111
+trr_a_skill = 112
+trr_a_basic = 113
+trr_a_inten = 114
+trr_a_asser = 115
+trr_a_waits = 109
+
+trr_c_crisi = 100
+trr_c_medis = 101
+trr_c_targe = 102
+trr_c_compl = 103
+trr_c_inten = 104
+trr_c_trans = 106
+trr_c_young = 105
+trr_c_yesss = 107
+trr_c_waits = 109
+
+'set the current rdm loc values to be 'value + 10'
+'  since arrays are not zero indexed
+rdm_a_0 = 10
+rdm_a_1 = 11
+rdm_a_2 = 12
+rdm_a_3 = 13
+rdm_a_4 = 14
+rdm_a_5 = 15
+rdm_a_8 = 18
+
+rdm_c_0 = 10
+rdm_c_5 = 15
+rdm_c_8 = 18
+
+rdm_disch_type = "D"
+rdm_update_type = "U"
+rdm_intake_type = "I"
+rdm_crisis_type = "E"
+
+' crisis flags
+er_crisis_flags[1] = "E.RU"
+er_crisis_flags[2] = "E.PROJ"
+
+er_crisis_crit[1] = "5422"
+er_crisis_crit[2] = "51,52"
+
+er_date = "E.DATE"
+
+'dst defaults
+clientdb = 2
+c.age      = "C.AGE.YEAR"
+'adult rdm
+rdm.a.rec  = "C.UABD"
+rdm.a.type = "C.UABD.PUR"
+rdm.a.date = "C.UABD.DATE1"
+rdm.a.loca = "C.UABD.ALOC"
+rdm.a.locr = "C.UABD.RLOC"
+rdm.a.harm = "C.UABD.HARM"
+rdm.a.supp = "C.UABD.SUPP"
+rdm.a.hosp = "C.UABD.HOSP"
+rdm.a.impr = "C.UABD.IMPAIR"
+rdm.a.empl = "C.UABD.EMP"
+rdm.a.hous = "C.UABD.HOUS"
+rdm.a.cops = "C.UABD.COPSD"
+rdm.a.crim = "C.UABD.CRIM"
+rdm.a.meds = "C.UABD.MED"
+'rdm.a.exrv = "C.UABD.EXTD"   'RHW
+rdm.a.exrv = ""
+'child rdm
+rdm.c.rec  = "C.CABD.REC"
+rdm.c.loca = "C.CABD.ALOC"
+rdm.c.type = "C.CABD.ASS"
+rdm.c.date = "C.CABD.DATE3"
+rdm.c.tcom = ""
+'rdm.c.tcom = ""
+rdm.c.jj   = "C.CABD.JJ"
+'adult trr
+trr.a.rec  = "C.ANSA.REC"
+trr.a.loca = "C.ANSA.ALOC"
+trr.a.locd = "C.ANSA.DLOC"
+trr.a.locr = "C.ANSA.RLOC"
+trr.a.date = "C.ANSA.ALOCDATE"
+trr.a.endd = "C.ANSA.ALOCEDATE"
+trr.a.devo = "C.ANSA.DEVOTH"
+'child trr
+trr.c.rec  = "C.CANS.REC"
+trr.c.loca = "C.CANS.ALOC"
+trr.c.locd = "C.CANS.DLOC"
+trr.c.locr = "C.CANS.RLOC"
+trr.c.date = "C.CANS.ALOCDATE"
+trr.c.endd = "C.CANS.ALOCEDATE"
+trr.c.devo = "C.CANS.DEVOTH"
+
+trr_crisis_type = 11
+trr_intake_type = 1
+trr_update_type = 2
+trr_disch_type = 3
+
+o_user   = "sqltransfer"
+o_pass = "sqltransfer"
+o_ds   = "svrsql"
+o_db     = "CMHC_Export"
+o_sql = "SELECT [CrisisCount] FROM [CMHC_Export].[dbo].[v_RHW_CrisisEncPerCID] WHERE CID = '%CID%'"
+
+getparm(parmfile)
+getoption(option)
+
+$setvarname(c.age     , c.age     )
+$setvarname(rdm.a.rec , rdm.a.rec )
+$setvarname(rdm.a.type, rdm.a.type)
+$setvarname(rdm.a.date, rdm.a.date)
+$setvarname(rdm.a.loca, rdm.a.loca)
+$setvarname(rdm.a.locr, rdm.a.locr)
+$setvarname(rdm.a.harm, rdm.a.harm)
+$setvarname(rdm.a.supp, rdm.a.supp)
+$setvarname(rdm.a.hosp, rdm.a.hosp)
+$setvarname(rdm.a.impr, rdm.a.impr)
+$setvarname(rdm.a.empl, rdm.a.empl)
+$setvarname(rdm.a.hous, rdm.a.hous)
+$setvarname(rdm.a.cops, rdm.a.cops)
+$setvarname(rdm.a.crim, rdm.a.crim)
+$setvarname(rdm.a.meds, rdm.a.meds)
+$setvarname(rdm.a.exrv, rdm.a.exrv)    'RHW
+$setvarname(rdm.c.rec , rdm.c.rec )
+$setvarname(rdm.c.loca, rdm.c.loca)
+$setvarname(rdm.c.type, rdm.c.type)
+$setvarname(rdm.c.date, rdm.c.date)
+$setvarname(rdm.c.tcom, rdm.c.tcom)
+$setvarname(rdm.c.jj  , rdm.c.jj  )
+
+$setvarname(trr.a.rec , trr.a.rec )  
+$setvarname(trr.a.loca, trr.a.loca)  
+$setvarname(trr.a.locd, trr.a.locd)  
+$setvarname(trr.a.locr, trr.a.locr)  
+$setvarname(trr.a.date, trr.a.date)  
+$setvarname(trr.a.endd, trr.a.endd)  
+$setvarname(trr.a.devo, trr.a.devo)  
+
+$setvarname(trr.c.rec , trr.c.rec )  
+$setvarname(trr.c.loca, trr.c.loca)  
+$setvarname(trr.c.locd, trr.c.locd)  
+$setvarname(trr.c.locr, trr.c.locr)  
+
+$setvarname(er_date, er_Date)  
+
+
+$setvartype(c.age, "B")
+$setvartype(rdm.a.rec, "H")
+$setvartype(rdm.a.date, "D")
+$setvartype(rdm.c.rec, "H")
+$setvartype(rdm.c.date, "D")
+$setvartype(trr.a.rec, "H")
+$setvartype(trr.a.date, "D")
+$setvartype(trr.a.endd, "D")
+$setvartype(trr.c.rec, "H")
+$setvartype(trr.c.date, "D")
+$setvartype(trr.c.endd, "D")
+$setvartype(er_date, "D")
+
+'migration record defaults
+trr.def.dreaso = "MIGRATION"
+trr.def.astaff = "MIGRATION"
+
+'end day caluclation table
+trr_days_by_loc[trr_a_crisi] = 7
+trr_days_by_loc[trr_a_trans] = 90
+trr_days_by_loc[trr_a_medis] = 365
+trr_days_by_loc[trr_a_skill] = 180
+trr_days_by_loc[trr_a_basic] = 180
+trr_days_by_loc[trr_a_inten] = 180
+trr_days_by_loc[trr_a_asser] = 180
+
+trr_days_by_loc[trr_c_medis] = 90
+trr_days_by_loc[trr_c_targe] = 90
+trr_days_by_loc[trr_c_compl] = 90
+trr_days_by_loc[trr_c_inten] = 90
+trr_days_by_loc[trr_c_trans] = 90
+trr_days_by_loc[trr_c_young] = 90
+trr_days_by_loc[trr_c_yesss] = 90
+
+migrate_a_table[rdm_a_0] = trr_a_crisi
+migrate_a_table[rdm_a_2] = trr_a_basic
+migrate_a_table[rdm_a_3] = trr_a_inten
+migrate_a_table[rdm_a_4] = trr_a_asser
+migrate_a_table[rdm_a_5] = trr_a_trans
+migrate_a_table[rdm_a_8] = trr_a_waits
+
+migrate_c_table[rdm_c_0] = trr_c_crisi
+migrate_c_table[rdm_c_5] = trr_c_trans
+migrate_c_table[rdm_c_8] = trr_c_waits
+
+trr_type_table[trr_crisis_type] = rdm_crisis_type
+trr_type_table[trr_update_type] = rdm_update_type
+trr_type_table[trr_intake_type] = rdm_intake_type
+trr_type_table[trr_disch_type] = rdm_disch_type
+
+if delim_path dp then
+   x-sql = "rm " + delim_path
+   rc = $unix(x-sql)
+endif
+
+i = 0
+do while i++ < $maxarray(er_crisis_crit[])
+   er_crisis_crit[i] = "," + er_crisis_crit[i] + ","
+enddo
+
+if sql_crisis_check = "Y" then
+   if $loadlib(l-sql,"LIB-freetds") > 0 then return endif
+   if o_user dp and o_pass dp and o_ds dp and o_db dp and o_sql dp then
+      o_dsn = o_user + ":" + o_pass + ":" + o_ds + ":" + o_db
+      l-sql:setDSN(o_dsn)
+   else
+      sql_crisis_check = "N"
+   endif
+endif
+
+
+'read the db
+if clientid dp then 
+   read-id = clientid
+else
+   rc = $dbstart(clientdb, read-id)
+endif
+
+$brmsg("...Migrating...", 1, "EC" )
+
+if doReport = "Y" then report("START", rdm.a.type, rdm.a.loca, trr.a.loca, rdm.c.type, rdm.c.loca, trr.c.loca, delim_path) endif
+
+$dblock()
+rc = $dbread(clientdb, read-id, c.age, rdm.a.rec, rdm.a.date, rdm.a.type, rdm.a.loca, rdm.c.rec, rdm.c.date, rdm.c.type, rdm.c.loca, rdm.c.tcom, rdm.c.jj)
+gosub _REC-PROC
+
+'stop hear or rip through rest of db
+$dblock()
+rc = $dbreadnext(clientdb, read-id, c.age, rdm.a.rec, rdm.a.date, rdm.a.type, rdm.a.loca, rdm.c.rec, rdm.c.date, rdm.c.type, rdm.c.loca, rdm.c.tcom, rdm.c.jj)
+if clientid dp then rc = 99 endif
+do while rc < 3
+   $loopcount = 0
+'Adult - If the top record is started but not yet authorized then read the next layer
+   if rdm.a.rec dp and rdm.a.type dp and rdm.a.loca !dp and rdm.a.type != rdm_disch_type
+    (void)$dbreadnextdst(clientdb, read-id, rdm.a.rec, rdm.a.date, rdm.a.type, rdm.a.loca)   
+   endif
+'Child - If the top record is started but not yet authorized then read the next layer
+   if rdm.c.rec dp and rdm.c.type dp and rdm.c.loca !dp and rdm.c.type != rdm_disch_type
+    (void)$dbreadnextdst(clientdb, read-id, rdm.c.rec, rdm.c.date, rdm.c.type, rdm.c.loca, rdm.c.tcom, rdm.c.jj)
+   endif
+   gosub _REC-PROC
+   $dblock()
+   rc = $dbreadnext(clientdb, read-id, c.age, rdm.a.rec, rdm.a.date, rdm.a.type, rdm.a.loca, rdm.c.rec, rdm.c.date, rdm.c.type, rdm.c.loca, rdm.c.tcom, rdm.c.jj)
+enddo
+
+if doReport = "Y" then report("END") endif
+
+'quit before subroutines
+return
+
+'record processing
+_REC-PROC:
+   $clear(trr.a.loca, trr.c.loca)
+   'calculate new locr
+'lovec - Need to be sure not to exclude a client when they've transitioned from child to adult packages
+   if rdm.a.type = rdm_disch_type or (rdm.c.type = rdm_disch_type and (rdm.a.type != "I" and rdm.a.type != "U"))           'discharged
+   or (rdm.a.type = rdm_crisis_type and `rdm.a.date + 7` < migrate_date)   'expired crisis
+   or (rdm.c.type = rdm_crisis_type and `rdm.c.date + 7` < migrate_date) then
+      'not migrating inactive clients
+   elseif rdm.a.loca dp then
+      select rdm.a.loca
+         case "1"    '1m or 1s
+                     're-read top layer to get all trag scores
+'RHW  added rdm.a.date, rdm.a.locr and rdm.a.exrv
+                     rc = $dbread(clientdb, read-id, rdm.a.rec, rdm.a.date, rdm.a.locr, rdm.a.loca, rdm.a.type, 
+                        rdm.a.harm, rdm.a.supp,rdm.a.hosp,rdm.a.impr,rdm.a.empl,rdm.a.hous,
+                        rdm.a.cops,rdm.a.crim,rdm.a.meds, rdm.a.exrv)
+'RHW    added logic to the do while loop to stop looking at UA's once the oldest got to earler than 8/31/2013
+                     curr-loca = rdm.a.loca
+                     do while rc < 2 and rdm.a.date > 08/31/2012
+                        select rdm.a.type
+                           case rdm_disch_type
+                              if last-ua-type dp then
+                                 trr.a.loca = trr_a_skill
+                              else
+                                 'not an active client
+                              endif
+                           case rdm_intake_type 
+                             or rdm_crisis_type
+                              if rdm.a.date > 8/30/2012 or rdm.a.loca != "1" or rdm.a.locr != "1" then
+                                 trr.a.loca = trr_a_skill
+                              endif
+                           case other  'must be update
+                              
+'RHW  Added logic to determine if the UA is extended review and set the default days to expire
+                              if rdm.a.exrv = "Y"
+                                 rdm.a.exdays = 365
+                              else
+                                 rdm.a.exdays = 180
+                              endif
+                              
+                              if ( last-ua-date dp and `last-ua-date - rdm.a.date` > rdm.a.exdays )
+                              or rdm.a.loca != "1" or rdm.a.locr != "1"
+                              or (rdm.a.harm != "1"
+                              or rdm.a.supp != "1"
+                              or rdm.a.hosp != "1"
+                              or rdm.a.impr != "1"
+                              or rdm.a.empl != "1"
+                              or rdm.a.hous != "1"
+                              or rdm.a.cops != "1"
+                              or rdm.a.crim != "1"
+                              or (rdm.a.meds != "1" and rdm.a.meds dp)) then 
+                              trr.a.loca = trr_a_skill
+                           endif
+                        endselect
+                        
+                        if trr.a.loca !dp then
+                           last-ua-type = rdm.a.type
+                           last-ua-date = rdm.a.date
+'RHW    added logic to the do while loop to stop looking at UA's once the oldest got to earler than 8/31/2013
+                           rc = $dbreadnextdst(clientdb, read-id, rdm.a.rec, rdm.a.date, rdm.a.locr, rdm.a.loca, rdm.a.type,
+                              rdm.a.harm, rdm.a.supp,rdm.a.hosp,rdm.a.impr,rdm.a.empl,rdm.a.hous,
+                              rdm.a.cops,rdm.a.crim,rdm.a.meds,rdm.a.exrv)
+
+                        else
+                           rc = 99
+                        endif
+                     enddo
+                     rdm.a.loca = curr-loca
+
+                     if trr.a.loca !dp then
+                        if sql_crisis_check = "Y" then
+                           x-sql = $replace("%CID%", read-id, o_sql)
+                           rc = l-sql:q(x-sql,o_data)
+
+                           'data = data
+
+                           o_data = $parse(o_data,1,"|")
+
+                           if o_data != "0" then
+                              trr.a.loca = trr_a_skill
+                           endif
+                        else
+
+                           'look for crisis encounters:
+                           $loopcount = 0
+                           rc = $startevents(, read-id, migrate_date)
+                           rc = $readnextevent(er_date)
+                           do while rc = 0 and er_date > 8/31/2011
+                              rc = $geterrec(er-obj)
+                              rc = $getervars(er-obj, er_date, er_crisis_flags[], er-crisis-vals[])
+                              i = 0
+                              do while i++ < $maxarray(er_crisis_flags[])
+                                 er-crit = "," + er-crisis-vals[i] + ","
+                                 if $find(er-crit, er_crisis_crit[i], 1, "F") > 0 then
+                                    trr.a.loca = trr_a_skill
+                                    i = $maxarray(er_crisis_flags[])
+                                 endif
+                              enddo
+                              if trr.a.loca dp then
+                                 rc = 99
+                              else
+                                 rc = $readnextevent(er_date)
+                              endif
+                           enddo
+                        endif
+                     endif
+ 'RHW to here                    
+                     'auth < 8/31/12 with no gaps or discharges
+                     'AND all assessments have locr = 1 and loca = 1
+                     'AND all TRAG scores = 1
+                     'AND No Crisis encounters = 1 M
+                     if trr.a.loca !dp then
+                        trr.a.loca = trr_a_medis
+                     endif
+
+         case other  trr.a.loca = migrate_a_table[`$casti(rdm.a.loca) + 10`]
+      endselect
+      trr.a.locr = trr.a.loca
+      trr.a.locd = trr.a.loca
+      trr.a.type = $find(rdm.a.type, trr_type_table[], 1, "F")
+      trr.a.date = rdm.a.date
+      trr.a.endd = trr.a.date + trr_days_by_loc[`$casti(trr.a.loca)`]
+      trr.a.devo = trr.def.dreaso
+      trr.a.astf = trr.def.astaff
+   elseif rdm.c.type dp then
+      if c.age < 6 then 
+         trr.c.loca = trr_c_young
+      else
+         select rdm.c.loca
+            case "1.1"
+              or "1.2"  trr.c.loca = trr_c_targe
+            case "2.1"  
+              or "2.4"  trr.c.loca = trr_c_inten
+            case "2.2"
+              or "2.3"  if (rdm.c.tcom = "Y" or rdm.c.jj > 2) then 
+                           trr.c.loca = trr_c_inten
+                        else
+                           trr.c.loca = trr_c_compl
+                        endif
+            case "4"    trr.c.loca = trr_c_medis
+            case other  trr.c.loca = migrate_c_table[`$casti(rdm.c.loca) + 10`]
+         endselect
+      endif
+      trr.c.locr = trr.c.loca
+      trr.c.locd = trr.c.loca
+      trr.c.type = $find(rdm.c.type, trr_type_table[], 1, "F")
+      trr.c.date = rdm.c.date
+      trr.c.endd = trr.c.date + trr_days_by_loc[`$casti(trr.c.loca)`]
+      trr.c.devo = trr.def.dreaso
+      trr.a.astf = trr.def.astaff
+   endif
+
+   'update trr record
+   if auditOnly != "Y" then 
+      if trr.a.loca dp then 
+         rc = $dbadddst(clientdb, read-id, trr.a.rec, trr.a.type, trr.a.date, trr.a.endd, trr.a.devo, 
+            trr.a.astf, trr.a.loca, trr.a.locr, trr.a.locd) 
+      elseif trr.c.loca dp then
+         rc = $dbadddst(clientdb, read-id, trr.c.rec, trr.c.type, trr.c.date, trr.c.endd, trr.c.devo, 
+            trr.c.astf, trr.c.loca, trr.c.locr, trr.c.locd)
+      else
+         if doReport = "Y" then report(read-id, "calc", "error") endif
+      endif
+      if rc > 0 and doReport = "Y" then
+         report(read-id, "rec", "add", "error")
+      endif
+   endif
+   
+   'log report
+   if doReport = "Y" then 
+      if trr.a.loca dp or trr.c.loca dp or ReportInactive = "Y" then 
+         report(read-id, rdm.a.type, rdm.a.loca, trr.a.loca, rdm.c.type, rdm.c.loca, trr.c.loca, delim_path) 
+      endif
+   endif
+   
+'   'clear for next record
+'   $clear(c.age, rdm.a.rec, rdm.a.loca, rdm.a.type, rdm.a.harm, rdm.a.supp,rdm.a.hosp,rdm.a.impr,
+'      rdm.a.empl,rdm.a.hous,rdm.a.cops,rdm.a.crim,rdm.a.meds, rdm.c.rec, rdm.c.type, rdm.c.loca, 
+'      rdm.c.tcom, rdm.c.jj)
+
+goback
+
+
+end RDMtoTRR
+
+%include inc_GetParm
+%include inc_GetOption
+
+static function report(read-id, dst1, dst2, dst3, dst4, dst5, dst6, delim_path) is binary
+read-id        is x
+dst1           is v
+dst2           is v
+dst3           is v
+dst4           is v
+dst5           is v
+dst6           is v
+
+hdr[]          is x
+fmt            is x
+i              is b
+len            is b
+reportNbr      is b
+print-line     is x
+
+delim_path      is x
+delim_string   is x
+|              is x   | = "|"
+
+if read-id = "START" then
+   hdr[1] = "Date: ^DATE^^C^RDM to TRR Migration Report^R^Page: ^PAGE^"                        ' Header Line 1
+   hdr[2] = "Time: ^TIME^^C^"        ' Header Line 2
+   hdr[3] = ""                               ' Header Blank Line
+   'dynamically create the headers:
+   hdr[4] = "ID       "
+   hdr[5] = "-------- "
+   fmt    = "~~~~~~~~ "
+   
+   hdr[4] += $varname(dst1) + " "
+   hdr[4] += $varname(dst2) + " "
+   hdr[4] += $varname(dst3) + " "
+   hdr[4] += $varname(dst4) + " "
+   hdr[4] += $varname(dst5) + " "
+   hdr[4] += $varname(dst6) + " "
+   
+   len = $len($varname(dst1))
+   hdr[5] += $mchar("-", len) + " "
+   fmt += $mchar("~", len) + " "
+   
+   len = $len($varname(dst2))
+   hdr[5] += $mchar("-", len) + " "
+   fmt += $mchar("~", len) + " "
+   
+   len = $len($varname(dst3))
+   hdr[5] += $mchar("-", len) + " "
+   fmt += $mchar("~", len) + " "
+   
+   len = $len($varname(dst4))
+   hdr[5] += $mchar("-", len) + " "
+   fmt += $mchar("~", len) + " "
+   
+   len = $len($varname(dst5))
+   hdr[5] += $mchar("-", len) + " "
+   fmt += $mchar("~", len) + " "
+
+   len = $len($varname(dst6))
+   hdr[5] += $mchar("-", len) + " "
+   fmt += $mchar("~", len) + " "
+
+   'open report - 60 lines per page
+   reportNbr = $reportavail()
+   if reportNbr = 0 then
+       $abort(1, "Unable to get a report number")
+   endif
+    if $report(reportNbr,"RDM to TRR Migration Report",hdr[],60,132) != 0 then
+        $abort(2, "Unable to create a report")
+    endif
+   return
+endif
+
+if read-id = "END" then
+   report = $closereport(reportNbr)
+   return
+endif
+
+print-line = $format(read-id, dst1, dst2, dst3, dst4, dst5, dst6, fmt)
+report = $print(reportNbr, print-line)
+
+if delim_path dp
+   delim_string = read-id + | + dst1 + | + dst2 + | + dst3 + | + dst4 + | + dst5 + | + dst6 + |
+   $log(delim_string,delim_path)
+endif
+
+end report

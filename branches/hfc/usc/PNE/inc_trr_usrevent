@@ -1,0 +1,12 @@
+%define d_TrrParm "TRROPT"
+%define d_TrrDefaultDate 09/01/2013
+
+dynamic FUNCTION getTrrCutOver() is d
+   rc    is b
+   T     is x
+   rc = $getparm(,d_TrrParm,"TRRCUTOVER",T)
+   getTrrCutOver = $date(T)
+   if getTrrCutOver !dp then
+      getTrrCutOver = d_TrrDefaultDate
+   endif
+end getTrrCutOver
