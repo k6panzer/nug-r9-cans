@@ -1,6 +1,6 @@
 'Include file for the CANS (Children's Assessment of Needs and Strengths) 3-5
 
-%global CansTypeDCT,CansIntRefDCT,CansDisReasDCT,CansDisRefDCT,CansAuthLevelDCT,CansDeviationDCT,CansGradeDCT,CansResTypeDCT
+%global CansTypeDCT,CansIntRefDCT,CansDisReasDCT,CansDisRefDCT,CansAuthLevelDCT,CansDeviationDCT,CansGradeDCT,CansResTypeDCT,SkiPSer,AssessmentSer
 CansTypeDCT      is b
 CansIntRefDCT    is b
 CansDisReasDCT   is b
@@ -9,6 +9,8 @@ CansAuthLevelDCT is b
 CansDeviationDCT is b
 CansGradeDCT     is b
 CansResTypeDCT   is b
+SkipSer          is x
+AssessmentSer    is b
 
 '*********Datacode Tables, Change These*****************
 CansTypeDCT      = 9700
@@ -19,6 +21,8 @@ CansAuthLevelDCT = 9705
 CansDeviationDCT = 9706
 CansGradeDCT     = 9710
 CansResTypeDCT   = 9012
+SkipSer          = "N"
+AssessmentSer    = 10
 '*******************************************************
 
 '*********Medical Necessity Statement Related***********

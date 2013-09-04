@@ -1,7 +1,5 @@
 start ANSA(parmfile,option,client,retcode)
  %version 1.0.004 09/04/2013
- %global test
- test is x
  $looplimit = 0
  %include inc_ANSA
  e.ser     is b
@@ -98,8 +96,6 @@ start ANSA(parmfile,option,client,retcode)
  %global bgcolor
  bgcolor is x 
  %define table_wbgcolor "width='100%' cellspacing='0' cellpadding='0' bgcolor='" + bgcolor + "'"
- test = table_wbgcolor
-
  %define table_nobgcolor "width='100%' cellspacing='0' cellpadding='0'"  
  %define row_color1 "bgcolor='LightSkyBlue'"
  %define row_color2 "bgcolor='White'"
@@ -493,9 +489,9 @@ start ANSA(parmfile,option,client,retcode)
       endif
 	endif
    elseif Page = "SAL"
-    if c.ansa.type = "1"
+    if c.ansa.type = "1" and SkipSer = "N"
 	 if c.ansa.isn !dp
-	  e.ser = 7
+	  e.ser = AssessmentSer
 	  {"lib_UAEVENTS"}event(e.ser, e.ru, e.start, e.dur, e.loc, addsal)
        if $endbutton = "SUBMIT"
 	    if addsal = "YES"
