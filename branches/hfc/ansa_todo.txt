@@ -1,2 +1,0 @@
-Fix inc_DX for simpler use by each center
-I'm sure there's other stuff
