@@ -2,8 +2,7 @@ start TRR_WRAPPER(client,option)
  client          is x
  option          is x
  age             is i
- c.ansa.rec      is x
- c.cans.rec      is x
+ c.cans.rec      is h
  c.cans.canstype is x
  cans617_btn     is x
  cans35_btn      is x
