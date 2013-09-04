@@ -1,5 +1,5 @@
 start ANSA(parmfile,option,client,retcode)
- %version 1.0.003 09/04/2013
+ %version 1.0.004 09/04/2013
  %global test
  test is x
  $looplimit = 0
@@ -189,7 +189,7 @@ start ANSA(parmfile,option,client,retcode)
     endif
   endif
  else
-  rc = $dbread(02, $regid, c.ansa.rec,c.ansa.compd,c.ansa.type,c.ansa.staff)
+  PromptNED = {"lib_ANSA"}PromptNewEditDel($regid)
   if PromptNED = 1
    $dblock()
    rc = $dbread(02, $regid, c.ansa.rec,c.ansa.date)	
@@ -1527,7 +1527,7 @@ function Page4Rpt() is null
  endif
  if c.ansa.labor =  "1"
   c_ansa_labor = "Receiving SSI/SSDI and can't work"
- elseif c_ansa_labor = "2"
+ elseif c.ansa.labor = "2"
   c_ansa_labor = "Receiving SSI/SSDI and worries that work will effect benefit"
  elseif c.ansa.labor = "3"
   c_ansa_labor = "Does not want or need work"
@@ -3706,9 +3706,15 @@ function ReportHdr() is null
 end ReportHdr
 
 function StaffComments() is null
+ s.fn is x
+ s.ln is x
+ (void)$dbread(3,c.ansa.staff,s.fn,s.ln)
  $table($funcname,,"width='100%' cellspacing='0' cellpadding='2' bgcolor='White'  style='border-style: solid; border-width: 1px'")
   $row(,col_color_multi)
    $col("center",,,"2")$text("Staff Comments:","datatag")
+  $row()
+   $col("right",,"50%")$text("Assessor: ","datatag")
+   $col()$text(`s.fn + " " + s.ln + " (" + c.ansa.staff + ")"`)
   $row()
    $col("right",,"50%")$text(q_text_comment,"datatag")
    $col() if c.ansa.comment dp
@@ -3814,8 +3820,10 @@ end ALOC
 function ALOCRpt(RptTitle,ReportID) is null
  RptTitle is x
  ReportID is x
+
+ sigline = $dct(2071, $oper, "D")
+ sigline += " (" + $operstaffid + ")"
  
- sigline         = $dct(2071, $oper, "D")
  c_Ansa_rloc     = $dct(AnsaAuthLevelDCT,c.ansa.rloc)
  c_Ansa_dloc     = $dct(AnsaAuthLevelDCT,c.ansa.dloc)
  c_Ansa_aloc     = $dct(AnsaAuthLevelDCT,c.ansa.aloc)

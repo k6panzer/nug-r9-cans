@@ -1,5 +1,5 @@
 library lib_CANS617()
- %version 1.0.000 09/03/2013
+ %version 1.0.004 09/04/2013
  %define row_color2 "bgcolor='White'"
  %define col_color_multi "bgcolor='LightGrey'"
  
@@ -1990,12 +1990,19 @@ function RLOC(c.cans.ac.sexgen,c.cans.ad.affreg,c.cans.ad.dissoc,c.cans.ad.intru
  endif
 end RLOC
 
-function StaffComments(q_text_comment,c.cans.comment) is null
+function StaffComments(q_text_comment,c.cans.comment,c.cans.staff) is null
  q_text_comment is x
  c.cans.comment is x
+ c.cans.staff   is x
+ s.fn           is x
+ s.ln           is x
+ (void)$dbread(3,c.cans.staff,s.fn,s.ln)
  $table($funcname,,"width='100%' cellspacing='0' cellpadding='2' bgcolor='White'  style='border-style: solid; border-width: 1px'")
   $row(,col_color_multi)
    $col("center",,,"2")$text("Staff Comments:","datatag")
+  $row()
+   $col("right",,"50%")$text("Assessor: ","datatag")
+   $col()$text(`s.fn + " " + s.ln + " (" + c.cans.staff + ")"`)   
   $row()
    $col("right",,"50%")$text(q_text_comment,"datatag")
    $col() if c.cans.comment dp
