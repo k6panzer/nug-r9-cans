@@ -6,6 +6,8 @@ start TRR_WRAPPER(client,option)
  c.cans.canstype is x
  cans617_btn     is x
  cans35_btn      is x
+
+'$trace("path.on","/c0/EXPORT/trace3242.txt")
  
  if $today < 09/01/2013
  	$brmsg("CANS/ANSA Cannot be used before 9/1/2013!",1,"W")
@@ -30,7 +32,7 @@ start TRR_WRAPPER(client,option)
  age = {"lib_UACOMMON"}ClientAge($regid)
  if age > 17
   call "ANSA"()
- elseif age > 6 and age < 17
+ elseif age > 6 and age < 18
   call "CANS617"()
  elseif age = 6
   (void)$dbread(2,$regid,c.cans.rec,c.cans.canstype)
@@ -65,3 +67,4 @@ start TRR_WRAPPER(client,option)
   call "CANS35"()   
  endif
 end TRR_WRAPPER 
+ 
