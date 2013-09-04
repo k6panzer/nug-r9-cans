@@ -1,6 +1,6 @@
 'Include file for the ANSA (Adult Needs And Strengths Assessment) 
 
-%global AnsaTypeDCT,AnsaIntRefDCT,AnsaDisReasDCT,AnsaDisRefDCT,AnsaAuthLevelDCT,AnsaDeviationDCT,AnsaGradeDCT,AnsaResTypeDCT
+%global AnsaTypeDCT,AnsaIntRefDCT,AnsaDisReasDCT,AnsaDisRefDCT,AnsaAuthLevelDCT,AnsaDeviationDCT,AnsaGradeDCT,AnsaResTypeDCT,SkiPSer,AssessmentSer
 AnsaTypeDCT      is b
 AnsaIntRefDCT    is b
 AnsaDisReasDCT   is b
@@ -9,7 +9,8 @@ AnsaAuthLevelDCT is b
 AnsaDeviationDCT is b
 AnsaGradeDCT     is b
 AnsaResTypeDCT   is b
-CenterName       is x
+SkipSer          is x
+AssessmentSer    is b
 
 '*********Datacode Tables, Change These*****************
 AnsaTypeDCT      = 9700
@@ -20,6 +21,8 @@ AnsaAuthLevelDCT = 9712
 AnsaDeviationDCT = 9706
 AnsaGradeDCT     = 9710
 AnsaResTypeDCT   = 9714
+SkipSer          = "N"
+AssessmentSer    = 7
 '*******************************************************
 
 '*********Medical Necessity Statement Related***********
