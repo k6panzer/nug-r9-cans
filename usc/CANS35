@@ -369,31 +369,36 @@ start CANS35(parmfile,option,client,retcode)
                                     return
                                    endif
 					endselect
-   case "SAL" select c.cans.type
-               case "1" if c.cans.isn !dp
-			             e.ser = 10
-						 {"lib_UAEVENTS"}event(e.ser, e.ru, e.start, e.dur, e.loc, addsal)
-                         select $endbutton
-						  case "SUBMIT" select addsal
-						                 case "YES" {"lib_UAEVENTS"}overlap(errors[],e.ser,e.start,e.dur,c.cans.date,$operstaffid)
-                                                    if $maxarray(errors[]) = 0
-						                             Page = "Report"
-						                            else
-						                             DisplayErrors()
-													 $clear(errors[])
-						                            endif
-										 case "NO" $clear(e.ser,e.ru,e.start,e.dur,e.loc)
-												   Page = "4"
-										 case !dp $clear(e.ser,e.ru,e.start,e.dur,e.loc)
-			                                      Page = "4"
-										endselect
-						  case "CANCEL" Page = "4"
-						 endselect
-						else 
-						 Page = "Report"
-						endif 
-			   case other Page = "Report"
-              endselect
+   case "SAL" if SkipSer = "N"
+               select c.cans.type
+                case "1" if c.cans.isn !dp
+			              e.ser = AssessmentSer
+						  {"lib_UAEVENTS"}event(e.ser, e.ru, e.start, e.dur, e.loc, addsal)
+                          select $endbutton
+						   case "SUBMIT" select addsal
+						                  case "YES" {"lib_UAEVENTS"}overlap(errors[],e.ser,e.start,e.dur,c.cans.date,$operstaffid)
+                                                     if $maxarray(errors[]) = 0
+						                              Page = "Report"
+						                             else
+						                              DisplayErrors()
+													  $clear(errors[])
+						                             endif
+										  case "NO" $clear(e.ser,e.ru,e.start,e.dur,e.loc)
+												    Page = "4"
+										  case !dp $clear(e.ser,e.ru,e.start,e.dur,e.loc)
+			                                       Page = "4"
+										 endselect
+						   case "CANCEL" Page = "4"
+						  endselect
+						 else 
+						  Page = "Report"
+						 endif 
+			    case other Page = "Report"
+               endselect
+			  else
+			   Page = "Report"
+			  endif
+			   
    case "Exit" return					
   endselect 
  enddo
