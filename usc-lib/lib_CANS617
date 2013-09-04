@@ -1,5 +1,4 @@
-library lib_CANS617()
- %version 1.0.000 09/03/2013
+ library lib_CANS617()
  %define row_color2 "bgcolor='White'"
  %define col_color_multi "bgcolor='LightGrey'"
  

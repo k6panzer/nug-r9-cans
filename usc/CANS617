@@ -1,5 +1,4 @@
 start CANS617(parmfile,option,client,retcode)
- %version 1.0.001 09/04/2013
  $looplimit = 0
  %include inc_CANS617
  e.ser     is b
@@ -672,8 +671,6 @@ function SaveData() is i
  endif
  if SaveData = 0
   $brmsg("CANS Assessment Successfully saved to Database!",1,"W","Process Complete")
- elseif SaveData = 4 
-  $brmsg("Client is currently locked by another process, please wait a moment and retry",1,"W","Please Retry") 
  else
   $brmsg(`"Error Saving Data,  RC=" + SaveData`,1,"W","Error Saving")
  endif

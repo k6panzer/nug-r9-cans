@@ -1,5 +1,4 @@
 library lib_UACOMMON()
- %version 1.0.000 09/03/2013
 
 function StaffCanDo() is i
  s.trr.certified is x
@@ -24,8 +23,6 @@ function UMSTAFF(staff[]) is x
  staff[2] = "1951" 'Paula Staats Maloney
  staff[3] = "3908" 'Irma Escobedo
  staff[4] = "2481" 'Gianna Harris
-' staff[5] = "3242" 'Ralph Whaite
- Staff[6] = "3737" 'Chris Love
  (void)$dctloada(110,code[], desc[], act-code[], a1[], a2[], a3[])
  if ($find($operstaffid, staff[],1,"F") > 0) or ($find($operstaffid, code[],1,"F") > 0)
   UMSTAFF = "Y"
@@ -187,7 +184,6 @@ function AddUMMonitor(CID[],scriptid) is null
  get_list       is i
  create_list    is i
  add_to_list    is i
- sort_list      is i
  entries        is i 
  list_name      is x
  list_desc      is x
@@ -220,7 +216,6 @@ function AddUMMonitor(CID[],scriptid) is null
     endif
    enddo
   endif
-  sort_list = $sortlist(2,list_name,"I",,"Y")
  endif
 end AddUMMonitor
 
@@ -236,7 +231,6 @@ function RemUMMonitor(CID[],scriptid) is null
  get_list       is i
  replace_list   is i
  remove_index   is i
- sort_list      is i
  entries        is i 
  list_name      is x
  list_desc      is x
@@ -268,7 +262,6 @@ function RemUMMonitor(CID[],scriptid) is null
    enddo
    replace_list = $putlist(current_list[],2,list_name,list_desc,"R","UM")   
   endif
-  sort_list = $sortlist(2,list_name,"I",,"Y")
  endif
 end RemUMMonitor
 
@@ -284,7 +277,6 @@ function AddBATCH(CID[],scriptid) is null
  get_list       is i
  create_list    is i
  add_to_list    is i
- sort_list      is i
  entries        is i
  add_index      is i
  list_name      is x
@@ -318,7 +310,6 @@ function AddBATCH(CID[],scriptid) is null
     endif
    enddo
   endif
-  sort_list = $sortlist(2,list_name,"I",,"Y")
  endif  
 end AddBATCH
 
@@ -331,9 +322,6 @@ function changetitle(scriptid) is null
  c.fn        is x
  c.ln        is x
  center_name = "Helen Farabee Centers"
- if center_name !dp
-  center_name = $mscname
- endif 
  (void)$dbread(2,$regid,c.fn,c.ln)
  select scriptid
   case "ANSA"    newtitle = center_name + " ID:" + $regid + "Name:" + c.ln + ", " + c.fn + "Form: ANSA"

@@ -161,7 +161,7 @@ function GetSavedLists() is null
   rc = $dbread(3,c.ansa.staff,s.fn,s.ln)
   assessment[++index2]       = "ANSA"
   assessment_date[index2]  = c.ansa.date
-  assessment_ID[index2]    = ansa_list[index]
+  assessment_ID[index2]    = ansa_list[index2]
   assessment_name[index2]  = c.fn + " " + c.ln
   assessment_type[index2]  = $ncs($dct(9700,c.ansa.type))
   assessment_rloc[index2]  = $ncs($dct(9712,c.ansa.rloc))
@@ -178,7 +178,7 @@ function GetSavedLists() is null
   rc = $dbread(3,c.cans.staff,s.fn,s.ln)
   assessment[++index2]       = "CANS35"
   assessment_date[index2]  = c.cans.date
-  assessment_ID[index2]    = cans35_list[index]
+  assessment_ID[index2]    = cans35_list[index2]
   assessment_name[index2]  = c.fn + " " + c.ln
   assessment_type[index2]  = $ncs($dct(9700,c.cans.type))
   assessment_rloc[index2]  = $ncs($dct(9705,c.cans.rloc))
@@ -195,7 +195,7 @@ function GetSavedLists() is null
   rc = $dbread(3,c.cans.staff,s.fn,s.ln)
   assessment[++index2]       = "CANS617"
   assessment_date[index2]  = c.cans.date
-  assessment_ID[index2]    = cans617_list[index]
+  assessment_ID[index2]    = cans617_list[index2]
   assessment_name[index2]  = c.fn + " " + c.ln
   assessment_type[index2]  = $ncs($dct(9700,c.cans.type))
   assessment_rloc[index2]  = $ncs($dct(9705,c.cans.rloc))

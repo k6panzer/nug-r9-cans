@@ -1,5 +1,4 @@
 start CANS35(parmfile,option,client,retcode)
- %version 1.0.001 09/04/2013
  $looplimit = 0
  %include inc_CANS35
  e.ser     is b
@@ -333,7 +332,7 @@ start CANS35(parmfile,option,client,retcode)
 						            if c.cans.type = "1" and c.cans.isn !dp
 								     Page = "SAL"
 								    else
-								     select CanSkipPage4()
+								     select CanSkipPage4
 									  case "Y" select CanSkipPage3()
 									             case "Y" select CanSkipPage2()
 											               case "Y" select CanSkipPage1()
@@ -554,8 +553,7 @@ function SaveData() is i
                 SaveData = $dbupdate(02, $regid, cans_dstlist)
  endselect
   select SaveData
-   case 0 $brmsg("CANS Assessment Successfully saved to Database!",1,"W","Process Complete")
-   case 4 $brmsg("Client is currently locked by another process, please wait a moment and retry",1,"W","Please Retry") 
+   case 0     $brmsg("CANS Assessment Successfully saved to Database!",1,"W","Process Complete")
    case other $brmsg(`"Error Saving Data,  RC=" + SaveData`,1,"W","Error Saving")
   endselect
 end SaveData

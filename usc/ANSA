@@ -1,5 +1,4 @@
 start ANSA(parmfile,option,client,retcode)
- %version 1.0.003 09/04/2013
  %global test
  test is x
  $looplimit = 0
@@ -447,7 +446,7 @@ start ANSA(parmfile,option,client,retcode)
 	   if c.ansa.type = "1" and c.ansa.isn !dp
 	    Page = "SAL"
 	   else
-		if CanSkipPage4() = "Y"
+		if CanSkipPage4 = "Y"
 		 if CanSkipPage3() = "Y"
 		  if CanSkipPage2() = "Y"
                     if CanSkipPage1() = "Y"
@@ -1525,19 +1524,19 @@ function Page4Rpt() is null
  elseif c.ansa.emptype = "4"
   c_ansa_emptype = "Not In The Labor Force"
  endif
- if c.ansa.labor =  "1"
+ if c_ansa_labor =  "1"
   c_ansa_labor = "Receiving SSI/SSDI and can't work"
  elseif c_ansa_labor = "2"
   c_ansa_labor = "Receiving SSI/SSDI and worries that work will effect benefit"
- elseif c.ansa.labor = "3"
+ elseif c_ansa_labor = "3"
   c_ansa_labor = "Does not want or need work"
- elseif c.ansa.labor = "4"
+ elseif c_ansa_labor = "4"
   c_ansa_labor = "Unable to find or keep a job"
- elseif c.ansa.labor = "5"
+ elseif c_ansa_labor = "5"
   c_ansa_labor = "Stay-at-home parent, homemaker, or full-time student"
- elseif c.ansa.labor = "6"
+ elseif c_ansa_labor = "6"
   c_ansa_labor = "Over 65 or retired"
- elseif c.ansa.labor = "7"
+ elseif c_ansa_labor = "7"
   c_ansa_labor = "Other"
  endif
  $table($funcname,,"width='100%' cellspacing='0' cellpadding='2' bgcolor='White'  style='border-style: solid; border-width: 1px'")
@@ -2837,10 +2836,6 @@ function Validate1() is i
   endif
  endif
  
- if c.ansa.type = "2" and (c.ansa.r.suicid = "3" or c.ansa.r.dangot = "3" or c.ansa.ld.slfcre = "3" or c.ansa.b.cog = "3" or c.ansa.b.subabs = "3")
-  (void)$arrpush(errors[],crisis1_errortxt)      
- endif
- 
  if c.ansa.type = "11"
 'Risk
   if c.ansa.r.suicid !dp or c.ansa.r.dangot !dp
@@ -3004,16 +2999,9 @@ function Validate2() is i
   endif 
  endif
 
- if c.ansa.type = "2" and (c.ansa.r.suicid = "3" or (c.ansa.r.suicid = "2" and (c.ansa.sr.idea = "3" or $num(c.ansa.sr.intent) > 1 or $num(c.ansa.sr.plan) > 1 or $num(c.ansa.sr.hist) > 1)) or
-                                                     c.ansa.r.dangot = "3" or c.ansa.ld.slfcre = "3" or c.ansa.b.cog = "3" or c.ansa.b.subabs = "3")
-  (void)$arrpush(errors[],crisis1_errortxt)      
- endif
-
- if c.ansa.type = "11"
-  if ($num(c.ansa.r.suicid) = "2" and (c.ansa.sr.idea != "3" and $num(c.ansa.sr.intent) < 2 and $num(c.ansa.sr.plan) < 2 and $num(c.ansa.sr.hist) < 2)) and c.ansa.b.cog != "3"
-   (void)$arrpush(errors[],crisis2_errortxt)
-  endif 
- endif
+ if ($num(c.ansa.r.suicid) = "2" and (c.ansa.sr.idea != "3" and $num(c.ansa.sr.intent) < 2 and $num(c.ansa.sr.plan) < 2 and $num(c.ansa.sr.hist) < 2)) and c.ansa.b.cog != "3"
+  (void)$arrpush(errors[],crisis2_errortxt)
+ endif 
 
  if errors[1] dp
   Validate2 = 1
@@ -3291,8 +3279,6 @@ function SaveData() is i
  endif
  if SaveData = 0
   $brmsg("ANSA Assessment Successfully saved to Database!",1,"W","Process Complete")
- elseif SaveData = 4 
-  $brmsg("Client is currently locked by another process, please wait a moment and retry",1,"W","Please Retry") 
  else
   $brmsg(`"Error Saving Data,  RC=" + SaveData`,1,"W","Error Saving")
  endif
@@ -3621,10 +3607,6 @@ function ValidateReport() is i
   (void)$arrpush(errors[],dloc_errortxt)
   $clear(c.ansa.dloc)
  endif 
- if c.ansa.dloc = "111" and c.ansa.rloc != "111"
-  (void)$arrpush(errors[],dloc2_errortxt)
-  $clear(c.ansa.dloc)
- endif 
  if errors[1] dp	
   ValidateReport = 1
  else
@@ -3924,7 +3906,7 @@ end RLOCRpt
 function ClearPage1() is null
  if c.ansa.type = "11"
   $clear(c.ansa.r.smutil,c.ansa.r.oslfhr,c.ansa.r.exploit,c.ansa.r.gamble,c.ansa.r.sexagr,c.ansa.r.crimbe)
-  $clear(c.ansa.b.psychs,c.ansa.b.depres,c.ansa.b.anxity,c.ansa.b.mania,c.ansa.b.implsv,c.ansa.b.inter,c.ansa.b.antisoc,c.ansa.b.adjtrm,c.ansa.b.angctr,c.ansa.b.eatdst)
+  $clear(c.ansa.b.psychs,c.ansa.b.cog,c.ansa.b.depres,c.ansa.b.anxity,c.ansa.b.mania,c.ansa.b.implsv,c.ansa.b.inter,c.ansa.b.antisoc,c.ansa.b.adjtrm,c.ansa.b.angctr,c.ansa.b.eatdst)
   $clear(c.ansa.ld.phymed,c.ansa.ld.family,c.ansa.ld.employ,c.ansa.ld.socfun,c.ansa.ld.recret,c.ansa.ld.sexdev,c.ansa.ld.living,c.ansa.ld.restab,c.ansa.ld.legal,c.ansa.ld.sleep,c.ansa.ld.decisi,c.ansa.ld.invrec)
   $clear(c.ansa.ld.trans)
  else

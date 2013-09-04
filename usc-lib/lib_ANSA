@@ -1,5 +1,4 @@
 library lib_ANSA()
- %version 1.0.000 09/03/2013
 on load do:
  %include inc_SCHIZALG
  %include inc_QIDSALG
@@ -90,9 +89,9 @@ on load do:
    $setvarname(c.ansa.compd,    "C.UABD.COMPD")
    $setvarname(c.ansa.type,     "C.UABD.PUR")
    $setvarname(c.ansa.alocdate, "C.UABD.ALOCD")
-   rc = $dbread(02,clientid,c.ansa.rec,c.ansa.type,c.ansa.staff,c.ansa.date,c.ansa.rloc,c.ansa.compd,c.ansa.alocdate,c.ansa.aloc)
+   rc = $dbread(02,clientid,c.ansa.rec,c.ansa.type,c.ansa.staff,c.ansa.date,c.ansa.rloc,c.ansa.compd,c.ansa.alocdate)
    do until c.ansa.compd dp or rc > 1
-    rc = $dbreadnextdst(02,clientid,c.ansa.rec,c.ansa.type,c.ansa.staff,c.ansa.date,c.ansa.rloc,c.ansa.compd,c.ansa.alocdate,c.ansa.aloc)
+    rc = $dbreadnextdst(02,clientid,c.ansa.rec,c.ansa.type,c.ansa.staff,c.ansa.date,c.ansa.rloc,c.ansa.compd,c.ansa.alocdate)
    enddo
    if c.ansa.aloc = "6" or c.ansa.aloc = "8" or c.ansa.aloc = "9"
     $clear(c.ansa.type)

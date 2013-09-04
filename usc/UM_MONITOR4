@@ -1,5 +1,4 @@
 start UM_MONITOR4()
- %version 1.0.000 09/03/2013
  ansa_sl    is x
  cans35_sl  is x
  cans617_sl is x
