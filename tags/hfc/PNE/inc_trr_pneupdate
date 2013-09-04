@@ -1,3 +1,0 @@
-if "lib_USREVENT":getTrrCutOver() <= $today then
-   $setvarname(pne.sp, "PNE.TRRSP")
-endif
