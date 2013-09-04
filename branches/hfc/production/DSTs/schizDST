@@ -1,0 +1,78 @@
+'change log
+'----------
+'
+
+%version 0.2 06/11/13 TxACE
+
+start schizDST()
+ rc        is i
+ dbfile    is i
+ dst       is n
+ recordnum is n
+
+ dbfile = 02
+
+'$nextavdst
+'This is the starting number of the DST's that will be added.  While a contiguous range of DST numbers is not 
+'required.  It is preferable.  If you want a contiguous range of DST's make sure you have at least 250
+'available DST numbers after the number you choose.
+
+'recordnum
+'This is the DST record number that will be assigned to all of the DST's that are created.  This can be any
+'available number.  But preference should be given to making it the same number as the record header DST
+'number.  The record header DST will be the first DST crated and will have the number in the $nextavdst
+'value
+
+'''''''Change These Values for your system'''''''''
+ $nextavdst = 26000
+ recordnum  = 26000
+ '$trace("path.on", `"/c0/EXPORT/trace/PV_" + $scriptid`)
+'''''''''''''''''''''''''''''''''''''''''''''''''''
+
+'This section will create the Data Code Tables and Populate them with the necessary values.  
+'If the DCT already exists, it will NOT be replaced and none of the values will be changed.
+'Make sure that the DCT tables ID's are available.  If not, modify the script below to an available DST
+'number.  Make sure you go further down in the script and adjust the DCT table used for the DST's too.
+
+
+		rc = $adddct(9017,"TIMA RATING SCALE")
+		if rc = 0
+			rc = $adddcv(9017,"1","Not Present")
+			rc = $adddcv(9017,"2","Very Mild")
+			rc = $adddcv(9017,"3","Mild")
+			rc = $adddcv(9017,"4","Moderate")
+			rc = $adddcv(9017,"5","Moderately Severe")
+			rc = $adddcv(9017,"6","Severe")
+			rc = $adddcv(9017,"7","Extremely Severe")
+			rc = $adddcv(9017,"NA"," Not Assessed")
+		endif						
+		
+'Now create the DST's.
+
+rc = $dstadd(dst,"C.SCHIZ.REC "    ,"TIMA SCHIZO SCALE RECORD HEADR",dbfile,"R",0, 0,   0,recordnum)
+rc = $dstadd(dst,"C.SCHIZ.SUSP"    ,"TIMA SCHIZO SUSPICIOUSNESS    ",dbfile,"X",1, 2,9017,recordnum)
+rc = $dstadd(dst,"C.SCHIZ.THOU"    ,"TIMA SCHIZO THOUGHT CONTENT   ",dbfile,"X",1, 2,9017,recordnum)
+rc = $dstadd(dst,"C.SCHIZ.HALL"    ,"TIMA SCHIZO HALLUCINATIONS    ",dbfile,"X",1, 2,9017,recordnum)
+rc = $dstadd(dst,"C.SCHIZ.COND"    ,"TIMA SCHIZO CONCEPTUAL DISORG ",dbfile,"X",1, 2,9017,recordnum)
+rc = $dstadd(dst,"C.SCHIZ.PSRS"    ,"TIMA SCHIZO PSRS TOTAL        ",dbfile,"X",1, 2,9017,recordnum)
+rc = $dstadd(dst,"C.SCHIZ.RESP"    ,"TIMA SCHIZO TIME TO RESPOND   ",dbfile,"X",1, 2,9017,recordnum)
+rc = $dstadd(dst,"C.SCHIZ.EMOT"    ,"TIMA SCHIZO EMOTION           ",dbfile,"X",1, 2,9017,recordnum)
+rc = $dstadd(dst,"C.SCHIZ.SOCL"    ,"TIMA SCHIZO SOCIAL DRIVE      ",dbfile,"X",1, 2,9017,recordnum)
+rc = $dstadd(dst,"C.SCHIZ.GRHY"    ,"TIMA SCHIZO GROOMING/HYGIENE  ",dbfile,"X",1, 2,9017,recordnum)
+rc = $dstadd(dst,"C.SCHIZ.BNSA"    ,"TIMA SCHIZO BNSA TOTAL        ",dbfile,"X",0, 2,   0,recordnum)
+rc = $dstadd(dst,"C.SCHIZ.PATI"    ,"TIMA SCHIZO SOURCE PATIENT    ",dbfile,"X",0,64,   0,recordnum)
+rc = $dstadd(dst,"C.SCHIZ.PARN"    ,"TIMA SCHIZO SOURCE PARENTS    ",dbfile,"X",0,64,   0,recordnum)
+rc = $dstadd(dst,"C.SCHIZ.PROF"    ,"TIMA SCHIZO SOURCE MH PROF    ",dbfile,"X",0,64,   0,recordnum)
+rc = $dstadd(dst,"C.SCHIZ.CHAR"    ,"TIMA SCHIZO SOURCE CHART      ",dbfile,"X",0,64,   0,recordnum)
+rc = $dstadd(dst,"C.SCHIZ.CONF"    ,"TIMA SCHIZO CONFIDENCE IN ASMT",dbfile,"X",0, 1,   0,recordnum)
+rc = $dstadd(dst,"C.SCHIZ.DRUG"    ,"TIMA SCHIZO SYMP DRUG INDUCED ",dbfile,"X",0,64,   0,recordnum)
+rc = $dstadd(dst,"C.SCHIZ.RAPP"    ,"TIMA SCHIZO LACK OF RAPPORT   ",dbfile,"X",0,64,   0,recordnum)
+rc = $dstadd(dst,"C.SCHIZ.NEGA"    ,"TIMA SCHIZO NEGATIVE SYMPTOMS ",dbfile,"X",0,64,   0,recordnum)
+rc = $dstadd(dst,"C.SCHIZ.UNCO"    ,"TIMA SCHIZO UNCOOPERATIVE     ",dbfile,"X",0,64,   0,recordnum)
+rc = $dstadd(dst,"C.SCHIZ.DISO"    ,"TIMA SCHIZO THOUGHT DISORDER  ",dbfile,"X",0,64,   0,recordnum)
+rc = $dstadd(dst,"C.SCHIZ.OTHR"    ,"TIMA SCHIZO OTHER REASON      ",dbfile,"X",0,64,   0,recordnum)
+rc = $dstadd(dst,"C.SCHIZ.STAF"    ,"TIMA SCHIZO SCALE STAFF       ",dbfile,"X",3, 6,   0,recordnum)
+rc = $dstadd(dst,"C.SCHIZ.DATE"    ,"TIMA SCHIZO SCALE DATE        ",dbfile,"D",0,10,   0,recordnum)
+rc = $dstadd(dst,"C.SCHIZ.COMM"    ,"TIMA SCHIZO COMMENTS          ",dbfile,"X",0,64,   0,recordnum)
+
+end schizDST
