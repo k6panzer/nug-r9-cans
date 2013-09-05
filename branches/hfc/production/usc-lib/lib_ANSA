@@ -1271,9 +1271,16 @@ on load do:
    if $num(c.ansa.r.suicid) < 2 and $num(c.ansa.r.dangot) < 2 and $num(c.ansa.b.depres) < 2 and $num(c.ansa.ld.restab) < 2 and  $num(c.ansa.b.subabs) < 2 and $num(c.ansa.r.crimbe) < 2 and c.ansa.cr.episds = "0"
     if DXType = "D"
 	 if $num(c.ansa.qids) < 11
-	  if HistoryTest() = 0
-	   RLOC = basic_MedManage
-	   return
+	  if $today >= 9/1/2014
+	   if HistoryTest() = 0
+	    RLOC = basic_MedManage
+	    return
+	   endif
+	  else
+	   if Current1M() = 0
+	    RLOC = basic_MedManage
+	    return		
+	   endif	
 	  endif
 	 endif
 	endif
@@ -1488,6 +1495,17 @@ on load do:
    endif	
   enddo 
  end HistoryTest
+ 
+ function Current1M() is i
+  c.ansa.rec  is h
+  c.ansa.aloc is x
+  (void)$dbread(2,$regid,c.ansa.rec,c.ansa.aloc)
+  if c.ansa.aloc = "111"
+   Current1M = 0
+  else
+   Current1M = 1
+  endif
+ end Current1M
  
  function DXScaleRequired(DXType,c.ansa.date) is x
  DXType      is x
