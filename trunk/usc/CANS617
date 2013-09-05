@@ -370,7 +370,7 @@ start CANS617(parmfile,option,client,retcode)
     if UM_StaffYN = "Y" and (c.cans.staff != $operstaffid and c.cans.staff dp)
      Page = "Authorize"
 	else
-	 if c.cans.type = "1" and c.cans.isn !dp
+	 if (c.cans.type = "1" or c.cans.type = "12") and c.cans.isn !dp
 	  Page = "SAL"
 	 else
 	  if CanSkipPage4() = "Y"	  
@@ -414,7 +414,7 @@ start CANS617(parmfile,option,client,retcode)
     endif
    endif 
   elseif Page = "SAL"
-   if c.cans.type = "1" and SkipSer = "N"
+   if (c.cans.type = "1" or c.cans.type = "12") and SkipSer = "N"
     if c.cans.isn !dp
      e.ser = 10
 	 {"lib_UAEVENTS"}event(e.ser, e.ru, e.start, e.dur, e.loc, addsal)
@@ -655,7 +655,7 @@ function SaveData() is i
   enddo 
  endif  
  if mode = "ADD"
-  if c.cans.type = "1" and c.cans.isn !dp
+  if (c.cans.type = "1" or c.cans.type = "12") and c.cans.isn !dp
    c.cans.isn = SaveEvent()
   elseif c.cans.type = "3" and c.cans.disreas != "9"
    $clear(c.cans.rloc,c.cans.aloc)
@@ -2385,7 +2385,7 @@ end Validate
 
 function Validate0() is i
  $clear(errors[])
- if c.cans.type = "1"
+ if c.cans.type = "1" or c.cans.type = "12"
   $clear(c.cans.disdt,c.cans.disreas,c.cans.disref,c.cans.disoth)
   if c.cans.intref != "5"
    $clear(c.cans.intrefoth)
@@ -2796,7 +2796,7 @@ function ReportHdr() is null
    $col()
    $col()$text("Assessment Type: ")
    $col()$text(c_cans_type) 
-  if c.cans.type = "1"
+  if c.cans.type = "1" or c.cans.type = "12"
    $row()
     $col()
     $col()$text("Referral Source: ")
