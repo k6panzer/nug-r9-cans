@@ -42,7 +42,7 @@ start ANSA(parmfile,option,client,retcode)
  client   is x
  retcode  is i
  rc       is i
-
+ 
  Title     is x
  RptTitle  is x
  ReportID  is x
@@ -440,27 +440,27 @@ start ANSA(parmfile,option,client,retcode)
 	  if UM_StaffYN = "Y" and (c.ansa.staff != $operstaffid and c.ansa.staff dp)
 	   Page = "Authorize"
 	  else
-	   if c.ansa.type = "1" and c.ansa.isn !dp
+	   if (c.ansa.type = "1" or c.ansa.type = "12") and c.ansa.isn !dp
 	    Page = "SAL"
 	   else
 		if CanSkipPage4() = "Y"
 		 if CanSkipPage3() = "Y"
 		  if CanSkipPage2() = "Y"
-                    if CanSkipPage1() = "Y"
-                     Page = "0"
+           if CanSkipPage1() = "Y"
+            Page = "0"
 		   else
 		    Page = "1"
 		   endif
 		  else 
-                    Page = "2"
+           Page = "2"
 		  endif
 		 else  
-                   Page = "3"
+          Page = "3"
 		 endif
 		else  
-                  Page = "4"
-                 endif
-                endif 
+         Page = "4"
+        endif
+       endif 
 	  endif 
      else
 	  if SaveData() = 0
@@ -489,7 +489,7 @@ start ANSA(parmfile,option,client,retcode)
       endif
 	endif
    elseif Page = "SAL"
-    if c.ansa.type = "1" and SkipSer = "N"
+    if (c.ansa.type = "1" or c.ansa.type = "12") and SkipSer = "N"
 	 if c.ansa.isn !dp
 	  e.ser = AssessmentSer
 	  {"lib_UAEVENTS"}event(e.ser, e.ru, e.start, e.dur, e.loc, addsal)
@@ -3271,7 +3271,7 @@ function SaveData() is i
   enddo
  endif
  if mode = "ADD" 
-  if c.ansa.type = "1"
+  if c.ansa.type = "1" or c.ansa.type = "12"
    if c.ansa.isn !dp
     c.ansa.isn = SaveEvent()
    endif
@@ -3546,7 +3546,7 @@ function ValidateALOC() is i
    (void)$arrpush(errors[],aloc13_errortxt)
   endif
 
-  if c.ansa.aloc = "120" and c.ansa.type != "1"
+  if c.ansa.aloc = "120" and (c.ansa.type != "1" and c.ansa.type != "11")
    (void)$arrpush(errors[],aloc14_errortxt)
   endif  
 
@@ -3592,7 +3592,7 @@ function ValidateALOC() is i
  c.ansa.compd = $today
  if c.ansa.aloc = "100"
   c.ansa.type = "11"
- elseif c.ansa.aloc = "110"
+ elseif c.ansa.aloc = "120"
   if c.ansa.type = "1"
    c.ansa.type = "12"
   endif
@@ -3610,7 +3610,7 @@ end ValidateALOC
 
 function ValidateReport() is i
  $clear(errors[])
- if c.ansa.type = "2" and c.ansa.rloc = "110" and c.ansa.dloc !dp
+ if c.ansa.type = "2" and c.ansa.rloc = "120" and c.ansa.dloc !dp
   (void)$arrpush(errors[],loc9_1_errortxt) 
  endif 
  if c.ansa.dloc = c.ansa.rloc and c.ansa.dloc dp
