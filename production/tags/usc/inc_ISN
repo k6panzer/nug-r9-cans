@@ -1,0 +1,251 @@
+'****************************************************************************************
+'@(#) ISN DST include file - 01.0.000 09/22/2008
+'@UDOC    inc_ISN uScript
+'@AUTHOR  Chris Love, 09/22/2008
+'@HEADER  Progress Note Rules include file
+'@SUBJECT Used with the individual and group notes to drive possible content
+'@BODY    Used with the individual and group notes to drive possible content
+'@HISTORY  09/22/2008 - version 01.0.000 - Initial version
+'@PARM    None
+'@ARGS    None
+'@UDOCEND
+%version 01.0.000 09/22/2008
+%desc Uscript by Chris Love, 09/22/2008, Helen Farabee MHMR Centers
+%desc inc_ISN, Used with the individual and group notes to drive possible content
+'****************************************************************************************
+isn.ret.dt            is d        'ISN RETURN DATE               
+isn.ret.re            is x        'ISN RETURNED REASON           
+isn.ret.by            is x        'ISN RETURNED BY               
+isn.mrchg.rec         is h        'MR NOTE CHANGE RECORD         
+isn.mrchg.staff       is x        'MR NOTE CHANGE STAFF          
+isn.mrchg.dt          is d        'MR NOTE CHANGE DATE           
+isn.mrchg.tm          is t        'MR NOTE CHANGE TIME           
+isn.mrchg.expire      is d        'MR NOTE CHANGE EXPIRE DT      
+isn.mrchg.append      is x        'MR NOTE CHANGE APPEND?        
+isn.mrchg.void        is x        'MR NOTE CHANGE VOID?          
+isn.mrchg.change      is x        'MR NOTE CHANGE CHANGE?        
+isn.mrchg.complt      is x        'MR NOTE CHANGE COMPLETE?      
+isn.hfc.erkey         is x        'HFC Group Event Key           
+isn.hfc.txt1          is x        'HFC UScript Text Field 1      
+isn.hfc.txt2          is x        'HFC Uscript Text Field 2      
+isn.hfc.grpnote       is x        'ISN Group Note DBTEXT         
+isn.hfc.gn.rec        is h        'ISN HFC Group Note Record     
+x.planitem            is x        'Treatment Plan Item           
+x.planuid             is x        'Treatment Plan Item UID       
+'isn.suid              is x        'ISN Service Plan UID          
+isn.respcrisis        is x        'SERVICE IN RESPONSE TO CRISIS 
+isn.falsecrisis       is x        'CRISIS FALSE ALARM SERVICE    
+isn.ckamount          is n        'CLIENT CHECK PAYMENT AMOUNT   
+isn.lar               is x        'ISN LEGAL REP RECIP           
+i.evbill              is x        'Include event to Bill Again   
+i.evbillusr           is x        'Event Rebill Flag Updated By  
+isn.uniq.2400         is x        'ANSI UNIQUE ID (LOOP 2400 REF)
+isn.ansiflag          is d        'ISN ANSI ISNFLAG              
+isn.uniq.2300         is x        'ANSI UNIQUE ID (LOOP 2300 CLM)
+isn.supstf            is x        'SUPERVISING STAFF             
+isn.change            is x        'ISN EVENT CHANGE/REMOVE       
+isn.changedt          is d        'ISN CHANGE/REMOVE DATE        
+isn.changestf         is x        'ISN CHANGE/REMOVE STAFF       
+isn.changerec         is h        'ISN CHANGE/REMOVE RECORD      
+isn.changetp          is x        'ISN CHANGED FIELDS            
+isn.remreason         is x        'ISN REMOVAL REASON            
+isn.grpid             is x        'ISN GROUP ID                  
+isn.ansi.proc         is x        'ISN ANSI PROCEDURE CODE       
+isn.ansi.mod1         is x        'ISN ANSI MODIFIER 1           
+isn.ansi.mod2         is x        'ISN ANSI MODIFIER 2           
+isn.ansi.mod3         is x        'ISN ANSI MODIFIER 3           
+isn.pay.dep.dt        is x        'ISN PAY DEPOSIT DATE          
+isn.835.track         is x        'ISN 835 UNIQUIE CLAIM ID      
+isn.grp.prov.tpi      is x        'ISN GROUP PROVIDER TPI        
+isn.med.id            is x        'ISN MED ID                    
+$$isn.id              is x        'ISN ID                        
+$$isn.comp            is x        'ISN completed?                
+$$isn.stn             is x        'ISN Staff Name                
+$$isn.stid            is x        'ISN Staff ID                  
+$$isn.cln             is x        'ISN Client Name               
+$$isn.clid            is x        'ISN Client ID                 
+$$isn.dt              is d        'ISN Service Date              
+$$isn.tm              is t        'ISN Service Time              
+$$isn.sac             is b        'ISN Service Activity Code     
+$$isn.ru              is b        'ISN Service RU                
+$$isn.loc             is x        'ISN Service Location          
+$$isn.pj              is b        'ISN Service Project           
+$$isn.rdur            is t        'ISN Service Recipient Dur     
+$$isn.rec             is x        'ISN Service Recipient Code    
+$$isn.att             is x        'ISN Service Attendance Code   
+$$isn.lof             is x        'ISN Service LOF               
+$$isn.sal             is x        'ISN Service SAL No            
+$$isn.ln              is x        'ISN Service SAL Line No       
+$$isn.sf              is n        'ISN Service Standard Fee      
+$$isn.cf              is n        'ISN Service Computed Fee      
+'$$isn.srec            is h        'ISN Service Plan Record       
+'$$isn.sit             is x        'ISN Service Plan Item         
+'$$isn.sst             is x        'ISN Service Plan Status       
+$$isn.text            is x        '*                             
+$$isn.del             is d        'ISN Delinquent Date           
+$$isn.fd              is d        'ISN Filed Date                
+$$isn.fby             is x        'ISN Filed By                  
+$$isn.wpfm            is x        'WP Reference Form ID          
+$$isn.wpid            is x        'WP Reference Document ID      
+$$isn.wpd1            is x        'WP Reference Doc Desc 1       
+$$isn.wpd2            is x        'WP Reference Doc Desc 2       
+$$isn.wpso            is x        'WP Reference Signon ID        
+$$isn.wpdt            is d        'WP Reference Date             
+$$isn.wptm            is t        'WP Reference Time             
+$$isn.wppr            is x        'WP Reference Previous Doc ID  
+$$isn.wuso            is x        'WP Ref Update Signon ID       
+$$isn.wudt            is d        'WP Ref Update Date            
+$$isn.wutm            is t        'WP Ref Update Time            
+$$isn.crid            is x        'ISN Create Signon ID          
+$$isn.crdt            is d        'ISN Create Date               
+$$isn.crtm            is t        'ISN Create Time               
+$$isn.ecid            is x        'ISN Event Create Signon ID    
+$$isn.ecdt            is d        'ISN Event Create Date         
+$$isn.ectm            is t        'ISN Event Create Time         
+$$isn.ecpr            is x        'ISN Event Create Program      
+$$isn.cadj            is n        'Claim Adjustment Amount       
+$$isn.vdr             is h        'Claim Void Record             
+$$isn.vdid            is x        'Claim Void Signon ID          
+$$isn.vddt            is d        'Claim Void Date               
+$$isn.vdtm            is t        'Claim Void Time               
+$$isn.vdd             is x        'Claim Void Description        
+$$isn.vdrs            is x        'Claim Void Reason             
+$$isn.dcid            is x        'ISN Document Cotherapist ID   
+$$isn.nkey            is x        'ISN iNOTE To Do Key           
+$$isn.ajr             is h        'Claim Adj Record              
+$$isn.ajid            is x        'Claim Adj Signon ID           
+$$isn.ajdt            is d        'Claim Adj Date                
+$$isn.ajtm            is t        'Claim Adj Time                
+$$isn.ajd             is x        'Claim Adj Description         
+$$isn.ajrs            is x        'Claim Adj Reason              
+$$isn.ajoa            is n        'Claim Adj Orig Remittance Amt 
+$$isn.aja             is n        'Claim Adj Remittance Amt      
+$$isn.ajou            is n        'Claim Adj Orig Remit Units    
+$$isn.aju             is n        'Claim Adj Remit Units         
+$$isn.r3              is x        ' ** Reserved **               
+$$isn.doc             is h        'ISN Document Record           
+$$isn.dlc             is x        'ISN Document Location         
+$$isn.dtp             is x        'ISN Document Type             
+$$isn.did             is x        'ISN Document ID               
+$$isn.dsr             is x        'ISN Document Source           
+$$isn.cid1            is x        'Claim Provider Info 1         
+$$isn.cid2            is x        'Claim Provider Info 2         
+$$isn.cid3            is x        'Claim Provider Info 3         
+$$isn.cid4            is x        'Claim Provider Info 4         
+$$isn.cid5            is x        'Claim Provider Info 5         
+$$isn.ccid            is x        'Claim Provider Client ID      
+$$isn.cpid            is x        'Claim Provider ID             
+$$isn.cau             is x        'Claim Authorization Number    
+$$isn.cpc             is x        'Claim Package Category        
+$$isn.ccpc            is x        'Claim Clinical Profile Class  
+$$isn.csc             is x        'Claim Service Category        
+$$isn.cfs             is b        'Claim Fund Source             
+$$isn.cun             is n        'Claim Units                   
+$$isn.cfee            is n        'Claim Fee Charged             
+$$isn.cofs            is n        'Claim Amount Other FS Paid    
+$$isn.cbl             is n        'Claim Amount Billed           
+$$isn.crpd            is n        'Claim Remittance Amount Paid  
+$$isn.crc             is x        'Claim Remittance Code         
+$$isn.crr             is x        'Claim Remittance Reason       
+$$isn.ccd             is d        'Claim File Create Date        
+$$isn.crd             is d        'Claim File Received Date      
+$$isn.cnum            is x        'Claim File Number             
+$$isn.cdet            is x        'Claim Detail Nunmber          
+$$isn.crch            is n        'Claim Remittance Check No     
+$$isn.crcd            is d        'Claim Remittance Check Date   
+$$isn.aeff            is d        'Claim Auth Rec Eff Date       
+$$isn.alap            is d        'Claim Auth Rec Lap Date       
+$$isn.cest            is x        'Claim Payment Status          
+$$isn.mhdr            is h        'Claim Memo                    
+$$isn.cmo             is x        '*                             
+$$isn.rhdr            is h        'Claim Remittance Comments     
+$$isn.cre             is x        '*                             
+$$isn.cct             is t        'Claim File Create Time        
+$$isn.crt             is t        'Claim File Received Time      
+$$isn.cev             is x        'Claim Payment Vendor          
+$$isn.cei             is x        'Claim Payment Invoice         
+$$isn.cexp            is n        'Claim Expense Account         
+$$isn.prec            is h        'ISN Payment Record            
+$$isn.prfs            is b        'ISN Payment Fund Source       
+$$isn.prae            is d        'ISN Payment Applied Event Date
+$$isn.prdt            is d        'ISN Payment Date              
+$$isn.praa            is n        'ISN Payment Applied Amount    
+$$isn.prrf            is x        'ISN Payment Reference         
+$$isn.prrc            is x        'ISN Payment Remittance Code   
+$$isn.prid            is x        'ISN Payment Applied Signon ID 
+$$isn.prad            is d        'ISN Payment Applied Date      
+$$isn.prat            is t        'ISN Payment Applied Time      
+$$isn.crec            is h        'ISN Covered ASR Record        
+$$isn.cafs            is b        'ISN Covered ASR Fund Source   
+$$isn.caae            is d        'ISN Covered ASR Event Date    
+$$isn.cadr            is t        'ISN Covered ASR Duration      
+$$isn.casf            is n        'ISN Covered ASR Std Fee       
+$$isn.cacf            is n        'ISN Covered ASR Comp Fee      
+$$isn.casc            is x        'ISN Covered ASR Serv Category 
+$$isn.caun            is n        'ISN Covered ASR Units         
+$$isn.pprg            is x        'ISN Payment Function          
+$$isn.aprg            is x        'ISN Covered ASR Function      
+$$isn.prtr            is x        'ISN Payment Transaction ID    
+$$isn.brec            is h        'ISN Billed Record             
+$$isn.bdt             is d        'ISN Billed Date               
+$$isn.bfs             is b        'ISN Billed Fund Source        
+$$isn.bfm             is x        'ISN Billed Form ID            
+$$isn.pcf             is n        'ISN Payment Computed Fee      
+$$isn.fs              is b        'ISN Service Fund Source       
+$$isn.sdur            is t        'ISN Service Staff Dur         
+$$isn.invd            is d        'Claim Payment Invoice Date    
+$$isn.prc             is x        'ISN Payment EOB Remit Code    
+$$isn.pmem            is x        'ISN Payment Memo              
+$$isn.pcom            is x        'ISN Payment Comments          
+$$isn.econ            is x        'ISN Eligibility Contract      
+$$isn.sfa             is n        'ISN Standard Fee Adjustment   
+$$isn.padj            is n        'ISN Payment Adjustment Amount 
+$$isn.cpnm            is x        'Claim Provider Name           
+$$isn.crun            is n        'Claim Remittance Units Paid   
+$$isn.pcon            is x        'ISN Payment Contract          
+$$in.fill             is x        'TCF Filler DST - ISN File     
+$$isn.didid           is x        'IRMS Document ID              
+$$isn.dar             is h        'ISN Document Audit Record     
+$$isn.dacid           is x        'ISN Document Audit Cother ID  
+$$isn.dalc            is x        'ISN Document Audit Location   
+$$isn.datp            is x        'ISN Document Audit Type       
+$$isn.daid            is x        'ISN Document Audit ID         
+$$isn.dasr            is x        'ISN Document Audit Source     
+$$isn.daidid          is x        'ISN Document Audit IRMS Doc ID
+$$isn.danisn          is x        'ISN Document Audit New ISN ID 
+$$isn.daop            is x        'ISN Document Audit Oper       
+$$isn.dadt            is d        'ISN Document Audit Date       
+$$isn.datm            is t        'ISN Document Audit Time       
+$$isn.lrec            is h        'ISN Liability Record          
+$$isn.lnsf            is n        'ISN Liab New Standard Fee     
+$$isn.lncf            is n        'ISN Liab New Computed Fee     
+$$isn.lnfs            is b        'ISN Liab New Fund Source      
+$$isn.lnr             is n        'ISN Liab New Revenue Acct     
+$$isn.lca             is n        'ISN Liab Credit/Rebill Amount 
+$$isn.lcd             is d        'ISN Liab Credit/Rebill Date   
+$$isn.lcf             is b        'ISN Liab Rebill Fund Source   
+$$isn.ltc             is n        'ISN Liab Total Credit         
+$$isn.lid             is x        'ISN Liab Signon ID            
+$$isn.ltm             is d        'ISN Liab Date                 
+$$isn.ldt             is t        'ISN Liab Time                 
+$$isn.ltp             is x        'ISN Liab Type                 
+$$isn.lun             is x        'ISN Liab Unit Exceeded        
+$$isn.lm              is n        'ISN Liab Max Limit            
+$$isn.lr              is x        'ISN Liab Result               
+$$isn.lsd             is d        'ISN Liab Start Date           
+$$isn.reqdt           is d        'ISN Required Flag Date        
+$$isn.req             is x        'ISN Required Flag             
+$$isn.origr           is d        'ISN Orig Event Reversal Flag  
+$$isn.acrec           is h        'ISN AR Correction Record      
+$$isn.acact           is x        'ISN AR Correction Action      
+$$isn.acadt           is d        'ISN AR Correction Action Date 
+$$isn.acedt           is d        'ISN AR Correction ER/Reb Date 
+$$isn.acamt           is n        'ISN AR Correction Amount      
+$$isn.acfs            is b        'ISN AR Correction FS          
+$$isn.acrsn           is x        'ISN AR Correction Reason      
+$$isn.accomm          is x        'ISN AR Correction Comments    
+$$isn.acoper          is x        'ISN AR Correction Oper        
+$$isn.acdt            is d        'ISN AR Correction Date        
+$$isn.actm            is t        'ISN AR Correction Time        
+isn.evrequest         is x        'Part of the note correction process
+isn.cl.tm             is t        'ISN Client Start Time
