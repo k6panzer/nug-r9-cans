@@ -329,7 +329,7 @@ start CANS35(parmfile,option,client,retcode)
 					 case "CANCEL" if UM_StaffYN = "Y" and (c.cans.staff != $operstaffid and c.cans.staff dp)
 						            Page = "Authorize"
 								   else
-						            if c.cans.type = "1" and c.cans.isn !dp
+						            if (c.cans.type = "1" or c.cans.type = "12") and c.cans.isn !dp
 								     Page = "SAL"
 								    else
 								     select CanSkipPage4()
@@ -546,6 +546,9 @@ function SaveData() is i
               case "1" if c.cans.isn !dp
 			            c.cans.isn = SaveEvent()
 					   endif	
+              case "12" if c.cans.isn !dp
+			             c.cans.isn = SaveEvent()
+					    endif	
               case other
              endselect
 			 c.cans.rec[effd] = $today
@@ -2647,7 +2650,7 @@ function ReportHdr() is null
    $col()
    $col()$text("Assessment Type: ")
    $col()$text(c_cans_type) 
-  if c.cans.type = "1"
+  if c.cans.type = "1" or c.cans.type = "12"
    $row()
     $col()
     $col()$text("Referral Source: ")
