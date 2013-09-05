@@ -416,7 +416,7 @@ start CANS617(parmfile,option,client,retcode)
   elseif Page = "SAL"
    if (c.cans.type = "1" or c.cans.type = "12") and SkipSer = "N"
     if c.cans.isn !dp
-     e.ser = 10
+     e.ser = AssessmentSer
 	 {"lib_UAEVENTS"}event(e.ser, e.ru, e.start, e.dur, e.loc, addsal)
      if $endbutton = "SUBMIT"
 	  if addsal = "YES"
