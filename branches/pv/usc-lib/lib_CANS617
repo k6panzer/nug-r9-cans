@@ -1,0 +1,2169 @@
+library lib_CANS617()
+ %version 1.0.004 09/04/2013
+ %define row_color2 "bgcolor='White'"
+ %define col_color_multi "bgcolor='LightGrey'"
+ 
+ 'Life Domain Report 
+function LifeDomainRpt(q_text_ld_family,c.cans.ld.family,q_text_ld_livsit,c.cans.ld.livsit,q_text_ld_school,c.cans.ld.school,
+                       q_text_ld_socFun,c.cans.ld.socFun,q_text_ld_recret,c.cans.ld.recret,q_text_ld_develp,c.cans.ld.develp,q_text_ld_commun,c.cans.ld.commun,q_text_ld_judgmt,c.cans.ld.judgmt,
+                       q_text_ld_jobfun,c.cans.ld.jobfun,q_text_ld_legal,c.cans.ld.legal,q_text_ld_medicl,c.cans.ld.medicl,q_text_ld_physcl,c.cans.ld.physcl,
+                       q_text_ld_sexdev,c.cans.ld.sexdev,q_text_ld_sleep,c.cans.ld.sleep,q_text_ld_indliv,c.cans.ld.indliv,
+					   q_text_sc_behavr,c.cans.sc.behavr,q_text_sc_achiev,c.cans.sc.achiev,q_text_sc_attend,c.cans.sc.attend,q_text_sc_reltch,c.cans.sc.reltch,
+					   q_text_dv_cognit,c.cans.dv.cognit,q_text_dv_develp,c.cans.dv.develp,q_text_dv_selfcr,c.cans.dv.selfcr) is null					   
+ q_text_ld_family is x
+ c.cans.ld.family is x
+ q_text_ld_livsit is x
+ c.cans.ld.livsit is x
+ q_text_ld_school is x
+ c.cans.ld.school is x
+ q_text_ld_socFun is x
+ c.cans.ld.socFun is x
+ q_text_ld_recret is x
+ c.cans.ld.recret is x
+ q_text_ld_develp is x
+ c.cans.ld.develp is x
+ q_text_ld_commun is x
+ c.cans.ld.commun is x
+ q_text_ld_judgmt is x
+ c.cans.ld.judgmt is x
+ q_text_ld_jobfun is x
+ c.cans.ld.jobfun is x
+ q_text_ld_legal  is x
+ c.cans.ld.legal  is x
+ q_text_ld_medicl is x
+ c.cans.ld.medicl is x
+ q_text_ld_physcl is x
+ c.cans.ld.physcl is x
+ q_text_ld_sexdev is x
+ c.cans.ld.sexdev is x
+ q_text_ld_sleep  is x
+ c.cans.ld.sleep  is x
+ q_text_ld_indliv is x
+ c.cans.ld.indliv is x
+ q_text_sc_behavr is x
+ c.cans.sc.behavr is x
+ q_text_sc_achiev is x
+ c.cans.sc.achiev is x
+ q_text_sc_attend is x
+ c.cans.sc.attend is x
+ q_text_sc_reltch is x
+ c.cans.sc.reltch is x
+ q_text_dv_cognit is x
+ c.cans.dv.cognit is x
+ q_text_dv_develp is x
+ c.cans.dv.develp is x
+ q_text_dv_selfcr is x
+ c.cans.dv.selfcr is x
+ $br() 
+ $table($funcname,,"width='100%' cellspacing='0' cellpadding='2' bgcolor='White' style='border-style: solid; border-width: 1px'")
+  $row(,col_color_multi)
+   $col("center",,,"3"  )$text("Life Domain","datatag")
+  $row(,row_color2)
+   $col(,,"40%")$text(q_text_ld_family)
+   $col("center",,"10%")$text(c.cans.ld.family)
+   $col(,,"50%")
+  $row()
+   $col()$text(q_text_ld_livsit)
+   $col("center")$text(c.cans.ld.livsit)
+   $col()
+  $row()
+   $col()$text(q_text_ld_school)$text("{sup}9{/sup}")
+   $col("center")$text(c.cans.ld.school)
+     if $num(c.cans.ld.school) > 0
+      $col()SchoolRpt(q_text_sc_behavr,c.cans.sc.behavr,q_text_sc_achiev,c.cans.sc.achiev,q_text_sc_attend,c.cans.sc.attend,q_text_sc_reltch,c.cans.sc.reltch)
+     else
+      $col()
+     endif 
+  $row()
+   $col(,,"40%")$text(q_text_ld_socFun)
+   $col("center",,"10%")$text(c.cans.ld.socFun)
+   $col(,,"50%")
+  $row()
+   $col()$text(q_text_ld_recret)
+   $col("center")$text(c.cans.ld.recret)
+   $col()
+  $row()
+   $col()$text(q_text_ld_develp)$text("{sup}10{/sup}")
+   $col("center")$text(c.cans.ld.develp)
+     if $num(c.cans.ld.develp) > 0
+      $col()DevNeedsRpt(q_text_dv_cognit,c.cans.dv.cognit,q_text_dv_develp,c.cans.dv.develp,q_text_dv_selfcr,c.cans.dv.selfcr)
+     else
+      $col()
+     endif 
+  $row()
+   $col()$text(q_text_ld_commun)
+   $col("center")$text(c.cans.ld.commun)
+   $col()
+  $row()
+   $col()$text(q_text_ld_judgmt)
+   $col("center")$text(c.cans.ld.judgmt)
+   $col()
+  $row()
+   $col()$text(q_text_ld_jobfun)
+   $col("center")$text(c.cans.ld.jobfun)
+   $col()
+  $row()
+   $col()$text(q_text_ld_legal) 
+   $col("center")$text(c.cans.ld.legal)
+   $col()
+  $row()
+   $col()$text(q_text_ld_medicl)
+   $col("center")$text(c.cans.ld.medicl)
+   $col()
+  $row()
+   $col()$text(q_text_ld_physcl)
+   $col("center")$text(c.cans.ld.physcl)
+   $col()
+  $row()
+   $col()$text(q_text_ld_sexdev)
+   $col("center")$text(c.cans.ld.sexdev)
+   $col()
+  $row()
+   $col()$text(q_text_ld_sleep) 
+   $col("center")$text(c.cans.ld.sleep)
+   $col()
+  $row()
+   $col()$text(q_text_ld_indliv)
+   $col("center")$text(c.cans.ld.indliv)
+   $col()
+ $endtable($funcname)
+end LifeDomainRpt
+
+'School Report
+function SchoolRpt(q_text_sc_behavr,c.cans.sc.behavr,q_text_sc_achiev,c.cans.sc.achiev,q_text_sc_attend,c.cans.sc.attend,q_text_sc_reltch,c.cans.sc.reltch) is null
+ q_text_sc_behavr is x
+ c.cans.sc.behavr is x
+ q_text_sc_achiev is x
+ c.cans.sc.achiev is x
+ q_text_sc_attend is x
+ c.cans.sc.attend is x
+ q_text_sc_reltch is x
+ c.cans.sc.reltch is x
+ $table($funcname,,"width='100%' cellspacing='0' cellpadding='2' bgcolor='White'  style='border-style: solid; border-width: 1px'")
+  $row(,col_color_multi)
+   $col("center",,,"2"  )$text("School Module", "datatag")
+  $row(,row_color2)
+   $col(,, "50%")$text(q_text_sc_behavr)
+   $col("center")$text(c.cans.sc.behavr)
+  $row()
+   $col()$text(q_text_sc_achiev) 
+   $col("center")$text(c.cans.sc.achiev)
+  $row()
+   $col()$text(q_text_sc_attend)
+   $col("center")$text(c.cans.sc.attend)
+  $row()
+   $col()$text(q_text_sc_reltch)
+   $col("center")$text(c.cans.sc.reltch)
+ $endtable($funcname)
+end SchoolRpt
+
+'Development Report
+function DevNeedsRpt(q_text_dv_cognit,c.cans.dv.cognit,q_text_dv_develp,c.cans.dv.develp,q_text_dv_selfcr,c.cans.dv.selfcr) is null
+ q_text_dv_cognit is x
+ c.cans.dv.cognit is x
+ q_text_dv_develp is x
+ c.cans.dv.develp is x
+ q_text_dv_selfcr is x
+ c.cans.dv.selfcr is x 
+ $table($funcname,,"width='100%' cellspacing='0' cellpadding='2' bgcolor='White'  style='border-style: solid; border-width: 1px'")
+  $row(,col_color_multi)
+   $col("center",,,"2"  )$text("Developmental Needs Module", "datatag")
+  $row(,row_color2)
+   $col(,, "50%")$text(q_text_dv_cognit)
+   $col("center")$text(c.cans.dv.cognit)
+  $row()
+   $col()$text(q_text_dv_develp) 
+   $col("center")$text(c.cans.dv.develp)
+  $row()
+   $col()$text(q_text_dv_selfcr)
+   $col("center")$text(c.cans.dv.selfcr)
+ $endtable($funcname)
+end DevNeedsRpt
+
+'Emotional Behaviroal Needs Report
+function BehEmoRpt(q_text_cb_psychs,c.cans.cb.psychs,q_text_cb_mania,c.cans.cb.mania,q_text_cb_implsv,c.cans.cb.implsv,q_text_cb_depres,c.cans.cb.depres,q_text_cb_anxity,c.cans.cb.anxity,q_text_cb_oppdef,c.cans.cb.oppdef,
+                   q_text_cb_condct,c.cans.cb.condct,q_text_cb_adjtrm,c.cans.cb.adjtrm,q_text_cb_angctr,c.cans.cb.angctr,q_text_cb_subabs,c.cans.cb.subabs,q_text_cb_eatdst,c.cans.cb.eatdst,
+				   q_text_tr_sexabs,c.cans.tr.sexabs,q_text_tr_emclos,c.cans.tr.emclos,q_text_tr_freq,c.cans.tr.freq,q_text_tr_durat,c.cans.tr.durat,q_text_tr_force,c.cans.tr.force,q_text_tr_react,c.cans.tr.react,
+                   q_text_tr_phyabs,c.cans.tr.phyabs,q_text_tr_victim,c.cans.tr.victim,q_text_tr_emoabs,c.cans.tr.emoabs,q_text_tr_medtrm,c.cans.tr.medtrm,q_text_tr_natdis,c.cans.tr.natdis,q_text_tr_wtofam,c.cans.tr.wtofam,
+				   q_text_tr_wtocom,c.cans.tr.wtocom,
+				   q_text_tr_wcrime,c.cans.tr.wcrime,q_text_tr_waraff,c.cans.tr.waraff,q_text_tr_teraff,c.cans.tr.teraff,
+				   q_text_ad_affreg,c.cans.ad.affreg,q_text_ad_intrus,c.cans.ad.intrus,q_text_ad_attach,c.cans.ad.attach,q_text_ad_dissoc,c.cans.ad.dissoc,q_text_ad_timb4t,c.cans.ad.timb4t,
+				   q_text_sa_severe,c.cans.sa.severe,q_text_sa_durati,c.cans.sa.durati,q_text_sa_stgrec,c.cans.sa.stgrec,q_text_sa_perinf,c.cans.sa.perinf,q_text_sa_parinf,c.cans.sa.parinf,q_text_sa_envinf,c.cans.sa.envinf,
+				   c.cans.type,c.cans.disreas) is null
+ q_text_cb_psychs is x
+ c.cans.cb.psychs is x
+ q_text_cb_mania  is x
+ c.cans.cb.mania  is x
+ q_text_cb_implsv is x
+ c.cans.cb.implsv is x
+ q_text_cb_depres is x
+ c.cans.cb.depres is x
+ q_text_cb_anxity is x
+ c.cans.cb.anxity is x
+ q_text_cb_oppdef is x
+ c.cans.cb.oppdef is x
+ q_text_cb_condct is x
+ c.cans.cb.condct is x
+ q_text_cb_adjtrm is x
+ c.cans.cb.adjtrm is x
+ q_text_cb_angctr is x
+ c.cans.cb.angctr is x
+ q_text_cb_subabs is x
+ c.cans.cb.subabs is x
+ q_text_cb_eatdst is x
+ c.cans.cb.eatdst is x
+ q_text_tr_sexabs is x
+ c.cans.tr.sexabs is x
+ q_text_tr_emclos is x
+ c.cans.tr.emclos is x
+ q_text_tr_freq   is x
+ c.cans.tr.freq   is x
+ q_text_tr_durat  is x
+ c.cans.tr.durat  is x
+ q_text_tr_force  is x
+ c.cans.tr.force  is x
+ q_text_tr_react  is x
+ c.cans.tr.react  is x
+ q_text_tr_phyabs is x
+ c.cans.tr.phyabs is x
+ q_text_tr_victim is x
+ c.cans.tr.victim is x
+ q_text_tr_emoabs is x
+ c.cans.tr.emoabs is x
+ q_text_tr_medtrm is x
+ c.cans.tr.medtrm is x
+ q_text_tr_natdis is x
+ c.cans.tr.natdis is x
+ q_text_tr_wtofam is x
+ c.cans.tr.wtofam is x
+ q_text_tr_wtocom is x
+ c.cans.tr.wtocom is x
+ q_text_tr_wcrime is x
+ c.cans.tr.wcrime is x
+ q_text_tr_waraff is x
+ c.cans.tr.waraff is x
+ q_text_tr_teraff is x
+ c.cans.tr.teraff is x
+ q_text_ad_affreg is x
+ c.cans.ad.affreg is x
+ q_text_ad_intrus is x
+ c.cans.ad.intrus is x
+ q_text_ad_attach is x
+ c.cans.ad.attach is x
+ q_text_ad_dissoc is x
+ c.cans.ad.dissoc is x
+ q_text_ad_timb4t is x
+ c.cans.ad.timb4t is x
+ q_text_sa_severe is x
+ c.cans.sa.severe is x
+ q_text_sa_durati is x
+ c.cans.sa.durati is x
+ q_text_sa_stgrec is x
+ c.cans.sa.stgrec is x
+ q_text_sa_perinf is x
+ c.cans.sa.perinf is x
+ q_text_sa_parinf is x
+ c.cans.sa.parinf is x
+ q_text_sa_envinf is x
+ c.cans.sa.envinf is x
+ c.cans.type      is x
+ c.cans.disreas   is x
+ $br()   
+ $table($funcname,,"width='100%' cellspacing='0' cellpadding='2' bgcolor='White' style='border-style: solid; border-width: 1px'")
+  $row(,col_color_multi)
+   $col("center",,,"3"  )$text("Emotional Behavioral Needs","datatag")
+  $row(,row_color2)
+   $col(,,"40%")$text(q_text_cb_psychs)
+   $col("center",,"10%")$text(c.cans.cb.psychs)
+   $col(,,"50%")                                 
+  if c.cans.type = "1" or c.cans.type = "2" or (c.cans.type = "3" and c.cans.disreas = "9") or c.cans.type = "12"
+   $row()                                      
+    $col()$text(q_text_cb_mania)
+    $col("center")$text(c.cans.cb.mania)
+    $col()                                      
+   $row()                                      
+    $col()$text(q_text_cb_implsv)
+    $col("center")$text(c.cans.cb.implsv)
+    $col()                                      
+   $row()                                      
+    $col()$text(q_text_cb_depres)
+    $col("center")$text(c.cans.cb.depres)
+    $col()                                      
+   $row()                                      
+    $col()$text(q_text_cb_anxity)
+    $col("center")$text(c.cans.cb.anxity)
+    $col(,,"50%")                               
+   $row()                                      
+    $col()$text(q_text_cb_oppdef)
+    $col("center")$text(c.cans.cb.oppdef)
+    $col()                                      
+   $row()                                      
+    $col()$text(q_text_cb_condct)
+    $col("center")$text(c.cans.cb.condct)
+    $col()                                      
+   $row()                                      
+    $col()$text(q_text_cb_adjtrm)$text("{sup}7{/sup}")
+    $col("center")$text(c.cans.cb.adjtrm)
+	    if $num(c.cans.cb.adjtrm) > 0
+ 	     $col()TraumaRpt(q_text_tr_sexabs,c.cans.tr.sexabs,q_text_tr_emclos,c.cans.tr.emclos,q_text_tr_freq,c.cans.tr.freq,q_text_tr_durat,c.cans.tr.durat,q_text_tr_force,c.cans.tr.force,q_text_tr_react,c.cans.tr.react,
+                         q_text_tr_phyabs,c.cans.tr.phyabs,q_text_tr_victim,c.cans.tr.victim,q_text_tr_emoabs,c.cans.tr.emoabs,q_text_tr_medtrm,c.cans.tr.medtrm,q_text_tr_natdis,c.cans.tr.natdis,q_text_tr_wtofam,c.cans.tr.wtocom,
+						 q_text_tr_wcrime,c.cans.tr.wcrime,
+                         q_text_tr_waraff,c.cans.tr.waraff,q_text_tr_teraff,c.cans.tr.teraff)
+		       $br()AdjustRpt(q_text_ad_affreg,c.cans.ad.affreg,q_text_ad_intrus,c.cans.ad.intrus,q_text_ad_attach,c.cans.ad.attach,q_text_ad_dissoc,c.cans.ad.dissoc,q_text_ad_timb4t,c.cans.ad.timb4t)
+	    else
+		 $col()
+	    endif
+    $col()                                      
+   $row()                                      
+    $col()$text(q_text_cb_angctr)
+    $col("center")$text(c.cans.cb.angctr)
+    $col()                                      
+   $row()                                      
+    $col()$text(q_text_cb_subabs)$text("{sup}8{/sup}")
+    $col("center")$text(c.cans.cb.subabs)
+	    if $num(c.cans.cb.subabs) > 0
+ 	     $col()SubUseRpt(q_text_sa_severe,c.cans.sa.severe,q_text_sa_durati,c.cans.sa.durati,q_text_sa_stgrec,c.cans.sa.stgrec,q_text_sa_perinf,c.cans.sa.perinf,q_text_sa_parinf,c.cans.sa.parinf,q_text_sa_envinf,c.cans.sa.envinf)
+	    else
+		 $col()
+	    endif
+   $row()                                      
+    $col()$text(q_text_cb_eatdst) 
+    $col("center")$text(c.cans.cb.eatdst)
+    $col()                
+  endif
+ $endtable($funcname)
+end BehEmoRpt
+
+'Trauma Module Report
+function TraumaRpt(q_text_tr_sexabs,c.cans.tr.sexabs,q_text_tr_emclos,c.cans.tr.emclos,q_text_tr_freq,c.cans.tr.freq,q_text_tr_durat,c.cans.tr.durat,q_text_tr_force,c.cans.tr.force,q_text_tr_react,c.cans.tr.react,
+                   q_text_tr_phyabs,c.cans.tr.phyabs,q_text_tr_victim,c.cans.tr.victim,q_text_tr_emoabs,c.cans.tr.emoabs,q_text_tr_medtrm,c.cans.tr.medtrm,q_text_tr_natdis,c.cans.tr.natdis,q_text_tr_wtofam,c.cans.tr.wtocom,
+				   q_text_tr_wcrime,c.cans.tr.wcrime,
+                   q_text_tr_waraff,c.cans.tr.waraff,q_text_tr_teraff,c.cans.tr.teraff) is null
+ q_text_tr_sexabs is x
+ c.cans.tr.sexabs is x
+ q_text_tr_emclos is x
+ c.cans.tr.emclos is x
+ q_text_tr_freq   is x
+ c.cans.tr.freq   is x
+ q_text_tr_durat  is x
+ c.cans.tr.durat  is x
+ q_text_tr_force  is x
+ c.cans.tr.force  is x
+ q_text_tr_react  is x
+ c.cans.tr.react  is x
+ q_text_tr_phyabs is x
+ c.cans.tr.phyabs is x
+ q_text_tr_victim is x
+ c.cans.tr.victim is x
+ q_text_tr_emoabs is x
+ c.cans.tr.emoabs is x
+ q_text_tr_medtrm is x
+ c.cans.tr.medtrm is x
+ q_text_tr_natdis is x
+ c.cans.tr.natdis is x
+ q_text_tr_wtofam is x
+ c.cans.tr.wtofam is x
+ q_text_tr_wtocom is x
+ c.cans.tr.wtocom is x
+ q_text_tr_wcrime is x
+ c.cans.tr.wcrime is x
+ q_text_tr_waraff is x
+ c.cans.tr.waraff is x
+ q_text_tr_teraff is x
+ c.cans.tr.teraff is x
+ $table($funcname,,"width='100%' cellspacing='0' cellpadding='2' bgcolor='White'  style='border-style: solid; border-width: 1px'")
+  $row(,col_color_multi)
+   $col("center",,,"2"  )$text("Trauma Module", "datatag")
+  $row(,row_color2)
+   $col(,, "50%")$text($left(q_text_tr_sexabs, 12))
+   $col("center")$text(c.cans.tr.sexabs)
+	   if $num(c.cans.tr.sexabs) > 0
+		$row()                                       
+		 $col("right")$text(q_text_tr_emclos) 
+		 $col("center")$text(c.cans.tr.emclos)
+		$row()                                       
+		 $col("right")$text(q_text_tr_freq)
+		 $col("center")$text(c.cans.tr.freq)
+		$row()                                       
+		 $col("right")$text(q_text_tr_durat)
+		 $col("center")$text(c.cans.tr.durat)
+		$row()                                       
+		 $col("right")$text(q_text_tr_force) 
+		 $col("center")$text(c.cans.tr.force)
+		$row()                                       
+		 $col("right")$text(q_text_tr_react)
+		 $col("center")$text(c.cans.tr.react)
+	   endif
+  $row()                                       
+   $col()$text(q_text_tr_phyabs)
+   $col("center")$text(c.cans.tr.phyabs)
+  $row()                                       
+   $col()$text(q_text_tr_emoabs) 
+   $col("center")$text(c.cans.tr.emoabs)
+  $row()                                       
+   $col()$text(q_text_tr_victim)
+   $col("center")$text(c.cans.tr.victim)   
+  $row()                                       
+   $col()$text(q_text_tr_medtrm)
+   $col("center")$text(c.cans.tr.medtrm)
+  $row()                                       
+   $col()$text(q_text_tr_natdis)
+   $col("center")$text(c.cans.tr.natdis)
+  $row()                                       
+   $col()$text(q_text_tr_wtofam) 
+   $col("center")$text(c.cans.tr.wtofam)
+  $row()                                       
+   $col()$text(q_text_tr_wtocom)
+   $col("center")$text(c.cans.tr.wtocom)
+  $row()                                       
+   $col()$text(q_text_tr_wcrime)
+   $col("center")$text(c.cans.tr.wcrime)
+  $row()                                       
+   $col()$text(q_text_tr_waraff) 
+   $col("center")$text(c.cans.tr.waraff)
+  $row()                                       
+   $col()$text(q_text_tr_teraff)
+   $col("center")$text(c.cans.tr.teraff)
+ $endtable($funcname)
+end TraumaRpt
+
+'Adjustment Module Report
+function AdjustRpt(q_text_ad_affreg,c.cans.ad.affreg,q_text_ad_intrus,c.cans.ad.intrus,q_text_ad_attach,c.cans.ad.attach,q_text_ad_dissoc,c.cans.ad.dissoc,q_text_ad_timb4t,c.cans.ad.timb4t) is null
+ q_text_ad_affreg is x
+ c.cans.ad.affreg is x
+ q_text_ad_intrus is x
+ c.cans.ad.intrus is x
+ q_text_ad_attach is x
+ c.cans.ad.attach is x
+ q_text_ad_dissoc is x
+ c.cans.ad.dissoc is x
+ q_text_ad_timb4t is x
+ c.cans.ad.timb4t is x
+ $table($funcname,,"width='100%' cellspacing='0' cellpadding='2' bgcolor='White'  style='border-style: solid; border-width: 1px'")
+  $row(,col_color_multi)
+   $col("center",,,"2"  )$text("Adjustment Module", "datatag")
+  $row(,row_color2)
+   $col(,, "50%")$text(q_text_ad_affreg)
+   $col("center")$text(c.cans.ad.affreg)
+  $row()                                       
+   $col()$text(q_text_ad_intrus) 
+   $col("center")$text(c.cans.ad.intrus)
+  $row()                                       
+   $col()$text(q_text_ad_attach)
+   $col("center")$text(c.cans.ad.attach)
+  $row()                                       
+   $col()$text(q_text_ad_dissoc)
+   $col("center")$text(c.cans.ad.dissoc)
+  $row()                                       
+   $col()$text(q_text_ad_timb4t)
+   $col("center")$text(c.cans.ad.timb4t)
+ $endtable($funcname)
+end AdjustRpt
+
+'Substance Abuse Module Report
+function SubUseRpt(q_text_sa_severe,c.cans.sa.severe,q_text_sa_durati,c.cans.sa.durati,q_text_sa_stgrec,c.cans.sa.stgrec,q_text_sa_perinf,c.cans.sa.perinf,q_text_sa_parinf,c.cans.sa.parinf,q_text_sa_envinf,c.cans.sa.envinf) is null
+ q_text_sa_severe is x
+ c.cans.sa.severe is x
+ q_text_sa_durati is x
+ c.cans.sa.durati is x
+ q_text_sa_stgrec is x
+ c.cans.sa.stgrec is x
+ q_text_sa_perinf is x
+ c.cans.sa.perinf is x
+ q_text_sa_parinf is x
+ c.cans.sa.parinf is x
+ q_text_sa_envinf is x
+ c.cans.sa.envinf is x
+ $table($funcname,,"width='100%' cellspacing='0' cellpadding='2' bgcolor='White'  style='border-style: solid; border-width: 1px'")
+  $row(,col_color_multi)
+   $col("center",,,"2"  )$text("Substance Abuse Module", "datatag")
+  $row(,row_color2)
+   $col(,, "50%")$text(q_text_sa_severe)
+   $col("center")$text(c.cans.sa.severe)
+  $row()                                       
+   $col()$text(q_text_sa_durati) 
+   $col("center")$text(c.cans.sa.durati)
+  $row()                                       
+   $col()$text(q_text_sa_stgrec)
+   $col("center")$text(c.cans.sa.stgrec)
+  $row()                                       
+   $col()$text(q_text_sa_perinf) 
+   $col("center")$text(c.cans.sa.perinf)
+  $row()                                       
+   $col()$text(q_text_sa_parinf)
+   $col("center")$text(c.cans.sa.parinf)
+  $row()                                       
+   $col()$text(q_text_sa_envinf) 
+   $col("center")$text(c.cans.sa.envinf)
+ $endtable($funcname)
+end SubUseRpt
+
+'Child Risk Report
+function ChildRiskRpt(q_text_cr_suicid,c.cans.cr.suicid,q_text_cr_smutil,c.cans.cr.smutil,q_text_cr_oslfhr,c.cans.cr.oslfhr,q_text_cr_dangot,c.cans.cr.dangot,q_text_cr_sexagr,c.cans.cr.sexagr,q_text_cr_runawy,c.cans.cr.runawy,
+                      q_text_cr_delqcy,c.cans.cr.delqcy,
+                      q_text_cr_firset,c.cans.cr.firset,q_text_cr_socbeh,c.cans.cr.socbeh,q_text_cr_bully,c.cans.cr.bully,
+					  q_text_eb_frsmgt,c.cans.eb.frsmgt,q_text_eb_hostil,c.cans.eb.hostil,q_text_eb_parand,c.cans.eb.parand,q_text_eb_secgan,c.cans.eb.secgan,q_text_eb_viothk,c.cans.eb.viothk,
+					  q_text_rf_viopot,c.cans.rf.viopot,q_text_rf_rescon,c.cans.rf.rescon,q_text_rf_comsc,c.cans.rf.comsc,q_text_rf_trtinv,c.cans.rf.trtinv,
+					  q_text_sb_relton,c.cans.sb.relton,q_text_sb_phyfrc,c.cans.sb.phyfrc,q_text_sb_planin,c.cans.sb.planin,q_text_sb_agedif,c.cans.sb.agedif,q_text_sb_typsex,c.cans.sb.typsex,q_text_sb_resacc,c.cans.sb.resacc,
+                      q_text_sb_temcon,c.cans.sb.temcon,q_text_sb_hxsxbh,c.cans.sb.hxsxbh,q_text_sb_svsxab,c.cans.sb.svsxab,q_text_sb_prirtx,c.cans.sb.prirtx,
+					  q_text_rn_frqncy,c.cans.rn.frqncy,q_text_rn_condes,c.cans.rn.condes,q_text_rn_safdes,c.cans.rn.safdes,
+					  q_text_rn_invill,c.cans.rn.invill,q_text_rn_retown,c.cans.rn.retown,q_text_rn_invoth,c.cans.rn.invoth,q_text_rn_relexp,c.cans.rn.relexp,q_text_rn_planin,
+                      c.cans.rn.planin,
+                      q_text_jj_serios,c.cans.jj.serios,q_text_jj_histry,c.cans.jj.histry,q_text_jj_arrest,c.cans.jj.arrest,q_text_jj_planin,c.cans.jj.planin,q_text_jj_comsaf,c.cans.jj.comsaf,q_text_jj_lefcom,c.cans.jj.lefcom,
+                      q_text_jj_perinf,c.cans.jj.perinf,q_text_jj_parinf,c.cans.jj.parinf,q_text_jj_envinf,c.cans.jj.envinf,
+                      q_text_fs_serios,c.cans.fs.serios,q_text_fs_histry,c.cans.fs.histry,q_text_fs_planin,c.cans.fs.planin,q_text_fs_useacc,c.cans.fs.useacc,q_text_fs_inthrm,c.cans.fs.inthrm,q_text_fs_comsaf,c.cans.fs.comsaf,
+                      q_text_fs_resacc,c.cans.fs.resacc,q_text_fs_remrse,c.cans.fs.remrse,q_text_fs_futfir,c.cans.fs.futfir,
+					  q_text_vi_hxpabs,c.cans.vi.hxpabs,q_text_vi_hxviol,c.cans.vi.hxviol,q_text_vi_wdomab,c.cans.vi.wdomab,q_text_vi_wenvab,c.cans.vi.wenvab,
+					  q_text_hissui,c.cans.sr.hissui,q_text_hfmsui,c.cans.sr.hfmsui,q_text_firear,c.cans.sr.firear,
+					  c.cans.type, c.cans.disreas) is null
+ q_text_cr_suicid is x
+ c.cans.cr.suicid is x
+ q_text_cr_smutil is x
+ c.cans.cr.smutil is x
+ q_text_cr_oslfhr is x
+ c.cans.cr.oslfhr is x
+ q_text_cr_dangot is x
+ c.cans.cr.dangot is x
+ q_text_cr_sexagr is x
+ c.cans.cr.sexagr is x
+ q_text_cr_runawy is x
+ c.cans.cr.runawy is x
+ q_text_cr_delqcy is x
+ c.cans.cr.delqcy is x
+ q_text_cr_firset is x
+ c.cans.cr.firset is x
+ q_text_cr_socbeh is x
+ c.cans.cr.socbeh is x
+ q_text_cr_bully  is x
+ c.cans.cr.bully  is x
+ q_text_eb_frsmgt is x
+ c.cans.eb.frsmgt is x
+ q_text_eb_hostil is x
+ c.cans.eb.hostil is x
+ q_text_eb_parand is x
+ c.cans.eb.parand is x
+ q_text_eb_secgan is x
+ c.cans.eb.secgan is x
+ q_text_eb_viothk is x
+ c.cans.eb.viothk is x
+ q_text_rf_viopot is x
+ c.cans.rf.viopot is x
+ q_text_rf_rescon is x
+ c.cans.rf.rescon is x
+ q_text_rf_comsc  is x
+ c.cans.rf.comsc  is x
+ q_text_rf_trtinv is x
+ c.cans.rf.trtinv is x
+ q_text_sb_relton is x
+ c.cans.sb.relton is x
+ q_text_sb_phyfrc is x
+ c.cans.sb.phyfrc is x
+ q_text_sb_planin is x
+ c.cans.sb.planin is x
+ q_text_sb_agedif is x
+ c.cans.sb.agedif is x
+ q_text_sb_typsex is x
+ c.cans.sb.typsex is x
+ q_text_sb_resacc is x
+ c.cans.sb.resacc is x
+ q_text_sb_temcon is x
+ c.cans.sb.temcon is x
+ q_text_sb_hxsxbh is x
+ c.cans.sb.hxsxbh is x
+ q_text_sb_svsxab is x
+ c.cans.sb.svsxab is x
+ q_text_sb_prirtx is x
+ c.cans.sb.prirtx is x
+ q_text_rn_frqncy is x
+ c.cans.rn.frqncy is x
+ q_text_rn_condes is x
+ c.cans.rn.condes is x
+ q_text_rn_safdes is x
+ c.cans.rn.safdes is x
+ q_text_rn_invill is x
+ c.cans.rn.invill is x
+ q_text_rn_retown is x
+ c.cans.rn.retown is x
+ q_text_rn_invoth is x
+ c.cans.rn.invoth is x
+ q_text_rn_relexp is x
+ c.cans.rn.relexp is x
+ q_text_rn_planin is x
+ c.cans.rn.planin is x
+ q_text_jj_serios is x
+ c.cans.jj.serios is x
+ q_text_jj_histry is x
+ c.cans.jj.histry is x
+ q_text_jj_arrest is x
+ c.cans.jj.arrest is x
+ q_text_jj_planin is x
+ c.cans.jj.planin is x
+ q_text_jj_comsaf is x
+ c.cans.jj.comsaf is x
+ q_text_jj_lefcom is x
+ c.cans.jj.lefcom is x
+ q_text_jj_perinf is x
+ c.cans.jj.perinf is x
+ q_text_jj_parinf is x
+ c.cans.jj.parinf is x
+ q_text_jj_envinf is x
+ c.cans.jj.envinf is x
+ q_text_fs_serios is x
+ c.cans.fs.serios is x
+ q_text_fs_histry is x
+ c.cans.fs.histry is x
+ q_text_fs_planin is x
+ c.cans.fs.planin is x
+ q_text_fs_useacc is x
+ c.cans.fs.useacc is x
+ q_text_fs_inthrm is x
+ c.cans.fs.inthrm is x
+ q_text_fs_comsaf is x
+ c.cans.fs.comsaf is x
+ q_text_fs_resacc is x
+ c.cans.fs.resacc is x
+ q_text_fs_remrse is x
+ c.cans.fs.remrse is x
+ q_text_fs_futfir is x
+ c.cans.fs.futfir is x
+ q_text_vi_hxpabs is x
+ c.cans.vi.hxpabs is x
+ q_text_vi_hxviol is x
+ c.cans.vi.hxviol is x
+ q_text_vi_wdomab is x
+ c.cans.vi.wdomab is x
+ q_text_vi_wenvab is x
+ c.cans.vi.wenvab is x
+ q_text_hissui    is x
+ c.cans.sr.hissui is x
+ q_text_hfmsui    is x
+ c.cans.sr.hfmsui is x
+ q_text_firear    is x
+ c.cans.sr.firear is x
+ c.cans.type      is x
+ c.cans.disreas   is x
+ if c.cans.type = "1" or c.cans.type = "2" or (c.cans.type = "3" and c.cans.disreas = "9") or c.cans.type = "11" or c.cans.type = "12"
+  $br()        
+  $table($funcname,,"width='100%' cellspacing='0' cellpadding='2' bgcolor='White' style='border-style: solid; border-width: 1px'")
+   $row(,col_color_multi)
+    $col("center",,,"3"  )$text("Child Risk Behaviors","datatag")
+   $row(,row_color2)
+    $col(,,"40%")$text(q_text_cr_suicid)$text("{sup}1{/sup}")
+    $col("center",,"10%")$text(c.cans.cr.suicid)
+    $col(,,"50%")if $num(c.cans.cr.suicid) > 0
+                  $br()SuicideRiskRpt(q_text_hissui,c.cans.sr.hissui,q_text_hfmsui,c.cans.sr.hfmsui,q_text_firear,c.cans.sr.firear)
+			     endif
+   $row()
+    $col()$text(q_text_cr_smutil)
+    $col("center")$text(c.cans.cr.smutil)
+    $col()
+   $row()
+    $col()$text(q_text_cr_oslfhr)
+    $col("center")$text(c.cans.cr.oslfhr)
+    $col()
+   $row()                         
+    $col()$text(q_text_cr_dangot)$text("{sup}2{/sup}")
+    $col("center")$text(c.cans.cr.dangot)
+ 	  if $num(c.cans.cr.dangot) > 0
+       $col()violenceRpt(q_text_vi_hxpabs,c.cans.vi.hxpabs,q_text_vi_hxviol,c.cans.vi.hxviol,q_text_vi_wdomab,c.cans.vi.wdomab,q_text_vi_wenvab,c.cans.vi.wenvab)
+	        $br()EmBehRpt(q_text_eb_frsmgt,c.cans.eb.frsmgt,q_text_eb_hostil,c.cans.eb.hostil,q_text_eb_parand,c.cans.eb.parand,q_text_eb_secgan,c.cans.eb.secgan,q_text_eb_viothk,c.cans.eb.viothk)
+	        $br()ResilRpt(q_text_rf_viopot,c.cans.rf.viopot,q_text_rf_rescon,c.cans.rf.rescon,q_text_rf_comsc,c.cans.rf.comsc,q_text_rf_trtinv,c.cans.rf.trtinv)
+	  else
+	   $col()
+	  endif 
+   if c.cans.cr.sexagr dp
+    $row()                         
+     $col()$text(q_text_cr_sexagr)$text("{sup}3{/sup}")
+     $col("center")$text(c.cans.cr.sexagr)
+       if $num(c.cans.cr.sexagr) > 0
+       $col()SABRpt(q_text_sb_relton,c.cans.sb.relton,q_text_sb_phyfrc,c.cans.sb.phyfrc,q_text_sb_planin,c.cans.sb.planin,q_text_sb_agedif,c.cans.sb.agedif,q_text_sb_typsex,c.cans.sb.typsex,q_text_sb_resacc,c.cans.sb.resacc,
+                     q_text_sb_temcon,c.cans.sb.temcon,q_text_sb_hxsxbh,c.cans.sb.hxsxbh,q_text_sb_svsxab,c.cans.sb.svsxab,q_text_sb_prirtx,c.cans.sb.prirtx)
+	   else
+	    $col()
+	   endif 
+   endif
+   if c.cans.cr.runawy dp
+	$row()                         
+     $col()$text(q_text_cr_runawy)$text("{sup}4{/sup}")
+     $col("center")$text(c.cans.cr.runawy)
+	  if $num(c.cans.cr.runawy) > 0
+	   $col()RunawayRpt(q_text_rn_frqncy,c.cans.rn.frqncy,q_text_rn_condes,c.cans.rn.condes,q_text_rn_safdes,c.cans.rn.safdes,
+	                    q_text_rn_invill,c.cans.rn.invill,q_text_rn_retown,c.cans.rn.retown,q_text_rn_invoth,c.cans.rn.invoth,q_text_rn_relexp,c.cans.rn.relexp,q_text_rn_planin,
+                        c.cans.rn.planin)
+	 else
+	  $col()
+	 endif 
+   endif
+   if c.cans.cr.delqcy dp
+    $row()                         
+     $col()$text(q_text_cr_delqcy)$text("{sup}5{/sup}")
+     $col("center")$text(c.cans.cr.delqcy)
+       if $num(c.cans.cr.delqcy) > 0
+        $col()JJRpt(q_text_jj_serios,c.cans.jj.serios,q_text_jj_histry,c.cans.jj.histry,q_text_jj_arrest,c.cans.jj.arrest,q_text_jj_planin,c.cans.jj.planin,q_text_jj_comsaf,c.cans.jj.comsaf,q_text_jj_lefcom,c.cans.jj.lefcom,
+                    q_text_jj_perinf,c.cans.jj.perinf,q_text_jj_parinf,c.cans.jj.parinf,q_text_jj_envinf,c.cans.jj.envinf)
+	   else
+	    $col()
+	   endif 
+   endif
+   $row()                         
+    $col()$text(q_text_cr_firset)$text("{sup}6{/sup}")
+    $col("center")$text(c.cans.cr.firset)
+	  if $num(c.cans.cr.firset) > 0
+	   $col() FireSetRpt(q_text_fs_serios,c.cans.fs.serios,q_text_fs_histry,c.cans.fs.histry,q_text_fs_planin,c.cans.fs.planin,q_text_fs_useacc,c.cans.fs.useacc,q_text_fs_inthrm,c.cans.fs.inthrm,q_text_fs_comsaf,c.cans.fs.comsaf,
+                         q_text_fs_resacc,c.cans.fs.resacc,q_text_fs_remrse,c.cans.fs.remrse,q_text_fs_futfir,c.cans.fs.futfir)
+	  else
+	   $col()
+	  endif 
+   if c.cans.cr.socbeh dp
+    $row()                         
+     $col()$text(q_text_cr_socbeh)
+     $col("center")$text(c.cans.cr.socbeh)
+     $col()                         
+   endif
+   if c.cans.cr.bully dp
+    $row()                         
+     $col()$text(q_text_cr_bully)
+     $col("center")$text(c.cans.cr.bully)
+     $col()                         
+   endif
+  $endtable($funcname)
+ endif
+end ChildRiskRpt
+
+'Emotional Behavioral Module Report                                                                                                   
+function EmBehRpt(q_text_eb_frsmgt,c.cans.eb.frsmgt,q_text_eb_hostil,c.cans.eb.hostil,q_text_eb_parand,c.cans.eb.parand,q_text_eb_secgan,c.cans.eb.secgan,q_text_eb_viothk,c.cans.eb.viothk) is null
+ q_text_eb_frsmgt is x
+ c.cans.eb.frsmgt is x
+ q_text_eb_hostil is x
+ c.cans.eb.hostil is x
+ q_text_eb_parand is x
+ c.cans.eb.parand is x
+ q_text_eb_secgan is x
+ c.cans.eb.secgan is x
+ q_text_eb_viothk is x
+ c.cans.eb.viothk is x
+ $table($funcname,,"width='100%' cellspacing='0' cellpadding='2' bgcolor='White'  style='border-style: solid; border-width: 1px'")
+  $row(,col_color_multi)
+   $col("center",,,"2"  )$text("Emotional Behavioral Risks", "datatag")
+  $row(,row_color2)
+   $col(,, "50%")$text(q_text_eb_frsmgt)
+   $col("center")$text(c.cans.eb.frsmgt)
+  $row()
+   $col()$text(q_text_eb_hostil) 
+   $col("center")$text(c.cans.eb.hostil)
+  $row()
+   $col()$text(q_text_eb_parand)
+   $col("center")$text(c.cans.eb.parand)
+  $row()
+   $col()$text(q_text_eb_secgan)
+   $col("center")$text(c.cans.eb.secgan)
+  $row()
+   $col()$text(q_text_eb_viothk)
+   $col("center")$text(c.cans.eb.viothk)
+ $endtable($funcname)
+end EmBehRpt
+
+'Resiliency Factors Report                                                                                                   
+function ResilRpt(q_text_rf_viopot,c.cans.rf.viopot,q_text_rf_rescon,c.cans.rf.rescon,q_text_rf_comsc,c.cans.rf.comsc,q_text_rf_trtinv,c.cans.rf.trtinv) is null
+ q_text_rf_viopot is x
+ c.cans.rf.viopot is x
+ q_text_rf_rescon is x
+ c.cans.rf.rescon is x
+ q_text_rf_comsc  is x
+ c.cans.rf.comsc  is x
+ q_text_rf_trtinv is x
+ c.cans.rf.trtinv is x
+ $table($funcname,,"width='100%' cellspacing='0' cellpadding='2' bgcolor='White'  style='border-style: solid; border-width: 1px'")
+  $row(,col_color_multi)
+   $col("center",,,"2"  )$text("Resiliency Factors", "datatag")
+  $row(,row_color2)
+   $col(,, "50%")$text(q_text_rf_viopot)
+   $col("center")$text(c.cans.rf.viopot)
+  $row()
+   $col()$text(q_text_rf_rescon) 
+   $col("center")$text(c.cans.rf.rescon)
+  $row()
+   $col()$text(q_text_rf_comsc)
+   $col("center")$text(c.cans.rf.comsc)
+  $row()
+   $col()$text(q_text_rf_trtinv)
+   $col("center")$text(c.cans.rf.trtinv)
+ $endtable($funcname)
+end ResilRpt
+
+'Sexually Agressive Module Report                                                                                                   
+function SABRpt(q_text_sb_relton,c.cans.sb.relton,q_text_sb_phyfrc,c.cans.sb.phyfrc,q_text_sb_planin,c.cans.sb.planin,q_text_sb_agedif,c.cans.sb.agedif,q_text_sb_typsex,c.cans.sb.typsex,q_text_sb_resacc,c.cans.sb.resacc,
+                q_text_sb_temcon,c.cans.sb.temcon,q_text_sb_hxsxbh,c.cans.sb.hxsxbh,q_text_sb_svsxab,c.cans.sb.svsxab,q_text_sb_prirtx,c.cans.sb.prirtx) is null
+ q_text_sb_relton is x
+ c.cans.sb.relton is x
+ q_text_sb_phyfrc is x
+ c.cans.sb.phyfrc is x
+ q_text_sb_planin is x
+ c.cans.sb.planin is x
+ q_text_sb_agedif is x
+ c.cans.sb.agedif is x
+ q_text_sb_typsex is x
+ c.cans.sb.typsex is x
+ q_text_sb_resacc is x
+ c.cans.sb.resacc is x
+ q_text_sb_temcon is x
+ c.cans.sb.temcon is x
+ q_text_sb_hxsxbh is x
+ c.cans.sb.hxsxbh is x
+ q_text_sb_svsxab is x
+ c.cans.sb.svsxab is x
+ q_text_sb_prirtx is x
+ c.cans.sb.prirtx is x
+ $table($funcname,,"width='100%' cellspacing='0' cellpadding='2' bgcolor='White'  style='border-style: solid; border-width: 1px'")
+  $row(,col_color_multi)
+   $col("center",,,"2"  )$text("Sexually Agressive Behavior (SAB)", "datatag")
+  $row(,row_color2)
+   $col(,, "50%")$text(q_text_sb_relton)
+   $col("center")$text(c.cans.sb.relton)
+  $row()                                       
+   $col()$text(q_text_sb_phyfrc) 
+   $col("center")$text(c.cans.sb.phyfrc)
+  $row()                                       
+   $col()$text(q_text_sb_planin)
+   $col("center")$text(c.cans.sb.planin)
+  $row()                                       
+   $col()$text(q_text_sb_agedif)
+   $col("center")$text(c.cans.sb.agedif)
+  $row()                                       
+   $col()$text(q_text_sb_typsex)
+   $col("center")$text(c.cans.sb.typsex)
+  $row()                                       
+   $col()$text(q_text_sb_resacc) 
+   $col("center")$text(c.cans.sb.resacc)
+  $row()                                       
+   $col()$text(q_text_sb_temcon)
+   $col("center")$text(c.cans.sb.temcon)
+  $row()                                       
+   $col()$text(q_text_sb_hxsxbh)
+   $col("center")$text(c.cans.sb.hxsxbh)
+  $row()                                       
+   $col()$text(q_text_sb_svsxab)
+   $col("center")$text(c.cans.sb.svsxab)
+  $row()                                       
+   $col()$text(q_text_sb_prirtx)
+   $col("center")$text(c.cans.sb.prirtx)
+ $endtable($funcname)
+end SABRpt
+
+'Runaway Module Report                                                                                                   
+function RunawayRpt(q_text_rn_frqncy,c.cans.rn.frqncy,q_text_rn_condes,c.cans.rn.condes,q_text_rn_safdes,c.cans.rn.safdes,q_text_rn_invill,c.cans.rn.invill,q_text_rn_retown,c.cans.rn.retown,q_text_rn_invoth,c.cans.rn.invoth,
+                    q_text_rn_relexp,c.cans.rn.relexp,q_text_rn_planin,c.cans.rn.planin) is null
+ q_text_rn_frqncy is x
+ c.cans.rn.frqncy is x
+ q_text_rn_condes is x
+ c.cans.rn.condes is x
+ q_text_rn_safdes is x
+ c.cans.rn.safdes is x
+ q_text_rn_invill is x
+ c.cans.rn.invill is x
+ q_text_rn_retown is x
+ c.cans.rn.retown is x
+ q_text_rn_invoth is x
+ c.cans.rn.invoth is x
+ q_text_rn_relexp is x
+ c.cans.rn.relexp is x
+ q_text_rn_planin is x
+ c.cans.rn.planin is x
+ $table($funcname,,"width='100%' cellspacing='0' cellpadding='2' bgcolor='White'  style='border-style: solid; border-width: 1px'")
+  $row(,col_color_multi)
+   $col("center",,,"2"  )$text("Runaway Module", "datatag")
+  $row(,row_color2)
+   $col(,, "50%")$text(q_text_rn_frqncy)
+   $col("center")$text(c.cans.rn.frqncy)
+  $row()                                       
+   $col()$text(q_text_rn_condes) 
+   $col("center")$text(c.cans.rn.condes)
+  $row()                                       
+   $col()$text(q_text_rn_safdes)
+   $col("center")$text(c.cans.rn.safdes)
+  $row()                                       
+   $col()$text(q_text_rn_invill)
+   $col("center")$text(c.cans.rn.invill)
+  $row()                                       
+   $col()$text(q_text_rn_retown)
+   $col("center")$text(c.cans.rn.retown)
+  $row()                                       
+   $col()$text(q_text_rn_invoth) 
+   $col("center")$text(c.cans.rn.invoth)
+  $row()                                       
+   $col()$text(q_text_rn_relexp)
+   $col("center")$text(c.cans.rn.relexp)
+  $row()                                       
+   $col()$text(q_text_rn_planin)
+   $col("center")$text(c.cans.rn.planin)
+ $endtable($funcname)
+end RunawayRpt
+
+'Juvinile Justice Module Report                                                                                                   
+function JJRpt(q_text_jj_serios,c.cans.jj.serios,q_text_jj_histry,c.cans.jj.histry,q_text_jj_arrest,c.cans.jj.arrest,q_text_jj_planin,c.cans.jj.planin,q_text_jj_comsaf,c.cans.jj.comsaf,q_text_jj_lefcom,c.cans.jj.lefcom,
+               q_text_jj_perinf,c.cans.jj.perinf,q_text_jj_parinf,c.cans.jj.parinf,q_text_jj_envinf,c.cans.jj.envinf) is null
+ q_text_jj_serios is x
+ c.cans.jj.serios is x
+ q_text_jj_histry is x
+ c.cans.jj.histry is x
+ q_text_jj_arrest is x
+ c.cans.jj.arrest is x
+ q_text_jj_planin is x
+ c.cans.jj.planin is x
+ q_text_jj_comsaf is x
+ c.cans.jj.comsaf is x
+ q_text_jj_lefcom is x
+ c.cans.jj.lefcom is x
+ q_text_jj_perinf is x
+ c.cans.jj.perinf is x
+ q_text_jj_parinf is x
+ c.cans.jj.parinf is x
+ q_text_jj_envinf is x
+ c.cans.jj.envinf is x
+ $table($funcname,,"width='100%' cellspacing='0' cellpadding='2' bgcolor='White'  style='border-style: solid; border-width: 1px'")
+  $row(,col_color_multi)
+   $col("center",,,"2"  )$text("Juvenile Justice Module", "datatag")
+  $row(,row_color2)
+   $col(,, "50%")$text(q_text_jj_serios)
+   $col("center")$text(c.cans.jj.serios)
+  $row()                                       
+   $col()$text(q_text_jj_histry) 
+   $col("center")$text(c.cans.jj.histry)
+  $row()                                       
+   $col()$text(q_text_jj_arrest)
+   $col("center")$text(c.cans.jj.arrest)
+  $row()                                       
+   $col()$text(q_text_jj_planin)
+   $col("center")$text(c.cans.jj.planin)
+  $row()                                       
+   $col()$text(q_text_jj_comsaf)
+   $col("center")$text(c.cans.jj.comsaf)
+  $row()                                       
+   $col()$text(q_text_jj_lefcom) 
+   $col("center")$text(c.cans.jj.lefcom)
+  $row()                                       
+   $col()$text(q_text_jj_perinf)
+   $col("center")$text(c.cans.jj.perinf)
+  $row()                                       
+   $col()$text(q_text_jj_parinf)
+   $col("center")$text(c.cans.jj.parinf)
+  $row()                                       
+   $col()$text(q_text_jj_envinf)
+   $col("center")$text(c.cans.jj.envinf)
+ $endtable($funcname)
+end JJRpt
+
+'Fire Setting Module Report                                                                                                   
+function FireSetRpt(q_text_fs_serios,c.cans.fs.serios,q_text_fs_histry,c.cans.fs.histry,q_text_fs_planin,c.cans.fs.planin,q_text_fs_useacc,c.cans.fs.useacc,q_text_fs_inthrm,c.cans.fs.inthrm,q_text_fs_comsaf,c.cans.fs.comsaf,
+                    q_text_fs_resacc,c.cans.fs.resacc,q_text_fs_remrse,c.cans.fs.remrse,q_text_fs_futfir,c.cans.fs.futfir) is null
+ q_text_fs_serios is x
+ c.cans.fs.serios is x
+ q_text_fs_histry is x
+ c.cans.fs.histry is x
+ q_text_fs_planin is x
+ c.cans.fs.planin is x
+ q_text_fs_useacc is x
+ c.cans.fs.useacc is x
+ q_text_fs_inthrm is x
+ c.cans.fs.inthrm is x
+ q_text_fs_comsaf is x
+ c.cans.fs.comsaf is x
+ q_text_fs_resacc is x
+ c.cans.fs.resacc is x
+ q_text_fs_remrse is x
+ c.cans.fs.remrse is x
+ q_text_fs_futfir is x
+ c.cans.fs.futfir is x
+ $table($funcname,,"width='100%' cellspacing='0' cellpadding='2' bgcolor='White'  style='border-style: solid; border-width: 1px'")
+  $row(,col_color_multi)
+   $col("center",,,"2"  )$text("Fire Setting Module", "datatag")
+  $row(,row_color2)
+   $col(,, "50%")$text(q_text_fs_serios)
+   $col("center")$text(c.cans.fs.serios)
+  $row()                                       
+   $col()$text(q_text_fs_histry) 
+   $col("center")$text(c.cans.fs.histry)
+  $row()                                       
+   $col()$text(q_text_fs_planin)
+   $col("center")$text(c.cans.fs.planin)
+  $row()                                       
+   $col()$text(q_text_fs_useacc)
+   $col("center")$text(c.cans.fs.useacc)
+  $row()                                       
+   $col()$text(q_text_fs_inthrm)
+   $col("center")$text(c.cans.fs.inthrm)
+  $row()                                       
+   $col()$text(q_text_fs_comsaf) 
+   $col("center")$text(c.cans.fs.comsaf)
+  $row()                                       
+   $col()$text(q_text_fs_resacc)
+   $col("center")$text(c.cans.fs.resacc)
+  $row()                                       
+   $col()$text(q_text_fs_remrse)
+   $col("center")$text(c.cans.fs.remrse)
+  $row()                                       
+   $col()$text(q_text_fs_futfir)
+   $col("center")$text(c.cans.fs.futfir)
+ $endtable($funcname)
+end FireSetRpt
+
+'Suicide Module Report
+function SuicideRiskRpt(q_text_hissui,c.cans.sr.hissui,q_text_hfmsui,c.cans.sr.hfmsui,q_text_firear,c.cans.sr.firear) is null
+ q_text_hissui    is x
+ c.cans.sr.hissui is x
+ q_text_hfmsui    is x
+ c.cans.sr.hfmsui is x
+ q_text_firear    is x
+ c.cans.sr.firear is x
+ $table($funcname,,"width='100%' cellspacing='0' cellpadding='2' bgcolor='White'  style='border-style: solid; border-width: 1px'")
+  $row(,col_color_multi)
+   $col("center",,,"2"  )$text("Suicide Risk Module", "datatag")
+  $row(,row_color2)
+   $col(,, "50%")$text(q_text_hissui)
+   $col("center")$text(c.cans.sr.hissui)
+  $row()
+   $col()$text(q_text_hfmsui)
+   $col("center")$text(c.cans.sr.hfmsui)
+  $row()
+   $col()$text(q_text_firear)
+   $col("center")$text(c.cans.sr.firear)
+ $endtable($funcname) 
+end SuicideRiskRpt
+
+
+'Violence Module Report
+function violenceRpt(q_text_vi_hxpabs,c.cans.vi.hxpabs,q_text_vi_hxviol,c.cans.vi.hxviol,q_text_vi_wdomab,c.cans.vi.wdomab,q_text_vi_wenvab,c.cans.vi.wenvab) is null
+ q_text_vi_hxpabs is x
+ c.cans.vi.hxpabs is x
+ q_text_vi_hxviol is x
+ c.cans.vi.hxviol is x
+ q_text_vi_wdomab is x
+ c.cans.vi.wdomab is x
+ q_text_vi_wenvab is x
+ c.cans.vi.wenvab is x
+ $table($funcname,,"width='100%' cellspacing='0' cellpadding='2' bgcolor='White'  style='border-style: solid; border-width: 1px'")
+  $row(,col_color_multi)
+   $col("center",,,"2"  )$text("Violence Module", "datatag")
+  $row(,row_color2)
+   $col(,, "50%")$text(q_text_vi_hxpabs)
+   $col("center")$text(c.cans.vi.hxpabs)
+  $row()
+   $col()$text(q_text_vi_hxviol)
+   $col("center")$text(c.cans.vi.hxviol)
+  $row()
+   $col()$text(q_text_vi_wdomab)
+   $col("center")$text(c.cans.vi.wdomab)
+  $row()
+   $col()$text(q_text_vi_wenvab)
+   $col("center")$text(c.cans.vi.wenvab)
+ $endtable($funcname)
+end violenceRpt
+
+'CARE Give Giver Strengths & Needs Report
+function CareGiveRpt(c.cans.cg.na,q_text_cg_super,c.cans.cg.super,q_text_cg_involv,
+                     c.cans.cg.involv,q_text_cg_knoldg,c.cans.cg.knoldg,q_text_cg_organz,
+                     c.cans.cg.organz,q_text_cg_socres,c.cans.cg.socres,q_text_cg_ressbl,
+                     c.cans.cg.ressbl,q_text_cg_physcl,c.cans.cg.physcl,q_text_cg_menhth,
+                     c.cans.cg.menhth,q_text_cg_subabs,c.cans.cg.subabs,q_text_cg_develp,
+                     c.cans.cg.develp,q_text_cg_chldcr,c.cans.cg.chldcr,q_text_cg_miltra,
+                     c.cans.cg.miltra,q_text_cg_famsts,c.cans.cg.famsts,q_text_cg_safety,c.cans.cg.safety,
+                     q_text_fc_selfcr,c.cans.fc.selfcr,q_text_fc_culstr,c.cans.fc.culstr,
+                     q_text_fc_empedu,c.cans.fc.empedu,q_text_fc_eduatt,c.cans.fc.eduatt,
+                     q_text_fc_legal,c.cans.fc.legal,q_text_fc_motive,c.cans.fc.motive,
+                     q_text_fc_finres,c.cans.fc.finres,q_text_fc_transp,c.cans.fc.transp) is null
+ c.cans.cg.na     is x 
+ q_text_cg_super  is x 
+ c.cans.cg.super  is x 
+ q_text_cg_involv is x 
+ c.cans.cg.involv is x 
+ q_text_cg_knoldg is x 
+ c.cans.cg.knoldg is x 
+ q_text_cg_organz is x 
+ c.cans.cg.organz is x 
+ q_text_cg_socres is x 
+ c.cans.cg.socres is x 
+ q_text_cg_ressbl is x 
+ c.cans.cg.ressbl is x 
+ q_text_cg_physcl is x 
+ c.cans.cg.physcl is x 
+ q_text_cg_menhth is x 
+ c.cans.cg.menhth is x 
+ q_text_cg_subabs is x 
+ c.cans.cg.subabs is x 
+ q_text_cg_develp is x 
+ c.cans.cg.develp is x 
+ q_text_cg_chldcr is x 
+ c.cans.cg.chldcr is x 
+ q_text_cg_miltra is x 
+ c.cans.cg.miltra is x 
+ q_text_cg_famsts is x 
+ c.cans.cg.famsts is x 
+ q_text_cg_safety is x 
+ c.cans.cg.safety is x
+ q_text_fc_selfcr is x
+ c.cans.fc.selfcr is x
+ q_text_fc_culstr is x
+ c.cans.fc.culstr is x
+ q_text_fc_empedu is x
+ c.cans.fc.empedu is x
+ q_text_fc_eduatt is x
+ c.cans.fc.eduatt is x
+ q_text_fc_legal  is x
+ c.cans.fc.legal  is x
+ q_text_fc_motive is x
+ c.cans.fc.motive is x
+ q_text_fc_finres is x
+ c.cans.fc.finres is x
+ q_text_fc_transp is x
+ c.cans.fc.transp is x
+ $br() 
+ $table($funcname,,"width='100%' cellspacing='0' cellpadding='2' bgcolor='White' style='border-style: solid; border-width: 1px'")
+  $row(,col_color_multi)
+   $col("center",,,"3"  )$text("Caregiver Strengths and Needs","datatag")
+  if c.cans.cg.na = "9"
+   $row()
+    $col("center",,,"3")$text("Not Applicable - No Caregiver Identified")
+  else   
+   $row(,row_color2)
+    $col(,,"40%")$text(q_text_cg_super)
+    $col("center",,"10%")$text(c.cans.cg.super)
+    $col()                               
+   $row()                                      
+    $col()$text(q_text_cg_involv)
+    $col("center")$text(c.cans.cg.involv)
+    $col()                                      
+   $row()                                      
+    $col()$text(q_text_cg_knoldg)
+    $col("center")$text(c.cans.cg.knoldg)
+    $col()                                      
+   $row()                                      
+    $col()$text(q_text_cg_organz)
+    $col("center")$text(c.cans.cg.organz)
+    $col(,,"50%")                               
+   $row()                                      
+    $col()$text(q_text_cg_socres)
+    $col("center")$text(c.cans.cg.socres)
+    $col()                                      
+   $row()                                      
+    $col()$text(q_text_cg_ressbl)
+    $col("center")$text(c.cans.cg.ressbl)
+    $col()                                      
+   $row()                                      
+    $col()$text(q_text_cg_physcl)
+    $col("center")$text(c.cans.cg.physcl)
+    $col()                                      
+   $row()                                      
+    $col()$text(q_text_cg_menhth)
+    $col("center")$text(c.cans.cg.menhth)
+    $col()                                      
+   $row()                                      
+    $col()$text(q_text_cg_subabs)
+    $col("center")$text(c.cans.cg.subabs)
+    $col()                                      
+   $row()                                      
+    $col()$text(q_text_cg_develp)
+    $col("center")$text(c.cans.cg.develp)
+    $col()                                      
+   $row()                                      
+    $col()$text(q_text_cg_chldcr)
+    $col("center")$text(c.cans.cg.chldcr)
+    $col()                                      
+   $row()                                      
+    $col()$text(q_text_cg_miltra)
+    $col("center")$text(c.cans.cg.miltra)
+    $col()                                      
+   $row()                                      
+    $col()$text(q_text_cg_famsts)$text("{sup}11{/sup}")
+    $col("center")$text(c.cans.cg.famsts)
+     if $num(c.cans.cg.famsts) > 0
+      $col()SafetyRpt(q_text_fc_selfcr,c.cans.fc.selfcr,q_text_fc_culstr,c.cans.fc.culstr,
+                         q_text_fc_empedu,c.cans.fc.empedu,q_text_fc_eduatt,c.cans.fc.eduatt,
+                         q_text_fc_legal,c.cans.fc.legal,q_text_fc_motive,c.cans.fc.motive,
+                         q_text_fc_finres,c.cans.fc.finres,q_text_fc_transp,c.cans.fc.transp)
+     else
+      $col()
+     endif
+   $row()                                      
+    $col()$text(q_text_cg_safety)
+    $col("center")$text(c.cans.cg.safety)
+  endif
+ $endtable($funcname)
+end CareGiveRpt
+
+'Safety Module Report
+function SafetyRpt(q_text_fc_selfcr,c.cans.fc.selfcr,q_text_fc_culstr,c.cans.fc.culstr,
+                   q_text_fc_empedu,c.cans.fc.empedu,q_text_fc_eduatt,c.cans.fc.eduatt,
+                   q_text_fc_legal,c.cans.fc.legal,q_text_fc_motive,c.cans.fc.motive,
+                   q_text_fc_finres,c.cans.fc.finres,q_text_fc_transp,c.cans.fc.transp) is null
+ q_text_fc_selfcr is x
+ c.cans.fc.selfcr is x
+ q_text_fc_culstr is x
+ c.cans.fc.culstr is x
+ q_text_fc_empedu is x
+ c.cans.fc.empedu is x
+ q_text_fc_eduatt is x
+ c.cans.fc.eduatt is x
+ q_text_fc_legal  is x
+ c.cans.fc.legal  is x
+ q_text_fc_motive is x
+ c.cans.fc.motive is x
+ q_text_fc_finres is x
+ c.cans.fc.finres is x
+ q_text_fc_transp is x
+ c.cans.fc.transp is x
+ $table($funcname,,"width='100%' cellspacing='0' cellpadding='2' bgcolor='White'  style='border-style: solid; border-width: 1px'")
+  $row(,col_color_multi)
+   $col("center",,,"2"  )$text("Family/Caregiver Module", "datatag")
+  $row(,row_color2)
+   $col(,, "50%")$text(q_text_fc_selfcr)
+   $col("center")$text(c.cans.fc.selfcr)
+  $row()                                       
+   $col()$text(q_text_fc_culstr) 
+   $col("center")$text(c.cans.fc.culstr)
+  $row()                                       
+   $col()$text(q_text_fc_empedu)
+   $col("center")$text(c.cans.fc.empedu)
+  $row()                                       
+   $col()$text(q_text_fc_eduatt) 
+   $col("center")$text(c.cans.fc.eduatt)
+  $row()                                       
+   $col()$text(q_text_fc_legal)
+   $col("center")$text(c.cans.fc.legal)
+  $row()                                       
+   $col()$text(q_text_fc_motive) 
+   $col("center")$text(c.cans.fc.motive)
+  $row()                                       
+   $col()$text(q_text_fc_finres)
+   $col("center")$text(c.cans.fc.finres)
+  $row()                                       
+   $col()$text(q_text_fc_transp) 
+   $col("center")$text(c.cans.fc.transp)
+ $endtable($funcname)
+end SafetyRpt
+
+'Child Strengths Report
+function ChildStrRpt(q_text_cs_family,c.cans.cs.family,q_text_cs_intper,c.cans.cs.intper,
+                     q_text_cs_optims,c.cans.cs.optims,q_text_cs_educat,c.cans.cs.educat,
+                     q_text_cs_vocate,c.cans.cs.vocate,q_text_cs_talint,c.cans.cs.talint,
+                     q_text_cs_spirel,c.cans.cs.spirel,q_text_cs_comlif,c.cans.cs.comlif,
+                     q_text_cs_permin,c.cans.cs.permin,q_text_cs_youth,c.cans.cs.youth,
+                     q_text_cs_natsup,c.cans.cs.natsup) is null
+ q_text_cs_family is x
+ c.cans.cs.family is x
+ q_text_cs_intper is x
+ c.cans.cs.intper is x
+ q_text_cs_optims is x
+ c.cans.cs.optims is x
+ q_text_cs_educat is x
+ c.cans.cs.educat is x
+ q_text_cs_vocate is x
+ c.cans.cs.vocate is x
+ q_text_cs_talint is x
+ c.cans.cs.talint is x
+ q_text_cs_spirel is x
+ c.cans.cs.spirel is x
+ q_text_cs_comlif is x
+ c.cans.cs.comlif is x
+ q_text_cs_permin is x
+ c.cans.cs.permin is x
+ q_text_cs_youth  is x
+ c.cans.cs.youth  is x
+ q_text_cs_natsup is x
+ c.cans.cs.natsup is x
+ $br()
+ $table($funcname,,"width='100%' cellspacing='0' cellpadding='2' bgcolor='White' style='border-style: solid; border-width: 1px'")
+  $row(,col_color_multi)
+   $col("center",,,"3"  )$text("Child Strengths","datatag")
+  $row(,row_color2)
+   $col(,,"40%")$text(q_text_cs_family)
+   $col("center",,"10%")$text(c.cans.cs.family)
+   $col(,,"50%")                               
+  $row()                                      
+   $col()$text(q_text_cs_intper)
+   $col("center")$text(c.cans.cs.intper)
+   $col()                                      
+  $row()                                      
+   $col()$text(q_text_cs_optims)
+   $col("center")$text(c.cans.cs.optims)
+   $col()                                      
+  $row()                                      
+   $col()$text(q_text_cs_educat)
+   $col("center")$text(c.cans.cs.educat)
+   $col(,,"50%")                               
+  $row()                                      
+   $col()$text(q_text_cs_vocate)
+   $col("center")$text(c.cans.cs.vocate)
+   $col()                                      
+  $row()                                      
+   $col()$text(q_text_cs_talint)
+   $col("center")$text(c.cans.cs.talint)
+   $col()                                      
+  $row()                                      
+   $col()$text(q_text_cs_spirel)
+   $col("center")$text(c.cans.cs.spirel)
+   $col()                                      
+  $row()                                      
+   $col()$text(q_text_cs_comlif)
+   $col("center")$text(c.cans.cs.comlif)
+   $col()                                      
+  $row()                                      
+   $col()$text(q_text_cs_permin)
+   $col("center")$text(c.cans.cs.permin)
+   $col()                                      
+  $row()                                      
+   $col()$text(q_text_cs_youth)
+   $col("center")$text(c.cans.cs.youth)
+   $col()                                     
+  $row()                                      
+   $col()$text(q_text_cs_natsup)
+   $col("center")$text(c.cans.cs.natsup)
+   $col()                                      
+ $endtable($funcname)
+end ChildStrRpt
+
+'Culture Report
+function CultureRpt(q_text_ac_langua,c.cans.ac.langua,
+                    q_text_ac_identy,c.cans.ac.identy,
+                    q_text_ac_sexgen,c.cans.ac.sexgen,
+                    q_text_ac_ritual,c.cans.ac.ritual,
+                    q_text_ac_culstr,c.cans.ac.culstr) is null
+ q_text_ac_langua  is x
+ c.cans.ac.langua  is x
+ q_text_ac_identy  is x
+ c.cans.ac.identy  is x
+ q_text_ac_sexgen  is x
+ c.cans.ac.sexgen  is x
+ q_text_ac_ritual  is x
+ c.cans.ac.ritual  is x
+ q_text_ac_culstr  is x
+ c.cans.ac.culstr  is x
+ $table($funcname,,"width='100%' cellspacing='0' cellpadding='2' bgcolor='White' style='border-style: solid; border-width: 1px'")
+  $row(,col_color_multi)
+   $col("center",,,"3"  )$text("Culture","datatag")
+  $row(,row_color2)
+   $col(,,"40%")$text(q_text_ac_langua)
+   $col("center",,"10%")$text(c.cans.ac.langua)
+   $col(,,"50%")                               
+  $row()                                      
+   $col()$text(q_text_ac_identy)
+   $col("center")$text(c.cans.ac.identy)
+   $col()                                      
+  $row()                                      
+   $col()$text(q_text_ac_sexgen)
+   $col("center")$text(c.cans.ac.sexgen)
+   $col()                                      
+  $row()                                      
+   $col()$text(q_text_ac_ritual)
+   $col("center")$text(c.cans.ac.ritual)
+   $col()                                      
+  $row()                                      
+   $col()$text(q_text_ac_culstr)
+   $col("center")$text(c.cans.ac.culstr)
+   $col(,,"50%")                               
+ $endtable($funcname)
+end CultureRpt
+
+'Crisis History Report
+function CrisisRpt(q_text_cr_episds,c.cans.cr.episds) is null
+ q_text_cr_episds is x
+ c.cans.cr.episds is x
+ $table($funcname,,"width='100%' cellspacing='0' cellpadding='2' bgcolor='White' style='border-style: solid; border-width: 1px'")
+  $row(,col_color_multi)
+   $col("center",,,"3"  )$text("Crisis History, # of Crisis Episodes Past 90 Days","datatag")
+  $row(,row_color2)
+   $col(,,"40%")$text(q_text_cr_episds)
+   $col("center",,"10%")$text(c.cans.cr.episds)
+   $col(,,"50%")                               
+ $endtable($funcname)
+end CrisisRpt
+
+'Psychiatric Hospitalization Report
+function PsyHospRpt(q_text_ps_hosptl,c.cans.ps.hosptl,
+                    q_text_hs_numprr,c.cans.hs.numprr,
+                    q_text_hs_longst,c.cans.hs.longst,
+                    q_text_hs_durrec,c.cans.hs.durrec,
+                    q_text_hs_timlst,c.cans.hs.timlst) is null
+ q_text_ps_hosptl is x
+ c.cans.ps.hosptl is x
+ q_text_hs_numprr is x
+ c.cans.hs.numprr is x
+ q_text_hs_longst is x
+ c.cans.hs.longst is x
+ q_text_hs_durrec is x
+ c.cans.hs.durrec is x
+ q_text_hs_timlst is x
+ c.cans.hs.timlst is x
+ $table($funcname,,"width='100%' cellspacing='0' cellpadding='2' bgcolor='White' style='border-style: solid; border-width: 1px'")
+  $row(,col_color_multi)
+   $col("center",,,"3"  )$text("Psychiatric Hospitalizations","datatag")$text("{sup}12{/sup}")
+  $row(,row_color2)
+   $col(,,"40%")$text(q_text_ps_hosptl)
+   $col("center",,"10%")$text(c.cans.ps.hosptl)
+   if c.cans.ps.hosptl = "1"
+    $col()HospHxRpt(q_text_hs_numprr,c.cans.hs.numprr,
+                       q_text_hs_longst,c.cans.hs.longst,
+                       q_text_hs_durrec,c.cans.hs.durrec,
+                       q_text_hs_timlst,c.cans.hs.timlst)
+   else
+    $col()                               
+   endif
+ $endtable($funcname)
+end PsyHospRpt
+
+'Psychiatric Hospitalization History Module Report
+function HospHxRpt(q_text_hs_numprr,c.cans.hs.numprr,
+                   q_text_hs_longst,c.cans.hs.longst,
+                   q_text_hs_durrec,c.cans.hs.durrec,
+                   q_text_hs_timlst,c.cans.hs.timlst) is null
+ q_text_hs_numprr is x
+ c.cans.hs.numprr is x
+ q_text_hs_longst is x
+ c.cans.hs.longst is x
+ q_text_hs_durrec is x
+ c.cans.hs.durrec is x
+ q_text_hs_timlst is x
+ c.cans.hs.timlst is x
+ $table($funcname,,"width='100%' cellspacing='0' cellpadding='2' bgcolor='White'  style='border-style: solid; border-width: 1px'")
+  $row(,col_color_multi)
+   $col("center",,,"2"  )$text("Hostpitalization History", "datatag")
+  $row(,row_color2)
+   $col(,, "50%")$text(q_text_hs_numprr)
+   $col("center")$text(c.cans.hs.numprr)
+  $row()                                       
+   $col()$text(q_text_hs_longst) 
+   $col("center")$text(c.cans.hs.longst)
+  $row()                                       
+   $col()$text(q_text_hs_durrec)
+   $col("center")$text(c.cans.hs.durrec)
+  $row()                                       
+   $col()$text(q_text_hs_timlst) 
+   $col("center")$text(c.cans.hs.timlst)
+ $endtable($funcname)
+end HospHxRpt
+
+'CANS 6-17 Crisis RLOC
+function Crisis_RLOC(c.cans.type,c.cans.cr.suicid,c.cans.cr.smutil,c.cans.cr.oslfhr,c.cans.cr.dangot,c.cans.cb.psychs,c.cans.cr.firset,c.cans.fs.planin) is x
+c.cans.type      is x
+c.cans.cr.suicid is x
+c.cans.cr.smutil is x
+c.cans.cr.oslfhr is x
+c.cans.cr.dangot is x
+c.cans.cb.psychs is x
+c.cans.cr.firset is x
+c.cans.fs.planin is x
+' LevelOfCarePackage: CrisisServices
+ if c.cans.type = "1" or c.cans.type = "11"
+  if (c.cans.cr.suicid = "3" or c.cans.cr.smutil = "3" or c.cans.cr.oslfhr = "3" or c.cans.cr.dangot = "3" or c.cans.cb.psychs = "3")
+   Crisis_RLOC = "100"
+   c.cans.type = "11"
+   $allowupdate(c.cans.type)
+  endif	 
+  if (c.cans.cr.firset = "3" and c.cans.fs.planin = "3")
+   c.cans.type = "11"
+   $allowupdate(c.cans.type)
+   Crisis_RLOC = "100"
+  endif
+ endif 			
+end Crisis_RLOC
+
+'CANS 6-17 RLOC
+function RLOC(c.cans.ac.sexgen,c.cans.ad.affreg,c.cans.ad.dissoc,c.cans.ad.intrus,c.cans.cb.adjtrm,c.cans.cb.angctr,c.cans.cb.anxity,c.cans.cb.condct,
+              c.cans.cb.depres,c.cans.cb.eatdst,c.cans.cb.implsv,c.cans.cb.mania,c.cans.cb.oppdef,c.cans.cb.psychs,c.cans.cb.subabs,c.cans.cr.bully,
+              c.cans.cr.dangot,c.cans.cr.delqcy,c.cans.cr.episds,c.cans.cr.firset,c.cans.cr.oslfhr,c.cans.cr.runawy,c.cans.cr.sexagr,c.cans.cr.smutil,
+              c.cans.cr.socbeh,c.cans.cr.suicid,c.cans.dv.cognit,c.cans.dv.develp,c.cans.fs.inthrm,c.cans.fs.planin,c.cans.hs.durrec,c.cans.hs.timlst,
+              c.cans.jj.comsaf,c.cans.jj.histry,c.cans.jj.serios,c.cans.ld.commun,c.cans.ld.develp,c.cans.ld.family,c.cans.ld.indliv,c.cans.ld.jobfun,
+              c.cans.ld.judgmt,c.cans.ld.legal,c.cans.ld.livsit,c.cans.ld.medicl,c.cans.ld.physcl,c.cans.ld.recret,c.cans.ld.school,c.cans.ld.sexdev,
+              c.cans.ld.sleep,c.cans.ld.socfun,c.cans.ps.hosptl,c.cans.rf.comsc,c.cans.rf.rescon,c.cans.rn.frqncy,c.cans.rn.invill,c.cans.sa.envinf,
+              c.cans.sa.parinf,c.cans.sa.perinf,c.cans.sa.severe,c.cans.sa.stgrec,c.cans.sc.attend,c.cans.sc.behavr,c.cans.sr.hissui,c.cans.type,c.cans.vi.hxviol,c.cans.disreas) is x
+ c.cans.ac.sexgen is x
+ c.cans.ad.affreg is x
+ c.cans.ad.dissoc is x
+ c.cans.ad.intrus is x
+ c.cans.cb.adjtrm is x
+ c.cans.cb.angctr is x
+ c.cans.cb.anxity is x
+ c.cans.cb.condct is x
+ c.cans.cb.depres is x
+ c.cans.cb.eatdst is x
+ c.cans.cb.implsv is x
+ c.cans.cb.mania  is x
+ c.cans.cb.oppdef is x
+ c.cans.cb.psychs is x
+ c.cans.cb.subabs is x
+ c.cans.cr.bully  is x
+ c.cans.cr.dangot is x
+ c.cans.cr.delqcy is x
+ c.cans.cr.episds is x
+ c.cans.cr.firset is x
+ c.cans.cr.oslfhr is x
+ c.cans.cr.runawy is x
+ c.cans.cr.sexagr is x
+ c.cans.cr.smutil is x
+ c.cans.cr.socbeh is x
+ c.cans.cr.suicid is x
+ c.cans.dv.cognit is x
+ c.cans.dv.develp is x
+ c.cans.fs.inthrm is x
+ c.cans.fs.planin is x
+ c.cans.hs.durrec is x
+ c.cans.hs.timlst is x
+ c.cans.jj.comsaf is x
+ c.cans.jj.histry is x
+ c.cans.jj.serios is x
+ c.cans.ld.commun is x
+ c.cans.ld.develp is x
+ c.cans.ld.family is x
+ c.cans.ld.indliv is x
+ c.cans.ld.jobfun is x
+ c.cans.ld.judgmt is x
+ c.cans.ld.legal  is x
+ c.cans.ld.livsit is x
+ c.cans.ld.medicl is x
+ c.cans.ld.physcl is x
+ c.cans.ld.recret is x
+ c.cans.ld.school is x
+ c.cans.ld.sexdev is x
+ c.cans.ld.sleep  is x
+ c.cans.ld.socfun is x
+ c.cans.ps.hosptl is x
+ c.cans.rf.comsc  is x
+ c.cans.rf.rescon is x
+ c.cans.rn.frqncy is x
+ c.cans.rn.invill is x
+ c.cans.sa.envinf is x
+ c.cans.sa.parinf is x
+ c.cans.sa.perinf is x
+ c.cans.sa.severe is x
+ c.cans.sa.stgrec is x
+ c.cans.sc.attend is x
+ c.cans.sc.behavr is x
+ c.cans.sr.hissui is x
+ c.cans.type      is x
+ c.cans.vi.hxviol is x
+ c.cans.disreas   is x
+
+ crisis           is x
+ med_management   is x
+ targeted         is x
+ complex          is x
+ intensive        is x
+ young_child      is x
+ transitional     is x
+ yes_waiver       is x
+ consumer_refuses is x
+ waitinglist      is x
+ Ineligible       is x
+ 
+ crisis           = "100"
+ med_management   = "101"
+ targeted         = "102"
+ complex          = "103"
+ intensive        = "104"
+ young_child      = "105"
+ transitional     = "106"
+ yes_waiver       = "107"
+ consumer_refuses = "108"
+ waitinglist      = "109"
+ Ineligible       = "110" 
+ 
+' LevelOfCarePackage: CrisisServices
+ if c.cans.type = "1" or c.cans.type = "11"
+  if (c.cans.cr.suicid = "3" or c.cans.cr.smutil = "3" or c.cans.cr.oslfhr = "3" or c.cans.cr.dangot = "3" or c.cans.cb.psychs = "3")
+   RLOC = crisis
+   c.cans.type = "11"
+   $allowupdate(c.cans.type)
+   return
+  endif	 
+  if (c.cans.cr.firset = "3" and c.cans.fs.planin = "3")
+   c.cans.type = "11"
+   $allowupdate(c.cans.type)
+   RLOC = crisis
+   return
+  endif
+ endif 			
+'All Child Risk Behavior Items = 0
+ if c.cans.type = "1" or c.cans.type = "2" or c.cans.type = "12" 
+'This is commented out for the moment due to causing a batch error. From the manual it is a possibility but cmbhs integration services project kicks it back as an error for type "3"
+' or (c.cans.type = "3" and c.cans.disreas = "9")
+  if (c.cans.cr.suicid = "0" and c.cans.cr.smutil = "0" and c.cans.cr.oslfhr = "0" and c.cans.cr.dangot = "0" and c.cans.cr.sexagr = "0" and c.cans.cr.runawy = "0" and c.cans.cr.delqcy = "0" and 
+      c.cans.cr.firset = "0" and c.cans.cr.socbeh = "0" and c.cans.cr.bully = "0")
+  and
+'All Child Behavioral Emotional Needs Items = 0
+   (c.cans.cb.psychs = "0" and c.cans.cb.mania = "0" and c.cans.cb.implsv = "0" and c.cans.cb.depres = "0" and c.cans.cb.anxity = "0" and c.cans.cb.oppdef = "0" and 
+    c.cans.cb.condct = "0" and c.cans.cb.adjtrm = "0" and c.cans.cb.angctr = "0" and c.cans.cb.subabs = "0" and c.cans.cb.eatdst = "0")
+  and
+'All Life Domain Items = 0
+   ((c.cans.ld.family = "0" or c.cans.ld.family = "9") and c.cans.ld.livsit = "0" and c.cans.ld.school = "0" and c.cans.ld.socFun = "0" and c.cans.ld.recret = "0" and c.cans.ld.develp = "0" and 
+     c.cans.ld.commun = "0" and c.cans.ld.judgmt = "0" and (c.cans.ld.jobfun = "0" or c.cans.ld.jobfun = "9") and c.cans.ld.legal = "0" and c.cans.ld.medicl = "0" and c.cans.ld.physcl = "0" and 
+     c.cans.ld.sexdev = "0" and c.cans.ld.sleep = "0" and (c.cans.ld.indliv = "0" or c.cans.ld.indliv = "9"))
+  and
+'Hospitilization and history = "0"
+   (c.cans.ps.hosptl = "0" or (c.cans.ps.hosptl = "1" and ((c.cans.hs.durrec = "0" or c.cans.hs.durrec = "1") or c.cans.hs.timlst = "0")))
+   RLOC = Ineligible
+   return
+  endif
+ endif   
+
+'At this point any other LOC could be recommended
+ if c.cans.type = "1" or c.cans.type = "2" 
+
+'IntensiveFamilyServices
+  if c.cans.ld.legal = "3"
+   if $num(c.cans.dv.cognit) > 1 and $num(c.cans.dv.develp) > 1
+    RLOC = intensive
+	return 
+   endif
+  endif
+
+  if (c.cans.cr.suicid = "3" and c.cans.sr.hissui = "3")
+   RLOC = intensive
+   return
+  endif
+
+  if	(c.cans.cr.runawy = "3" and $num(c.cans.rn.frqncy) > 1 and c.cans.rn.invill = "3")
+   RLOC = intensive
+   return
+  endif
+
+  if (c.cans.cr.sexagr = "3" and c.cans.ld.livsit = "3" and c.cans.ld.school != "0" and c.cans.sc.behavr = "3")
+   RLOC = intensive
+   return
+  endif 
+
+  if	(c.cans.cr.delqcy = "3" and c.cans.ld.livsit = "3" and c.cans.ld.school != "0" and c.cans.sc.behavr = "3")
+   RLOC = intensive
+   return
+  endif
+
+  if	(c.cans.cb.anxity = "3" and c.cans.ld.livsit = "3" and c.cans.ld.school != "0" and $num(c.cans.sc.behavr) > 1 and $num(c.cans.sc.attend) > 1)
+   RLOC = intensive
+   return
+  endif 
+
+  if (c.cans.cb.condct = "3" and (c.cans.ld.livsit = "3" or c.cans.ld.legal = "2" or ($num(c.cans.ld.school) > 0 and c.cans.sc.behavr = "3")))
+   RLOC = intensive
+   return
+  endif 
+
+  if c.cans.cr.socbeh = "3" and 
+   (
+    (c.cans.ld.livsit = "3" and c.cans.ld.legal = "2") or 
+    ($num(c.cans.ld.school) > 0 and c.cans.sc.behavr = "3" and (c.cans.ld.livsit = "3" or c.cans.ld.legal = "2"))
+   ) 
+   RLOC = intensive
+   return
+  endif
+
+  if (c.cans.cr.runawy = "3" and ((c.cans.ld.livsit = "3" and (c.cans.ld.legal = "2" or c.cans.ld.sexdev = "3")) or ($num(c.cans.ld.school) > 0 and c.cans.sc.behavr = "3" and (c.cans.ld.livsit = "3" or c.cans.ld.legal = "2"))))
+   RLOC = intensive
+   return
+  endif
+
+  if	(($num(c.cans.cr.delqcy) > 1 and c.cans.ld.legal = "2") and (c.cans.jj.serios = "3" or $num(c.cans.jj.histry) > 1 or c.cans.jj.comsaf = "3"))
+   RLOC = intensive
+   return
+  endif
+
+  if (($num(c.cans.cb.oppdef) > 1 and c.cans.ld.legal = "2") and ((c.cans.ld.livsit = "3" and c.cans.ld.sexdev = "3") or ($num(c.cans.ld.school) > 0 and c.cans.sc.behavr = "3" and (c.cans.ld.livsit = "3" or c.cans.ld.sexdev = "3"))))
+   RLOC = intensive
+   return
+  endif
+
+  if	(($num(c.cans.cb.subabs) > 1 and $num(c.cans.sa.parinf) > 1 and $num(c.cans.sa.perinf) > 1) and (c.cans.ld.legal = "2" or c.cans.ld.livsit = "3" or $num(c.cans.ld.sexdev) > 1 or ($num(c.cans.ld.school) > 0 and c.cans.sc.behavr = "3")))
+   RLOC = intensive
+   return
+  endif
+
+  if (c.cans.cr.socbeh = "3" and c.cans.ld.legal = "2" and c.cans.ld.sexdev = "3")
+   RLOC = intensive
+   return
+  endif
+
+  if	c.cans.cb.oppdef = "3" and 
+   (
+    (c.cans.ld.legal = "2" and c.cans.ld.livsit = "3") or 
+    ($num(c.cans.ld.school) > 0 and c.cans.sc.behavr = "3" and (c.cans.ld.legal = "2" or c.cans.ld.livsit = "3"))
+    )
+   RLOC = intensive
+   return
+  endif
+
+  if	(($num(c.cans.cr.suicid) > 0 and $num(c.cans.sr.hissui) > 1 and $num(c.cans.cr.episds) > 1) and (c.cans.cb.depres = "3" or c.cans.cb.anxity = "3"))
+   RLOC = intensive
+   return
+  endif
+
+  if	(c.cans.cr.firset = "3" and ((c.cans.ld.livsit = "3" and c.cans.ld.legal = "2") or ($num(c.cans.ld.school) > 0) and c.cans.sc.behavr = "3" and (c.cans.ld.livsit = "3" or c.cans.ld.legal = "2")))
+   RLOC = intensive
+   return
+  endif
+
+  if (c.cans.cr.bully = "3" and c.cans.ld.legal = "2") and 
+	  (
+	   (c.cans.ld.livsit = "3" and c.cans.ld.sexdev = "3") or
+	   ($num(c.cans.ld.school) > 1 and c.cans.sc.behavr = "3" and (c.cans.ld.livsit = "3" or c.cans.ld.sexdev = "3"))
+      )	 
+   RLOC = intensive	
+   return
+  endif
+
+  if	(c.cans.cb.eatdst = "3" and (c.cans.ld.livsit = "3" and c.cans.ld.sexdev = "3"))
+   RLOC = intensive	
+   return
+  endif			
+
+  if	(c.cans.cb.eatdst = "3" and (c.cans.ld.family = "3" and c.cans.ld.livsit = "3"))
+   RLOC = intensive	
+   return
+  endif			
+
+  if	c.cans.cb.eatdst = "3" and ($num(c.cans.ld.school) > 0 and c.cans.sc.behavr = "3" and (c.cans.ld.legal = "2" or c.cans.ld.livsit = "3"))
+   RLOC = intensive	
+   return
+  endif																		)
+
+  if (c.cans.cr.suicid = "2" and c.cans.sr.hissui = "3") and 
+     (
+	  c.cans.ld.livsit = "2" or c.cans.cb.subabs = "3" or $num(c.cans.cr.episds) > 1 or ($num(c.cans.ld.school) > 0 and c.cans.sc.behavr = "3")
+	 ) 
+   RLOC = intensive
+   return
+  endif
+
+  if ($num(c.cans.cb.subabs) > 1 and ($num(c.cans.sa.envinf) > 1 or $num(c.cans.sa.parinf) > 1 or $num(c.cans.sa.severe) > 1 or $num(c.cans.sa.stgrec) > 0)) and
+	   ( 
+	    (c.cans.ld.legal = "2" and c.cans.ld.livsit = "3") or 
+	    (c.cans.ld.livsit = "3" and $num(c.cans.ld.sexdev) > 1) or 
+	    (c.cans.ld.legal = "2" and $num(c.cans.ld.sexdev) > 1) or
+	    (
+	  	 ($num(c.cans.ld.school) > 0 and c.cans.sc.behavr = "3") and 
+	     (c.cans.ld.legal = "2" or c.cans.ld.livsit = "3" or $num(c.cans.ld.sexdev) > 1)
+	    )
+       )
+   RLOC = intensive
+   return
+  endif
+  
+  if (($num(c.cans.cb.psychs) > 1 and (c.cans.cr.oslfhr > 1 or c.cans.cr.smutil > 1)) and
+       (
+        (c.cans.ld.livsit = "3" and c.cans.ld.sexdev = "3") or
+        (c.cans.ld.livsit = "3" and c.cans.ld.legal = "2") or
+        (c.cans.ld.sexdev = "3" and c.cans.ld.legal = "2") or
+        (($num(c.cans.ld.school) > 0 and c.cans.sc.behavr = "3") and (c.cans.ld.livsit = "3" or c.cans.ld.sexdev = "3" or c.cans.ld.legal = "2"))
+       ) 
+      )
+   RLOC = intensive
+   return
+  endif
+  
+  if (c.cans.cb.depres = "3" and ($num(c.cans.cr.suicid) > 1 or $num(c.cans.cb.subabs) > 1) or $num(c.cans.cr.episds) > 1) and
+      (
+       (c.cans.ld.legal = "2" and c.cans.ld.livsit = "3") or
+	   (c.cans.ld.livsit = "3" and c.cans.ld.sexdev = "3") or
+	   (
+	    ($num(c.cans.ld.school) > 0 and c.cans.sc.behavr = "3") and (c.cans.ld.legal = "2" or c.cans.ld.livsit = "3" or c.cans.ld.sexdev = "3")
+	   )
+	  )
+   RLOC = intensive	  
+   return
+  endif 
+  
+  if (c.cans.cb.adjtrm = "3" and ($num(c.cans.ad.affreg) > 1 or $num(c.cans.ad.dissoc) > 1 or $num(c.cans.ad.intrus) > 1)) and
+       (
+	    (c.cans.ld.livsit = "3" and c.cans.ld.sexdev = "3") or
+	    (
+	     ($num(c.cans.ld.school) > 0 and c.cans.sc.behavr = "3") and
+		  (c.cans.ld.legal = "2" or c.cans.ld.livsit = "3" or c.cans.ld.sexdev = "3"
+		 ) 
+	    )
+	   )
+   RLOC = intensive
+   return
+  endif 	 
+
+  if ($num(c.cans.cr.dangot) > 1 and ($num(c.cans.vi.hxviol) > 1 or $num(c.cans.rf.rescon) > 1 or c.cans.rf.comsc = "3")) and
+      (
+	   (c.cans.ld.livsit = "3" and c.cans.ld.legal = "2") or  
+	   (c.cans.ld.livsit = "2" and c.cans.cr.episds = "3") or
+	   ($num(c.cans.ld.school) > 0 and c.cans.sc.behavr = "3" and (c.cans.ld.livsit = "3" or c.cans.ld.legal = "2"))
+       )
+   RLOC = intensive
+   return
+  endif
+  
+  if ($num(c.cans.cr.firset) > 0 and $num(c.cans.fs.inthrm) > 1) and
+   (
+    (c.cans.ld.legal = "2" and c.cans.ld.livsit = "3") or
+    (c.cans.ld.livsit = "3" and c.cans.ld.sexdev = "3") or
+    ($num(c.cans.ld.school) > 0 and c.cans.sc.behavr = "3") and (c.cans.ld.legal = "2" or c.cans.ld.livsit = "3" or c.cans.ld.sexdev = "3")
+   )
+   RLOC = intensive
+   return
+  endif
+
+ 'ComplexServices
+  if $num(c.cans.cb.eatdst) > 1 and $num(c.cans.ld.socfun) > 1
+   RLOC = complex
+   return
+  endif
+
+  if c.cans.cr.socbeh = "3" and c.cans.ld.family = "3"
+   RLOC = complex 
+   return
+  endif
+
+  if $num(c.cans.cr.sexagr) > 1 and $num(c.cans.cr.oslfhr) > 1
+   RLOC = complex
+   return
+  endif
+
+  if ($num(c.cans.cr.bully) > 1 and ($num(c.cans.cb.oppdef) > 1 or $num(c.cans.cb.condct) > 1))
+   RLOC = complex
+   return
+  endif
+
+  if ($num(c.cans.cb.subabs) > 1 and ($num(c.cans.ld.socfun) > 1 or $num(c.cans.cr.oslfhr) > 1))
+   RLOC = complex
+   return
+  endif
+
+  if ($num(c.cans.cb.depres) > 1 and ($num(c.cans.ld.socfun) > 1 or $num(c.cans.cb.psychs) > 1))
+   RLOC = complex
+   return
+  endif
+
+  if ($num(c.cans.cb.anxity) > 1 and ($num(c.cans.cb.oppdef) > 1 or $num(c.cans.cb.condct) > 1 or $num(c.cans.cb.angctr) > 1))
+   RLOC = complex
+   return
+  endif
+ 
+  if $num(c.cans.cb.angctr) > 1 and ($num(c.cans.cr.sexagr) > 1 or $num(c.cans.cr.runawy) > 1 or $num(c.cans.ld.sexdev) > 1 or $num(c.cans.cr.bully) > 1 or ($num(c.cans.cr.firset) > 0 and $num(c.cans.fs.inthrm) > 1))
+   RLOC = complex
+   return
+  endif
+
+  if $num(c.cans.cb.oppdef) > 1 and
+   ($num(c.cans.cr.sexagr) > 1 or $num(c.cans.cr.runawy) > 1 or $num(c.cans.cr.bully) > 1  or $num(c.cans.ld.sexdev) > 1 or ($num(c.cans.cr.firset) > 0 or $num(c.cans.fs.inthrm) > 1))
+   RLOC = complex
+   return
+  endif
+
+  if $num(c.cans.cb.condct) > 1 and
+   ($num(c.cans.cr.sexagr) > 1 or $num(c.cans.cr.runawy) > 1 or $num(c.cans.cr.bully) > 1  or $num(c.cans.ld.sexdev) > 1 or ($num(c.cans.cr.firset) > 0 or $num(c.cans.fs.inthrm) > 1))
+   RLOC = complex
+   return
+  endif
+  
+  if $num(c.cans.cb.implsv) > 1 and 
+   (
+    $num(c.cans.cb.depres) > 1 or $num(c.cans.cb.anxity) > 1 or $num(c.cans.cb.adjtrm) > 1 or $num(c.cans.cb.eatdst) > 1 or 
+    c.cans.ld.family = "3" or c.cans.ld.livsit = "3" or $num(c.cans.ld.sexdev) > 1 or c.cans.ld.medicl = "3" or
+    $num(c.cans.cr.sexagr) > 1 or c.cans.cr.oslfhr = "3"
+   )
+   RLOC = complex
+   return
+  endif  
+
+  if $num(c.cans.cb.angctr) > 1 and
+   (
+    $num(c.cans.cb.depres) > 1 or $num(c.cans.cb.adjtrm) > 1 or $num(c.cans.cb.eatdst) > 1 or $num(c.cans.ac.sexgen) > 1 or
+    $num(c.cans.cb.subabs) > 1 or c.cans.cr.oslfhr = "3" or $num(c.cans.cr.suicid) > 1 or $num(c.cans.cr.smutil) > 1
+   )
+    RLOC = complex
+   return
+  endif
+
+  if $num(c.cans.cb.oppdef) > 1 and
+   ( 
+    $num(c.cans.cb.depres) > 1 or $num(c.cans.cb.anxity) > 1 or $num(c.cans.cb.adjtrm) > 1 or $num(c.cans.cb.eatdst) > 1 or
+    $num(c.cans.ac.sexgen) > 1 or $num(c.cans.cb.subabs) > 1 or c.cans.cr.oslfhr = "3" or $num(c.cans.cr.suicid) > 1 or
+    $num(c.cans.cr.smutil) > 1   
+   )
+    RLOC = complex
+   return
+  endif
+
+  if $num(c.cans.cr.socbeh) > 1 and
+   (
+    $num(c.cans.cb.depres) > 1 or $num(c.cans.cb.anxity) > 1 or $num(c.cans.cb.adjtrm) > 1 or $num(c.cans.cb.eatdst) > 1 or
+    $num(c.cans.cr.suicid) > 1 or $num(c.cans.cr.smutil) > 1 or 
+    (
+     $num(c.cans.cr.firset) > 0 and $num(c.cans.fs.inthrm) > 1
+    )
+   )
+    RLOC = complex
+   return
+  endif
+
+  if $num(c.cans.cr.dangot) > 1 and
+   (
+    $num(c.cans.cb.implsv) > 1 or $num(c.cans.cb.oppdef) > 1 or $num(c.cans.cb.condct) > 1 or $num(c.cans.cb.angctr) > 1 or
+    $num(c.cans.cr.delqcy) > 1 or $num(c.cans.cr.socbeh) > 1 or
+    (
+     $num(c.cans.cr.firset) > 0 and $num(c.cans.fs.inthrm) > 1
+    )
+   )
+    RLOC = complex
+   return
+  endif
+
+  if $num(c.cans.cb.condct) > 1 and
+   (
+    $num(c.cans.cb.depres) > 1 or $num(c.cans.cb.anxity) > 1 or $num(c.cans.cb.adjtrm) > 1 or $num(c.cans.cb.eatdst) > 1 or
+    $num(c.cans.ac.sexgen) > 1 or $num(c.cans.cb.subabs) > 1 or c.cans.cr.oslfhr = "3" or $num(c.cans.cr.suicid) > 1 or
+    $num(c.cans.cr.smutil) > 1
+   )
+   RLOC = complex
+   return
+  endif 
+
+  if $num(c.cans.cr.bully) > 1 and
+   (
+    $num(c.cans.cb.depres) > 1 or $num(c.cans.cb.anxity) > 1 or $num(c.cans.cb.adjtrm) > 1 or $num(c.cans.cb.eatdst) > 1 or
+    $num(c.cans.ac.sexgen) > 1 or $num(c.cans.cb.subabs) > 1 or c.cans.cr.oslfhr = "3" or $num(c.cans.cr.suicid) > 1 or
+    $num(c.cans.cr.smutil) > 1 or
+    $num(c.cans.cr.firset) > 0 and $num(c.cans.fs.inthrm) > 1 
+   )
+   RLOC = complex
+   return
+  endif
+
+  if $num(c.cans.cr.delqcy) > 1 and
+   (
+    $num(c.cans.cb.depres) > 1 or $num(c.cans.cb.anxity) > 1 or $num(c.cans.cb.adjtrm) > 1 or $num(c.cans.cb.eatdst) > 1 or
+    $num(c.cans.ac.sexgen) > 1 or $num(c.cans.cb.subabs) > 1 or c.cans.cr.oslfhr = "3" or $num(c.cans.cr.suicid) > 1 or
+    $num(c.cans.cr.smutil) > 1 or
+    $num(c.cans.cr.firset) > 0 and $num(c.cans.fs.inthrm) > 1    
+   )
+   RLOC = complex
+   return
+  endif
+
+  if $num(c.cans.cb.implsv) > 1 and
+   (
+    $num(c.cans.cb.depres) > 1 or $num(c.cans.cb.anxity) > 1 or $num(c.cans.cb.adjtrm) > 1 or $num(c.cans.cb.eatdst) > 1 or
+    $num(c.cans.ac.sexgen) > 1 or $num(c.cans.cb.subabs) > 1 or c.cans.cr.oslfhr = "3" or $num(c.cans.cr.suicid) > 1 or
+    $num(c.cans.cr.smutil) > 1 or
+    $num(c.cans.cr.firset) > 0 and $num(c.cans.fs.inthrm) > 1    
+   )
+   RLOC = complex
+   return
+  endif
+
+ 'MedicationManagement or TargetedServices
+  if $num(c.cans.cr.bully) < 2 and c.cans.cr.bully dp
+   if 
+    (
+     $num(c.cans.cr.dangot) < 2 and $num(c.cans.cr.delqcy) < 2 and $num(c.cans.cr.firset) < 2 and $num(c.cans.cr.oslfhr) < 2 and
+     $num(c.cans.cr.runawy) < 2 and $num(c.cans.cr.smutil) < 2 and $num(c.cans.cr.sexagr) < 2 and $num(c.cans.cr.socbeh) < 2 and
+     $num(c.cans.cr.suicid) < 2 and $num(c.cans.cr.suicid) < 2 and $num(c.cans.cb.adjtrm) < 2 and $num(c.cans.cb.angctr) < 2 and 
+     $num(c.cans.cb.anxity) < 2 and $num(c.cans.cb.condct) < 2 and $num(c.cans.cb.depres) < 2 and $num(c.cans.cb.eatdst) < 2 and
+     $num(c.cans.cb.implsv) < 2 and $num(c.cans.cb.oppdef) < 2 and $num(c.cans.cb.psychs) < 2 and $num(c.cans.cb.subabs) < 2 and
+     c.cans.ld.family != "2" and c.cans.ld.family != "3" and $num(c.cans.ld.livsit) < 2 and $num(c.cans.ld.school) < 2 and
+     $num(c.cans.ld.sexdev) < 2 and c.cans.ld.indliv != "2" and c.cans.ld.indliv != "3" and
+     $num(c.cans.ac.sexgen) < 2 and $num(c.cans.cr.episds) < 2 and $num(c.cans.ld.socFun) < 2 and $num(c.cans.ld.judgmt) < 2 and
+     c.cans.ld.jobfun != "3" and $num(c.cans.ld.legal) < 3 and (c.cans.ps.hosptl = "0" or (c.cans.ps.hosptl = "1" and $num(c.cans.hs.timlst) < 3))	
+    )    
+    RLOC = med_management
+    return	
+   else
+    RLOC = targeted
+    return	
+   endif 
+  endif
+
+'Medication Management
+'This one will more than likely be moved to the bottom
+  if $num(c.cans.ld.develp) > 0
+   if $num(c.cans.dv.cognit) > 1 or $num(c.cans.dv.develp) > 1
+    RLOC = med_management 
+    return	
+   endif
+  endif 
+   
+'At this point, if there is no RLOC assigned then the assessment is 110-Ineligible?
+  if RLOC !dp
+   RLOC = Ineligible
+  endif 
+ else
+  $clear(RLOC)
+ endif
+end RLOC
+
+function StaffComments(q_text_comment,c.cans.comment,c.cans.staff) is null
+ q_text_comment is x
+ c.cans.comment is x
+ c.cans.staff   is x
+ s.fn           is x
+ s.ln           is x
+ (void)$dbread(3,c.cans.staff,s.fn,s.ln)
+ $table($funcname,,"width='100%' cellspacing='0' cellpadding='2' bgcolor='White'  style='border-style: solid; border-width: 1px'")
+  $row(,col_color_multi)
+   $col("center",,,"2")$text("Staff Comments:","datatag")
+  $row()
+   $col("right",,"50%")$text("Assessor: ","datatag")
+   $col()$text(`s.fn + " " + s.ln + " (" + c.cans.staff + ")"`)   
+  $row()
+   $col("right",,"50%")$text(q_text_comment,"datatag")
+   $col() if c.cans.comment dp
+           $text(c.cans.comment)   
+		  else
+		   $text("No Comments Provided by Staff")
+		  endif 
+ $endtable($funcname)
+end StaffComments 
+
+function ChildRiskScoring(table_wbgcolor) is null
+ table_wbgcolor is x
+ $table($funcname,,`table_wbgcolor`)  
+  $row()
+   $col(,,"50%")$text("0 = no evidence","hdrdata")
+   $col()$text("1 = history, watch/prevent","hdrdata")
+  $row()
+   $col()$text("2 = recent, act","hdrdata")
+   $col()$text("3 = acute, act immediately","hdrdata")
+  $row()
+   $col("center",,,"2","1")$tag("<hr/>")
+ $endtable($funcname)
+end ChildRiskScoring
+
+function CBScoring(table_wbgcolor) is null
+ table_wbgcolor is x
+ $table($funcname,,`table_wbgcolor`)
+  $row()
+   $col()$text("0 = no evidence","hdrdata")
+         $br()$text("1 = history or sub-threshold, watch/prevent","hdrdata")
+         $br()$text("2 = causing problems, consistent with diagnosable disorder","hdrdata")
+         $br()$text("3 = causing severe/dangerous problems","hdrdata")
+  $row()
+   $col("center",,,"2")$tag("<hr/>")
+ $endtable($funcname)
+end CBScoring
+
+function LDScoring(table_wbgcolor) is null
+ table_wbgcolor is x
+ $table($funcname,,`table_wbgcolor`)
+  $row()
+   $col(,,"50%")$text("0 = no evidence of problems","hdrdata")
+   $col()$text("1 = history, mild","hdrdata")
+  $row()
+   $col()$text("2 = moderate","hdrdata")
+   $col()$text("3 = severe","hdrdata")
+  $row()
+   $col("center",,,"2")$tag("<hr/>")
+ $endtable($funcname)
+end LDScoring
+
+function CareGiverScoring(table_wbgcolor) is null
+ table_wbgcolor is x
+ $table($funcname,,`table_wbgcolor`)  
+  $row()
+   $col(,,"50%")$text("0 = no evidence","hdrdata")
+   $col()$text("1 = minimal needs","hdrdata")
+  $row()
+   $col()$text("2 = moderate needs","hdrdata")
+   $col()$text("3 = severe needs","hdrdata")
+  $row()
+   $col("center",,,"2")$tag("<hr/>")
+ $endtable($funcname)
+end CareGiverScoring
+
+function PHScoring(table_wbgcolor) is null
+ table_wbgcolor is x
+ $table($funcname,,`table_wbgcolor`)  
+  $row()
+   $col()$text("NA = Not Applicable","hdrdata")
+   $col()$text("0 = No","hdrdata")
+   $col()$text("1 = Yes","hdrdata")
+  $row()
+   $col("center",,,"3")$tag("<hr/>")
+ $endtable($funcname)
+end PHScoring 
+
+function PHHScoring(table_wbgcolor) is null
+ table_wbgcolor is x
+ $table($funcname,,`table_wbgcolor`)  
+  $row()  
+   $col()$text("Number Of Prior Psychiatric Hospitalizations","hdrdata")
+   $col()$text("0=One","hdrdata")
+   $col()$text("1=Two ","hdrdata")  
+  $row()
+   $col()
+   $col()$text("2=Three ","hdrdata")  
+   $col()$text("4=Four or More ","hdrdata")  
+  $row()
+   $col(,,,"3","1")$ctag("&nbsp;")
+  $row()
+   $col()$text("Longest Length Of Stay","hdrdata")    
+   $col()$text("0=1-6 days","hdrdata")
+   $col()$text("1=7-14 days","hdrdata")
+  $row()
+   $col()
+   $col()$text("2=15-29 days","hdrdata")
+   $col()$text("3=30 days or more","hdrdata")
+  $row()
+   $col(,,,"3","1")$ctag("&nbsp;")
+  $row()
+   $col()$text("Duration of Most Recent Hospitalization","hdrdata") 
+   $col()$text("0=0-6 days ","hdrdata") 
+   $col()$text("1=7-14 days","hdrdata") 
+  $row()
+   $col()
+   $col()$text("2=15-29 days","hdrdata") 
+   $col()$text("3=30 days or more","hdrdata") 
+  $row()
+   $col(,,,"3","1")$ctag("&nbsp;")
+  $row()
+   $col()$text("Time Since Most Recent Discharge","hdrdata") 
+   $col()$text("0=More than 12 months","hdrdata") 
+   $col()$text("1=6 months to 12 months","hdrdata") 
+  $row()
+   $col()
+   $col()$text("2=3-6 months ","hdrdata") 
+   $col()$text("3=Less than 3 months","hdrdata") 
+  $row()
+   $col("center",,,"3","1")$tag("<hr/>")
+ $endtable($funcname)
+end PHHScoring
+
+function ChildSRScoring(table_wbgcolor) is null
+ table_wbgcolor is x
+ $table($funcname,,`table_wbgcolor`)
+  $row()
+   $col(,,"50%")$text("0 = centerpiece","hdrdata")
+   $col()$text("1 = useful","hdrdata")
+  $row()
+   $col()$text("2 = identified","hdrdata")
+   $col()$text("3 = not yet identified","hdrdata")
+  $row()
+   $col("center",,,"2")$tag("<hr/>")
+ $endtable($funcname)
+end CHildSRScoring
+
+function CultureScoring(table_wbgcolor) is null
+ table_wbgcolor is x
+ $table($funcname,,`table_wbgcolor`)
+  $row()
+  $col(,,"50%")$text("0 = no evidence","hdrdata")
+  $col()$text("1 = minimal needs","hdrdata")
+  $row()
+  $col()$text("2 = moderate needs","hdrdata")
+  $col()$text("3 = severe needs","hdrdata")
+ $row()
+  $col("center",,,"2")$tag("<hr/>")
+ $endtable($funcname)
+end CultureScoring  
+
+function CrisisHisScoring(table_wbgcolor) is null
+ table_wbgcolor is x
+ $table($funcname,,`table_wbgcolor`)   
+  $row()
+   $col(,,"50%")$text("0 = 0 episodes","hdrdata")
+   $col()$text("1 = 1 crisis episode","hdrdata")
+  $row()
+   $col()$text("2 = 2-3 crisis episodes","hdrdata")
+   $col()$text("3 = 4 or more crisis episodes","hdrdata")
+  $row()
+   $col("center",,,"2")$tag("<hr/>")
+ $endtable($funcname)
+end CrisisHisScoring  

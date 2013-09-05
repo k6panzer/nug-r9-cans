@@ -1,0 +1,157 @@
+'mass import data into dsts from flat file or sql query
+%version 0.0
+start batch-import(parmfile, option, batch, retcode)
+parmfile       is x
+option         is x
+batch          is x
+retcode        is b
+'options
+batch_file     is x
+batch_delim    is x
+batch_wrapper  is x
+batch_log      is x
+
+batch_select   is x
+batch_dsn      is x
+batch_dsnfile  is x
+batch_regid    is x     'dst name of regid
+batch_dsts[]   is x
+
+sql_lib        is x
+dst_lib        is x
+
+head_is_dsts   is x
+col_is_dsts    is x
+
+'privates
+-sql-handle    is b
+-dst-handle    is b
+
+'-sql-select    is x
+-data[]        is x
+-value[]       is x
+-regid-idx     is b
+-regid         is x
+i              is b
+
+batch_delim = ","
+sql_lib = "LIB-freetds"
+dst_lib = "lib-DST"
+
+getparm(parmfile)
+getoption(option)
+
+if batch !dp then retcode = 1 return endif                              'no batch to import error
+
+if $checkfile(batch) = 0 or $checkfile(batch_file) = 0 then 
+   if batch dp then batch_file = batch endif
+   retcode = $getfile(-data[], batch_file)
+   if retcode > 0 then retcode += 10 return endif                       '$getfile error
+else                                                                    'assume it's an sql statement
+   if batch dp then batch_select = batch endif
+   (void)$loadLib(-sql-handle, sql_lib)
+   'sql init:
+   if batch_dsn dp then
+      -sql-handle:setDSN(batch_dsn)
+   elseif batch_dsnfile dp then
+      -sql-handle:useDSN(batch_dsnfile)
+   else
+      retcode = 21 
+      return                                                            'sql init error
+   endif
+   retcode = -sql-handle:q(batch_select, -data[])
+   if retcode > 0 then
+      retcode += 30
+      return                                                            'sql query error
+   endif
+endif
+
+'build dst list?
+if head_is_dsts = "Y" then
+   batch_dsts[] = parse(-data[1], batch_delim, batch_wrapper)
+   (void)$arrRemove(-data[1])
+endif
+
+'sql query for column headers as dst list?
+if col_is_dsts = "Y" then
+   'todo...
+endif
+
+'set the dst lib
+if batch_dsts[] !dp then retcode = 40 return endif                      'missing dsts error
+if $loadlib(-dst-handle, dst_lib) > 0 then retcode = 41 return endif    'dst load lib error
+-dst-handle:setDsts(batch_dsts[])
+
+'set the -regid-idx
+-regid-idx = $find(batch_regid, batch_dsts[], 1, "F")
+if -regid-idx = 0 then retcode = 50 return endif                          'regid column not defined error
+
+'do the import
+i = 0
+do while i++ < $maxarray(-data[])
+   -value[] = parse(-data[i], batch_delim, batch_wrapper)
+   -regid = -value[-regid-idx]
+   (void)$arrRemove(-value[-regid-idx])
+   retcode = -dst-handle:add(-regid, batch_dsts[], -value[])
+   log(batch_log, retcode, -data[i])
+enddo
+
+end batch-import
+
+'support functions:
+%include inc_GetParm
+%include inc_GetOption
+
+'custom parse function to support escaped characters
+dynamic function parse(record, delim, wrap)[] is x
+record      is x
+delim       is x
+wrap        is x
+
+elem        is x
+elem-end    is x
+escape      is x
+p1          is b
+p2          is b
+l           is b
+out[]       is x
+
+p1 = 1
+do while p1 > 0
+   p1 = $find(delim, record, p1, "F")
+   elem-end = delim
+   if wrap dp then
+      p1 = $find(wrap, record, p1, "F")
+      elem-end = wrap
+   endif
+   p2 = $find(elem-end, record, p1, "F")
+   if p2 = 0 then
+      $clear(escape)
+   else
+      escape = $charx(record, `p2 - 1`)
+   endif
+   do while escape = "\"
+      p2 = $find(elem-end, record, ++p2, "F")
+      if p2 = 0 then 
+         $clear(escape) 
+      else
+         escape = $charx(record, `p2 - 1`)
+      endif
+   enddo
+   if p1 < p2 then
+      l = p2 - p1
+      elem = $seg(record, p1, l)
+      (void)$arrPush(out[], elem)
+   endif
+enddo
+parse[] = out[]
+end parse
+
+dynamic function log(file, code, data, message) is null
+file     is x
+code     is x
+data     is x
+message  is x
+
+'log the message to file
+end log
