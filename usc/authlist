@@ -79,6 +79,8 @@ endif
 $br(10)
 
 'Loop through clients from the saved list clientstep = 0 do while ++clientstep <= $maxarray(id[])
+clientstep = 0
+do while $maxarray(id[]) > clientstep++
     rc = $dbread(2,id[clientstep],c.ln,c.fn,
         c.ansa.rec,c.ansa.rloc,c.ansa.dloc,c.ansa.aloc,c.ansa.type,c.ansa.compd,c.ansa.alocdate,c.ansa.staff,
         c.cans.rec,c.cans.rloc,c.cans.dloc,c.cans.aloc,c.cans.type,c.cans.compd,c.cans.alocdate,c.cans.staff)
@@ -194,11 +196,11 @@ do while ++clientstep <= $maxarray(id[])
 
                 if child[clientstep] = "Y"
                         $col("center") $text(`TheRloc[clientstep] + "--" + $dct(9705,TheRloc[clientstep],"D")`)
-                        $col("center") $text(`TheDloc[clientstep] + "--" + $dct(9701,TheDloc[clientstep],"D")`)
+                        $col("center") $text(`TheDloc[clientstep] + "--" + $dct(9705,TheDloc[clientstep],"D")`)
                         $col("center") $text(`TheAloc[clientstep] + "--" + $dct(9705,TheAloc[clientstep],"D")`)
                 else
-                        $col("center") $text(`TheRloc[clientstep] + "--" + $dct(9711,TheRloc[clientstep],"D")`)
-                        $col("center") $text(`TheDloc[clientstep] + "--" + $dct(9711,TheDloc[clientstep],"D")`)
+                        $col("center") $text(`TheRloc[clientstep] + "--" + $dct(9712,TheRloc[clientstep],"D")`)
+                        $col("center") $text(`TheDloc[clientstep] + "--" + $dct(9712,TheDloc[clientstep],"D")`)
                         $col("center") $text(`TheAloc[clientstep] + "--" + $dct(9712,TheAloc[clientstep],"D")`)
                 endif
 
@@ -218,4 +220,5 @@ endif
 
 end authhist
 
+ 
 
