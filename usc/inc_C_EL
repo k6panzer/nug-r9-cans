@@ -1,0 +1,94 @@
+'inc_C_EL
+'record 1
+rc_c_el_dstlist is i
+c_el_dstlist    is dstlist
+
+c.el            is r 'CLIENT ELIGIBILITY RECORD     
+c.el.type       is x 'ELIGIBILITY TYPE CODE         
+c.el.prty       is b 'ELIGIBILITY PRIORITY          
+c.el.ef.dt      is d 'ELIGIBILITY EFFECTIVE DATE    
+c.el.la.dt      is d 'ELIGIBILITY LAPSE DATE        
+c.el.id.1       is x 'ELIGIBILITY ID (1)            
+c.el.id.2       is x 'ELIGIBILITY ID (2)            
+c.el.ver        is x 'ELGIBILITY VERIFIED           
+c.el.fs         is b 'FUNDING SOURCE NUMBER         
+c.el.disc       is n 'ELIGIBILITY DISCOUNT PERCENT  
+c.el.ru         is b 'ELIGIBILITY RU                
+c.el.e.lia      is b 'CLIENT ELIG MAX EVENT LIAB    
+c.el.h.lia      is n 'CLIENT ELIG MAX HOURS LIAB    
+c.el.d.lia      is n 'CLIENT ELIG MAX DOLLARS LIAB  
+c.el.ast        is x 'CLIENT ELIGIBILITY AST        
+c.el.qmb        is x 'ELIG QMB/MQMB                 
+c.eg.fillr      is x 'CLIENT ELIGIBILITY REC FILLER 
+c.eg.insln      is x 'INSURED'S LAST NAME           
+c.eg.insfn      is x 'INSURED'S FIRST NAME          
+c.eg.insmi      is x 'INSURED'S MIDDLE NAME         
+c.eg.insa1      is x 'INSURED'S STREET ADDRESS      
+c.eg.insa2      is x 'INSURED'S ADDRESS LINE 2      
+c.eg.inscy      is x 'INSURED'S CITY                
+c.eg.insst      is x 'INSURED'S STATE               
+c.eg.inszp      is x 'INSURED'S ZIP CODE            
+c.eg.insph      is x 'INSURED'S TELEPHONE NUMBER    
+c.eg.insrc      is x 'CLIENT RELATION TO INSURED    
+c.eg.insbd      is d 'INSURED'S DATE OF BIRTH       
+c.eg.inssx      is x 'INSURED'S SEX                 
+c.eg.insem      is x 'INSURED'S EMPLOYER            
+c.eg.icn        is x 'INSURANCE CO. NAME            
+c.eg.iadd1      is x 'INSURANCE CO. STREET ADDRESS  
+c.eg.iadd2      is x 'INSURANCE CO. ADDRESS LINE 2  
+c.eg.icity      is x 'INSURANCE CO. CITY            
+c.eg.ist        is x 'INSURANCE CO. STATE           
+c.eg.izip       is x 'INSURANCE CO. ZIP CODE        
+c.eg.iph        is x 'INSURANCE CO. TELEPHONE NUMBER
+c.eg.icont      is x 'INSURANCE CO. CONTACT NAME    
+c.eg.plan       is x 'PLAN NAME                     
+c.eg.flag       is x 'FUNDING SOURCE FLAG(P,S,T)    
+c.eg.inac       is x 'INSURED'S AREA CODE           
+c.eg.iac        is x 'INSURANCE CO. AREA CODE       
+c.eg.notes      is x 'ELIGIBLITY RECORD NOTES       
+c.eg.pa         is x 'PRIOR AUTHORIZATION REQUIRED? 
+c.eg.iewp       is x 'INSURED EMPLOYER WORK PHONE   
+c.seqnumb       is x 'ELIG RECORD UNIQUE SEQUENCE # 
+sub.suff        is x 'SUBCRIBER NAME SUFFIX         
+c.el.tpl        is x 'THIRD PARTY LIABILITY         
+c.el.subsame    is x 'ELIGIBILITY SUB SAME AS CLIENT
+c.el.chipauth   is x 'CHIP AUTORIZATION NO          
+c.el.chip.copay is n 'CHIP COPAY                    
+c.eg.cprs       is x 'COB-PAYER RESPONSIBILITY SEQ  
+c.eg.cri        is x 'COB-REFERENCE IDENTIFICATION  
+c.eg.cobc       is x 'COORDINATION OF BENEFITS CODE 
+c.eg.riq        is x 'COB-REFERENCE ID QUALIFIER    
+c.eg.crid       is x 'COB-REFERENCE IDENTIFICATION  
+c.eg.cinm       is x 'COB-INSURANCE NAME            
+c.eg.cidcq      is x 'COB-ID CODE QUALIFIER         
+c.eg.cidc       is x 'COB-IDENTIFICATION CODE       
+c.eg.cdtq       is x 'COB-DATE/TIME QUALIFIER       
+c.eg.ctp        is d 'COB-TIME PERIOD               
+c.eg.insty      is x 'INS TYPE CD-USE IF MEDCARE 2/3
+c.eg.clmfl      is x 'CLAIM FILING INDICATOR CODE   
+c.eg.setq       is x 'SUBSCRIBER ENTITY TYPE QUAL   
+c.eg.insf       is x 'INSURED'D NAME SUFFIX         
+c.inprfx        is x 'INSURED'S NAME PREFIX         
+c.eg.sidcq      is x 'SUBSCRIBER'S ID CODE QUALIFIER
+c.el.ositc      is x 'Other Subscriber Ins Type Code
+c.payid         is x 'PAYOR IDENTIFICATION          
+$$el.cont       is x 'Eligibility Contract          
+$$el.cp%        is n 'Eligibility Copay Percent     
+$$el.cp$        is n 'Eligibility Copay Amount      
+$$el.odis       is x 'Elig Over Auth Disposition    
+$$el.ndis       is x 'Elig No ASR Disposition       
+$$el.infr       is x 'Elig Included Serv Rule Grp FR
+$$el.inth       is x 'Elig Included Serv Rule Grp TH
+$$el.drs        is x 'Eligibility Disc Rate Sched   
+$$el.rp         is b 'Eligibility Reporting Program 
+
+rc_c_el_dstlist = $dstlist(c_el_dstlist,2,
+c.el,c.el.type,c.el.prty,c.el.ef.dt,c.el.la.dt,c.el.id.1,c.el.id.2,c.el.ver,c.el.fs,c.el.disc,c.el.ru,c.el.e.lia,c.el.h.lia,c.el.d.lia,c.el.ast,c.el.qmb,
+c.eg.fillr,c.eg.insln,c.eg.insfn,c.eg.insmi,c.eg.insa1,c.eg.insa2,c.eg.inscy,c.eg.insst,c.eg.inszp,c.eg.insph,c.eg.insrc,c.eg.insbd,c.eg.inssx,c.eg.insem,
+c.eg.icn,c.eg.iadd1,c.eg.iadd2,c.eg.icity,c.eg.ist,c.eg.izip,c.eg.iph,c.eg.icont,c.eg.plan,c.eg.flag,c.eg.inac,c.eg.iac,c.eg.notes,c.eg.pa,c.eg.iewp,
+c.seqnumb,sub.suff,
+c.el.tpl,c.el.subsame,c.el.chipauth,c.el.chip.copay,
+c.eg.cprs,c.eg.cri,c.eg.cobc,c.eg.riq,c.eg.crid,c.eg.cinm,c.eg.cidcq,c.eg.cidc,
+c.eg.cdtq,c.eg.ctp,c.eg.insty,c.eg.clmfl,c.eg.setq,c.eg.insf,
+c.inprfx,c.eg.sidcq,c.el.ositc,c.payid,
+$$el.cont,$$el.cp%,$$el.cp$,$$el.odis,$$el.ndis,$$el.infr,$$el.inth,$$el.drs,$$el.rp)
