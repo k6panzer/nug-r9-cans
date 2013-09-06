@@ -1,0 +1,38 @@
+%version 01.00 09/06/2013
+
+library lib_UAMEDICAID()
+
+'This function will check the client eligibility record to see if the person has Medicaid.
+'Each center will need to edit the function to reflect their own FS ID's for Medicaid.
+
+function check_medicaid(Client, result, number) is x
+ %include inc_C_EL
+ number         is x
+ result         is x
+ Client         is x
+ rc             is b
+ switch         is b
+ $allowupdate(result, number)
+
+ switch = 0
+ rc = $dbread(02, Client, c_el_dstlist)
+ do while rc < 2 and switch = 0
+  if(c.el.fs = 4 or c.el.fs = 5 or c.el.fs = 7 or c.el.fs = 13 or c.el.fs = 210) and  c.el.ef.dt <= $today and (c.el.la.dt > $today or c.el.la.dt !dp)
+   result = "Medicaid Recipient"
+   number = c.el.id.1
+   switch = 1 
+  endif
+  rc = $dbreadnextdst(02, Client, c_el_dstlist)
+ enddo
+ if result !dp
+  result = "No Medicaid"
+  $clear(number)
+ endif
+
+ $tag("<CENTER>")
+  $text(result,"error","color: #00FF00;background-color: #000000")  
+ $tag("</CENTER>")
+ $tag("<br/>")
+end check_medicaid
+ 
+
