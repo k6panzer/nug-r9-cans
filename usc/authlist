@@ -1,5 +1,5 @@
 start authhist()
-%version 1.2.000 09/06/2013
+%version 1.3.000 09/06/2013
 
 '				09/01/2013 Original Script from Rob Beckham
 '^			RHW 09/05/2013  Corrected missing do while statement (do while $maxarray(id[]) > clientstep++)
@@ -7,6 +7,8 @@ start authhist()
 '+			RHW 09/06/2013  Added Script name and version to top of display
 '+			RHW 09/06/2013  Added functionality to optionally restric viewing all assessments to UM staff only.
 '												This feature can be toggled off by setting the restrict variable to "N".  
+'+			RHW 09/06/2013  Added functionality to bring in the two additional list for children (CANS617B & CANS35B).
+'												Your center may need to adjust these saved list names to match the list ID's in use at your center.
 
 
 'Dependencies:  lib_UACOMMON.UMSTAFF to determine if the staff running the process is a UMStaff person
@@ -14,13 +16,15 @@ start authhist()
 
 $looplimit = 0
 
+'$trace("path.on","/c4/EXPORT2/trace/authhist.txt")
+
 'Demographic DSTs
 c.fn                                            is x
 c.ln                                            is x
 s.fn                                            is x
 s.ln                                            is x
 rc                                              is x
-
+rc1																							is i
 
 'ANSA DSTs
 c.ansa.rec                              is h
@@ -61,10 +65,17 @@ TheSFN[]                                        is x
 TheSLN[]                                        is x
 
 id[]                                    is x                            ' An array used to hold save list ids
+id2[]																		is x
+id3[]                                   is x
 child[]                                 is x
 
 'Some Vars
-listid                                  is x                            listid = "ANSAB"  'listid = "T031"
+
+listid[]                                  is x                            
+listid[1] = "ANSAB"  'listid = "T031"
+listid[2] = "CANS35B"
+listid[3] = "CANS617B"
+
 clientstep                              is i
 age                                             is n
 authage                                 is n
@@ -87,9 +98,19 @@ $clear(id[],TheFN[],TheLN[],TheAge[],TheType[],TheADate[],TheRloc[],TheAloc[],
 
 
 ' Grab the Save List
-rc = $getlist(id[], 2, listid)
+rc = $getlist(id[], 2, listid[1])
+rc = $getlist(id2[], 2, listid[2])
+rc = $getlist(id3[], 2, listid[3])
+rc1 = $arraymerge(id[],id2[],id3[])
+(void)$sortu(id[])
+
 if rc > 0 then
    $brmsg("An error has occured while trying to access the Saved List.",,"W")
+   return
+endif
+
+if rc1 > 0 then
+   $brmsg("Unable to Merge Lists.",,"W")
    return
 endif
 
