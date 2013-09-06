@@ -1,5 +1,16 @@
 start authhist()
-%version 1.0.000 09/01/2013
+%version 1.2.000 09/06/2013
+
+'				09/01/2013 Original Script from Rob Beckham
+'^			RHW 09/05/2013  Corrected missing do while statement (do while $maxarray(id[]) > clientstep++)
+'^			RHW 09/05/2013	Changed all DCT lookups for LOCR display to 9705 (CANS) and 9712 (ANSA)
+'+			RHW 09/06/2013  Added Script name and version to top of display
+'+			RHW 09/06/2013  Added functionality to optionally restric viewing all assessments to UM staff only.
+'												This feature can be toggled off by setting the restrict variable to "N".  
+
+
+'Dependencies:  lib_UACOMMON.UMSTAFF to determine if the staff running the process is a UMStaff person
+'								lib_UACOMMON.ClientAge to get the age of the client								
 
 $looplimit = 0
 
@@ -58,6 +69,12 @@ clientstep                              is i
 age                                             is n
 authage                                 is n
 
+restrict    is x
+restrict    = "Y"     'Set this to "Y" to restric displaying all complete assesments to UM staff only.  
+											'Otherwise, the operator will only see assesments he/she completed.
+
+'UMSTAFF = "Y"
+
 
 %define row_odd "bgcolor='White'"
 %define row_even "bgcolor='CornSilk'"
@@ -86,6 +103,13 @@ do while $maxarray(id[]) > clientstep++
         c.cans.rec,c.cans.rloc,c.cans.dloc,c.cans.aloc,c.cans.type,c.cans.compd,c.cans.alocdate,c.cans.staff)
 
         if c.ansa.alocdate !dp and c.cans.alocdate !dp
+                (void)$arrremove(id[clientstep--])
+                goto Skip
+        endif
+        
+'        if UMSTAFF = "N" and c.ansa.staff != operstaffid and c.cans.staff != operstaffid
+				if {"lib_UACOMMON"}UMStaff($operstaffid) = "N" and c.ansa.staff != $operstaffid and c.cans.staff != $operstaffid and
+					 restrict = "Y"
                 (void)$arrremove(id[clientstep--])
                 goto Skip
         endif
@@ -146,7 +170,8 @@ $form("F1")
 $setformtimeout(60) ' Adjust for Form Refresh
 
 $tag("<CENTER>")
-$text("Recent TRR Authorizations","H1")
+$text("Recent TRR Authorizations","H1")$br(1)
+$text(`"Version:  " + $scriptver + " (" + $scriptid + ")"`)
 $tag("</CENTER>")
 $br(2)
 
