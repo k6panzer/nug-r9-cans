@@ -1,5 +1,5 @@
 library lib_ANSA()
- %version 1.0.000 09/03/2013
+ %version 1.0.001 09/09/2013
 on load do:
  %include inc_SCHIZALG
  %include inc_QIDSALG
@@ -1288,6 +1288,10 @@ on load do:
   endif 
   
 '1-S/112/Basic-Skills Training 
+'For update assessments (and all other types of assessments)  GAF is not considered in Level of Care recommendations. 
+  if c.ansa.type != "1" and DXType = "D" and DXGaf <= 50
+   DXGaf = 0
+  endif
   if DXType = "S" or DXType = "B" or (DXType = "D" and DXGaf <= 50)
    RLOC = basic_skills
    return
