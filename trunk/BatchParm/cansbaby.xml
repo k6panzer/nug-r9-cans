@@ -151,7 +151,7 @@
          <NumberOfArrest>%C.CANS.ARREST%</NumberOfArrest>
          <AssessmentDate>%C.CANS.COMMDATE%</AssessmentDate>
          <SchoolAttendance>%C.CANS.SCHOOL3M%</SchoolAttendance>
-         <Grade>$DCT|9073|C.CANS.GRADE|1</Grade>
+         <Grade>%C.CANS.GRADE%</Grade>
          <PrimaryResidence>%C.CANS.RESTYPE%</PrimaryResidence>
          <PrimaryResidenceOther>%C.CANS.RESOTHER1%</PrimaryResidenceOther>
       </CommunityData>
