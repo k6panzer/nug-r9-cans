@@ -1,5 +1,5 @@
 library lib_UACOMMON()
- %version 1.0.000 09/03/2013
+ %version 1.0.001 09/03/2013
 
 function StaffCanDo() is i
  s.trr.certified is x
@@ -24,8 +24,6 @@ function UMSTAFF(staff[]) is x
  staff[2] = "1951" 'Paula Staats Maloney
  staff[3] = "3908" 'Irma Escobedo
  staff[4] = "2481" 'Gianna Harris
-' staff[5] = "3242" 'Ralph Whaite
- Staff[6] = "3737" 'Chris Love
  (void)$dctloada(110,code[], desc[], act-code[], a1[], a2[], a3[])
  if ($find($operstaffid, staff[],1,"F") > 0) or ($find($operstaffid, code[],1,"F") > 0)
   UMSTAFF = "Y"
@@ -345,3 +343,19 @@ function changetitle(scriptid) is null
  $ctag(XTemp)
  $ctag("</script>")
 end changetitle
+
+function DisplayMultiSnap(snapshots[]) is null
+ snapshots[] is x
+ index      is i
+ index = 0
+ $submitopt("off", "Exit")
+ $cancelopt("off", "")
+ $form($funcname)
+ do while index++ < $maxarray(snapshots[])
+  {"l_snapLibSC"}sn_viewSnap(snapshots[index])
+  $tag("<STYLE TYPE='text/css'>P.breakhere{page-break-before:always}</STYLE>")
+  $tag("<p class='breakhere'>")$tag("</p>")
+ enddo
+  %include c_pbutton
+ $sendform($funcname)
+end DisplayMultiSnap

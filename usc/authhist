@@ -1,22 +1,7 @@
 start authhist()
-%version 1.3.000 09/06/2013
-
-'				09/01/2013 Original Script from Rob Beckham
-'^			RHW 09/05/2013  Corrected missing do while statement (do while $maxarray(id[]) > clientstep++)
-'^			RHW 09/05/2013	Changed all DCT lookups for LOCR display to 9705 (CANS) and 9712 (ANSA)
-'+			RHW 09/06/2013  Added Script name and version to top of display
-'+			RHW 09/06/2013  Added functionality to optionally restric viewing all assessments to UM staff only.
-'												This feature can be toggled off by setting the restrict variable to "N".  
-'+			RHW 09/06/2013  Added functionality to bring in the two additional list for children (CANS617B & CANS35B).
-'												Your center may need to adjust these saved list names to match the list ID's in use at your center.
-
-
-'Dependencies:  lib_UACOMMON.UMSTAFF to determine if the staff running the process is a UMStaff person
-'								lib_UACOMMON.ClientAge to get the age of the client								
+%version 1.0.000 09/01/2013
 
 $looplimit = 0
-
-'$trace("path.on","/c4/EXPORT2/trace/authhist.txt")
 
 'Demographic DSTs
 c.fn                                            is x
@@ -24,7 +9,7 @@ c.ln                                            is x
 s.fn                                            is x
 s.ln                                            is x
 rc                                              is x
-rc1																							is i
+
 
 'ANSA DSTs
 c.ansa.rec                              is h
@@ -65,26 +50,13 @@ TheSFN[]                                        is x
 TheSLN[]                                        is x
 
 id[]                                    is x                            ' An array used to hold save list ids
-id2[]																		is x
-id3[]                                   is x
 child[]                                 is x
 
 'Some Vars
-
-listid[]                                  is x                            
-listid[1] = "ANSAB"  'listid = "T031"
-listid[2] = "CANS35B"
-listid[3] = "CANS617B"
-
+listid                                  is x                            listid = "ANSAB"  'listid = "T031"
 clientstep                              is i
 age                                             is n
 authage                                 is n
-
-restrict    is x
-restrict    = "Y"     'Set this to "Y" to restric displaying all complete assesments to UM staff only.  
-											'Otherwise, the operator will only see assesments he/she completed.
-
-'UMSTAFF = "Y"
 
 
 %define row_odd "bgcolor='White'"
@@ -98,19 +70,9 @@ $clear(id[],TheFN[],TheLN[],TheAge[],TheType[],TheADate[],TheRloc[],TheAloc[],
 
 
 ' Grab the Save List
-rc = $getlist(id[], 2, listid[1])
-rc = $getlist(id2[], 2, listid[2])
-rc = $getlist(id3[], 2, listid[3])
-rc1 = $arraymerge(id[],id2[],id3[])
-(void)$sortu(id[])
-
+rc = $getlist(id[], 2, listid)
 if rc > 0 then
    $brmsg("An error has occured while trying to access the Saved List.",,"W")
-   return
-endif
-
-if rc1 > 0 then
-   $brmsg("Unable to Merge Lists.",,"W")
    return
 endif
 
@@ -124,13 +86,6 @@ do while $maxarray(id[]) > clientstep++
         c.cans.rec,c.cans.rloc,c.cans.dloc,c.cans.aloc,c.cans.type,c.cans.compd,c.cans.alocdate,c.cans.staff)
 
         if c.ansa.alocdate !dp and c.cans.alocdate !dp
-                (void)$arrremove(id[clientstep--])
-                goto Skip
-        endif
-        
-'        if UMSTAFF = "N" and c.ansa.staff != operstaffid and c.cans.staff != operstaffid
-				if {"lib_UACOMMON"}UMStaff($operstaffid) = "N" and c.ansa.staff != $operstaffid and c.cans.staff != $operstaffid and
-					 restrict = "Y"
                 (void)$arrremove(id[clientstep--])
                 goto Skip
         endif
@@ -191,8 +146,7 @@ $form("F1")
 $setformtimeout(60) ' Adjust for Form Refresh
 
 $tag("<CENTER>")
-$text("Recent TRR Authorizations","H1")$br(1)
-$text(`"Version:  " + $scriptver + " (" + $scriptid + ")"`)
+$text("Recent TRR Authorizations","H1")
 $tag("</CENTER>")
 $br(2)
 
@@ -267,4 +221,3 @@ endif
 end authhist
 
  
-

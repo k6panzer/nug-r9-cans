@@ -51,17 +51,6 @@
 '  ^ fixed buggs around new .006 options 
 'TJM 20130725 .009
 '  + $REGID system variable template support
-'RHW 20130910 .010
-'	 + 	Added logic for $DCVDB.  This will allow the lookup of DCT Description or Alt Value after a DBRead of another DB
-'			This will allow centers using the xml batch to continue using the same DST and DCT values for staff credentials from RDM
-'			to TRR.  Just put the TRR value in one of the Alt values in the DCT.  The last two values in the pipe delimited string below
-'			are for the DCT ID and the D,1,2 or 3 value from the DCT and should be placed in your xml template files inside
-'			the correct xml tags.  Note, the DST and DCT where you are storing RDM staff credentials will need to be verified
-'			Usage:	$DCVDB|03|C.CANS.STAFF|S.UARDM.CRED|226|1 		or
-'							$DCVDB|03|C.CANS.ALOCSTAFF|S.UARDM.CRED|226|1 or
-'							$DCVDB|03|C.ANSA.STAFF|S.UARDM.CRED|226|1 		or
-'							$DCVDB|03|C.ANSA.ALOCSTAFF|S.UARDM.CRED|226|1
-
 
 %define lf x"0a"
 '%define d_parmfile "CANSXML"
@@ -69,7 +58,7 @@
 %define d_tpl "/c0/forms/cans.xml"
 %define d_rootnode "Batch"
 
-%version 01.0.010 07/25/2013 GCC
+%version 01.0.009 07/25/2013 GCC
 
 start xml_build2(parmfile,option,clients[],retcode, uids[])
 
@@ -214,15 +203,6 @@ _TplMe:
          $setvarname(_lookup_dst,tmp[4])
          rc = $dbread(`$casti(tmp[2])`,values[j],_lookup_dst)
          tplBuf[i] = $replace(T,_lookup_dst,tplBuf[i])
-      elseif $find("$DCVDB",tplBuf[i]) > 0 then
-      ''FORMAT: $DCVDB|03|C.CANS.STAFF|S.UA.CRED|226|1
-         T = xml_content(tplBuf[i])
-         $parsem(T,1,"|",tmp[])
-         j = $find(tmp[3],dst[],,"F")
-         $setvarname(_lookup_dst,tmp[4])
-         rc = $dbread(`$casti(tmp[2])`,values[j],_lookup_dst)
-         xOut = $dct(tmp[5],_lookup_dst,tmp[6])
-         tplBuf[i] = $replace(T,xOut,tplBuf[i])
       elseif $find("$RT",tplBuf[i]) > 0 then
          T = xml_content(tplBuf[i])
          $parsem(T,1,"|",tmp[])
@@ -309,7 +289,6 @@ __DST:
 
       if $find("$EDIT",tplData[i]) > 0 OR
          $find("$DBREAD",tplData[i]) > 0 OR 
-         $find("$DCVDB",tplData[i]) > 0 OR
          $find("$RT",tplData[i]) > 0 OR
          $find("$DCT",tplData[i]) > 0 then
          T = xml_content(tplData[i])
@@ -399,5 +378,3 @@ dynamic FUNCTION xml_content(str) is x
    xml_content = $seg(str,iStart,iLen)
 
 end xml_content
-
-

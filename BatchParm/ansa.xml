@@ -1,7 +1,7 @@
  <Transaction>
   <TransactionType>28</TransactionType> 
   <ComponentCode>230</ComponentCode> 
-  <LocalCaseNbr>$REGID</LocalCaseNbr> 
+  <LocalCaseNbr>%C.ID%</LocalCaseNbr> 
   <LocalUnitNbr/> 
   <Age>%C.ANSA.AGE%</Age> 
   <AssessmentType>%C.ANSA.TYPE%</AssessmentType> 
