@@ -1,5 +1,5 @@
 library lib_UACOMMON()
- %version 1.0.001 09/03/2013
+ %version 1.0.002 09/11/2013
 
 function StaffCanDo() is i
  s.trr.certified is x
@@ -359,3 +359,13 @@ function DisplayMultiSnap(snapshots[]) is null
   %include c_pbutton
  $sendform($funcname)
 end DisplayMultiSnap
+
+function STAFFASSIGN(staff[]) is x
+ a_staff      is x
+ staff[]      is x
+ staff[1] = "1312" 'Cagan Cummings
+ STAFFASSIGN = "N"
+ if ($find($operstaffid, staff[], 1,"F") > 0)
+  STAFFASSIGN = "Y"
+ endif 
+end STAFFASSIGN
