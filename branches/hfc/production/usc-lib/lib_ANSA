@@ -1290,7 +1290,7 @@ on load do:
   
 '1-S/112/Basic-Skills Training 
 'For update assessments (and all other types of assessments)  GAF is not considered in Level of Care recommendations. 
-  if c.ansa.type != "1" and DXType = "D" and DXGaf <= 50
+  if c.ansa.type != "1" and DXType = "D"
    DXGaf = 0
   endif
   if DXType = "S" or DXType = "B" or (DXType = "D" and DXGaf <= 50)
@@ -1602,19 +1602,3 @@ function NonPPPage() is null
        $text("ability you may clinically override this person into an appropriate level of care.  Otherwise this person may be placed on a waiting list for services if there is currently insufficient capacity to serve this person.")
  $sendform($funcname)
 end NonPPPage
-
-function AssessmentStaff() is null
- staffassign_YN is x
- c.ansa.staff   is x
- staffassign_YN = {"lib_UACOMMON"}STAFFASSIGN()
- if staffassign_YN = "Y" 
-  $table($funcname)
-   $row()
-    $col("right",,"50%")$text("Staff ID: ", "datatag")
-    $col()$dropboxdct(c.ansa.staff,7051,,,,"Y")
-  $endtable($funcname)
-  if staffassign_YN = "N"
-   c.ansa.staff = $operstaffid
-  endif
- endif
-end AssessmentStaff
