@@ -1,5 +1,5 @@
 start UM_MONITOR3()
- %version 1.0.000 09/03/2013
+ %version 1.0.001 09/12/2013
  %global bgcolor, row_color, formtimeout
  %global assessment_date, assessment_ID, assessment_name, assessment, assessment_type, assessment_rloc, assessment_dloc, assessment_adate, assessment_pfile, assessment_opt, view_btn, assessment_staff,assessment_sname,medicaid_status
  %global ansa_sl, cans35_sl, cans617_sl, cabd_sl, uabd_sl
@@ -531,7 +531,7 @@ function GetSavedLists() is null
   endif
  enddo      
  
- rc = $sort(assessment_adate[],"A",assessment_date[],"A",assessment_ID[],assessment_name[],assessment[],assessment_type[],assessment_rloc[],assessment_dloc[],assessment_staff[],assessment_sname[])
+ rc = $sort(assessment_adate[],"A",assessment_date[],"A",assessment_ID[],assessment_name[],assessment[],assessment_type[],assessment_rloc[],assessment_dloc[],assessment_staff[],assessment_sname[],medicaid_status[])
  ansa_count    = $maxarray(ansa_list[])
  cans35_count  = $maxarray(cans35_list[])
  cans617_count = $maxarray(cans617_list[])
