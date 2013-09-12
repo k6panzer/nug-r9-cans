@@ -1,5 +1,5 @@
 library lib_ANSA()
- %version 1.0.001 09/09/2013
+ %version 1.0.002 09/11/2013
 on load do:
  %include inc_SCHIZALG
  %include inc_QIDSALG
@@ -1115,8 +1115,9 @@ on load do:
 
   rc = $dbread(02, $regid, dx_dstlist)  
   dxtype = $dct(dx_dct, c.diag, "1")
-  DX = c.diag
-  DXGaf = c.dxaxvc
+  DX     = c.diag
+  DXGaf  = c.dxaxvc
+  DXDate = c.dxdate
  
   if dxtype = "O" and C.DXAXI2 dp
    dxtype = $dct(dx_dct, C.DXAXI2, "1")
@@ -1160,7 +1161,7 @@ on load do:
    case !dp dxcat = "Other"
             DXType = "O"
   endselect
-  $allowupdate(dxtype, DX, dxcat, DXGAF)
+  $allowupdate(dxtype, DX, dxcat, DXGAF, DXDate)
  end GETDX
  
  function RLOC(c.ansa.b.depres,c.ansa.b.subabs,c.ansa.cr.episds,c.ansa.b.cog,c.ansa.hs.num180,c.ansa.hs.numg30,c.ansa.hs.numl30,c.ansa.ld.employ,c.ansa.ld.family,c.ansa.ld.living,c.ansa.ld.restab,c.ansa.ld.slfcre,
@@ -1289,7 +1290,7 @@ on load do:
   
 '1-S/112/Basic-Skills Training 
 'For update assessments (and all other types of assessments)  GAF is not considered in Level of Care recommendations. 
-  if c.ansa.type != "1" and DXType = "D" and DXGaf <= 50
+  if c.ansa.type != "1" and DXType = "D"
    DXGaf = 0
   endif
   if DXType = "S" or DXType = "B" or (DXType = "D" and DXGaf <= 50)
