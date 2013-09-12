@@ -422,7 +422,7 @@ function GetSavedLists() is null
    assessment_staff[index2] = c.ansa.staff
    assessment_sname[index2] = s.fn + " " + s.ln
    if load_medicaid = 0
-    {lib_UAMEDICAID}check_medicaid(assessment_id[index],medicaid_status[index2])
+    {lib_UAMEDICAID}check_medicaid(assessment_id[index2],medicaid_status[index2])
    endif	
   endif
  enddo 
@@ -448,7 +448,7 @@ function GetSavedLists() is null
    assessment_staff[index2] = c.cans.staff
    assessment_sname[index2] = s.fn + " " + s.ln
    if load_medicaid = 0
-    {lib_UAMEDICAID}check_medicaid(assessment_id[index],medicaid_status[index2])
+    {lib_UAMEDICAID}check_medicaid(assessment_id[index2],medicaid_status[index2])
    endif	
   endif
  enddo  
@@ -474,7 +474,7 @@ function GetSavedLists() is null
    assessment_staff[index2] = c.cans.staff
    assessment_sname[index2] = s.fn + " " + s.ln
    if load_medicaid = 0
-    {lib_UAMEDICAID}check_medicaid(assessment_id[index],medicaid_status[index2])
+    {lib_UAMEDICAID}check_medicaid(assessment_id[index2],medicaid_status[index2])
    endif	
   endif
  enddo
@@ -500,7 +500,7 @@ function GetSavedLists() is null
    assessment_staff[index2] = c.uabd.staff1
    assessment_sname[index2] = s.fn + " " + s.ln
    if load_medicaid = 0
-    {lib_UAMEDICAID}check_medicaid(assessment_id[index],medicaid_status[index2])
+    {lib_UAMEDICAID}check_medicaid(assessment_id[index2],medicaid_status[index2])
    endif	
   endif
  enddo     
@@ -526,7 +526,7 @@ function GetSavedLists() is null
    assessment_staff[index2] = c.cabd.staff
    assessment_sname[index2] = s.fn + " " + s.ln
    if load_medicaid = 0
-    {lib_UAMEDICAID}check_medicaid(assessment_id[index],medicaid_status[index2])
+    {lib_UAMEDICAID}check_medicaid(assessment_id[index2],medicaid_status[index2])
    endif	
   endif
  enddo      
