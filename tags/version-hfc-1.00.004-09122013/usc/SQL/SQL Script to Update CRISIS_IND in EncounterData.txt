@@ -1,0 +1,13 @@
+UPDATE     dbo.t_Client_EncounterData
+SET        CRISIS_IND = 'Y'
+WHERE     (CAST(SERVICE_DT AS datetime) BETWEEN CONVERT(DATETIME, '2012-07-1 00:00:00', 102) AND CONVERT(DATETIME, '2013-07-31 00:00:00', 102)) AND 
+                      ((PROCEDURE_CD LIKE '%ET%') OR
+                                 (SUBSTRING(PROCEDURE_CD, 1, 5) = 'A0160') OR
+                                 (SUBSTRING(PROCEDURE_CD, 1, 5) = 'H0017') OR
+                                 (SUBSTRING(PROCEDURE_CD, 1, 5) = 'H0018') OR
+                                 (SUBSTRING(PROCEDURE_CD, 1, 5) = 'H0030') OR
+                                 (SUBSTRING(PROCEDURE_CD, 1, 5) = 'H0036') OR
+                                 (SUBSTRING(PROCEDURE_CD, 1, 5) = 'H0045') OR
+                                 (SUBSTRING(PROCEDURE_CD, 1, 5) = 'H0046') OR
+                                 (SUBSTRING(PROCEDURE_CD, 1, 5) = 'H2011'))
+

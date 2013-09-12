@@ -1,0 +1,8 @@
+start MIGRATE() 
+ if $today = 9/1/2013
+  call "UABDAUTODISCH"()
+  call "CABDAUTODISCH"()
+  call "CLEANTRR"()
+  call "RDMtoTRR"()  
+ endif
+end MIGRATE 

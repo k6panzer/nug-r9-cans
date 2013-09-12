@@ -1,0 +1,257 @@
+start CALL_CANS(parmfile,option,client,retcode)
+' %include c_incmaps
+' %allow_nonmapped_io
+' %maptest
+' %include c_cldefLL
+' %include c_clgetLL
+ parmfile      is x
+ option        is x
+ client        is x
+ retcode       is b
+ 
+ c.bd          is d
+ 
+ datediff      is n
+ eighteenth_bd is d   'Clients 18th birthday
+ age_in_days   is b
+ age           is n   'Age variable
+ cans35_btn    is x
+ cans617_btn   is x
+ 
+ src_baby         is x
+ src_child        is x
+ src_adult        is x
+ select_src         is x
+ 
+ baby_max         is b
+ child_max        is b
+ baby_child_chng  is b
+ child_adult_chng is b
+ child_days_max   is b
+ 
+ adult_only       is x
+ adult_only_msg   is x
+ child_only       is x
+ child_only_msg   is x
+ 
+ client_type      is x
+ adult_Type       is x
+ child_type       is x
+ 
+ postscript[]     is x
+ 
+ select_error_msg is x
+ select_title     is x
+ select_text      is x
+ label_baby       is x
+ label_child      is x
+ label_adult      is x
+ 
+ select-error     is x
+   rc             is b
+   i              is b
+ 
+ c.cans.rec      is h
+ c.cans.canstype is x
+ c.cans.staff    is x
+ c.cans.compd    is d
+ c.ansa.rec       is h
+ c.ansa.compd     is d
+ 
+ adult_type = "A"
+ child_type = "C"
+ 
+ child_only_msg = "This Script is Configured for Children Only"
+ adult_only_msg = "This Script is Configured for Adults Only"
+ 
+ baby_max = 6
+ child_max = 18
+ baby_child_chng = 6
+ child_adult_chng = 18
+ child_days_max = 6694.50     'child days max = 18 years + 120 days = 18*365.25+120=6694.50 days or 18 and 3 months
+ 
+ select_title = "<style>div{margin:2%;}</style><h1>Due to the clients age, please select the UA you would like to complete</h1>"
+ select_error_msg = "<div class='error'>You must select an assessment</div>"
+ label_baby = "3 - 5 CANS"
+ label_child = "6 - 17 CANS"
+ label_adult = "ANSA"
+ 
+ src_baby = "CANS35"
+ src_child = "CANS617"
+ src_adult = "ANSA"
+
+ getParm(parmfile)
+ getoption(option)
+ 
+ if adult_only = "Y" then
+   $clear(src_baby, src_child)
+endif
+if child_only = "Y" then
+   $clear(src_adult)
+endif
+
+if "lib_CLIENT":pickclient(client) > 0 then return endif
+
+(void)$dbread(2, client, c.bd, c.cans.rec, c.cans.canstype, c.cans.compd, c.ansa.rec, c.ansa.compd)
+
+if c.ansa.compd dp then    'only do adult if adult was already done
+   client_type = adult_type
+   call_src(src_adult, child_only, child_only_msg, parmfile, option, client, retcode)
+else
+   rc = $datediff(c.bd, $today, age)
+   if age < baby_max then  'babies do babies
+      client_type = child_type
+      call_src(src_baby, adult_only, adult_only_msg, parmfile, option, client, retcode)
+
+   elseif age > baby_max and age < child_max then  'kids do kids
+      client_type = child_type
+      call_src(src_child, adult_only, adult_only_msg, parmfile, option, client, retcode)
+
+   elseif age > child_max then   'adults do adults
+      client_type = adult_type
+      call_src(src_adult, child_only, child_only_msg, parmfile, option, client, retcode)
+
+   elseif age = baby_child_chng then   'baby or kid?
+      client_type = child_type
+      if c.cans.canstype = "1"   'only do kids if kids was already done
+         call_src(src_child, adult_only, adult_only_msg, parmfile, option, client, retcode)
+      else  'let the user pick
+         $clear(src_adult)
+         gosub _USER-SELECT
+      endif
+
+   elseif age = child_adult_chng 'kid or adult?
+      if age_in_days < child_days_max then   'user pick if within the kid max days
+         $clear(src_baby)
+         gosub _USER-SELECT
+      else  ' this kid is now an adult
+         client_type = adult_type
+         call_src(src_adult, child_only, child_only_msg, parmfile, option, client, retcode)
+      endif
+   else  'make the user pick if we can decide -- possible configuration error
+      gosub _USER-SELECT
+   endif
+endif
+
+'let pass some default options to the postscripts:
+option += ";client_type`" + client_type + ";"
+option += "staff_id`" + $operstaffid + ";"
+
+rc = 0
+do while rc++ < $maxarray(postscript[])
+   call postscript[i] (parmfile, option, client, retcode)
+enddo
+
+return
+
+_USER-SELECT:
+   'see if we have more than one option to choose from:
+   do while 1 = 1
+      $submitopt("off", "Next")
+      $cancelopt("off", "Exit")
+      $form($scriptid)
+         $tag("<center>")
+         $tag(select_title)
+         $tag(select_text)
+         $tag(select-error)
+         $tag("<div>")
+         if src_baby dp and adult_only != "Y" then
+            $radio(select_src, label_baby, src_baby)
+         else
+            $text(`label_baby + " Not available"`)
+         endif
+         $tag("</div><div>")
+         if src_child dp and adult_only != "Y" then
+            $radio(select_src, label_child, src_child)
+         else
+            $text(`label_child + " Not available"`)
+         endif
+         $tag("<div><div>")
+         if src_adult dp and child_only != "Y" then
+            $radio(select_src, label_adult, src_adult)
+         else
+            $text(`label_adult + " Not available"`)
+         endif
+         $tag("</div></center>")
+      $sendform($scriptid)
+      $clear(select-error)
+      select $endbutton
+         case "CANCEL" return
+         case "SUBMIT"  if select_src dp then
+                           call select_src (parmfile, option, client, retcode)
+                           goback
+                        else
+                           select-error = select_error_msg
+                        endif
+      endselect
+   enddo
+goback
+
+end CALL_CANS
+
+%include inc_GetParm
+%include inc_GetOption
+
+dynamic function call_src(script-name, stop-option, stop-msg, script-parm, script-opt, script-client, script-ret) is null
+script-name    is x
+stop-option   is x
+stop-msg       is x
+script-parm    is x
+script-opt     is x
+script-client  is x
+script-ret     is b
+
+if stop-option = "Y" then
+   if stop-msg !dp then stop-msg = "Generic Script Error" endif
+   $brmsg(stop-msg, 1, "WEC")
+else
+   call script-name ( script-parm, script-opt, script-client, script-ret)
+endif
+end call_src
+
+
+endif
+
+' if c.bd !dp
+'  $brmsg("Please update the Clients Birthdate", 1, "W", "Error")
+'  return
+' else
+'  rc = $datediff(c.bd, $today, age)
+'  eighteenth_bd = $dateoffset(c.bd,,,18)
+'  datediff = ($today - c.bd)   ' compute age in days
+' endif
+' (void)$dbread(2,client,c.cans.rec,c.cans.canstype,c.cans.staff,c.cans.compd)
+''if over 17 and age is 18 by 120 days
+''18*365.25+120=6694.50 days or 18 and 3 months
+' if age > 17 and datediff > 6694.50
+'  $brmsg("Client is over 17. The CANS can only be completed for persons under 17", 1, "W", "Error")
+'  return
+' elseif age = 6
+'  if c.cans.canstype !dp
+'   $submitopt("off", "")
+'   $cancelopt("off", "Exit")
+'   $form($scriptid)
+'    $tag("<center>")
+'     $br(3)$text("Due to the clients age, please select if you would like to complete an assessment for age greoup 3-5 or 6-17")
+'     $br(2)$submit(cans35_btn,"3-5 Form")$ctag("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;")$submit(cans617_btn,"6-17 Form")
+'    $tag("</center>")   
+'   $sendform($scriptid)
+'   if cans35_btn = "Y"
+'     call "CANS35"(parmfile,option,client,retcode)
+'   else
+'    call "CANS617"(parmfile,option,client,retcode)   
+'   endif 
+'  else
+'   if c.cans.canstype = "1"
+'    call "CANS617"(parmfile,option,client,retcode)
+'   else
+'    call "CANS35"(parmfile,option,client,retcode)
+'   endif
+'  endif
+' elseif age < 6
+'  call "CANS35"(parmfile,option,client,retcode)
+' elseif age > 6 and age < 18
+'  call "CANS617"(parmfile,option,client,retcode)
+' endif
+' $clear(datediff)
+'end CALL_CANS 

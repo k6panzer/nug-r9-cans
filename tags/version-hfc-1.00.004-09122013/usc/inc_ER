@@ -1,0 +1,148 @@
+'****************************************************************************************
+'@(#) Event DST include file - 02.0.000 04/16/2013
+'@UDOC    inc_ER uScript
+'@AUTHOR  Chris Love, 04/16/2013
+'@HEADER  Progress Note Rules include file
+'@SUBJECT Used with the individual and group notes to drive possible content
+'@BODY    Used with the individual and group notes to drive possible content
+'@HISTORY  09/19/2008 - version 01.0.000 - Initial version
+'@HISTORY  04/16/2013 - version 02.0.000 - Added the user definable event dsts
+'@PARM    None
+'@ARGS    None
+'@UDOCEND
+%version 02.0.000 04/16/2013
+%desc Uscript by Chris Love, 04/16/2012, Helen Farabee MHMR Centers
+%desc inc_ER, Used with the individual and group notes to drive possible content
+'****************************************************************************************
+e.staff      is x 'Event Staff                    
+e.date       is d 'Event Date                     
+e.start      is t 'Event Start Time               
+e.case.no    is x 'Event Client ID                
+e.ser        is b 'Event Service                  
+e.desc       is x 'Event Description              
+e.ru         is b 'Event RU                       
+e.dur        is t 'Event Duration                 
+e.prep       is t 'Event Prep Duration            
+e.cl.dur     is t 'Event Client Duration          
+e.sal        is n 'Event SAL Number               
+e.fee.code   is x 'Event Fee Code                 
+e.std.fee    is n 'Event Standard Fee             
+e.comp.fee   is n 'Event Computed Fee             
+e.fs         is b 'Event Fund Source              
+e.rev        is n 'Event Revenue Account          
+e.post.flg   is x 'Event Post Flag                
+e.rev.ap     is b 'Event Accounting Period        
+e.bill.flg   is x 'Event Bill Flag                
+e.bill.dat   is d 'Event Bill Date                
+e.bill.st    is b 'Event Bill Status              
+e.pay.ct     is b 'Event No of Payments           
+e.pay.1      is n 'Event Pay Amount 1             
+e.d.rec.1    is d 'Event Pay Date 1               
+e.pay.2      is n 'Event Pay Amount 2             
+e.d.rec.2    is d 'Event Pay Date 2               
+e.pay.3      is n 'Event Pay Amount 3             
+e.d.rec.3    is d 'Event Pay Date 3               
+e.cl.amt     is n 'Event Close Amount             
+e.cl.date    is d 'Event Close Date               
+e.lof        is x 'Event Outcome (LOF)            
+e.att        is x 'Event Attendance Code          
+e.recip      is x 'Event Recipient Code           
+e.loc        is x 'Event Location                 
+e.proj       is b 'Event Project                  
+e.no.rec     is b 'Event No of Recipients         
+e.type       is x 'Event Type Code                
+e.rebill     is x 'Is event a rebill?             
+e.cost.b     is n 'Event Base Cost                
+e.cost.t     is n 'Event Total Cost               
+e.disc       is n 'Event Discount                 
+e.other.fs   is n 'Event Other FS Std Fee         
+e.all.pay    is n 'Event All Payments             
+e.rem.std    is n 'Event Remaining Std Fee        
+e.other.cp   is n 'Event Other FS Comp Fee        
+e.rem.comp   is n 'Event Remaining Comp Fee       
+e.cf.pc      is n 'Event Comp Fee - Pay & Adj CR  
+e.cf.npc     is n 'Event Comp Fee - Not Pay or AC 
+e.rec        is h 'Event Record Header            
+$$oe.staff   is x 'Orig Event Staff               
+$$oe.date    is d 'Orig Event Date                
+$$oe.start   is t 'Orig Event Start Time          
+$$oe.case    is x 'Orig Event Client ID           
+$$oe.ser     is b 'Orig Event Service             
+$$oe.desc    is x 'Orig Event Description         
+$$oe.ru      is b 'Orig Event RU                  
+$$oe.dur     is t 'Orig Event Duration            
+$$oe.prep    is t 'Orig Event Prep Duration       
+$$oe.c.dur   is t 'Orig Event Client Duration     
+$$oe.sal     is n 'Orig Event SAL Number          
+$$oe.fee.c   is x 'Orig Event Fee Code            
+$$oe.std     is n 'Orig Event Standard Fee        
+$$oe.comp    is n 'Orig Event Computed Fee        
+$$oe.fs      is b 'Orig Event Fund Source         
+$$oe.rev     is n 'Orig Event Revenue Account     
+$$oe.post    is x 'Orig Event Post Flag           
+$$oe.ap      is b 'Orig Event Accounting Period   
+$$oe.bill    is x 'Orig Event Bill Flag           
+$$oe.b.dt    is d 'Orig Event Bill Date           
+$$oe.b.st    is b 'Orig Event Bill Status         
+$$oe.npay    is b 'Orig Event No of Payments      
+$$oe.pay1    is n 'Orig Event Pay Amount 1        
+$$oe.pdt1    is d 'Orig Event Pay Date 1          
+$$oe.pay2    is n 'Orig Event Pay Amount 2        
+$$oe.pdt2    is d 'Orig Event Pay Date 2          
+$$oe.pay3    is n 'Orig Event Pay Amount 3        
+$$oe.pdt3    is d 'Orig Event Pay Date 3          
+$$oe.cl      is n 'Orig Event Close Amount        
+$$oe.cl.dt   is d 'Orig Event Close Date          
+$$oe.lof     is x 'Orig Event Outcome (LOF)       
+$$oe.att     is x 'Orig Event Attendance Code     
+$$oe.recip   is x 'Orig Event Recipient Code      
+$$oe.loc     is x 'Orig Event Location            
+$$oe.proj    is b 'Orig Event Project             
+$$oe.no.r    is b 'Orig Event No of Recipients    
+$$oe.type    is x 'Orig Event Type Code           
+$$oe.base    is n 'Orig Event Base Cost           
+$$oe.tot     is n 'Orig Event Total Cost          
+$$oe.disc    is n 'Orig Event Discount            
+$$oe.all     is n 'Orig Event All Payments        
+$$oe.rec     is h 'Orig Event Record Header       
+$$py.date    is d 'Payment Date                   
+$$py.amt     is n 'Payment Amount                 
+$$py.ref     is x 'Payment Reference              
+$$py.rem     is x 'Payment Remittance Code        
+$$py.prem    is x 'Payment Previous Remit Code    
+$$py.id      is x 'Payment Create Signon ID       
+$$py.iddt    is d 'Payment Create Date            
+$$py.idtm    is t 'Payment Create Time            
+$$py.prog    is x 'Payment Function               
+$$py.trid    is x 'Payment Transaction ID         
+$$a.dur      is t 'Covered ASR Duration           
+$$a.std      is n 'Covered ASR Standard Fee       
+$$a.comp     is n 'Covered ASR Computed Fee       
+$$a.sc       is x 'Covered ASR Serv Category      
+$$a.unit     is n 'Covered ASR Units              
+$$a.prog     is x 'Covered ASR Function
+e.usr.d1     is d
+e.usr.d2     is d
+e.usr.d3     is d
+e.usr.t1     is t
+e.usr.t2     is t
+e.usr.t3     is t
+e.usr.i1     is i
+e.usr.i2     is i
+e.usr.i3     is i
+e.usr.n1     is n
+e.usr.n2     is n
+e.usr.n3     is n
+e.usr.f1     is x
+e.usr.f2     is x
+e.usr.f3     is x
+e.usr.f4     is x
+e.usr.f5     is x
+e.usr.f6     is x
+e.usr.f7     is x
+e.usr.f8     is x
+e.usr.dc1    is x
+e.usr.dc2    is x
+e.usr.dc3    is x
+e.usr.txt1   is x
+e.usr.txt2   is x          
