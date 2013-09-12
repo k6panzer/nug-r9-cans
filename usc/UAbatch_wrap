@@ -51,21 +51,13 @@
 '  ~ renamed to UAbatch_wrap
 '  + exit logic for mark as batched record looping
 '  ~ redone some of the search logic / consolodated search function
-'
-'RHW 0.4 09/11/2013
-'	 +	Added logic to select a specific date range to be batched.  Added arguments for datefrom (5) and datethru (6) to 
-'			accomplish this.  If only datefrom is provided the process will only run for a single date.  If only datethru is
-'			is provided the process will run for all dates.  If both datefrom and datethru are !dp, the process will 
-'			run for all dates.
-'	 ^  Changed the email_notify var to an array email_notify[].  This allows sending email notices to multiple persons
 
-
-%version 0.4 9/11/2013 TxACE
+%version 0.3 7/26/2013 TxACE
 
 %define CANS_TYPE617 "1"
 %define CANS_TYPE35 "2"
 
-start UAbatch_wrap(parmfile, option, client, retcode, datefrom, datethru)
+start UAbatch_wrap(parmfile, option, client, retcode)
 
 parmfile       is x
 option         is x
@@ -75,7 +67,7 @@ retcode        is x
 out-file[]     is x
 arc-dir[]      is x
 
-email_notify[]   is x
+email_notify   is x
 buildOneFile   is x
 autoFtp        is x
 markAsBatched  is x
@@ -162,10 +154,6 @@ msg_stat_upt   is x
 msg_stat_cmp   is x
 msg_stat_def   is x
 
-datefrom			 is d
-datethru			 is d
-usedates			 is x		usedates = "N"   'Flag to indicate just batching UA's in a specific date range
-
 stdout[]       is x
 clt_err[]      is x
 T              is x
@@ -175,53 +163,52 @@ rec-idx        is b
 uid            is n
 
 'Set script default values:
-email_notify[1] = "whaiter@helenfarabee.org"
-email_notify[2] = "jledwards@pecanvalley.org"
+email_notify = "tim@gcmhmr.com"
 buildOneFile = "N"
 autoFTP = "N"
 markAsBatched = "N"
 archiveAfter = "N"
 use80byte = "N"
 
-trr_start_date = 09/01/2013
+trr_start_date = 5/24/2013
 
 'search defaults
-useSearch = "N"
-include617 = "N"
-include35 = "N"
+useSearch = "Y"
+include617 = "Y"
+include35 = "Y"
 
 'sequential read defaults
 read_day_limit = 30
 
 'xml build settings
 xml_script = "xml_build2"
-xml_dir = "/c4/EXPORT2/CMBHS/queue/"
-xml_default = "/c4/EXPORT2/CMBHS/forms/cans617.xml"
+xml_dir = "/c0/CMBHS/queue/"
+xml_default = "/c0/forms/cans617.xml"
 xml_default_sx = "_default"
-xml_35 = "/c4/EXPORT2/CMBHS/forms/cansbaby.xml"
+xml_35 = "/c0/forms/cansbaby.xml"
 xml_35_sx = "_baby"
-xml_617 = "/c4/EXPORT2/CMBHS/forms/cans617.xml"
+xml_617 = "/c0/forms/cans617.xml"
 xml_617_sx = "_cans"
-xml_ansa = "/c4/EXPORT2/CMBHS/forms/ansa.xml"
+xml_ansa = "/c0/forms/ansa.xml"
 xml_ansa_sx = "_ansa"
 
 'ftp settings
 ftp_site = "sftp.dshs.state.tx.us"
 'ftp_site = "wiki"
-ftp_login = "cmbhs-batch-230"
+ftp_login = "cmbhs-batch-100"
 'ftp_login = "test1"
-ftp_pass = "xxxxxxx"
+ftp_pass = "R%bI1Vzy"
 'ftp_pass = "Test!!4"
-ftp_local_dir = "/c4/EXPORT2/CMBHS/queue/"
+ftp_local_dir = "/c0/CMBHS/queue/"
 ftp_remote_dir = "Test/XML"
 ftp_retry = 5
 ftp_delay = 2
 
 'archive settings
-arc_dir_default = "/c4/EXPORT2/CMBHS/archive/"
-arc_dir_35 = "/c4/EXPORT2/CMBHS/archive/"
-arc_dir_617 = "/c4/EXPORT2/CMBHS/archive/"
-arc_dir_ansa = "/c4/EXPORT2/CMBHS/archive/"
+arc_dir_default = "/c0/CMBHS/archive/"
+arc_dir_35 = "/c0/CMBHS/archive/"
+arc_dir_617 = "/c0/CMBHS/archive/"
+arc_dir_ansa = "/c0/CMBHS/archive/"
 arc_by_year = "Y"
 
 'status messages for user
@@ -240,18 +227,6 @@ getoption(option)
 'build the client list
 status(msg_stat_clt)
 
-if datefrom dp 
-	usedates = "Y"
-	if datefrom < trr_start_date
-		datefrom = trr_start_date
-	endif
-	if datethru !dp or datethru < datefrom
-		datethru = datefrom
-	endif
-else
-	$clear(datefrom,datethru,usedates)
-endif
-
 if client dp then          'treat the client argument as a savedlist name
    if $getlist(list[], 2, client) > 0 then
       'error retrieving saved list
@@ -265,17 +240,9 @@ if client dp then          'treat the client argument as a savedlist name
       $dblock()
       rc = $dbread(2, client, c.cans.rec, c.cans.compd, c.cans.caredt, c.cans.canstype,
          c.ansa.rec, c.ansa.compd, c.ansa.caredt)
-
-      if usedates = "Y"
-      	if 	(c.cans.compd >= datefrom and c.cans.compd <= datethru) or
-      			(c.ansa.compd >= datefrom and c.ansa.compd <= datethru)
-      	then
-      			gosub _DBREAD
-      	endif
-      else
-      	gosub _DBREAD
-      endif
+      gosub _DBREAD
    enddo
+
 else
    if $uc(useSearch) = "Y" then                                                       'db search
       scrit[1] = "\DP"                                                           'has a complete date
@@ -333,7 +300,7 @@ if $uc(use80byte) = "Y" then '80 byte batch
 
    rc = $misprog(byte_progname, byte_menu_parm, byte_parm_1, byte_parm_2, byte_help_parm, byte_db, byte_save_list)
    if rc > 0 then
-      (void)$email(email_notify[], "MIS PROGRAM FAIL", $castx(rc))
+      (void)$email(email_notify, "MIS PROGRAM FAIL", $castx(rc))
    endif
    '##thumb -- do the fold and stuff to add \r??
 
@@ -454,8 +421,7 @@ if $uc(autoFtp) = "Y" then
       T = "CANS BATCH FTP FAIL"
       (void)$arrPush(stdout[], "Script not Configured for ftp")
    endif
-   (void)$email(EMAIL_NOTIFY[], T, stdout[])
-
+   (void)$email(EMAIL_NOTIFY, T, stdout[])
 endif
 
 'mark registers as batched
@@ -493,15 +459,14 @@ if $uc(markAsBatched) = "Y" then
       enddo
    enddo
    if stdout[] dp then
-      (void)$email(EMAIL_NOTIFY[], "CANS BATCH RECORD UPDATE FAIL", stdout[])
+      (void)$email(EMAIL_NOTIFY, "CANS BATCH RECORD UPDATE FAIL", stdout[])
       archiveAfter = "N"
    endif
 endif
 
 'move the batch files to archive directory
 if $uc(archiveAfter) = "Y" then
-
-  
+   
    status(msg_stat_arc)
    
    if arc-dir[] dp then
@@ -520,12 +485,12 @@ if $uc(archiveAfter) = "Y" then
                (void)$arrInsert(clt_err[1], T)
             endif
             if clt_err[] dp then
-               (void)$email(EMAIL_NOTIFY[], "CANS BATCH ARCHIVE FAIL", clt_err[])
+               (void)$email(EMAIL_NOTIFY, "CANS BATCH ARCHIVE FAIL", clt_err[])
             endif
          endif
       enddo
    else
-      (void)$email(email_notify[], "CANS BATCH ARCHIVE FAIL", "Script Configuration Fail")
+      (void)$email(email_notify, "CANS BATCH ARCHIVE FAIL", "Script Configuration Fail")
    endif
 endif
 
@@ -671,6 +636,3 @@ if ($operioallow = "Y") then
    endif
 endif
 end status
-
- 
-
