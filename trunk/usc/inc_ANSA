@@ -1,6 +1,6 @@
 'Include file for the ANSA (Adult Needs And Strengths Assessment) 
 
-%global AnsaTypeDCT,AnsaIntRefDCT,AnsaDisReasDCT,AnsaDisRefDCT,AnsaAuthLevelDCT,AnsaDeviationDCT,AnsaGradeDCT,AnsaResTypeDCT,SkiPSer,AssessmentSer
+%global AnsaTypeDCT,AnsaIntRefDCT,AnsaDisReasDCT,AnsaDisRefDCT,AnsaAuthLevelDCT,AnsaDeviationDCT,AnsaGradeDCT,AnsaResTypeDCT,SkiPSer,AssessmentSer,AssessorSig,AuthSig,LogUsage,LogFile
 AnsaTypeDCT      is b
 AnsaIntRefDCT    is b
 AnsaDisReasDCT   is b
@@ -9,13 +9,17 @@ AnsaAuthLevelDCT is b
 AnsaDeviationDCT is b
 AnsaGradeDCT     is b
 AnsaResTypeDCT   is b
-SkipSer          is x
-AssessmentSer    is b
+SkipSer          is x 'Y/N Prompt for SAL information
+AssessmentSer    is b 'Service code to use if SkipSer = "N"
+AssessorSig      is x 'Y/N Include the assessor signature line on snapshot
+AuthSig          is x 'Y/N Include the authorizer signature line on snapshot
+LogUsage         is x 'Log the usage of the script? Used to determine how long an assessment takes staff to complete, etc
+LogFile          is x '$today|$regid|c.ansa.staff|c.ansa.alocstaff|start_time|end_time|sent_to_um_YN|c.ansa.date|c.ansa.compd|c.ansa.type|c.ansa.rloc|c.ansa.aloc ?
 
 '*********Datacode Tables, Change These*****************
 AnsaTypeDCT      = 9700
 AnsaIntRefDCT    = 9702
-AnsaDisReasDCT   = 9703
+AnsaDisReasDCT   = 9715
 AnsaDisRefDCT    = 9704
 AnsaAuthLevelDCT = 9712
 AnsaDeviationDCT = 9706
@@ -23,7 +27,14 @@ AnsaGradeDCT     = 9710
 AnsaResTypeDCT   = 9714
 SkipSer          = "N"
 AssessmentSer    = 7
+AssessorSig      = "Y"
+AuthSig          = "Y"
+LogUsage         = "Y"
+LogFile          = "/c0/SQLTRANSFER/t_client_ansa_usage.txt"
 '*******************************************************
+if LogFile !dp
+ LogUsage = "N"
+endif
 
 '*********Medical Necessity Statement Related***********
 %define MedicalNecessity "As a Licensed Professional of Healing Arts (LPHA), I verify that the services authorized in the 'Authorized Level Of Care' section above are medically necessary and I concur with the plan of care."
@@ -537,7 +548,7 @@ errors[] is x
 %define aloc6_errortxt "The Authorization Date cannot be before the previous Authorization"
 %define aloc7_errortxt "The Authorization Date cannot be future dated"
 %define aloc8_errortxt "The Authorization Date cannot be older than 30 days"
-%define aloc9_errortxt "Crisis may only be assigned to a child/youth who is not currently assigned to an LOC"
+%define aloc9_errortxt "Crisis may only be assigned to a client who is not currently assigned to an LOC"
 %define aloc10_errortxt "If client is in Foster Care then YES Waiver cannot be authorized"
 %define aloc11_errortxt "Due to the Discharge Reason, the ALOC will be changed to Ineligible"
 %define aloc12_errortxt "LOC 1M: Basic Services Medication Management can only be authorized when the Recommended Level of Care is Medication Management"
@@ -549,6 +560,7 @@ errors[] is x
 %define crisis2_errortxt "Scoring does not indicate a crisis episode"
 %define loc9_1_errortxt "Change this Assessment Type to a Discharge or continue with the Update assessment by selecting an LOC Deviation"
 %define locdev1_errortxt "Invalid Reason for a Higher Deviation. Must be Clinical Need or Continuity of Care"
+%define locdev2_errortxt "Invalid Reason for Crisis Deviation. Must be Clinical Need or Other"
 
 rc_ansa_dstlist = $dstlist(ansa_dstlist,02,
 c.ansa.rec,c.ansa.staff,c.ansa.ver,c.ansa.date,c.ansa.caredt,c.ansa.age,c.ansa.aloc,c.ansa.rloc,c.ansa.dloc,c.ansa.compd,c.ansa.type,
