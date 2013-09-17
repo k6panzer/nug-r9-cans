@@ -16,7 +16,7 @@ AssessmentSer    is b
 CansTypeDCT      = 9700
 CansIntRefDCT    = 9702
 CansDisReasDCT   = 9703
-CansDisRefDCT    = 9704
+CansDisRefDCT    = 9716
 CansAuthLevelDCT = 9705
 CansDeviationDCT = 9706
 CansGradeDCT     = 9710
@@ -456,6 +456,7 @@ errors[] is x  'array for capturing errors by section
 %define staff_errortxt "You cannot authorize your own assessment, another UM staff must authorize it."
 %define crisis1_errortxt "Client is currently in crisis, please resolve this crisis and re-assess"
 %define crisis2_errortxt "Scoring does not indicate a crisis episode"
+%define locdev2_errortxt "Invalid Reason for Crisis Deviation. Must be Clinical Need or Other"
 
 rc_cans_dstlist = $dstlist(cans_dstlist,02,
 c.cans.rec,c.cans.staff,c.cans.ver,c.cans.date,c.cans.age,c.cans.aloc,c.cans.rloc,c.cans.dloc,c.cans.compd,c.cans.type,
