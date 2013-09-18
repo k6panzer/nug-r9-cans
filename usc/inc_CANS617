@@ -326,7 +326,7 @@ c.cans.sr.firear   is x      'CANS SR Accessible Firearm/Lethal Medication
 %define q_text_ld_socFun  "Social Functioning"
 %define q_text_ld_recret  "Recreational"
 %define q_text_ld_develp  "Developmental"
-%define q_text_ld_commun  "Communcation"
+%define q_text_ld_commun  "Communication"
 %define q_text_ld_judgmt  "Judgement"
 %define q_text_ld_jobfun  "Job Functioning"
 %define q_text_ld_legal   "Legal"
@@ -334,7 +334,7 @@ c.cans.sr.firear   is x      'CANS SR Accessible Firearm/Lethal Medication
 %define q_text_ld_physcl  "Physical"
 %define q_text_ld_sexdev  "Sexual Development"
 %define q_text_ld_sleep   "Sleep"
-%define q_text_ld_indliv  "Indepndent Living"
+%define q_text_ld_indliv  "Independent Living"
 
 'Child Strengths
 %define q_text_cs_family  "Family"
@@ -346,7 +346,7 @@ c.cans.sr.firear   is x      'CANS SR Accessible Firearm/Lethal Medication
 %define q_text_cs_spirel  "Spiritual/Religious"
 %define q_text_cs_comlif  "Community Life"
 %define q_text_cs_permin  "Relationship Permanence"
-%define q_text_cs_youth   "Youth Involvment"
+%define q_text_cs_youth   "Youth Involvement"
 %define q_text_cs_natsup  "Natural Supports"
 'Culture
 %define q_text_ac_langua  "Language"
@@ -403,7 +403,7 @@ c.cans.sr.firear   is x      'CANS SR Accessible Firearm/Lethal Medication
 %define q_text_sc_reltch  "Relations With Teachers"
 'Developmental Needs
 %define q_text_dv_cognit  "Cognitive"
-%define q_text_dv_develp  "Developemental"
+%define q_text_dv_develp  "Developmental"
 %define q_text_dv_selfcr  "Self Care / Daily Living"
 
 'Family/Caretaker                                 
@@ -437,7 +437,7 @@ c.cans.sr.firear   is x      'CANS SR Accessible Firearm/Lethal Medication
 %define q_text_ad_intrus  "Intrusions"
 %define q_text_ad_attach  "Attachment"
 %define q_text_ad_dissoc  "Dissociation"
-%define q_text_ad_timb4t  "Time Before Treatmetn"
+%define q_text_ad_timb4t  "Time Before Treatment"
 'Substance use (SUD)
 %define q_text_sa_severe  "Severity Of Use"
 %define q_text_sa_durati  "Duration Of Use"
@@ -456,7 +456,7 @@ c.cans.sr.firear   is x      'CANS SR Accessible Firearm/Lethal Medication
 %define q_text_eb_parand  "Paranoid Thinking"
 %define q_text_eb_secgan  "Secondary Gains From Anger"
 %define q_text_eb_viothk  "Violent Thinking"
-'Resiliancy Factors
+'Resiliency Factors
 %define q_text_rf_viopot  "Aware Of Violence Potential"
 %define q_text_rf_rescon  "Response To Consequences"
 %define q_text_rf_comsc   "Commitment To Self-Control"
@@ -519,8 +519,8 @@ c.cans.sr.firear   is x      'CANS SR Accessible Firearm/Lethal Medication
 %define q_text_restype "Primary Residence Type (Last 90 Days: "
 %define q_text_resother1 "Primary Residence Other (Part 1): "
 %define q_text_resother2 "Primary Residence Other (Part 2): "
-%define q_text_emptype "Employement Type: "
-%define q_text_labor "Main reasn for being out of labor force: "
+%define q_text_emptype "Employment Type: "
+%define q_text_labor "Main reason for being out of labor force: "
 
 'Other Questions
 %define q_text_sped "Special Education: "
@@ -543,7 +543,7 @@ c.cans.sr.firear   is x      'CANS SR Accessible Firearm/Lethal Medication
 %define q_text_rloc "Recommended Level of Care: "
 %define q_text_dloc "Deviation of Level of Care Requested by Staff: "
 %define q_text_loc_dev "Deviation Explanation: "
-%define q_text_devoth "Discription of Other Reason: "
+%define q_text_devoth "Description of Other Reason: "
 %define q_text_alocstaff "Authorization Staff: "
 %define q_text_alocdate "Authorization Date: "
 %define q_text_alocedate "Authorization End Date: "
@@ -561,11 +561,11 @@ errors[] is x       'array for capturing errors by section
 %define ac_errortxt  "All items in Culture are Required"
 %define crs_errortxt  "A Response to Crisis Episodes is Required"
 %define ps_errortxt  "A Response to Psychiatric Hospitalization is Required"
-%define cg_errortxt  "All items in Caregiver Strengths and Needs are Required"
+%define cg_errortxt  "All items in Care giver Strengths and Needs are Required"
 %define cb_errortxt  "All items in Child Behavioral and Emotional Needs are Required"
 %define cr_errortxt  "All items in Child Risk Behaviors are Required"
 %define pshx_errortxt  "If Psychiatric Hospitalization is indicated, All Psych Hosp Hx Items are Required"
-%define fcg_errortxt  "If CG Family Stress is indicated, All Family Caregiver Items are Required"
+%define fcg_errortxt  "If CG Family Stress is indicated, All Family Care giver Items are Required"
 %define tr_errortxt  "If CB Trauma is indicated, All Trauma Items are Required"
 %define sxab_errortxt  "If Trauma-Sexual Abuse is indicated, All Sexual Abuse Items are Required"
 %define adj_errortxt  "If CB Trauma is indicated, All Adjustment Items are Required"
@@ -574,7 +574,7 @@ errors[] is x       'array for capturing errors by section
 %define vi_errortxt  "If CR Danger to Others is indicated, All Violence Items are Required"
 %define eb_errortxt  "If CR Danger to Others is indicated, All Emotional/Behavioral Risk Items are Required"
 %define res_errortxt  "If CR Danger to Others is indicated, All Resiliency Items are Required"
-%define sab_errortxt  "If CR Sexual Agression is indicated, All SAB Items are Required"
+%define sab_errortxt  "If CR Sexual Aggression is indicated, All SAB Items are Required"
 %define rw_errortxt  "If CR Runaway is indicated, All Runaway Items are Required"
 %define jj_errortxt  "If CR Delinquency is indicated, All Juvenile Justice Items are Required"
 %define fs_errortxt  "If CR Fire Setting is indicated, All Fire Setting Items are Required"                                                             

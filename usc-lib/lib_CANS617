@@ -2090,7 +2090,7 @@ function PHHScoring(table_wbgcolor) is null
   $row()
    $col()
    $col()$text("2=Three ","hdrdata")  
-   $col()$text("4=Four or More ","hdrdata")  
+   $col()$text("3=Four or More ","hdrdata")  
   $row()
    $col(,,,"3","1")$ctag("&nbsp;")
   $row()
