@@ -58,9 +58,13 @@
 '			is provided the process will run for all dates.  If both datefrom and datethru are !dp, the process will 
 '			run for all dates.
 '	 ^  Changed the email_notify var to an array email_notify[].  This allows sending email notices to multiple persons
+'RHW 0.5 09/18/2013
+'	 ^  Fixed issue where the entire saved list is marked as batched when using a date range for the batch. 
+'     	Specifically, if the date range used does not send all clients in the saved list, prior to this fix, the 
+'		proces would not consider the date range and would mark each record as batched, even it if was not 
+'     	sent in the batch. 
 
-
-%version 0.4 9/11/2013 TxACE
+%version 0.5 9/18/2013 TxACE
 
 %define CANS_TYPE617 "1"
 %define CANS_TYPE35 "2"
@@ -176,7 +180,6 @@ uid            is n
 
 'Set script default values:
 email_notify[1] = "whaiter@helenfarabee.org"
-email_notify[2] = "jledwards@pecanvalley.org"
 buildOneFile = "N"
 autoFTP = "N"
 markAsBatched = "N"
@@ -210,7 +213,7 @@ ftp_site = "sftp.dshs.state.tx.us"
 'ftp_site = "wiki"
 ftp_login = "cmbhs-batch-230"
 'ftp_login = "test1"
-ftp_pass = "xxxxxxx"
+ftp_pass = "SBjzC(K6"
 'ftp_pass = "Test!!4"
 ftp_local_dir = "/c4/EXPORT2/CMBHS/queue/"
 ftp_remote_dir = "Test/XML"
@@ -236,6 +239,8 @@ msg_stat_cmp = "{{{{{ Process Complete }}}}}"
 'process script configuration
 getparm(parmfile)
 getoption(option)
+
+'$looplimit = 0
 
 'build the client list
 status(msg_stat_clt)
@@ -461,6 +466,10 @@ endif
 'mark registers as batched
 if $uc(markAsBatched) = "Y" then
    
+'      if usedates = "Y"
+'      	if 	(c.cans.compd >= datefrom and c.cans.compd <= datethru) or
+'      			(c.ansa.compd >= datefrom and c.ansa.compd <= datethru)
+
    status(msg_stat_upt)
    
    $clear(stdout[])
@@ -471,25 +480,48 @@ if $uc(markAsBatched) = "Y" then
       rc = $dbread(2, list[i], c.cans.rec, c.cans.compd, c.cans.caredt, 
          c.ansa.rec, c.ansa.compd, c.ansa.caredt)
       do while rc < 2
-         if c.cans.compd dp and c.cans.caredt !dp then
-            c.cans.caredt = $today
-            if $dbupdate(2, list[i], c.cans.rec, c.cans.caredt) > 0 then
-               'report the failure to update
-               (void)$arrPush(stdout[], list[i])
-            endif
-            rc = 99
-         elseif c.ansa.compd dp and c.ansa.caredt !dp then
-            c.ansa.caredt = $today
-            if $dbupdate(2, list[i], c.ansa.rec, c.ansa.caredt) > 0 then
-               (void)$arrPush(stdout[], list[i])
-            endif
-            rc = 99
-         elseif c.cans.rec[effd] < trr_start_date and c.ansa.rec[effd] < trr_start_date then
-            rc = 99
-         else
-            $dblock()
-            rc = $dbreadnextdst(2, list[i], c.cans.rec, c.cans.compd, c.cans.caredt)
-         endif
+      	select usedates
+      		case "N"
+		         if c.cans.compd dp and c.cans.caredt !dp then
+		            c.cans.caredt = $today
+		            if $dbupdate(2, list[i], c.cans.rec, c.cans.caredt) > 0 then
+		               'report the failure to update
+		               (void)$arrPush(stdout[], list[i])
+		            endif
+		            rc = 99
+		         elseif c.ansa.compd dp and c.ansa.caredt !dp then
+		            c.ansa.caredt = $today
+		            if $dbupdate(2, list[i], c.ansa.rec, c.ansa.caredt) > 0 then
+		               (void)$arrPush(stdout[], list[i])
+		            endif
+		            rc = 99
+		         elseif c.cans.rec[effd] < trr_start_date and c.ansa.rec[effd] < trr_start_date then
+		            rc = 99
+		         else
+		            $dblock()
+		            rc = $dbreadnextdst(2, list[i], c.cans.rec, c.cans.compd, c.cans.caredt)
+		         endif
+					case "Y"
+		         if c.cans.compd >= datefrom and c.cans.compd <= datethru and c.cans.caredt !dp then
+		            c.cans.caredt = $today
+		            if $dbupdate(2, list[i], c.cans.rec, c.cans.caredt) > 0 then
+		               'report the failure to update
+		               (void)$arrPush(stdout[], list[i])
+		            endif
+		            rc = 99
+		         elseif c.ansa.compd >= datefrom and c.ansa.compd <= datethru and c.ansa.caredt !dp then
+		            c.ansa.caredt = $today
+		            if $dbupdate(2, list[i], c.ansa.rec, c.ansa.caredt) > 0 then
+		               (void)$arrPush(stdout[], list[i])
+		            endif
+		            rc = 99
+		         elseif c.cans.rec[effd] < trr_start_date and c.ansa.rec[effd] < trr_start_date then
+		            rc = 99
+		         else
+		            $dblock()
+		            rc = $dbreadnextdst(2, list[i], c.cans.rec, c.cans.compd, c.cans.caredt)
+		         endif
+				endselect
       enddo
    enddo
    if stdout[] dp then
