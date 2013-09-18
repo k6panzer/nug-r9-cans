@@ -316,7 +316,7 @@ c.cans.rg.emot     is x      'CANS REGULATORY FUNCTIONING EMOTIONAL CONTROL
 
 'Developmental Needs
 %define q_text_dv_cognit "Cognitive"
-%define q_text_dv_develp "Developemental"
+%define q_text_dv_develp "Developmental"
 %define q_text_dv_selfcr "Self Care / Daily Living"
 
 'Family/Caretaker                                 
@@ -352,7 +352,7 @@ c.cans.rg.emot     is x      'CANS REGULATORY FUNCTIONING EMOTIONAL CONTROL
 %define q_text_ad_avoid "Avoidance"
 %define q_text_ad_incaro "Increased Arousal"
 %define q_text_ad_numres "Numbing of Responsiveness"
-%define q_text_ad_timb4t "Time Before Treatmetn"
+%define q_text_ad_timb4t "Time Before Treatment"
 
 'Regulatory Functioning
 %define q_text_rg_eating "Eating"
@@ -390,7 +390,7 @@ c.cans.rg.emot     is x      'CANS REGULATORY FUNCTIONING EMOTIONAL CONTROL
 %define q_text_rloc "Recommended Level of Care: "
 %define q_text_dloc "Deviation of Level of Care Requested by Staff: "
 %define q_text_loc_dev "Deviation Explanation: "
-%define q_text_devoth "Discription of Other Reason: "
+%define q_text_devoth "Description of Other Reason: "
 %define q_text_alocstaff "Authorization Staff: "
 %define q_text_alocdate "Authorization Date: "
 %define q_text_alocedate "Authorization End Date: "
@@ -406,10 +406,10 @@ errors[] is x  'array for capturing errors by section
 %define dv_errortxt "If LD Developmental is between 1 & 3, All Developmental Items are Required"
 %define cs_errortxt "All items in Child Strengths are Required"
 %define ac_errortxt "All items in Acculturation are Required"
-%define cg_errortxt "All items in Caregiver Strengths and Needs are Required"
+%define cg_errortxt "All items in Care giver Strengths and Needs are Required"
 %define cb_errortxt "All items in Child Behavioral and Emotional Needs are Required"
 %define cr_errortxt "All items in Child Risk Behaviors are Required"
-%define fcg_errortxt "If CG Safety is indicated, All Family Caregiver Items are Required"
+%define fcg_errortxt "If CG Safety is indicated, All Family Care giver Items are Required"
 %define tr_errortxt "If CB Trauma is indicated, All Trauma Items are Required"
 %define sxab_errortxt "If Trauma-Sexual Abuse is indicated, All Sexual Abuse Items are Required"
 %define adj_errortxt "If CB Trauma is indicated, All Adjustment Items are Required"

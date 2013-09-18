@@ -327,7 +327,7 @@ c.ansa.dn.dev     is x
 %define q_text_ld_invrec "Involvement in Recovery"
 %define q_text_ld_trans "Transportation"
 
-%define q_text_fc "Family/Caregiver Strengths and Needs"
+%define q_text_fc "Family/Care giver Strengths and Needs"
 %define q_text_fc_na "Not applicable"
 %define q_text_fc_phlth "Physical/Behavioral Health"
 %define q_text_fc_invcre "Involvement with Care"
@@ -338,13 +338,13 @@ c.ansa.dn.dev     is x
 
 %define q_text_st "Strengths"
 %define q_text_st_fam "Family"
-%define q_text_st_soccon "Socail Connectedness"
-%define q_text_st_opti "Optimisim"
+%define q_text_st_soccon "Social Connectedness"
+%define q_text_st_opti "Optimism"
 %define q_text_st_tal "Talents/Interests"
 %define q_text_st_edu "Educational"
 %define q_text_st_vol "Volunteering"
 %define q_text_st_jobhi "Job History"
-%define q_text_st_relig "Spirital/Religious"
+%define q_text_st_relig "Spiritual/Religious"
 %define q_text_st_comcon "Community Connection"
 %define q_text_st_natsup "Natural Supports"
 %define q_text_st_resil "Resiliency"
@@ -373,7 +373,7 @@ c.ansa.dn.dev     is x
 
 
 %define q_text_d "Dangerousness"
-%define q_text_d_frusman "Frustation Management"
+%define q_text_d_frusman "Frustration Management"
 %define q_text_d_host "Hostility"
 %define q_text_d_pthink "Paranoid Thinking"
 %define q_text_d_gainang "Secondary Gains from Anger"
@@ -381,7 +381,7 @@ c.ansa.dn.dev     is x
 %define q_text_d_potent "Awareness of Violence Potential"
 %define q_text_d_respon "Response"
 %define q_text_d_csctrl "Commitments to Self Control"
-%define q_text_d_tinv "Treatment Involvment"
+%define q_text_d_tinv "Treatment Involvement"
 
 %define q_text_sb "Sexually Aggressive Behavior"
 %define q_text_sb_relton "Relationship"
@@ -485,7 +485,7 @@ c.ansa.dn.dev     is x
 %define q_text_rloc "Recommended Level of Care: "
 %define q_text_dloc "Deviation of Level of Care Requested by Staff: "
 %define q_text_loc_dev "Deviation Explanation: "
-%define q_text_devoth "Discription of Other Reason: "
+%define q_text_devoth "Description of Other Reason: "
 %define q_text_alocstaff "Authorization Staff: "
 %define q_text_alocdate "Authorization Date: "
 %define q_text_alocedate "Authorization End Date: "
@@ -553,7 +553,7 @@ errors[] is x
 %define aloc11_errortxt "Due to the Discharge Reason, the ALOC will be changed to Ineligible"
 %define aloc12_errortxt "LOC 1M: Basic Services Medication Management can only be authorized when the Recommended Level of Care is Medication Management"
 %define aloc13_errortxt "LOC 6: Consumer Refuses Services cannot be authorized when the assessment type is Intake"
-%define aloc14_errortxt "LOC 9: Inligible cannot be authorized when the assessment type is Intake"
+%define aloc14_errortxt "LOC 9: Ineligible cannot be authorized when the assessment type is Intake"
 %define dloc_errortxt "The LOC requested for deviation is the same as the Recommended LOC. It will be unselected now. You can either leave the field blank or select another LOC."
 %define dloc2_errortxt "LOC 1M cannot be requested for deviation, it must be Recommended by the Assessment. It will be unselected now. You can either leave the field blank or select another LOC."
 %define crisis1_errortxt "Client is currently in crisis, please resolve this crisis and re-assess"
@@ -561,6 +561,10 @@ errors[] is x
 %define loc9_1_errortxt "Change this Assessment Type to a Discharge or continue with the Update assessment by selecting an LOC Deviation"
 %define locdev1_errortxt "Invalid Reason for a Higher Deviation. Must be Clinical Need or Continuity of Care"
 %define locdev2_errortxt "Invalid Reason for Crisis Deviation. Must be Clinical Need or Other"
+%define scaledt_errortxt "Assessment cannot be Authorized until Assessor has completed the Diagnostic Specific Scale section. This occurs when the Diagnosis is entered after the ANSA"
+%define qidsalg_errortxt "Assessment cannot be authorized until Assessor has completed the Depression Algorithm Scale. This occurs when the Diagnosis is entered after the ANSA"
+%define schzalg_errortxt "Assessment cannot be authorized until Assessor has completed the Schizophrenia Algorithm Scale. This occurs when the Diagnosis is entered after the ANSA"
+%define bipalg_errortxt "Assessment cannot be authorized until Assessor has completed the Bipolar Algorithm Scale. This occurs when the Diagnosis is entered after the ANSA"
 
 rc_ansa_dstlist = $dstlist(ansa_dstlist,02,
 c.ansa.rec,c.ansa.staff,c.ansa.ver,c.ansa.date,c.ansa.caredt,c.ansa.age,c.ansa.aloc,c.ansa.rloc,c.ansa.dloc,c.ansa.compd,c.ansa.type,
