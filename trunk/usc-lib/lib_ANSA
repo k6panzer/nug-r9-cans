@@ -1,5 +1,5 @@
 library lib_ANSA()
- %version 1.0.002 09/11/2013
+ %version 1.0.004 09/18/2013
 on load do:
  %include inc_SCHIZALG
  %include inc_QIDSALG
@@ -1289,6 +1289,18 @@ on load do:
 	   endif	
 	  endif
 	 endif
+	elseif DXType = "S" or DXType = "B"
+	 if $today >= 9/1/2014
+	  if HistoryTest() = 0
+	   RLOC = basic_MedManage
+	   return
+	  endif
+	 else
+	  if Current1M() = 0
+	   RLOC = basic_MedManage
+	   return		
+	  endif	
+	 endif	
 	endif
    endif    
   endif 
