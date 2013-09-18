@@ -1222,6 +1222,10 @@ on load do:
 
 'Target Population
   if DXType = "S" or DXType = "B" or (DXType = "D" and (c.ansa.type = "1" and DXGaf <= 50)) or c.ansa.type = "2" or c.ansa.type = "11"
+'GAF is only used for Intakes
+   if c.ansa.type != "1"
+    DXGaf = 0
+   endif
 
 '4/115/ACT
    if ($num(c.ansa.hs.num180) > 1 or c.ansa.hs.numl30 = "3" or $num(c.ansa.hs.numg30) > 0) or (c.ansa.cr.episds = "3" and (c.ansa.hs.num180 = "1" or c.ansa.hs.numl30 = "2"))
@@ -1269,7 +1273,8 @@ on load do:
    endif
 
 '1-M/111/Basic-Med Management
-   if $num(c.ansa.r.suicid) < 2 and $num(c.ansa.r.dangot) < 2 and $num(c.ansa.b.depres) < 2 and $num(c.ansa.ld.restab) < 2 and  $num(c.ansa.b.subabs) < 2 and $num(c.ansa.r.crimbe) < 2 and c.ansa.cr.episds = "0"
+   if $num(c.ansa.r.suicid) < 2 and $num(c.ansa.r.dangot) < 2 and $num(c.ansa.b.depres) < 2 and c.ansa.hs.num180 = "0" and c.ansa.hs.numl30 = "0" and $num(c.ansa.ld.living) < 2 and ($num(c.ansa.ld.employ) < 2 or c.ansa.ld.employ = "9") and      
+   $num(c.ansa.ld.restab) < 2 and  $num(c.ansa.b.subabs) < 2 and $num(c.ansa.r.crimbe) < 2 and c.ansa.cr.episds = "0"
     if DXType = "D"
 	 if $num(c.ansa.qids) < 11
 	  if $today >= 9/1/2014
@@ -1290,9 +1295,6 @@ on load do:
   
 '1-S/112/Basic-Skills Training 
 'For update assessments (and all other types of assessments)  GAF is not considered in Level of Care recommendations. 
-  if c.ansa.type != "1" and DXType = "D"
-   DXGaf = 0
-  endif
   if DXType = "S" or DXType = "B" or (DXType = "D" and DXGaf <= 50)
    RLOC = basic_skills
    return
