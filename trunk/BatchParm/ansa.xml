@@ -1,8 +1,8 @@
  <Transaction>
   <TransactionType>28</TransactionType> 
-  <ComponentCode>230</ComponentCode> 
+  <ComponentCode>YOUR_COMPONENT_CODE</ComponentCode> 
   <LocalCaseNbr>$REGID</LocalCaseNbr> 
-  <LocalUnitNbr/> 
+  <LocalUnitNbr></LocalUnitNbr>
   <Age>%C.ANSA.AGE%</Age> 
   <AssessmentType>%C.ANSA.TYPE%</AssessmentType> 
   <QuestionSet>3</QuestionSet> 
@@ -145,7 +145,7 @@
 	  <PmChronicHealthIssues>%C.ANSA.PM.CHI%</PmChronicHealthIssues> 
 	  <PmMedicalHospitalVisits>%C.ANSA.PM.MEHV%</PmMedicalHospitalVisits> 
 	  <PmMedicalPrescriptions>%C.ANSA.PM.MP%</PmMedicalPrescriptions> 
-	  <PerformedBy>$DBREAD|03|C.ANSA.STAFF|S.RANDR.CRED</PerformedBy> 
+	  <PerformedBy>$EDIT|DB``03|C.ANSA.STAFF</PerformedBy> 
 	  <PerformedByCredential>$DBREAD|03|C.ANSA.STAFF|S.RANDR.CRED</PerformedByCredential> 
 	  <AssessmentNotes>%C.ANSA.COMMENT%</AssessmentNotes> 
   </QuestionSetType>
@@ -171,6 +171,7 @@
   <ChildInHouse>%C.ANSA.MINOR%</ChildInHouse> 
   <EmploymentType>%C.ANSA.EMPTYPE%</EmploymentType> 
   <ReasonNotWorking>%C.ANSA.LABOR%</ReasonNotWorking> 
+  <ReasonNotWorkingOther>%C.ANSA.LABOROTH%</ReasonNotWorkingOther> 
   </CommunityData>
  <ClinicalRatingScale>
   <AssessmentDate>%C.ANSA.SCALEDT%</AssessmentDate> 
