@@ -592,12 +592,12 @@ function SaveData() is i
  else
   $clear(c.cans.resother1,c.cans.resother2)
  endif
- if c.cans.devoth dp
-  c.cans.devR1 = $seg(c.cans.devoth,1,63)
-  c.cans.devR2 = $seg(c.cans.devoth,64,63)
-  c.cans.devR3 = $seg(c.cans.devoth,127,63)
-  c.cans.devR4 = $seg(c.cans.devoth,190,63)
-  c.cans.devR5 = $seg(c.cans.devoth,253,3)
+ if c.cans.devjust dp
+  c.cans.devR1 = $seg(c.cans.devjust,1,63)
+  c.cans.devR2 = $seg(c.cans.devjust,64,63)
+  c.cans.devR3 = $seg(c.cans.devjust,127,63)
+  c.cans.devR4 = $seg(c.cans.devjust,190,63)
+  c.cans.devR5 = $seg(c.cans.devjust,253,3)
  else
   $clear(c.cans.devR1,c.cans.devR2,c.cans.devR3,c.cans.devR4,c.cans.devR5)
  endif
@@ -2384,6 +2384,8 @@ function Validate() is i
 end Validate
 
 function Validate0() is i
+ assessment_age is i
+ last_date      is d
  $clear(errors[])
  if c.cans.type = "1" or c.cans.type = "12"
   $clear(c.cans.disdt,c.cans.disreas,c.cans.disref,c.cans.disoth)
@@ -2469,7 +2471,21 @@ function Validate0() is i
   if c.cans.riskplc !dp
    (void)$arrpush(errors[],oth_rp_errortxt)
   endif 
- endif  
+ endif
+ 
+ {"lib_CANS"}Last_Assessment($regid,,,,last_date)
+ if c.cans.date < $today
+  assessment_age = $today - c.cans.date 
+  if assessment_age > 30
+   (void)$arrpush(errors[],date1_errortxt)
+  endif
+ elseif c.cans.date > $today
+  (void)$arrpush(errors[],date2_errortxt)
+ elseif c.cans.date < last_date
+  (void)$arrpush(errors[],date3_errortxt)  
+ elseif c.cans.date = last_date 
+ (void)$arrpush(errors[],date4_errortxt)  
+ endif    
 
  if errors[1] dp	
   Validate0 = 1
@@ -3411,7 +3427,7 @@ function ALOC() is null
    $table("OTHER",,table_nobgcolor)
     $row()
      $col("right",,"50%")$text(q_text_devoth,"datatag")
-     $col()$textblock(c.cans.devoth,5,,,"Y",255,"width:100%;")$countbox(c.cans.devoth,"(max chars is 255)")
+     $col()$textblock(c.cans.devoth,5,,,"Y",50,"width:100%;")$countbox(c.cans.devoth,"(max chars is 50)")
    $endtable("OTHER")
   $endblock("OTHER","OTHER")
 
