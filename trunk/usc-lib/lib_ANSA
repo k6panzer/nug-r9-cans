@@ -1238,7 +1238,7 @@ on load do:
    ($num(c.ansa.hs.num180)  < 2 or $num(c.ansa.hs.numl30) < 3 or c.ansa.hs.numg30 = "0") and 
    ($num(c.ansa.ld.living) > 0 or (c.ansa.ld.slfcre = "1" or c.ansa.ld.slfcre = "2")) and 
    $num(c.ansa.ld.family) > 1 and c.ansa.st.natsup > 1 and 
-   ($num(c.ansa.ld.employ) > 1 or $num(c.ansa.ld.restab) > 1 or c.ansa.b.subabs = "2" or $num(c.ansa.r.crimbe) > 1 or c.ansa.cr.episds = "3")
+   (($num(c.ansa.ld.employ) = 2 or $num(c.ansa.ld.employ) = 3) or $num(c.ansa.ld.restab) > 1 or c.ansa.b.subabs = "2" or $num(c.ansa.r.crimbe) > 1 or c.ansa.cr.episds = "3")
     if DXType = "D"
      if c.ansa.b.depres = "3" and $num(c.ansa.qids) > 15
 	  RLOC = Intensive
