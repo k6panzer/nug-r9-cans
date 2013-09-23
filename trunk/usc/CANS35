@@ -74,7 +74,7 @@ start CANS35(parmfile,option,client,retcode)
  call "CHECK_UACREDENTIALS"()
  
  if Validate() = 1
-  DisplayErrors()
+  {"lib_UACOMMON"}DisplayErrors(errors[])
   return
  endif
  
@@ -256,7 +256,7 @@ start CANS35(parmfile,option,client,retcode)
 							 case "N" Page = "1"
 							endselect
 					 case 1 Page = 0
-					        DisplayErrors()
+					        {"lib_UACOMMON"}DisplayErrors(errors[])
                     endselect
    case "Validate1" select Validate1()
 					 case 0 select CanSkipPage2()
@@ -267,7 +267,7 @@ start CANS35(parmfile,option,client,retcode)
 					         case "N" Page = "2"
 							endselect
 					 case 1 Page = "1"
-					        DisplayErrors()
+					        {"lib_UACOMMON"}DisplayErrors(errors[])
 					endselect					 
    case "Validate2" select Validate2()
 					 case 0 select CanSkipPage3()
@@ -278,12 +278,12 @@ start CANS35(parmfile,option,client,retcode)
 					         case "N" Page = "3"
 							endselect
 					 case 1 Page = "2"
-					        DisplayErrors()
+					        {"lib_UACOMMON"}DisplayErrors(errors[])
 					endselect					
    case "Validate3" select Validate3()
 					 case 0 Page = "4"
 					 case 1 Page = "3"
-					        DisplayErrors()  
+					        {"lib_UACOMMON"}DisplayErrors(errors[])  
 					endselect					
    case "Validate4" select Validate4() 
                      case 0 c.cans.rloc = RLOC()
@@ -296,7 +296,7 @@ start CANS35(parmfile,option,client,retcode)
 							 case other Page = "SAL"
 						    endselect																		         
 					 case 1 Page = "4"
-					        DisplayErrors()
+					        {"lib_UACOMMON"}DisplayErrors(errors[])
 					endselect 				
    case "ValidateReport" select ValidateReport()
                           case 0 if SaveData() = 0
@@ -304,12 +304,12 @@ start CANS35(parmfile,option,client,retcode)
 								 {"lib_UACOMMON"}AddUMMonitor($regid,$scriptid)
 								endif 
                           case 1 Page = "Report"
-						         DisplayErrors()
+						         {"lib_UACOMMON"}DisplayErrors(errors[])
                          endselect			
    case "ValidateALOC" select ValidateALOC()
                         case 0 Page = "Report"
 						case 1 Page = "Authorize"
-					           DisplayErrors()
+					           {"lib_UACOMMON"}DisplayErrors(errors[])
 					   endselect
    case "Report"    c.cans.rloc = RLOC()
                     if c.cans.type = "3" 'and c.cans.disreas != "9"
@@ -380,7 +380,7 @@ start CANS35(parmfile,option,client,retcode)
                                                      if $maxarray(errors[]) = 0
 						                              Page = "Report"
 						                             else
-						                              DisplayErrors()
+						                              {"lib_UACOMMON"}DisplayErrors(errors[])
 													  $clear(errors[])
 						                             endif
 										  case "NO" $clear(e.ser,e.ru,e.start,e.dur,e.loc)
@@ -1904,9 +1904,9 @@ function Validate0() is i
                       if c.cans.foster !dp
                        (void)$arrpush(errors[],oth_fc_errortxt)
                       endif  
-                      if c.cans.riskplc !dp
-                       (void)$arrpush(errors[],oth_rp_errortxt)
-                      endif 
+                      if c.cans.riskplc != "N"
+                       (void)$arrpush(errors[],oth_rp2_errortxt)
+                      endif
 			endselect
   case "11"
   case other if c.cans.tcoommi !dp
@@ -3089,23 +3089,6 @@ function ValidateReport() is i
   ValidateReport = 0	
  endif 
 end ValidateReport
-
-function DisplayErrors() is null
- index    is i
- $submitopt("off", "")
- $cancelopt("off", "BACK")
-  $form("errors")
-  {"lib_UACOMMON"}ClientPageHeader($regid)
-  $text("{H1}Errors Were Found{/H1}")
-  $br()
-  $tag("<CENTER>")
-   index = 0
-   do while index++ <= $maxarray(errors[])
-    $br()$text(errors[index], "error")
-   enddo
-  $tag("</CENTER>")
- $sendform("errors")
-end DisplayErrors
 
 function SaveEvent() is x
  e.case.no = $regid
