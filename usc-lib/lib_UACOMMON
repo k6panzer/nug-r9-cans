@@ -1,5 +1,5 @@
 library lib_UACOMMON()
- %version 1.0.002 09/11/2013
+ %version 1.0.003 09/23/2013
 
 function StaffCanDo() is i
  s.trr.certified is x
@@ -24,6 +24,7 @@ function UMSTAFF(staff[]) is x
  staff[2] = "1951" 'Paula Staats Maloney
  staff[3] = "3908" 'Irma Escobedo
  staff[4] = "2481" 'Gianna Harris
+ staff[5] = "1529" 'Judy Michael (For displaying authorized UA's only)
  (void)$dctloada(110,code[], desc[], act-code[], a1[], a2[], a3[])
  if ($find($operstaffid, staff[],1,"F") > 0) or ($find($operstaffid, code[],1,"F") > 0)
   UMSTAFF = "Y"
@@ -360,15 +361,33 @@ function DisplayMultiSnap(snapshots[]) is null
  $sendform($funcname)
 end DisplayMultiSnap
 
-function STAFFASSIGN(staff[]) is x
+function StaffAssign(staff[]) is x
  a_staff      is x
  staff[]      is x
 ' staff[1] = "1312" 'Cagan Cummings
- staff[1] = "3737" 'Cagan Cummings
+' staff[1] = "3737" 'Cagan Cummings
  STAFFASSIGN = "N"
  if $maxarray(staff[]) > 0
   if ($find($operstaffid, staff[], 1,"F") > 0)
    STAFFASSIGN = "Y"
   endif 
  endif 
-end STAFFASSIGN
+end StaffAssign
+
+function DisplayErrors(errors[]) is null
+ errors[] is x
+ index    is i
+ $submitopt("off", "")
+ $cancelopt("off", "BACK")
+ $form("errors")
+  {"lib_UACOMMON"}ClientPageHeader($regid,"Y")
+  $text("{H1}Errors Were Found{/H1}")
+  $br()
+  $tag("<CENTER>")
+   index = 0
+   do while index++ <= $maxarray(errors[])
+    $br()$text(errors[index] , "error")
+   enddo
+  $tag("</CENTER>")
+ $sendform("errors")
+end DisplayErrors
