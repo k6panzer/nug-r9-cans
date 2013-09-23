@@ -89,7 +89,7 @@ start ANSA(parmfile,option,client,retcode)
  {"lib_ANSA"}GETDX(DXType, DX, DXCat, DXDate, DXGaf)
 
  if Validate() = 1
-  DisplayErrors()
+  {"lib_UACOMMON"}DisplayErrors(errors[])
   return
  endif
  
@@ -352,7 +352,7 @@ start ANSA(parmfile,option,client,retcode)
 	 endif
 	else
 	 Page = "0"
-	 DisplayErrors()
+	 {"lib_UACOMMON"}DisplayErrors(errors[])
     endif
    elseif Page = "Validate1"
     if Validate1() = 0
@@ -371,7 +371,7 @@ start ANSA(parmfile,option,client,retcode)
      endif
     else
      Page = "1"
-     DisplayErrors()
+     {"lib_UACOMMON"}DisplayErrors(errors[])
     endif
    elseif Page = "Validate2" 
     if Validate2() = 0
@@ -386,14 +386,14 @@ start ANSA(parmfile,option,client,retcode)
      endif
     else
      Page = "2"
-     DisplayErrors()
+     {"lib_UACOMMON"}DisplayErrors(errors[])
     endif			
    elseif Page = "Validate3"
     if Validate3() = 0
      Page = "4"
     else 
      Page = "3"
-     DisplayErrors()  
+     {"lib_UACOMMON"}DisplayErrors(errors[])  
     endif
    elseif Page = "Validate4"
     if Validate4() = 0
@@ -410,7 +410,7 @@ start ANSA(parmfile,option,client,retcode)
      endif
     else
      Page = "4"
-     DisplayErrors()
+     {"lib_UACOMMON"}DisplayErrors(errors[])
     endif
    elseif Page = "ValidateReport"
     if ValidateReport() = 0
@@ -422,14 +422,14 @@ start ANSA(parmfile,option,client,retcode)
      endif 
     else
      Page = "Report"
-     DisplayErrors()
+     {"lib_UACOMMON"}DisplayErrors(errors[])
     endif
    elseif Page = "ValidateALOC"
     if ValidateALOC() = 0
      Page = "Report"
     else
 	 Page = "Authorize"
-     DisplayErrors()
+     {"lib_UACOMMON"}DisplayErrors(errors[])
     endif
    elseif Page = "Report"
     c.ansa.rloc = {"lib_ANSA"}RLOC(c.ansa.b.depres,c.ansa.b.subabs,c.ansa.cr.episds,c.ansa.b.cog,c.ansa.hs.num180,c.ansa.hs.numg30,c.ansa.hs.numl30,c.ansa.ld.employ,c.ansa.ld.family,c.ansa.ld.living,c.ansa.ld.restab,
@@ -513,7 +513,7 @@ start ANSA(parmfile,option,client,retcode)
          if $maxarray(errors[]) = 0
           Page = "Report"
          else
-          DisplayErrors()
+          {"lib_UACOMMON"}DisplayErrors(errors[])
 		  $clear(errors[])
          endif
 		else
@@ -3071,23 +3071,6 @@ function Validate4() is i
  endif
 end Validate4
 
-function DisplayErrors() is null
- index is i
- $submitopt("off", "")
- $cancelopt("off", "BACK")
- $form("errors")
-  {"lib_UACOMMON"}ClientPageHeader($regid,"Y")
-  $text("{H1}Errors Were Found{/H1}")
-  $br()
-  $tag("<CENTER>")
-   index = 0
-   do while index++ <= $maxarray(errors[])
-    $br()$text(errors[index] , "error")
-   enddo
-  $tag("</CENTER>")
- $sendform("errors")
-end DisplayErrors
-
 function CanSkipPage1() is x
  CanSkipPage1 = "N"
  if c.ansa.type = "3"
@@ -3216,6 +3199,7 @@ function SaveData() is i
  bad_char[] is x
  bad_char[1] = "<"
  bad_char[2] = ">"
+ bad_char[3] = "&" 
 
  NewUID is n
 
@@ -3420,6 +3404,8 @@ function Page0() is null
 end Page0
 
 function Validate0() is i
+ assessment_age is i
+ last_date      is d
  $clear(errors[]) 
  if c.ansa.type = "1"
   $clear(c.ansa.disdt,c.ansa.disreas,c.ansa.disref,c.ansa.disoth)
@@ -3443,21 +3429,40 @@ function Validate0() is i
   else
    ClearPage1()
    ClearPage2()
-   ClearPage3()
-   ClearPage4()
+'   ClearPage3()
+'   ClearPage4()
+   ClearPage34()
   endif
  elseif c.ansa.type = "11"
   $clear(c.ansa.intref,c.ansa.intrefoth,c.ansa.disdt,c.ansa.disreas,c.ansa.disref,c.ansa.disoth)
   ClearPage1()
   ClearPage2()
-  ClearPage3()
-  ClearPage4()
+'  ClearPage3()
+'  ClearPage4()
+   ClearPage34()
  else
   $clear(c.ansa.disdt,c.ansa.disreas,c.ansa.disref,c.ansa.disoth)
   if c.ansa.tcoommi !dp
    (void)$arrpush(errors[],oth_tc_errortxt)
   endif
  endif
+
+ {"lib_ANSA"}Last_Assessment($regid,,,,last_date) 
+ if last_date !dp
+  {"lib_CANS"}Last_Assessment($regid,,,,last_date) 
+ endif
+ if c.ansa.date < $today
+  assessment_age = $today - c.ansa.date
+  if assessment_age > 30
+   (void)$arrpush(errors[],date1_errortxt)
+  endif
+ elseif c.ansa.date > $today
+  (void)$arrpush(errors[],date2_errortxt)
+ elseif c.ansa.date < last_date
+  (void)$arrpush(errors[],date3_errortxt)
+ elseif c.ansa.date = last_date
+  (void)$arrpush(errors[],date4_errortxt)
+ endif  
 
  if errors[1] dp
   Validate0 = 1
@@ -3996,13 +4001,17 @@ function ClearPage2() is null
  endif
 end ClearPage2
 
-function ClearPage3() is null
- $clear(c.ansa.scaledt,c.ansa.psrs,c.ansa.bnsa,c.ansa.bdss,c.ansa.qids,c.ansa.qidsver)
-end ClearPage3
+'function ClearPage3() is null
+' $clear(c.ansa.scaledt,c.ansa.psrs,c.ansa.bnsa,c.ansa.bdss,c.ansa.qids,c.ansa.qidsver)
+'end ClearPage3
 
-function ClearPage4() is null
- $clear(c.ansa.commdate,c.ansa.arrest,c.ansa.grade,c.ansa.restype,c.ansa.resother1,c.ansa.emptype,c.ansa.labor,c.ansa.laboroth,c.ansa.minor,c.ansa.isn)
-end ClearPage4
+'function ClearPage4() is null
+' $clear(c.ansa.commdate,c.ansa.arrest,c.ansa.grade,c.ansa.restype,c.ansa.resother1,c.ansa.emptype,c.ansa.labor,c.ansa.laboroth,c.ansa.minor,c.ansa.isn)
+'end ClearPage4
+function ClearPage34() is null
+ $clear(c.ansa.scaledt,c.ansa.psrs,c.ansa.bnsa,c.ansa.bdss,c.ansa.qids,c.ansa.qidsver,c.ansa.commdate,c.ansa.arrest,c.ansa.grade,c.ansa.restype,c.ansa.resother1,c.ansa.emptype,c.ansa.labor,c.ansa.laboroth,c.ansa.minor,c.ansa.isn)
+end ClearPage34
+
 
 function AssessmentStaff() is null
   $table($funcname)
