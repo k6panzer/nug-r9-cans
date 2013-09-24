@@ -1,5 +1,5 @@
 start ANSA(parmfile,option,client,retcode)
- %version 1.0.006 09/11/2013
+ %version 1.0.007 09/24/2013
  $looplimit = 0
  %include inc_ANSA
  e.ser     is b
@@ -630,7 +630,7 @@ function Risk() is null
   bgcolor = "red"
  endif
  $fieldset(q_text_r,,"datatag")
-  RiskScoring()
+  {"lib_ANSA"}RiskScoring(`table_wbgcolor`)
   $table($funcname,,`table_wbgcolor`)
    $row()
     $col("center",,"50%")
@@ -711,7 +711,7 @@ function RiskCrisis() is null
   bgcolor = "red"
  endif
  $fieldset(q_text_r,,"datatag")
-  RiskScoring()
+  {"lib_ANSA"}RiskScoring(`table_wbgcolor`)
   $table($funcname,,`table_wbgcolor`)
    $row()
     $col("center",,"50%")
@@ -749,7 +749,7 @@ function Behavioral() is null
   bgcolor = "red"
  endif
  $fieldset(q_text_b,,"datatag")
-  CBScoring()
+  {"lib_ANSA"}CBScoring(`table_wbgcolor`)
   $table($funcname,,`table_wbgcolor`)
    $row()
     $col("center",,"50%")
@@ -853,7 +853,7 @@ function BehavioralCrisis() is null
   bgcolor = "red"
  endif
  $fieldset(q_text_b,,"datatag")
-  CBScoring()
+  {"lib_ANSA"}CBScoring(`table_wbgcolor`)
   $table($funcname,,`table_wbgcolor`)
    $row(,row_color1)
     $col()$text(q_text_b_cog)
@@ -882,7 +882,7 @@ function LifeDomain() is null
   bgcolor = "red"
  endif
  $fieldset(q_text_ld,,"datatag")
-  LDScoring()
+  {"lib_ANSA"}LDScoring(`table_wbgcolor`)
   $table($funcname,,`table_wbgcolor`)
    $row()
     $col("center",,"50%")
@@ -1017,7 +1017,7 @@ function LifeDomainCrisis() is null
   bgcolor = "red"
  endif
  $fieldset(q_text_ld,,"datatag")
-  LDScoring()
+  {"lib_ANSA"}LDScoring(`table_wbgcolor`)
   $table($funcname,,`table_wbgcolor`)
    $row(,row_color1)
     $col()$text(q_text_ld_slfcre)
@@ -1039,7 +1039,7 @@ function CareGive() is null
  $fieldset(q_text_fc,,"datatag")
   $text("Caregiver identified?","error")$radio(c.ansa.fc.na,"Yes", "",,,"CG","Y")$radio(c.ansa.fc.na,"No or N/A", "9",,,"CG","N")
   $block("CG","Y") 
-   CareGiverScoring()
+   {"lib_ANSA"}CareGiverScoring(`table_wbgcolor`)
    $table($funcname,,`table_wbgcolor`)
    $row()
     $col("center",,"50%")
@@ -1275,7 +1275,7 @@ function PsyHosp() is null
   bgcolor = "red"
  endif
  $fieldset(q_text_hs,,"datatag")
-  PHScoring()
+  {"lib_ANSA"}PHScoring(`table_wbgcolor`)
   $table($funcname,,`table_wbgcolor`)
    $row()
     $col("center",,"50%")
@@ -1358,7 +1358,7 @@ function Page2() is null
   {"lib_UACOMMON"}ClientPageHeader($regid,"Y")
   $table($funcname,,table_nobgcolor)
     $row()
-	 $col(,,"50%")Page2Scoring()
+	 $col(,,"50%"){"lib_ANSA"}Page2Scoring(`table_wbgcolor`)
 	 $col()     
    if $num(c.ansa.r.suicid) > 0
     $row()
@@ -3102,7 +3102,7 @@ function CanSkipPage3() is x
  CanSkipPage3 = "Y"
  if c.ansa.type = "1" or c.ansa.type = "2" or (c.ansa.type = "3" and c.ansa.disreas = "14")
   {"lib_ANSA"}GETDX(DXType, DX, DXCat, DXDate, DXGaf)
-  if {"lib_ANSA"}DXScaleRequired(DXType,c.ansa.date) = "Y"
+  if {"lib_ANSA"}DXScaleRequired(DXType,c.ansa.date,MaxClinRatingAge) = "Y"
    CanSkipPage3 = "N"
   else 
    CanSkipPage3 = "Y"
@@ -3305,85 +3305,6 @@ function SaveData() is i
  endif
 end SaveData
 
-function RiskScoring() is null
- $table($funcname,,`table_wbgcolor`)  
-  $row()
-   $col(,,"50%")$text("0 = no evidence","hdrdata")
-   $col()$text("1 = history, watch/prevent","hdrdata")
-  $row()
-   $col()$text("2 = recent, act","hdrdata")
-   $col()$text("3 = acute, act immediately","hdrdata")
-  $row()
-   $col("center",,,"2") $tag("<hr/>")
- $endtable($funcname)
-end RiskScoring
-
-function Page2Scoring() is null
- $fieldset("Rating/Scoring Key",,"datatag")
-  $table($funcname,,`table_wbgcolor`)  
-   $row()
-    $col(,,"50%")$text("0 = no evidence of problems","hdrdata")
-   $row()
-    $col()$text("1 = history, mild, watch - prevent","hdrdata")
-   $row()
-    $col()$text("2 = moderate, act","hdrdata")
-   $row() 
-    $col()$text("3 = severe/acute, act immediately","hdrdata")
-   $row()
-    $col("center",,"100%","2") $tag("<hr/>")
-  $endtable($funcname)
- $endfieldset()
-end Page2Scoring
-
-function CBScoring() is null
- $table($funcname,,`table_wbgcolor`)
-  $row()
-   $col()$text("0 = no evidence","hdrdata")
-         $br()$text("1 = history or sub-threshold, watch/prevent","hdrdata")
-         $br()$text("2 = causing problems, consistent with diagnosable disorder","hdrdata")
-         $br()$text("3 = causing severe/dangerous problems","hdrdata")
-  $row()
-   $col("center",,,"2") $tag("<hr/>")
- $endtable($funcname)
-end CBScoring
-
-function LDScoring() is null
- $table($funcname,,`table_wbgcolor`)
-  $row()
-   $col(,,"50%")$text("0 = no evidence of problems","hdrdata")
-   $col()$text("1 = history, mild","hdrdata")
-  $row()
-  $col()$text("2 = moderate","hdrdata")
-   $col()$text("3 = severe","hdrdata")
-  $row()
-   $col("center",,,"2") $tag("<hr/>")
- $endtable($funcname)
-end LDScoring
-
-function CareGiverScoring() is null
- $table($funcname,,`table_wbgcolor`)  
-  $row()
-   $col(,,"50%")$text("0 = no evidence","hdrdata")
-   $col()$text("1 = minimal needs","hdrdata")
-  $row()
-   $col()$text("2 = moderate needs","hdrdata")
-   $col()$text("3 = severe needs","hdrdata")
-  $row()
-    $col("center",,,"2") $tag("<hr/>")
- $endtable($funcname)
-end CareGiverScoring
-
-function PHScoring() is null
- $table($funcname,,`table_wbgcolor`)  
-  $row()
-   $col()$text("NA = Not Applicable","hdrdata")
-   $col()$text("0 = No","hdrdata")
-   $col()$text("1 = Yes","hdrdata")
-  $row()
-   $col("center",,,"3")$tag("<hr/>")
- $endtable($funcname)
-end PHScoring
-
 function Page0() is null
  $submitopt("off", "Submit")
  $cancelopt("off", "Back")
@@ -3429,17 +3350,13 @@ function Validate0() is i
   else
    ClearPage1()
    ClearPage2()
-'   ClearPage3()
-'   ClearPage4()
    ClearPage34()
   endif
  elseif c.ansa.type = "11"
   $clear(c.ansa.intref,c.ansa.intrefoth,c.ansa.disdt,c.ansa.disreas,c.ansa.disref,c.ansa.disoth)
   ClearPage1()
   ClearPage2()
-'  ClearPage3()
-'  ClearPage4()
-   ClearPage34()
+  ClearPage34()
  else
   $clear(c.ansa.disdt,c.ansa.disreas,c.ansa.disref,c.ansa.disoth)
   if c.ansa.tcoommi !dp
@@ -4001,17 +3918,9 @@ function ClearPage2() is null
  endif
 end ClearPage2
 
-'function ClearPage3() is null
-' $clear(c.ansa.scaledt,c.ansa.psrs,c.ansa.bnsa,c.ansa.bdss,c.ansa.qids,c.ansa.qidsver)
-'end ClearPage3
-
-'function ClearPage4() is null
-' $clear(c.ansa.commdate,c.ansa.arrest,c.ansa.grade,c.ansa.restype,c.ansa.resother1,c.ansa.emptype,c.ansa.labor,c.ansa.laboroth,c.ansa.minor,c.ansa.isn)
-'end ClearPage4
 function ClearPage34() is null
  $clear(c.ansa.scaledt,c.ansa.psrs,c.ansa.bnsa,c.ansa.bdss,c.ansa.qids,c.ansa.qidsver,c.ansa.commdate,c.ansa.arrest,c.ansa.grade,c.ansa.restype,c.ansa.resother1,c.ansa.emptype,c.ansa.labor,c.ansa.laboroth,c.ansa.minor,c.ansa.isn)
 end ClearPage34
-
 
 function AssessmentStaff() is null
   $table($funcname)
