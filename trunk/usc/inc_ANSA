@@ -1,6 +1,6 @@
 'Include file for the ANSA (Adult Needs And Strengths Assessment) 
 
-%global AnsaTypeDCT,AnsaIntRefDCT,AnsaDisReasDCT,AnsaDisRefDCT,AnsaAuthLevelDCT,AnsaDeviationDCT,AnsaGradeDCT,AnsaResTypeDCT,SkiPSer,AssessmentSer,AssessorSig,AuthSig,LogUsage,LogFile
+%global AnsaTypeDCT,AnsaIntRefDCT,AnsaDisReasDCT,AnsaDisRefDCT,AnsaAuthLevelDCT,AnsaDeviationDCT,AnsaGradeDCT,AnsaResTypeDCT,SkiPSer,AssessmentSer,AssessorSig,AuthSig,LogUsage,LogFile,MaxClinRatingAge
 AnsaTypeDCT      is b
 AnsaIntRefDCT    is b
 AnsaDisReasDCT   is b
@@ -15,6 +15,7 @@ AssessorSig      is x 'Y/N Include the assessor signature line on snapshot
 AuthSig          is x 'Y/N Include the authorizer signature line on snapshot
 LogUsage         is x 'Log the usage of the script? Used to determine how long an assessment takes staff to complete, etc
 LogFile          is x '$today|$regid|c.ansa.staff|c.ansa.alocstaff|start_time|end_time|sent_to_um_YN|c.ansa.date|c.ansa.compd|c.ansa.type|c.ansa.rloc|c.ansa.aloc ?
+MaxClinRatingAge is i 'Maximum number of days from the assessment date before prompting for a new Clinical Ratings Scale, 0-90. If 0 then new scale will be prompted every time
 
 '*********Datacode Tables, Change These*****************
 AnsaTypeDCT      = 9700
@@ -31,10 +32,15 @@ AssessorSig      = "Y"
 AuthSig          = "Y"
 LogUsage         = "Y"
 LogFile          = "/c0/SQLTRANSFER/t_client_ansa_usage.txt"
+MaxClinRatingAge = 90
 '*******************************************************
 if LogFile !dp
  LogUsage = "N"
 endif
+
+if MaxClinRatingAge > 90
+ MaxClinRatingAge = 90
+endif 
 
 '*********Medical Necessity Statement Related***********
 %define MedicalNecessity "As a Licensed Professional of Healing Arts (LPHA), I verify that the services authorized in the 'Authorized Level Of Care' section above are medically necessary and I concur with the plan of care."
