@@ -1,5 +1,5 @@
 start CANS617(parmfile,option,client,retcode)
- %version 1.0.005 09/23/2013
+ %version 1.0.007 09/24/2013
  $looplimit = 0
  %include inc_CANS617
  e.ser     is b
@@ -71,7 +71,7 @@ start CANS617(parmfile,option,client,retcode)
  if {"lib_UACOMMON"}StaffCanDo() = 1
   return
  endif
- call "CHECK_UACREDENTIALS"() 
+ call "CHECK_UACREDENTIALS"()
 
  if Validate() = 1
   {"lib_UACOMMON"}DisplayErrors(errors[])
@@ -82,10 +82,8 @@ start CANS617(parmfile,option,client,retcode)
  assessments[] is x
  {"lib_CANS"}Allow_Assesment($regid,assessments[]) 
 
- %global bgcolor,table_color
- bgcolor     is x
- table_color is x 
- 
+ %global bgcolor
+ bgcolor is x 
  %define table_wbgcolor "width='100%' cellspacing='0' cellpadding='0' bgcolor='" + bgcolor + "'"
  %define table_nobgcolor "width='100%' cellspacing='0' cellpadding='0'"  
  %define row_color1 "bgcolor='LightSkyBlue'"
@@ -97,7 +95,7 @@ start CANS617(parmfile,option,client,retcode)
  UM_StaffYN is x
  UM_StaffYN = {"lib_UACOMMON"}UMStaff()
  %global PromptNED
- PromptNED is x
+ PromptNED is i
  
  if UM_StaffYN = "Y"
   rc = $dbread(02, $regid, c.cans.rec,c.cans.compd,c.cans.type,c.cans.staff,c.cans.canstype)
@@ -439,7 +437,10 @@ start CANS617(parmfile,option,client,retcode)
 	 Page = "Report"
     endif
    else
-    Page = "Report"
+    select $endbutton
+	 case "SUBMIT" Page = "Report"
+	 case "CANCEL" Page = "4"
+	endselect
    endif
   elseif Page = "Exit"
    return					 

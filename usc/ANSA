@@ -1,5 +1,5 @@
 start ANSA(parmfile,option,client,retcode)
- %version 1.0.007 09/24/2013
+ %version 1.0.008 09/24/2013
  $looplimit = 0
  %include inc_ANSA
  e.ser     is b
@@ -527,7 +527,10 @@ start ANSA(parmfile,option,client,retcode)
 	  Page = "Report"
 	 endif 
     else
-     Page = "Report"
+     select $endbutton
+	  case "SUBMIT" Page = "Report"
+	  case "CANCEL" Page = "4"
+	 endselect
     endif
    elseif Page = "Exit"
     if LogUsage = "Y"
