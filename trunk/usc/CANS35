@@ -1,5 +1,5 @@
-start CANS35(parmfile,option,client,retcode)
- %version 1.0.005 09/23/2013
+ start CANS35(parmfile,option,client,retcode)
+ %version 1.0.006 09/24/2013
  $looplimit = 0
  %include inc_CANS35
  e.ser     is b
@@ -79,7 +79,7 @@ start CANS35(parmfile,option,client,retcode)
  endif
  
  %global assessments
-  assessments[] is x
+ assessments[] is x
  {"lib_CANS"}Allow_Assesment($regid,assessments[]) 
 
  %global bgcolor
@@ -396,7 +396,10 @@ start CANS35(parmfile,option,client,retcode)
 			    case other Page = "Report"
                endselect
 			  else
-			   Page = "Report"
+			   select $endbutton
+			    case "SUBMIT" Page = "Report"
+				case "CANCEL" Page = "4"
+			   endselect
 			  endif
 			   
    case "Exit" return					
