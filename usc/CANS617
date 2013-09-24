@@ -3637,6 +3637,9 @@ function ValidateReport() is i
  else
   ValidateReport = 0	
  endif 
+ if c.cans.dloc !dp
+  $clear(c.cans.dloc)
+ endif
 end ValidateReport
 
 function SaveEvent() is x

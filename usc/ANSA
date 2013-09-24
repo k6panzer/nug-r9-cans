@@ -3205,7 +3205,7 @@ function SaveData() is i
  bad_char[3] = "&" 
 
  NewUID is n
-
+ 
  c.ansa.age = {"lib_UACOMMON"}ClientAge($regid, c.ansa.date)
  if c.ansa.compd !dp
   mode = "ADD"
@@ -3582,6 +3582,9 @@ function ValidateReport() is i
   ValidateReport = 1
  else
   ValidateReport = 0	
+ endif 
+ if c.ansa.dloc !dp
+  $clear(c.ansa.dloc)
  endif 
 end ValidateReport
 
