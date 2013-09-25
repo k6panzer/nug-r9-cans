@@ -26,12 +26,17 @@ AnsaAuthLevelDCT = 9712
 AnsaDeviationDCT = 9706
 AnsaGradeDCT     = 9710
 AnsaResTypeDCT   = 9714
-SkipSer          = "N"
-AssessmentSer    = 7
+select $uc($seg($mscname,1,5))
+ case "HELEN" SkipSer = "N"
+              AssessmentSer = 7
+			  LogUsage = "Y"
+              LogFile  = "/c0/SQLTRANSFER/t_client_ansa_usage.txt"
+ case "PECAN" SkipSer = "Y"
+  			  LogUsage = "Y"
+              LogFile  = "/c0/SQLTRANSFER/PV/t_client_ansa_usage.txt"
+endselect 
 AssessorSig      = "Y"
 AuthSig          = "Y"
-LogUsage         = "Y"
-LogFile          = "/c0/SQLTRANSFER/t_client_ansa_usage.txt"
 MaxClinRatingAge = 90
 '*******************************************************
 if LogFile !dp
@@ -480,6 +485,7 @@ c.ansa.dn.dev     is x
 %define q_text_type "Assessment Type: "
 %define q_text_date "Assessment Date: "
 %define q_text_disdt "Discharge Date: "
+%define q_text_rdisdt "Requested Discharge Date: "
 %define q_text_disreas "Discharge Reason: "
 %define q_text_disoth "Discharge Reason other: "
 %define q_text_disref "Discharge Referral: "
@@ -531,8 +537,11 @@ errors[] is x
 %define type2_errortxt "Assessment Type must be an Update"
 %define disch_errortxt "If the Assessment Type is Discharge then the Discharge Reason must be selected"
 %define disch1_errortxt "If the Assessment Type is Discharge then the Discharge Date must be selected"
-%define disch2_errortxt "The Discharge Date must cannot be more than ___ days in the future"
-%define disch3_errortxt "The Discharge Date must cannot be more than ___ days in the past"
+%define disch2_errortxt "The Discharge Date cannot be more than 30 days in the future"
+%define disch3_errortxt "The Discharge Date cannot be more than 30 days in the past"
+%define disch4_errortxt "The Discharge Date must be after the last Authorization date"
+%define disch5_errortxt "The Discharge Date cannot be future dated with this discharge reason"
+%define disch6_errortxt "The Discharge Date cannot be before the last assessment date"
 %define diag_errortxt "No current Diagnosis is found for this client. This Assessment may not be saved in any status, unless it is a Crisis Assessment or an Unplanned Discharge Assessment"
 %define age_errortxt "This client is younger than 18, please complete the CANS assessment"
 %define age1_errortxt "This client does not have a current birth date entered, please correct and retry"

@@ -1,5 +1,5 @@
 library lib_CANS()
- %version 1.0.000 09/03/2013
+ %version 1.0.001 09/25/2013
  function Allow_Assesment(clientid,assessments[]) is null
   clientid        is x
   c.cans.rec      is h
@@ -62,12 +62,9 @@ library lib_CANS()
 'have to set these variable names incase the library doesn't get unloaded / reloaded and the names where changed previously
 $setvarname(c.cans.rec,      "C.CANS.REC")
 $setvarname(c.cans.staff,    "C.CANS.STAFF")
-'$setvarname(c.cans.ver,      "C.CABD.REC")
 $setvarname(c.cans.date,     "C.CANS.DATE")
-'$setvarname(c.cans.age,      "C.CABD.REC")
 $setvarname(c.cans.aloc,     "C.CANS.ALOC")
 $setvarname(c.cans.rloc,     "C.CANS.RLOC")
-'$setvarname(c.cans.dloc,     "C.CABD.REC")
 $setvarname(c.cans.compd,    "C.CANS.COMPD")
 $setvarname(c.cans.type,     "C.CANS.TYPE")
 $setvarname(c.cans.alocdate, "C.CANS.ALOCDATE")
@@ -79,33 +76,36 @@ $allowupdate(c.cans.type,c.cans.staff,c.cans.ver,c.cans.date,c.cans.age,c.cans.a
   enddo
   
   if rc = 2 then     'check the ua record
-   'rc = 0
    $setvarname(c.cans.rec,      "C.CABD.REC")
    $setvarname(c.cans.staff,    "C.CABD.STAFF")
-   '$setvarname(c.cans.ver,      "C.CABD.REC")
    $setvarname(c.cans.date,     "C.CABD.ASDT")
-   '$setvarname(c.cans.age,      "C.CABD.REC")
    $setvarname(c.cans.aloc,     "C.CABD.ALOC")
    $setvarname(c.cans.rloc,     "C.CABD.LOCR")
-   '$setvarname(c.cans.dloc,     "C.CABD.REC")
    $setvarname(c.cans.compd,    "C.CABD.COMPD")
    $setvarname(c.cans.type,     "C.CABD.ASS")
    $setvarname(c.cans.alocdate, "C.CABD.DATE3")
-   rc = $dbread(02,clientid,c.cans.rec,c.cans.type,c.cans.staff,
-                           c.cans.date,
-						   c.cans.aloc,
-                           c.cans.rloc,
-                           c.cans.compd,c.cans.alocdate)
-     do until c.cans.compd dp or rc = 2
-      rc = $dbreadnextdst(02,clientid,c.cans.rec,c.cans.type,c.cans.staff,
-                           c.cans.date,
-						   c.cans.aloc,
-                           c.cans.rloc,
-                           c.cans.compd,c.cans.alocdate)
-     enddo
-     if c.cans.aloc = "8" or c.cans.aloc = "9" then 'clear any previous inital non admit assessments
-      $clear(c.cans.type)
-     endif
+   rc = $dbread(02,clientid,c.cans.rec,c.cans.type,c.cans.staff,c.cans.date,c.cans.aloc,c.cans.rloc,c.cans.compd,c.cans.alocdate)
+   do until c.cans.compd dp or rc = 2
+    rc = $dbreadnextdst(02,clientid,c.cans.rec,c.cans.type,c.cans.staff,c.cans.date,c.cans.aloc,c.cans.rloc,c.cans.compd,c.cans.alocdate)
+   enddo
+   if c.cans.aloc = "6"
+    c.cans.type = "12"
+        c.cans.aloc = "108"
+   endif
+   if c.cans.aloc = "8"
+    c.cans.type = "12"
+        c.cans.aloc = "109"
+   endif
+   if c.cans.aloc = "9"
+    c.cans.type = "12"
+        c.cans.aloc = "110"
+   endif
+   if c.cans.aloc = "108"
+    c.cans.type = "12"
+   endif
+   if c.cans.aloc = "109"
+    c.cans.type = "12"
+   endif
   endif
  end Last_Assessment
  

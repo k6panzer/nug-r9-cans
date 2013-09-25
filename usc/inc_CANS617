@@ -21,8 +21,11 @@ CansAuthLevelDCT = 9705
 CansDeviationDCT = 9706
 CansGradeDCT     = 9710
 CansResTypeDCT   = 9012
-SkipSer          = "N"
-AssessmentSer    = 10
+select $uc($seg($mscname,1,5))
+ case "HELEN" SkipSer = "N"
+              AssessmentSer = 10
+ case "PECAN" SkipSer = "Y"
+endselect 
 '*******************************************************
 
 '*********Medical Necessity Statement Related***********
@@ -533,7 +536,9 @@ c.cans.sr.firear   is x      'CANS SR Accessible Firearm/Lethal Medication
 %define q_text_type "Assessment Type: "
 %define q_text_date "Assessment Date: "
 %define q_text_disdt "Discharge Date: "
+%define q_text_rdisdt "Requested Discharge Date: "
 %define q_text_disreas "Discharge Reason: "
+%define q_text_disoth "Discharge Reason Other: "
 %define q_text_disref "Discharge Referral: "
 %define q_text_intref "Intake Referral: "
 %define q_text_intrefoth "Intake Referral Other: "
@@ -588,8 +593,11 @@ errors[] is x       'array for capturing errors by section
 %define type2_errortxt "Assessment Type must be an Update"
 %define disch_errortxt "If the Assessment Type is Discharge then the Discharge Reason must be selected"
 %define disch1_errortxt "If the Assessment Type is Discharge then the Discharge Date must be selected"
-%define disch2_errortxt "The Discharge Date must cannot be more than ___ days in the future"
-%define disch3_errortxt "The Discharge Date must cannot be more than ___ days in the past"
+%define disch2_errortxt "The Discharge Date cannot be more than 30 days in the future"
+%define disch3_errortxt "The Discharge Date cannot be more than 30 days in the past"
+%define disch4_errortxt "The Discharge Date must be after the last Authorization date"
+%define disch5_errortxt "The Discharge Date cannot be future dated with this discharge reason"
+%define disch6_errortxt "The Discharge Date cannot be before the last assessment date"
 %define diag_errortxt "A current diagnosis is required to complete this assessment for an Intake, Update or Discharge for Services Complete"
 %define age_errortxt "This client is older than 18, please complete the ANSA assessment"
 %define age1_errortxt "This client is younger than 3, there is no current assessment for this age"
