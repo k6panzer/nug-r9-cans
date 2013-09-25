@@ -1,0 +1,48 @@
+%version 01.02 09/12/2013
+library lib_UAMEDICAID()
+ %global medicaid_fs
+ medicaid_fs[] is b
+ on load do:
+ $clear(medicaid_fs[])
+ select $uc($seg($mscname,1,4))
+  case "HELE" (void)$arrpush(medicaid_fs[],4)
+              (void)$arrpush(medicaid_fs[],5)
+              (void)$arrpush(medicaid_fs[],7)
+              (void)$arrpush(medicaid_fs[],13)
+              (void)$arrpush(medicaid_fs[],210)  
+  case "PECA" (void)$arrpush(medicaid_fs[],62)  
+              (void)$arrpush(medicaid_fs[],63)  
+              (void)$arrpush(medicaid_fs[],64)  
+              (void)$arrpush(medicaid_fs[],65)  
+              (void)$arrpush(medicaid_fs[],67)  
+              (void)$arrpush(medicaid_fs[],210)  			  
+ endselect			 
+
+'This function will check the client eligibility record to see if the person has Medicaid.
+'Each center will need to edit the function to reflect their own FS ID's for Medicaid.
+function check_medicaid(client, result, number) is x
+ client     is x
+ result     is x
+ number     is x
+ c.el       is h
+ c.el.fs    is b
+ c.el.ef.dt is d
+ c.el.la.dt is d
+ c.el.id.1  is x
+ rc         is b
+ $clear(result)
+ rc = $dbread(02, client, c.el, c.el.fs, c.el.ef.dt, c.el.la.dt, c.el.id.1)
+ do while rc < 2 and result !dp
+  if $find(c.el.fs,medicaid_fs[],1,"F") > 1 and c.el.ef.dt <= $today and (c.el.la.dt > $today or c.el.la.dt !dp)  
+   result = "Medicaid Recipient"
+   number = c.el.id.1
+  else
+   rc = $dbreadnextdst(02, client, c.el, c.el.fs, c.el.ef.dt, c.el.la.dt, c.el.id.1)
+  endif
+ enddo
+ if result !dp
+  result = "No Medicaid"
+  $clear(number)
+ endif
+ $allowupdate(result, number) 
+end check_medicaid 

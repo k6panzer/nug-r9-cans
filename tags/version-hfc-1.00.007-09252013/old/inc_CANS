@@ -1,0 +1,478 @@
+'Include file for the CANS (Children's Assessment of Needs and Strengths
+%global cans_dstlist
+%global c.cans.rec, c.cans.staff, c.cans.ver, c.cans.date
+%global c.cans.ld.family, c.cans.ld.livsit, c.cans.ld.school, c.cans.ld.socFun, c.cans.ld.recret, c.cans.ld.develp, 
+%global c.cans.ld.commun, c.cans.ld.judgmt, c.cans.ld.jobfun, c.cans.ld.legal,  c.cans.ld.medicl, c.cans.ld.physcl, 
+%global c.cans.ld.sexdev, c.cans.ld.sleep,  c.cans.ld.indliv, c.cans.cs.family, c.cans.cs.intper, c.cans.cs.optims, 
+%global c.cans.cs.educat, c.cans.cs.vocate, c.cans.cs.talint, c.cans.cs.spirel, c.cans.cs.comlif, c.cans.cs.permin, 
+%global c.cans.cs.natsup, c.cans.cs.youth,  c.cans.ac.langua, c.cans.ac.identy, c.cans.ac.ritual, c.cans.ac.culstr, c.cans.ps.hosptl, 
+%global c.cans.cr.episds, c.cans.cg.super,  c.cans.cg.involv, c.cans.cg.knoldg, c.cans.cg.organz, c.cans.cg.socres, 
+%global c.cans.cg.ressbl, c.cans.cg.physcl, c.cans.cg.menhth, c.cans.cg.subabs, c.cans.cg.develp, c.cans.cg.chldcr, 
+%global c.cans.cg.miltra, c.cans.cg.famsts, c.cans.cg.safety, c.cans.cb.psychs, c.cans.cb.implsv, c.cans.cb.depres, 
+%global c.cans.cb.anxity, c.cans.cb.oppdef, c.cans.cb.condct, c.cans.cb.adjtrm, c.cans.cb.angctr, c.cans.cb.subabs, 
+%global c.cans.cb.eatdst, c.cans.cr.suicid, c.cans.cr.smutil, c.cans.cr.oslfhr, c.cans.cr.dangot, c.cans.cr.sexagr, 
+%global c.cans.cr.runawy, c.cans.cr.delqcy, c.cans.cr.firset, c.cans.cr.socbeh, c.cans.cr.bully,  c.cans.sc.behavr, 
+%global c.cans.dv.cognit, c.cans.dv.develp, c.cans.dv.selfcr, 
+%global c.cans.sc.behavr, c.cans.sc.achiev, c.cans.sc.attend, c.cans.sc.reltch
+%global c.cans.fc.selfcr, c.cans.fc.culstr, c.cans.fc.empedu, c.cans.fc.eduatt, c.cans.fc.legal , c.cans.fc.motive, 
+%global c.cans.fc.finres, c.cans.fc.transp, c.cans.tr.sexabs, c.cans.tr.phyabs, c.cans.tr.emoabs, c.cans.tr.medtrm, 
+%global c.cans.tr.natdis, c.cans.tr.wtofam, c.cans.tr.wtocom, c.cans.tr.wcrime, c.cans.tr.waraff, c.cans.tr.teraff, 
+%global c.cans.tr.emclos, c.cans.tr.freq,   c.cans.tr.durat,  c.cans.tr.force,  c.cans.tr.react,  c.cans.ad.affreg, 
+%global c.cans.ad.intrus, c.cans.ad.attach, c.cans.ad.dissoc, c.cans.ad.timb4t, c.cans.sa.severe, c.cans.sa.durati, 
+%global c.cans.sa.stgrec, c.cans.sa.perinf, c.cans.sa.parinf, c.cans.sa.envinf, c.cans.vi.hxpabs, c.cans.vi.hxviol, 
+%global c.cans.vi.wdomab, c.cans.vi.wenvab, c.cans.eb.frsmgt, c.cans.eb.hostil, c.cans.eb.parand, c.cans.eb.secgan, 
+%global c.cans.eb.viothk, c.cans.rf.viopot, c.cans.rf.rescon, c.cans.rf.comsc , c.cans.rf.trtinv, c.cans.sb.relton, 
+%global c.cans.sb.phyfrc, c.cans.sb.planin, c.cans.sb.agedif, c.cans.sb.typsex, c.cans.sb.resacc, c.cans.sb.temcon, 
+%global c.cans.sb.hxsxbh, c.cans.sb.svsxab, c.cans.sb.prirtx, c.cans.rn.frqncy, c.cans.rn.condes, c.cans.rn.safdes, 
+%global c.cans.rn.invill, c.cans.rn.retown, c.cans.rn.invoth, c.cans.rn.relexp, c.cans.rn.planin, c.cans.jj.serios, 
+%global c.cans.jj.histry, c.cans.jj.arrest, c.cans.jj.planin, c.cans.jj.comsaf, c.cans.jj.lefcom, c.cans.jj.perinf, 
+%global c.cans.jj.parinf, c.cans.jj.envinf, c.cans.fs.serios, c.cans.fs.histry, c.cans.fs.planin, c.cans.fs.useacc, 
+%global c.cans.fs.inthrm, c.cans.fs.comsaf, c.cans.fs.resacc, c.cans.fs.remrse, c.cans.fs.futfir, c.cans.hs.numprr, 
+%global c.cans.hs.longst, c.cans.hs.durrec, c.cans.hs.timlst, c.cans.cg.na
+%global c.cans.caredt, 
+
+%global q_text_ld_family, q_text_ld_livsit, q_text_ld_school, q_text_ld_socFun, q_text_ld_recret, q_text_ld_develp, 
+%global q_text_ld_commun, q_text_ld_judgmt, q_text_ld_jobfun, q_text_ld_legal,  q_text_ld_medicl, q_text_ld_physcl, 
+%global q_text_ld_sexdev, q_text_ld_sleep,  q_text_ld_indliv, q_text_cs_family, q_text_cs_intper, q_text_cs_optims, 
+%global q_text_cs_educat, q_text_cs_vocate, q_text_cs_talint, q_text_cs_spirel, q_text_cs_comlif, q_text_cs_permin, 
+%global q_text_cs_natsup, q_text_cs_youth,  q_text_ac_langua, q_text_ac_identy, q_text_ac_ritual, q_text_ac_culstr, q_text_ps_hosptl, 
+%global q_text_cr_episds, q_text_cg_super,  q_text_cg_involv, q_text_cg_knoldg, q_text_cg_organz, q_text_cg_socres, 
+%global q_text_cg_ressbl, q_text_cg_physcl, q_text_cg_menhth, q_text_cg_subabs, q_text_cg_develp, q_text_cg_chldcr, 
+%global q_text_cg_miltra, q_text_cg_famsts, q_text_cg_safety, q_text_cb_psychs, q_text_cb_implsv, q_text_cb_depres, 
+%global q_text_cb_anxity, q_text_cb_oppdef, q_text_cb_condct, q_text_cb_adjtrm, q_text_cb_angctr, q_text_cb_subabs, 
+%global q_text_cb_eatdst, q_text_cr_suicid, q_text_cr_smutil, q_text_cr_oslfhr, q_text_cr_dangot, q_text_cr_sexagr, 
+%global q_text_cr_runawy, q_text_cr_delqcy, q_text_cr_firset, q_text_cr_socbeh, q_text_cr_bully,  q_text_sc_behavr, 
+%global q_text_sc_achiev, q_text_sc_attend, q_text_sc_reltch, q_text_dv_cognit, q_text_dv_develp, q_text_dv_selfcr, 
+%global q_text_fc_selfcr, q_text_fc_culstr, q_text_fc_empedu, q_text_fc_eduatt, q_text_fc_legal , q_text_fc_motive, 
+%global q_text_fc_finres, q_text_fc_transp, q_text_tr_sexabs, q_text_tr_phyabs, q_text_tr_emoabs, q_text_tr_medtrm, 
+%global q_text_tr_natdis, q_text_tr_wtofam, q_text_tr_wtocom, q_text_tr_wcrime, q_text_tr_waraff, q_text_tr_teraff, 
+%global q_text_tr_emclos, q_text_tr_freq,   q_text_tr_durat,  q_text_tr_force,  q_text_tr_react,  q_text_ad_affreg, 
+%global q_text_ad_intrus, q_text_ad_attach, q_text_ad_dissoc, q_text_ad_timb4t, q_text_sa_severe, q_text_sa_durati, 
+%global q_text_sa_stgrec, q_text_sa_perinf, q_text_sa_parinf, q_text_sa_envinf, q_text_vi_hxpabs, q_text_vi_hxviol, 
+%global q_text_vi_wdomab, q_text_vi_wenvab, q_text_eb_frsmgt, q_text_eb_hostil, q_text_eb_parand, q_text_eb_secgan, 
+%global q_text_eb_viothk, q_text_rf_viopot, q_text_rf_rescon, q_text_rf_comsc , q_text_rf_trtinv, q_text_sb_relton, 
+%global q_text_sb_phyfrc, q_text_sb_planin, q_text_sb_agedif, q_text_sb_typsex, q_text_sb_resacc, q_text_sb_temcon, 
+%global q_text_sb_hxsxbh, q_text_sb_svsxab, q_text_sb_prirtx, q_text_rn_frqncy, q_text_rn_condes, q_text_rn_safdes, 
+%global q_text_rn_invill, q_text_rn_retown, q_text_rn_invoth, q_text_rn_relexp, q_text_rn_planin, q_text_jj_serios, 
+%global q_text_jj_histry, q_text_jj_arrest, q_text_jj_planin, q_text_jj_comsaf, q_text_jj_lefcom, q_text_jj_perinf, 
+%global q_text_jj_parinf, q_text_jj_envinf, q_text_fs_serios, q_text_fs_histry, q_text_fs_planin, q_text_fs_useacc, 
+%global q_text_fs_inthrm, q_text_fs_comsaf, q_text_fs_resacc, q_text_fs_remrse, q_text_fs_futfir, q_text_hs_numprr, 
+%global q_text_hs_longst, q_text_hs_durrec, q_text_hs_timlst, 
+
+rc_cans_dstlist    is i
+cans_dstlist       is dstlist
+'Declare DST's
+c.cans.rec         is H      'CLIENT CANS RECORD HEADER
+c.cans.staff       is X      'CLIENT CANS STAFF COMPLETING
+c.cans.ver         is X      'CLIENT CANS VERSION
+c.cans.date        is D      'CLIENT CANS DATE COMPLETED
+c.cans.resv3       is X      'CLIENT CANS RESERVED 3
+c.cans.resv4       is X      'CLIENT CANS RESERVED 4
+c.cans.resv5       is X      'CLIENT CANS RESERVED 5
+c.cans.resv6       is X      'CLIENT CANS RESERVED 6
+c.cans.resv7       is X      'CLIENT CANS RESERVED 7
+c.cans.resv8       is X      'CLIENT CANS RESERVED 8
+c.cans.resv9       is X      'CLIENT CANS RESERVED 9
+c.cans.ld.family   is X      'CANS LIFE DOM FAMILY
+c.cans.ld.livsit   is X      'CANS LIFE DOM LIVING SITUATION
+c.cans.ld.school   is X      'CANS LIFE DOM SCHOOL
+c.cans.ld.socFun   is X      'CANS LIFE DOM SOCIAL FUNCTION
+c.cans.ld.recret   is X      'CANS LIFE DOM RECREATIONAL
+c.cans.ld.develp   is X      'CANS LIFE DOM DEVELOPMENTAL
+c.cans.ld.commun   is X      'CANS LIFE DOM COMMUNCATION
+c.cans.ld.judgmt   is X      'CANS LIFE DOM JUDGEMENT
+c.cans.ld.jobfun   is X      'CANS LIFE DOM JOBFUNCTIONING
+c.cans.ld.legal    is X      'CANS LIFE DOM LEGAL
+c.cans.ld.medicl   is X      'CANS LIFE DOM MEDICAL
+c.cans.ld.physcl   is X      'CANS LIFE DOM PHYSICAL
+c.cans.ld.sexdev   is X      'CANS LIFE DOM SEX DEVELOPMENT
+c.cans.ld.sleep    is X      'CANS LIFE DOM SLEEP
+c.cans.ld.indliv   is X      'CANS LIFE DOM INDEPNDENT LIVNG
+c.cans.cs.family   is X      'CANS STRENGTH FAMILY
+c.cans.cs.intper   is X      'CANS STRENGTH INTERPERSONAL
+c.cans.cs.optims   is X      'CANS STRENGTH OPTIMISM
+c.cans.cs.educat   is X      'CANS STRENGTH EDUCATIONAL
+c.cans.cs.vocate   is X      'CANS STRENGTH VOCATIONAL
+c.cans.cs.talint   is X      'CANS STRENGTH TALENTS INTEREST
+c.cans.cs.spirel   is X      'CANS STRENGTH SPIRIT RELIGIOUS
+c.cans.cs.comlif   is X      'CANS STRENGTH COMM LIFE
+c.cans.cs.permin   is X      'CANS STRENGTH RELAT PERMANENCE
+c.cans.cs.youth    is x      'CANS STRENGTH YOUTH INV
+c.cans.cs.natsup   is X      'CANS STRENGTH NATURAL SUPPORTS
+c.cans.ac.langua   is X      'CANS ACCULT LANGUAGE
+c.cans.ac.identy   is X      'CANS ACCULT IDENTITY
+c.cans.ac.ritual   is X      'CANS ACCULT RUTURAL
+c.cans.ac.culstr   is X      'CANS ACCULT CULTURAL STRESS
+c.cans.ps.hosptl   is X      'CANS PSY HX EVER HOSPITALIZED
+c.cans.cr.episds   is X      'CANS CRISIS HX EPISODES NUMBER
+c.cans.cg.na       is x      'CANS CAREGIV NOT APPLICABLE
+c.cans.cg.super    is X      'CANS CAREGIV SUPERVISION
+c.cans.cg.involv   is X      'CANS CAREGIV INVOLVEMENT
+c.cans.cg.knoldg   is X      'CANS CAREGIV KNOWLEDGE
+c.cans.cg.organz   is X      'CANS CAREGIV ORGANIZATION
+c.cans.cg.socres   is X      'CANS CAREGIV SOCIAL RESOURCES
+c.cans.cg.ressbl   is X      'CANS CAREGIV RESIDNT STABILITY
+c.cans.cg.physcl   is X      'CANS CAREGIV PHYSICAL
+c.cans.cg.menhth   is X      'CANS CAREGIV MENTAL HEALTH
+c.cans.cg.subabs   is X      'CANS CAREGIV SUBSTANCE USE
+c.cans.cg.develp   is X      'CANS CAREGIV DEVELOPMENTAL
+c.cans.cg.chldcr   is X      'CANS CAREGIV ACCES CHILD CARE
+c.cans.cg.miltra   is X      'CANS CAREGIV MILTRY TRANSITION
+c.cans.cg.famsts   is X      'CANS CAREGIV FAMILY STRESS
+c.cans.cg.safety   is X      'CANS CAREGIV SAFETY
+c.cans.cb.psychs   is X      'CANS BEH EMO NEED PSYCHOSIS
+c.cans.cb.implsv   is X      'CANS BEH EMO NEED IMPUL HYPER
+c.cans.cb.depres   is X      'CANS BEH EMO NEED DEPRESSION
+c.cans.cb.anxity   is X      'CANS BEH EMO NEED ANXIETY
+c.cans.cb.oppdef   is X      'CANS BEH EMO NEED OPPOSITIONAL
+c.cans.cb.condct   is X      'CANS BEH EMO NEED CONDUCT
+c.cans.cb.adjtrm   is X      'CANS BEH EMO NEED ADJST TRAUMA
+c.cans.cb.angctr   is X      'CANS BEH EMO NEED ANGER CONTRL
+c.cans.cb.subabs   is X      'CANS BEH EMO NEED SUBSTANC USE
+c.cans.cb.eatdst   is X      'CANS BEH EMO NEED EAT DISTURB
+c.cans.cr.suicid   is X      'CAMS RISK BEH SUICIDE RISK
+c.cans.cr.smutil   is X      'CAMS RISK BEH SELF MUTILATION
+c.cans.cr.oslfhr   is X      'CAMS RISK BEH OTHER SELF HARM
+c.cans.cr.dangot   is X      'CAMS RISK BEH DANGER TO OTHERS
+c.cans.cr.sexagr   is X      'CAMS RISK BEH SEXUAL AGRESSION
+c.cans.cr.runawy   is X      'CAMS RISK BEH RUNAWAY
+c.cans.cr.delqcy   is X      'CAMS RISK BEH DELINQUENCY
+c.cans.cr.firset   is X      'CAMS RISK BEH FIRE SETTING
+c.cans.cr.socbeh   is X      'CAMS RISK BEH SOCIAL BEAHVIOR
+c.cans.cr.bully    is X      'CAMS RISK BEH BULLYING
+c.cans.sc.behavr   is X      'CANS SCHOOL BEHAVIOR
+c.cans.sc.achiev   is X      'CANS SCHOOL ACHIEVEMENT
+c.cans.sc.attend   is X      'CANS SCHOOL ATTENANCE
+c.cans.sc.reltch   is X      'CANS SCHOOL RELATION TEACHERS
+c.cans.dv.cognit   is X      'CANS DEV NEEDS COGNITIVE
+c.cans.dv.develp   is X      'CANS DEV NEEDS DEVELOPEMENTAL
+c.cans.dv.selfcr   is X      'CANS DEV NEEDS SELF C DAILY LV
+c.cans.fc.selfcr   is X      'CAMS FAM CARE SELF C DAILY LIV
+c.cans.fc.culstr   is X      'CAMS FAM CARE CULTURE STRESS
+c.cans.fc.empedu   is X      'CAMS FAM CARE EMPLOY EDUCATION
+c.cans.fc.eduatt   is X      'CAMS FAM CARE EDUCATE ATTAIN
+c.cans.fc.legal    is X      'CAMS FAM CARE LEGAL
+c.cans.fc.motive   is X      'CAMS FAM CARE MOTIVATION CARE
+c.cans.fc.finres   is X      'CAMS FAM CARE FINANCIAL RES
+c.cans.fc.transp   is X      'CAMS FAM CARE TRANSPORTATION
+c.cans.tr.sexabs   is X      'CANS TRAUMA SEXUAL ABUSE
+c.cans.tr.phyabs   is X      'CANS TRAUMA PHYSICAL ABUSE
+c.cans.tr.emoabs   is X      'CANS TRAUMA EMOTIONAL ABUSE
+c.cans.tr.medtrm   is X      'CANS TRAUMA MEDICAL TRAUMA
+c.cans.tr.natdis   is X      'CANS TRAUMA NATURAL DISASTER
+c.cans.tr.wtofam   is X      'CANS TRAUMA WIT FAM VIOLENCE
+c.cans.tr.wtocom   is X      'CANS TRAUMA WIT COMM VIOLENCE
+c.cans.tr.wcrime   is X      'CANS TRAUMA WIT VICT CRIME
+c.cans.tr.waraff   is X      'CANS TRAUMA WAR AFFECTED
+c.cans.tr.teraff   is X      'CANS TRAUMA TERRORISM AFFECTED
+c.cans.tr.emclos   is X      'CANS TRAUMA CLOSE TO PERP
+c.cans.tr.freq     is X      'CANS TRAUMA FREQUENCY
+c.cans.tr.durat    is X      'CANS TRAUMA DURATION
+c.cans.tr.force    is X      'CANS TRAUMA FORCE
+c.cans.tr.react    is X      'CANS TRAUMA REACTION DISCLOSE
+c.cans.ad.affreg   is X      'CANS ADJUST AFFECT REGULATION
+c.cans.ad.intrus   is X      'CANS ADJUST INTRUSIONS
+c.cans.ad.attach   is X      'CANS ADJUST ATTACHMENT
+c.cans.ad.dissoc   is X      'CANS ADJUST DISSOCIATION
+c.cans.ad.timb4t   is X      'CANS ADJUST TIME BEFORE TREAT
+c.cans.sa.severe   is X      'CANS SUBS ABUSE SEVERITY USE
+c.cans.sa.durati   is X      'CANS SUBS ABUSE DURATION USE
+c.cans.sa.stgrec   is X      'CANS SUBS ABUSE STAGE RECOVERY
+c.cans.sa.perinf   is X      'CANS SUBS ABUSE PEER INFLUENCE
+c.cans.sa.parinf   is X      'CANS SUBS ABUSE PARENT INFLUNC
+c.cans.sa.envinf   is X      'CANS SUBS ABUSE ENVI INFLUENCE
+c.cans.vi.hxpabs   is X      'CANS VIOLENCE HX PHYSICAL ABUS
+c.cans.vi.hxviol   is X      'CANS VIOLENCE HX OF VIOLENCE
+c.cans.vi.wdomab   is X      'CANS VIOLENCE WIT TO DOM ABUSE
+c.cans.vi.wenvab   is X      'CANS VIOLENCE WIT ENV ABUSE
+c.cans.eb.frsmgt   is X      'CANS EMOT RISK FRUSTRATION MGT
+c.cans.eb.hostil   is X      'CANS EMOT RISK HOSTILITY
+c.cans.eb.parand   is X      'CANS EMOT RISK PARANOID THINK
+c.cans.eb.secgan   is X      'CANS EMOT RISK SEC GAINS ANGER
+c.cans.eb.viothk   is X      'CANS EMOT RISK VIOLENT THINK
+c.cans.rf.viopot   is X      'CANS RESILIENCY AWARE VIOL POT
+c.cans.rf.rescon   is X      'CANS RESILIENCY RESP CONSEQ
+c.cans.rf.comsc    is X      'CANS RESILIENCY COMIT SLF-CONT
+c.cans.rf.trtinv   is X      'CANS RESILIENCY TREATM INVOLV
+c.cans.sb.relton   is X      'CANS SAB RELATIONSHIP
+c.cans.sb.phyfrc   is X      'CANS SAB PHYSICAL FORCE/THREAT
+c.cans.sb.planin   is X      'CANS SAB PLANNING
+c.cans.sb.agedif   is X      'CANS SAB AGE DIFFERENTIAL
+c.cans.sb.typsex   is X      'CANS SAB TYPE OF SEX ACT
+c.cans.sb.resacc   is X      'CANS SAB RESPONS TO ACCUSATION
+c.cans.sb.temcon   is X      'CANS SAB TEMPORAY CONSISTENCY
+c.cans.sb.hxsxbh   is X      'CANS SAB HX SEXUAL BEHAVIOR
+c.cans.sb.svsxab   is X      'CANS SAB SV SEXUAL ABUSE
+c.cans.sb.prirtx   is X      'CANS SAB PRIOR TREATMENT
+c.cans.rn.frqncy   is X      'CANS RUNAWAY FREQ OF RUNNING
+c.cans.rn.condes   is X      'CANS RUNAWAY CONSIST DESTINAT
+c.cans.rn.safdes   is X      'CANS RUNAWAY SAFTY DESTINATION
+c.cans.rn.invill   is X      'CANS RUNAWAY ILLEGAL ACTS
+c.cans.rn.retown   is X      'CANS RUNAWAY RETRUN ON OWN
+c.cans.rn.invoth   is X      'CANS RUNAWAY INVOLV OF OTHERS
+c.cans.rn.relexp   is X      'CANS RUNAWAY REAL EXPECTTATION
+c.cans.rn.planin   is X      'CANS RUNAWAY PLANNING
+c.cans.jj.serios   is X      'CANS JUV JUST SERIOUSNESS
+c.cans.jj.histry   is X      'CANS JUV JUST HISTORY  
+c.cans.jj.arrest   is X      'CANS JUV JUST ARRESTS
+c.cans.jj.planin   is X      'CANS JUV JUST PLANNING
+c.cans.jj.comsaf   is X      'CANS JUV JUST COMMUNITY SAFETY
+c.cans.jj.lefcom   is X      'CANS JUV JUST LEGAL COMPLIANCE
+c.cans.jj.perinf   is X      'CANS JUV JUST PEER INFLUENCES
+c.cans.jj.parinf   is X      'CANS JUV JUST PARENT INFLUENCE
+c.cans.jj.envinf   is X      'CANS JUV JUST ENV INFLUENCE
+c.cans.fs.serios   is X      'CANS FIRE SET SERIOUSNESS
+c.cans.fs.histry   is X      'CANS FIRE SET HISTORY  
+c.cans.fs.planin   is X      'CANS FIRE SET PLANNING
+c.cans.fs.useacc   is X      'CANS FIRE SET USE ACCELERATNTS
+c.cans.fs.inthrm   is X      'CANS FIRE SET INTENT TO HARM
+c.cans.fs.comsaf   is X      'CANS FIRE SET COMMUNTIY SAFETY
+c.cans.fs.resacc   is X      'CANS FIRE SET RESP TO ACCUSE
+c.cans.fs.remrse   is X      'CANS FIRE SET REMORSE
+c.cans.fs.futfir   is X      'CANS FIRE SET FUTURE FIRES
+c.cans.hs.numprr   is X      'CANS PSY HOSP HX NO PRIOR HOSP
+c.cans.hs.longst   is X      'CANS PSY HOSP HX LONGEST STAY
+c.cans.hs.durrec   is X      'CANS PSY HOSP HX DRU RECENT
+c.cans.hs.timlst   is X      'CANS PSY HOSP HX TIME LAST
+c.cans.caredt      is d      'CANS CARE BATCH DATE
+
+'Declare and Define variables that will hold the text of the questions.
+'Life Domain Functining
+q_text_ld_family   is X       q_text_ld_family = "Family"
+q_text_ld_livsit   is X       q_text_ld_livsit = "Living Situation"
+q_text_ld_school   is X       q_text_ld_school = "School"
+q_text_ld_socFun   is X       q_text_ld_socFun = "Social Functioning"
+q_text_ld_recret   is X       q_text_ld_recret = "Recreational"
+q_text_ld_develp   is X       q_text_ld_develp = "Developmental"
+q_text_ld_commun   is X       q_text_ld_commun = "Communcation"
+q_text_ld_judgmt   is X       q_text_ld_judgmt = "Judgement"
+q_text_ld_jobfun   is X       q_text_ld_jobfun = "Job Functioning"
+q_text_ld_legal    is X       q_text_ld_legal  = "Legal"
+q_text_ld_medicl   is X       q_text_ld_medicl = "Medical"
+q_text_ld_physcl   is X       q_text_ld_physcl = "Physical"
+q_text_ld_sexdev   is X       q_text_ld_sexdev = "Sexual Development"
+q_text_ld_sleep    is X       q_text_ld_sleep  = "Sleep"
+q_text_ld_indliv   is X       q_text_ld_indliv = "Indepndent Living"
+
+'Child Strengths
+q_text_cs_family   is X       q_text_cs_family = "Family"
+q_text_cs_intper   is X       q_text_cs_intper = "Interpersonal"
+q_text_cs_optims   is X       q_text_cs_optims = "Optimism"
+q_text_cs_educat   is X       q_text_cs_educat = "Educational"
+q_text_cs_vocate   is X       q_text_cs_vocate = "Vocational"
+q_text_cs_talint   is X       q_text_cs_talint = "Talents/Interest"
+q_text_cs_spirel   is X       q_text_cs_spirel = "Spiritual/Religious"
+q_text_cs_comlif   is X       q_text_cs_comlif = "Community Life"
+q_text_cs_permin   is X       q_text_cs_permin = "Relationship Permanence"
+q_text_cs_youth    is x       q_text_cs_youth  = "Youth Involvment"
+q_text_cs_natsup   is X       q_text_cs_natsup = "Natural Supports"
+'Acculturation
+q_text_ac_langua   is X       q_text_ac_langua = "Language"
+q_text_ac_identy   is X       q_text_ac_identy = "Identity"
+q_text_ac_ritual   is X       q_text_ac_ritual = "Ritual"
+q_text_ac_culstr   is X       q_text_ac_culstr = "Cultural Stress"
+'Psychiatric Hospitalization
+q_text_ps_hosptl   is X       q_text_ps_hosptl = "Has The Child/Youth Ever Been Hospitalized For Psychiatric Reasons"
+'Crisis History
+q_text_cr_episds   is X       q_text_cr_episds = "Number Of Crisis Episodes"
+'Caregiver Strengths & Needs
+q_text_cg_super    is X       q_text_cg_super  = "Supervision"          
+q_text_cg_involv   is X       q_text_cg_involv = "Involvement"          
+q_text_cg_knoldg   is X       q_text_cg_knoldg = "Knowledge"            
+q_text_cg_organz   is X       q_text_cg_organz = "Organization"         
+q_text_cg_socres   is X       q_text_cg_socres = "Social Resources"     
+q_text_cg_ressbl   is X       q_text_cg_ressbl = "Residential Stability"
+q_text_cg_physcl   is X       q_text_cg_physcl = "Physical"             
+q_text_cg_menhth   is X       q_text_cg_menhth = "Mental Health"        
+q_text_cg_subabs   is X       q_text_cg_subabs = "Substance Use"        
+q_text_cg_develp   is X       q_text_cg_develp = "Developmental"        
+q_text_cg_chldcr   is X       q_text_cg_chldcr = "Access To Child Care" 
+q_text_cg_miltra   is X       q_text_cg_miltra = "Military Transitions"
+q_text_cg_famsts   is X       q_text_cg_famsts = "Family Stress"        
+q_text_cg_safety   is X       q_text_cg_safety = "Safety"               
+'Child Behavioral / Emotional Needs
+q_text_cb_psychs   is X       q_text_cb_psychs = "Psychosis"
+q_text_cb_implsv   is X       q_text_cb_implsv = "Impulse / Hyper"
+q_text_cb_depres   is X       q_text_cb_depres = "Depression"
+q_text_cb_anxity   is X       q_text_cb_anxity = "Anxiety"
+q_text_cb_oppdef   is X       q_text_cb_oppdef = "Oppositional"
+q_text_cb_condct   is X       q_text_cb_condct = "Conduct"
+q_text_cb_adjtrm   is X       q_text_cb_adjtrm = "Adjustment To Trauma"
+q_text_cb_angctr   is X       q_text_cb_angctr = "Anger Control"
+q_text_cb_subabs   is X       q_text_cb_subabs = "Substance Use"
+q_text_cb_eatdst   is X       q_text_cb_eatdst = "Eating Disturbance"
+'Child Risk Behaviors
+q_text_cr_suicid   is X       q_text_cr_suicid = "Suicide Risk"
+q_text_cr_smutil   is X       q_text_cr_smutil = "Self Mutilation"
+q_text_cr_oslfhr   is X       q_text_cr_oslfhr = "Other Self Harm"
+q_text_cr_dangot   is X       q_text_cr_dangot = "Danger To Others"
+q_text_cr_sexagr   is X       q_text_cr_sexagr = "Sexual Aggression"
+q_text_cr_runawy   is X       q_text_cr_runawy = "Runaway"
+q_text_cr_delqcy   is X       q_text_cr_delqcy = "Delinquency"
+q_text_cr_firset   is X       q_text_cr_firset = "Fire Setting"
+q_text_cr_socbeh   is X       q_text_cr_socbeh = "Social Behavior"
+q_text_cr_bully    is X       q_text_cr_bully  = "Bullying"
+'School
+q_text_sc_behavr   is X       q_text_sc_behavr = "School Behavior"
+q_text_sc_achiev   is X       q_text_sc_achiev = "School Achievement"
+q_text_sc_attend   is X       q_text_sc_attend = "School Attendance"
+q_text_sc_reltch   is X       q_text_sc_reltch = "Relations With Teachers"
+'Developmental Needs
+q_text_dv_cognit   is X       q_text_dv_cognit = "Cognitive"
+q_text_dv_develp   is X       q_text_dv_develp = "Developemental"
+q_text_dv_selfcr   is X       q_text_dv_selfcr = "Self Care / Daily Living"
+
+'Family/Caretaker                                 
+q_text_fc_selfcr   is X       q_text_fc_selfcr = "Self Care / Daily Living"
+q_text_fc_culstr   is X       q_text_fc_culstr = "Culture Stress"
+q_text_fc_empedu   is X       q_text_fc_empedu = "Employment / Education"
+q_text_fc_eduatt   is X       q_text_fc_eduatt = "Educational Attainment"
+q_text_fc_legal    is X       q_text_fc_legal  = "Legal"
+q_text_fc_motive   is X       q_text_fc_motive = "Motivation For Care"
+q_text_fc_finres   is X       q_text_fc_finres = "Financial Resources"
+q_text_fc_transp   is X       q_text_fc_transp = "Transportation"
+'Trauma
+q_text_tr_sexabs   is X       q_text_tr_sexabs = "Sexual Abuse (if 1-3, Complete 1.a-1.e. next page)"
+q_text_tr_phyabs   is X       q_text_tr_phyabs = "Physical Abuse"
+q_text_tr_emoabs   is X       q_text_tr_emoabs = "Emotional Abuse"
+q_text_tr_medtrm   is X       q_text_tr_medtrm = "Medical Trauma"
+q_text_tr_natdis   is X       q_text_tr_natdis = "Natural Disaster"
+q_text_tr_wtofam   is X       q_text_tr_wtofam = "Witness To Family Violence"
+q_text_tr_wtocom   is X       q_text_tr_wtocom = "Witness To Community Violence"
+q_text_tr_wcrime   is X       q_text_tr_wcrime = "Witness/Victim - Criminal Acts"
+q_text_tr_waraff   is X       q_text_tr_waraff = "War Affected"
+q_text_tr_teraff   is X       q_text_tr_teraff = "Terrorism Affected"
+q_text_tr_emclos   is X       q_text_tr_emclos = "Emotional Closeness To Perpetrator"
+q_text_tr_freq     is X       q_text_tr_freq   = "Frequency"
+q_text_tr_durat    is X       q_text_tr_durat  = "Duration"
+q_text_tr_force    is X       q_text_tr_force  = "Force"
+q_text_tr_react    is X       q_text_tr_react  = "Reaction To Disclosure"
+'Adjustment
+q_text_ad_affreg   is X       q_text_ad_affreg = "Affect Regulation"
+q_text_ad_intrus   is X       q_text_ad_intrus = "Intrusions"
+q_text_ad_attach   is X       q_text_ad_attach = "Attachment"
+q_text_ad_dissoc   is X       q_text_ad_dissoc = "Dissociation"
+q_text_ad_timb4t   is X       q_text_ad_timb4t = "Time Before Treatmetn"
+'Substance use (SUD)
+q_text_sa_severe   is X       q_text_sa_severe = "Severity Of Use"
+q_text_sa_durati   is X       q_text_sa_durati = "Duration Of Use"
+q_text_sa_stgrec   is X       q_text_sa_stgrec = "Stage Of Recovery"
+q_text_sa_perinf   is X       q_text_sa_perinf = "Peer Influence"
+q_text_sa_parinf   is X       q_text_sa_parinf = "Parental Influence"
+q_text_sa_envinf   is X       q_text_sa_envinf = "Environmental Influence"
+'Violence
+q_text_vi_hxpabs   is X       q_text_vi_hxpabs = "History Of Physical Abuse"
+q_text_vi_hxviol   is X       q_text_vi_hxviol = "History Of Violence"
+q_text_vi_wdomab   is X       q_text_vi_wdomab = "Witness To Domestic Violence"
+q_text_vi_wenvab   is X       q_text_vi_wenvab = "Witness Environmental Violence"
+'Emotional Behavioral Risks                                                                              
+q_text_eb_frsmgt   is X       q_text_eb_frsmgt = "Frustration Management"
+q_text_eb_hostil   is X       q_text_eb_hostil = "Hostility"
+q_text_eb_parand   is X       q_text_eb_parand = "Paranoid Thinking"
+q_text_eb_secgan   is X       q_text_eb_secgan = "Secondary Gains From Anger"
+q_text_eb_viothk   is X       q_text_eb_viothk = "Violent Thinking"
+'Resiliancy Factors
+q_text_rf_viopot   is X       q_text_rf_viopot = "Aware Of Violence Potential"
+q_text_rf_rescon   is X       q_text_rf_rescon = "Response To Consequences"
+q_text_rf_comsc    is X       q_text_rf_comsc  = "Commitment To Self-Control"
+q_text_rf_trtinv   is X       q_text_rf_trtinv = "Treatment Involvement"
+'Sexually Agressive Behavior                                                                              
+q_text_sb_relton   is X       q_text_sb_relton = "Relationship"
+q_text_sb_phyfrc   is X       q_text_sb_phyfrc = "Physical Force/Threat"
+q_text_sb_planin   is X       q_text_sb_planin = "Planning"
+q_text_sb_agedif   is X       q_text_sb_agedif = "Age Differential"
+q_text_sb_typsex   is X       q_text_sb_typsex = "Type Of Sex Act"
+q_text_sb_resacc   is X       q_text_sb_resacc = "Response To Accusation"
+q_text_sb_temcon   is X       q_text_sb_temcon = "Temporal Consistency"
+q_text_sb_hxsxbh   is X       q_text_sb_hxsxbh = "History Of Sexual Behavior"
+q_text_sb_svsxab   is X       q_text_sb_svsxab = "Severity Of Sexual Abuse"
+q_text_sb_prirtx   is X       q_text_sb_prirtx = "Prior Treatment"
+'Runaway
+q_text_rn_frqncy   is X       q_text_rn_frqncy = "Frequency Of Running"
+q_text_rn_condes   is X       q_text_rn_condes = "Consistency Of Destination"
+q_text_rn_safdes   is X       q_text_rn_safdes = "Safety Of Destination"
+q_text_rn_invill   is X       q_text_rn_invill = "Involvement In Illegal Acts"
+q_text_rn_retown   is X       q_text_rn_retown = "Likelihood Of Return On Own"
+q_text_rn_invoth   is X       q_text_rn_invoth = "Involvement Of Others"
+q_text_rn_relexp   is X       q_text_rn_relexp = "Realistic Expectations"
+q_text_rn_planin   is X       q_text_rn_planin = "Planning"
+'Juvenile Justice                                                                                 
+q_text_jj_serios   is X       q_text_jj_serios = "Seriousness"
+q_text_jj_histry   is X       q_text_jj_histry = "History"
+q_text_jj_arrest   is X       q_text_jj_arrest = "Arrests"
+q_text_jj_planin   is X       q_text_jj_planin = "Planning"
+q_text_jj_comsaf   is X       q_text_jj_comsaf = "Community Safety"
+q_text_jj_lefcom   is X       q_text_jj_lefcom = "Legal Compliance"
+q_text_jj_perinf   is X       q_text_jj_perinf = "Peer Influences"
+q_text_jj_parinf   is X       q_text_jj_parinf = "Parental Influences"
+q_text_jj_envinf   is X       q_text_jj_envinf = "Environmental Influences"
+'Fire Setting                                                                                 
+q_text_fs_serios   is X       q_text_fs_serios = "Seriousness"
+q_text_fs_histry   is X       q_text_fs_histry = "History"
+q_text_fs_planin   is X       q_text_fs_planin = "Planning"
+q_text_fs_useacc   is X       q_text_fs_useacc = "Use Of Accelerants"
+q_text_fs_inthrm   is X       q_text_fs_inthrm = "Intention To Harm"
+q_text_fs_comsaf   is X       q_text_fs_comsaf = "Community Safety"
+q_text_fs_resacc   is X       q_text_fs_resacc = "Response To Accusation"
+q_text_fs_remrse   is X       q_text_fs_remrse = "Remorse"
+q_text_fs_futfir   is X       q_text_fs_futfir = "Likelihood Of Future Fires"
+'Psychiatric Hospitalization History
+q_text_hs_numprr   is X       q_text_hs_numprr = "Number Of Prior Hospitalizations"
+q_text_hs_longst   is X       q_text_hs_longst = "Longest Stay"
+q_text_hs_durrec   is X       q_text_hs_durrec = "Duration Of Most Recent Stay"
+q_text_hs_timlst   is X       q_text_hs_timlst = "Time Since Last Discharge"
+
+%global errors[], ld_errortxt,sc_errortxt,dv_errortxt,cs_errortxt,ac_errortxt,crs_errortxt,ps_errortxt,cg_errortxt,
+%global cb_errortxt,cr_errortxt, pshx_errortxt, fcg_errortxt, tr_errortxt, sxab_errortxt,
+%global adj_errortxt, sud_errortxt, vi_errortxt, eb_errortxt, res_errortxt, sab_errortxt, rw_errortxt, jj_errortxt, fs_errortxt    
+errors[]           is x       'array for capturing errors by section
+'Life Domain Functining
+ld_errortxt        is x		ld_errortxt = "All items in Life Domain are Required"
+sc_errortxt        is x		sc_errortxt = "If LD School is between 1 & 3, All School Items are Required"
+dv_errortxt        is x		dv_errortxt = "If LD Developmental is between 1 & 3, All Developmental Items are Required"
+cs_errortxt        is x		cs_errortxt = "All items in Child Strengths are Required"
+ac_errortxt        is x		ac_errortxt = "All items in Acculturation are Required"
+crs_errortxt       is x		crs_errortxt = "A Response to Crisis Episodes is Required"
+ps_errortxt        is x		ps_errortxt = "A Response to Psychiatric Hospitalization is Required"
+cg_errortxt        is x		cg_errortxt = "All items in Caregiver Strengths and Needs are Required"
+cb_errortxt        is x		cb_errortxt = "All items in Child Behavioral and Emotional Needs are Required"
+cr_errortxt        is x		cr_errortxt = "All items in Child Risk Behaviors are Required"
+pshx_errortxt      is x		pshx_errortxt = "If Psychiatric Hospitalization is indicated, All Psych Hosp Hx Items are Required"
+fcg_errortxt       is x		fcg_errortxt = "If CG Safety is indicated, All Family Caregiver Items are Required"
+tr_errortxt        is x		tr_errortxt = "If CB Trauma is indicated, All Trauma Items are Required"
+sxab_errortxt      is x 	sxab_errortxt = "If Trauma-Sexual Abuse is indicated, All Sexual Abuse Items are Required"
+adj_errortxt       is x 	adj_errortxt = "If CB Trauma is indicated, All Adjustment Items are Required"
+sud_errortxt       is x 	sud_errortxt = "If CB Substance Use is indicated, All Substance Abuse Items are Required"
+vi_errortxt        is x 	vi_errortxt = "If CR Danger to Others is indicated, All Violence Items are Required"
+eb_errortxt        is x 	eb_errortxt = "If CR Danger to Others is indicated, All Emotional/Behavioral Risk Items are Required"
+res_errortxt       is x 	res_errortxt = "If CR Danger to Others is indicated, All Resiliency Items are Required"
+sab_errortxt       is x 	sab_errortxt = "If CR Sexual Agression is indicated, All SAB Items are Required"
+rw_errortxt        is x 	rw_errortxt = "If CR Runaway is indicated, All Runaway Items are Required"
+jj_errortxt        is x 	jj_errortxt = "If CR Delinquency is indicated, All Juvenile Justice Items are Required"
+fs_errortxt        is x 	fs_errortxt = "If CR Fire Setting is indicated, All Fire Setting Items are Required"                                                             
+
+rc_cans_dstlist = $dstlist(cans_dstlist,02,
+c.cans.rec,c.cans.staff,c.cans.ver,c.cans.date,c.cans.resv3,c.cans.resv4,c.cans.resv5,c.cans.resv6,c.cans.resv7,c.cans.resv8,c.cans.resv9,
+c.cans.ld.family,c.cans.ld.livsit,c.cans.ld.school,c.cans.ld.socFun,c.cans.ld.recret,c.cans.ld.develp,c.cans.ld.commun,c.cans.ld.judgmt,c.cans.ld.jobfun,c.cans.ld.legal,c.cans.ld.medicl,c.cans.ld.physcl,c.cans.ld.sexdev,c.cans.ld.sleep,c.cans.ld.indliv,
+c.cans.cs.family,c.cans.cs.intper,c.cans.cs.optims,c.cans.cs.educat,c.cans.cs.vocate,c.cans.cs.talint,c.cans.cs.spirel,c.cans.cs.comlif,c.cans.cs.permin,c.cans.cs.youth,c.cans.cs.natsup,
+c.cans.ac.langua,c.cans.ac.identy,c.cans.ac.ritual,c.cans.ac.culstr,
+c.cans.ps.hosptl,
+c.cans.cr.episds,
+c.cans.cg.na,c.cans.cg.super,c.cans.cg.involv,c.cans.cg.knoldg,c.cans.cg.organz,c.cans.cg.socres,c.cans.cg.ressbl,c.cans.cg.physcl,c.cans.cg.menhth,c.cans.cg.subabs,c.cans.cg.develp,c.cans.cg.chldcr,c.cans.cg.miltra,c.cans.cg.famsts,c.cans.cg.safety,
+c.cans.cb.psychs,c.cans.cb.implsv,c.cans.cb.depres,c.cans.cb.anxity,c.cans.cb.oppdef,c.cans.cb.condct,c.cans.cb.adjtrm,c.cans.cb.angctr,c.cans.cb.subabs,c.cans.cb.eatdst,
+c.cans.cr.suicid,c.cans.cr.smutil,c.cans.cr.oslfhr,c.cans.cr.dangot,c.cans.cr.sexagr,c.cans.cr.runawy,c.cans.cr.delqcy,c.cans.cr.firset,c.cans.cr.socbeh,c.cans.cr.bully,
+c.cans.sc.behavr,c.cans.sc.achiev,c.cans.sc.attend,c.cans.sc.reltch,
+c.cans.dv.cognit,c.cans.dv.develp,c.cans.dv.selfcr,
+c.cans.fc.selfcr,c.cans.fc.culstr,c.cans.fc.empedu,c.cans.fc.eduatt,c.cans.fc.legal,c.cans.fc.motive,c.cans.fc.finres,c.cans.fc.transp,
+c.cans.tr.sexabs,c.cans.tr.phyabs,c.cans.tr.emoabs,c.cans.tr.medtrm,c.cans.tr.natdis,c.cans.tr.wtofam,c.cans.tr.wtocom,c.cans.tr.wcrime,c.cans.tr.waraff,c.cans.tr.teraff,c.cans.tr.emclos,c.cans.tr.freq ,c.cans.tr.durat,c.cans.tr.force,c.cans.tr.react,
+c.cans.ad.affreg,c.cans.ad.intrus,c.cans.ad.attach,c.cans.ad.dissoc,c.cans.ad.timb4t,
+c.cans.sa.severe,c.cans.sa.durati,c.cans.sa.stgrec,c.cans.sa.perinf,c.cans.sa.parinf,c.cans.sa.envinf,
+c.cans.vi.hxpabs,c.cans.vi.hxviol,c.cans.vi.wdomab,c.cans.vi.wenvab,
+c.cans.eb.frsmgt,c.cans.eb.hostil,c.cans.eb.parand,c.cans.eb.secgan,c.cans.eb.viothk,
+c.cans.rf.viopot,c.cans.rf.rescon,c.cans.rf.comsc,c.cans.rf.trtinv,
+c.cans.sb.relton,c.cans.sb.phyfrc,c.cans.sb.planin,c.cans.sb.agedif,c.cans.sb.typsex,c.cans.sb.resacc,c.cans.sb.temcon,c.cans.sb.hxsxbh,c.cans.sb.svsxab,c.cans.sb.prirtx,
+c.cans.rn.frqncy,c.cans.rn.condes,c.cans.rn.safdes,c.cans.rn.invill,c.cans.rn.retown,c.cans.rn.invoth,c.cans.rn.relexp,c.cans.rn.planin,
+c.cans.jj.serios,c.cans.jj.histry,c.cans.jj.arrest,c.cans.jj.planin,c.cans.jj.comsaf,c.cans.jj.lefcom,c.cans.jj.perinf,c.cans.jj.parinf,c.cans.jj.envinf,
+c.cans.fs.serios,c.cans.fs.histry,c.cans.fs.planin,c.cans.fs.useacc,c.cans.fs.inthrm,c.cans.fs.comsaf,c.cans.fs.resacc,c.cans.fs.remrse,c.cans.fs.futfir,
+c.cans.hs.numprr,c.cans.hs.longst,c.cans.hs.durrec,c.cans.hs.timlst,
+c.cans.caredt)

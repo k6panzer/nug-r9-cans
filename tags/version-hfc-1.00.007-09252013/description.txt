@@ -1,0 +1,8 @@
+CANS35       Main Script
+inc_CANS35   Includes all of the CANS35 DSTs, descriptions and dstlist
+lib_CANS     Functions used by both 3-5 and 6-17 versions, such as last assessment and next allowed assessment type
+lib_COMMON   Pulled from our common library used to print the clientpage header, if staff is UM or MIS, does client have a current DX, etc
+lib_EVENTS   Prompts for sal event information, checks overlapping events, creates the event row on the report.
+inc_ER       Event DSTs
+inc_ISN      inc_ER is standard DSTs but inc_ISN does include some custom HFC DSTs
+CANSDST      Creates DSTs and associated Datacode tables. Please edit first

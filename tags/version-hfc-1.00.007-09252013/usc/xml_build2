@@ -1,0 +1,408 @@
+'xml template parsing script. replaces template items with dst values
+'
+'author: Robert Edeker
+'date: 5/13/2013
+'version 1.0
+'
+' TODO:
+'------
+'  - node display criteria.
+'    ** MAY NOT BE NEEDED IF WE SPLIT BABY VS 6-17CANS IN SEPARATE TEMPLATES ***
+'     eg: CansBabyType vs CansType
+'     or skip over a transaction alltogether.  (not a valid UA yet or already sent)
+'  - tree criteria should skip sub-trees if the parent doesn't match
+'    eg: skipping a <transaction> node, so don't process anything else under it
+'    *** AGAIN MAY NOT BE NEEDED WITH A WRAPPER SCRIPT ONLY PASSING IN CLIENTS
+'    *** THAT IT SHOULD PROCESS
+'  - options for reading multiple layers??
+'
+' Updates:
+'---------
+'TJM 20130513 v.001
+'  + add d_rootnode constant as default (<batch>)
+'  + add rootnode var
+'RLE 20130513
+'  .002:
+'  + logic to read DST's specified in $EDIT and $DBREAD
+'  - cleanup unnecessary vars
+'  + check DST type and format dates as YYYY-MM-DD
+'  .003:
+'  + Processing in __DST to check for invalid DST names
+'  + format files to DOS (windows) format
+'  - remove parmfile processing, not using it at the moment
+'RLE 20130514 .004
+'  ~ rename default rootnode to 'Batch' per CMBHS it's case sensitive
+'  .005
+'  + add support for recoding values via $RT tag
+'  + add $DCT tag for datacode description and alt1-3 values
+'TJM 20130520 .006
+'  + new options
+'     fileheader to override default file head (use "!NONE" for no header)
+'     filefooter to override default file foot (use "!NONE" for no foot)
+'     appendfile to open file in 'extend' mode and append instead of override
+'     noemptyfile to skip building file if clients[] is !dp
+'        only applies when appendfile option != "Y"
+'TJM 20130530 .007
+'  ^ fixed buggs around new .006 options
+'RHW 20130709 .008
+'  ^ Removed logic to place "<?xml version='1.0'?>" at the beginning of the xml batch file.
+'       DSHS has notified that this string is not needed for proper processing of our xml batch
+'       and has updated sample xml files on the CMBHS Documentation website accordingly.
+'  ^ fixed buggs around new .006 options 
+'TJM 20130725 .009
+'  + $REGID system variable template support
+'RHW 20130910 .010
+'   +    Added logic for $DCVDB.  This will allow the lookup of DCT Description or Alt Value after a DBRead of another DB
+'        This will allow centers using the xml batch to continue using the same DST and DCT values for staff credentials from RDM
+'        to TRR.  Just put the TRR value in one of the Alt values in the DCT.  The last two values in the pipe delimited string below
+'        are for the DCT ID and the D,1,2 or 3 value from the DCT and should be placed in your xml template files inside
+'        the correct xml tags.  Note, the DST and DCT where you are storing RDM staff credentials will need to be verified
+'        Usage:   $DCVDB|03|C.CANS.STAFF|S.UARDM.CRED|226|1       or
+'                    $DCVDB|03|C.CANS.ALOCSTAFF|S.UARDM.CRED|226|1 or
+'                    $DCVDB|03|C.ANSA.STAFF|S.UARDM.CRED|226|1       or
+'                    $DCVDB|03|C.ANSA.ALOCSTAFF|S.UARDM.CRED|226|1
+'RLE 20130920 .011
+'  ~ $looplimit to 32767
+'  + reset $loopcount to 0 between each client
+'    ^^ this is needed for large processing
+'       It was only allowing about 98 clients per batch
+
+%define lf x"0a"
+'%define d_parmfile "CANSXML"
+%define d_fileout "/tmp/2.xml"
+%define d_tpl "/c0/forms/cans.xml"
+%define d_rootnode "Batch"
+
+%version 01.0.011 09/20/13 GCC
+
+start xml_build2(parmfile,option,clients[],retcode, uids[])
+
+$looplimit = 32767
+
+   parmfile       is x
+   option         is x
+   clients[]      is x
+   retcode        is x
+   uids[]         is n
+
+   appendfile     is x
+   fileheader     is x
+   filefooter     is x
+   noEmptyFile    is x
+   rootnode       is x
+   Template       is x
+   tplData[]      is x
+   tplBuf[]       is x
+
+   list[]         is x
+   list-uid[]     is n
+
+   dst[]          is x
+   values[]       is x
+   dsttype[]      is x
+   dstinfo[]      is x
+   _lookup_dst    is x
+
+   rc             is b
+   T              is x
+   i              is i
+   j              is i
+   k              is i
+   xOut           is x
+   tmp[]          is x
+   buf            is x
+   FileOut        is x
+
+   ptr_c          is n
+   parm[]         is x
+
+   'libraries
+   _dst           is i
+   _fh            is i
+''''''''''''''''''''''''''''''
+gosub __INIT
+gosub __MAIN
+gosub __CLEANUP
+
+return
+
+__MAIN:
+   if fileheader dp then
+      if fileheader != "!NONE" then
+         buf = fileheader
+      endif
+   else
+'      buf = "<?xml version='1.0'?>" + lf
+      buf += "<" + d_rootNode + ">" + lf
+   endif
+   rc = $writefile(_fh,buf)
+
+   '' process clients
+   do while ptr_c++ < $maxarray(list[])
+      $loopcount = 0
+      $clear(buf,values[])
+      $regid = list[ptr_c]
+      if uids[ptr_c] dp then
+         rc = _dst:readuid(list[ptr_c], list-uid[ptr_c], dst[])
+      else
+         rc = _dst:read(list[ptr_c],dst[])
+      endif
+      if rc > 1 then
+         $errmsg1 = $fmt(rc,"dbread rc:99")
+         $errmsg2 = $errmsg
+         return
+      endif
+      rc = _dst:listinfo(dst[],values[])
+
+      gosub _TplMe
+      rc = $writefile(_fh,buf)
+   enddo
+   $clear(buf)
+   if filefooter dp then
+      if filefooter != "!NONE" then
+         buf = filefooter  
+      endif
+   else
+      buf = "</" + d_rootNode + ">" + lf
+   endif
+
+'  buf += "<DST>" + lf
+'   i = 0
+'   do while i++ < $maxarray(dst[])
+'      buf += dst[i] + "==" + values[i] + lf
+'   enddo
+'  buf += "</DST>" + lf
+
+   rc = $writefile(_fh,buf)
+   rc = $closefile(_fh)
+goback
+
+_TplMe:
+   '* a bit hackish
+   '* copy template to working var, do DST replacement, copy to output buffer
+   tplBuf[] = tplData[]
+   i = 0
+   do while i++ < $maxarray(dst[])
+      rc = $dstinfo(dst[i],dstinfo[])
+      T = "%" + dst[i] + "%"
+      j = $find(T,tplBuf[])
+      do while j > 0
+         '*dst formatting based on type
+         if values[i] dp and dstinfo[5] = "D" then
+'         if values[i] dp and dsttype[i] = "D" then
+            values[i] = $fmt(`$date(values[i])`,"YYYY-MM-DD")
+         endif
+
+         tplBuf[j] = $replace(T,values[i],tplBuf[j])
+
+         j = $find(T,tplBuf[],++j)
+      enddo
+   enddo
+
+   '* SYSVAR/LOOKUP replacement
+   i = $find("$",tplBuf[])
+   do while i > 0
+      if $find("$TODAY",tplBuf[i]) > 0 then
+         tplBuf[i] = $replace("$TODAY",$fmt($today,"YYYY-MM-DD"),tplBuf[i])
+      elseif $find("$EDIT",tplBuf[i]) > 0 then
+      ''FORMAT: $EDIT|DB``03|C.CANS.STAFF
+         T = xml_content(tplBuf[i])
+         $parsem(T,1,"|",tmp[])
+         j = $find(tmp[3],dst[],,"F")
+         rc = $getEditmsg(values[j],tmp[2],xOut)
+         tplBuf[i] = $replace(T,xOut,tplBuf[i])
+      elseif $find("$DBREAD",tplBuf[i]) > 0 then
+      ''FORMAT: $DBREAD|03|C.CANS.STAFF|S.UA.CRED
+         T = xml_content(tplBuf[i])
+         $parsem(T,1,"|",tmp[])
+         j = $find(tmp[3],dst[],,"F")
+         $setvarname(_lookup_dst,tmp[4])
+         rc = $dbread(`$casti(tmp[2])`,values[j],_lookup_dst)
+         tplBuf[i] = $replace(T,_lookup_dst,tplBuf[i])
+      elseif $find("$DCVDB",tplBuf[i]) > 0 then
+      ''FORMAT: $DCVDB|03|C.CANS.STAFF|S.UA.CRED|226|1
+         T = xml_content(tplBuf[i])
+         $parsem(T,1,"|",tmp[])
+         j = $find(tmp[3],dst[],,"F")
+         $setvarname(_lookup_dst,tmp[4])
+         rc = $dbread(`$casti(tmp[2])`,values[j],_lookup_dst)
+         xOut = $dct(tmp[5],_lookup_dst,tmp[6])
+         tplBuf[i] = $replace(T,xOut,tplBuf[i])
+      elseif $find("$RT",tplBuf[i]) > 0 then
+         T = xml_content(tplBuf[i])
+         $parsem(T,1,"|",tmp[])
+         j = $find(tmp[3],dst[],,"F")
+         if tmp[4] !dp then tmp[4] = "R" endif
+         xOut = $rt(values[j],tmp[2],tmp[4])
+         tplBuf[i] = $replace(T,xOut,tplBuf[i])
+      elseif $find("$DCT",tplBuf[i]) > 0 then
+         T = xml_content(tplBuf[i])
+         $parsem(T,1,"|",tmp[])
+         j = $find(tmp[3],dst[],,"F")
+         if tmp[4] !dp then tmp[4] = "D" endif
+         xOut = $dct(tmp[2],values[j],tmp[4])
+         tplBuf[i] = $replace(T,xOut,tplBuf[i])
+      elseif $find("$REGID",tplBuf[i], 1, "F") > 0 then
+         tplBuf[i] = $replace("$REGID", clients[ptr_c], tplBuf[i])
+      endif
+      i = $find("$",tplBuf[],++i)
+   enddo
+
+   rc = $putds(tplBuf[],buf,lf)
+   ''buf += "<!-- ID: " + $fmt(ptr_c,"9999") + " -->" + lf
+goback
+
+__INIT:
+   if $loadlib(_dst,"lib_DST") > 0 then
+      $errmsg1 = "Attack by CoCentrix - cannot load lib_DST"
+      return
+   endif
+
+   'set defaults
+   FileOut  = d_fileout
+   Template = d_tpl
+   rootnode = d_rootnode
+   noEmptyFile = "N"          'default to go ahead on build a file without any clients
+
+   'if parmfile !dp then parmfile = d_parmfile endif
+   'GetParm(parmfile)
+   GetOption(option)
+
+   if clients[] dp then
+      i = $maxarray(list[])
+      rc = $arrInsert(list[i], clients[])
+      rc = $arrInsert(list-uid[i], uids[])
+'      rc = $arrayMerge(list[],clients[])
+   endif
+
+   rc = $sort(list[], list-uid[])
+
+   gosub __READTPL
+   gosub __DST
+
+   _fh = $fileavail()
+   if appendfile = "Y" then
+      T = "E"
+   else
+      if clients[] !dp and noEmptyFile = "Y" then     'if we are not appending and there are no clients just quit
+         return
+      endif
+      T = "O"
+   endif
+   rc = $openfile(_fh,FileOut,T)
+   if rc > 0 then
+      $errmsg1 = $fmt(rc,"Error opening Output file. rc=99") + " F:" + FileOut
+      return
+   endif
+goback
+
+
+__DST:
+   i = 0
+   do while i++ < $maxarray(tplData[])
+      if $find("%",tplData[i]) > 0 then
+         T = xml_content(tplData[i])
+         T = $uc(T)
+         T = $seg(T,2,`$len(T) - 2`)
+'         '*dups:
+'            j = $maxarray(dst[]) + 1
+'            dst[j] = T
+'            gosub __CHECKDST
+'            '(void)$arrPush(dst[],T)
+'         endif
+      endif
+
+      if $find("$EDIT",tplData[i]) > 0 OR
+         $find("$DBREAD",tplData[i]) > 0 OR 
+         $find("$DCVDB",tplData[i]) > 0 OR
+         $find("$RT",tplData[i]) > 0 OR
+         $find("$DCT",tplData[i]) > 0 then
+         T = xml_content(tplData[i])
+         $parsem(T,1,"|",tmp[])
+         T = $uc(tmp[3])
+'         tmp[3] = $uc(tmp[3])
+'         if $find(tmp[3],dst[],,"F") = 0 then
+'            j = $maxarray(
+'            (void)$arrPush(dst[],tmp[3])
+'         endif
+      endif
+
+'      ' build unduplicated dst list
+      if $find(T,dst[],,"F") = 0 then
+         j = $maxarray(dst[]) + 1
+         dst[j] = T
+'         rc = $dstinfo(dst[j], dstinfo[])
+'         if rc > 0 then
+'            $errmsg1 = $fmt(rc, "DSTINFO ERROR - VERIFY TEMPLATE!! RC=99")
+'            $errmsg2 = "DST: " + dst[i]
+'            return
+'         else
+''            dsttype[j] = dstinfo[5]
+''            if list-uid[] dp then
+''               if dstinfo[16] dp then
+''                  if uidRecord !dp then uidRecord = dstinfo[16] endif
+''                  if uidRecord = dstinfo[16] then
+''                     rc = uid-dst[
+'         endif
+      endif
+
+   enddo
+
+   i = 0
+   do while i++ < $maxarray(dst[])
+      rc = $dstinfo(dst[i],dstinfo[])
+      if rc > 0 then
+         $errmsg1 = $fmt(rc,"DSTINFO ERROR - VERIFY TEMPLATE!! RC=99")
+         $errmsg2 = "DST: " + dst[i]
+         return
+      endif
+   enddo
+goback
+
+__READTPL:
+   if $checkfile(Template) > 0 then
+      $errmsg1 = "Template not found!"
+      $abort(99)
+   endif
+
+   rc = $getfile(tplData[],Template)
+   if rc > 0 then
+      $errmsg1 = $fmt(rc,"ERROR READING TEMPLATE. RC=99")
+      $abort(99)
+   endif
+goback
+
+__CLEANUP:
+   if $checkfile(FileOut) = 0 then
+      T = "perl -pi -e 's/\n/\r\n/g' " + FileOut
+      rc = $unix(T)
+      if rc > 0 then
+         $errmsg1 = $fmt(rc,"UNIX CMD ERROR DOSIFYING FILE. RC=99")
+         $errmsg2 = "File: " + FileOut
+         return
+      endif
+   endif
+goback
+
+end xml_build2
+
+'%include inc_GetParm
+%include inc_GetOption
+
+dynamic FUNCTION xml_content(str) is x
+   str      is x
+   iStart   is i
+   iEnd     is i
+   iLen     is i
+   if str !dp then return endif
+   iStart = $find(">",str) + 1
+   iEnd = $find("</",str,iStart)
+   if iEnd < 1 then return endif
+
+   iLen = iEnd - iStart
+
+   xml_content = $seg(str,iStart,iLen)
+
+end xml_content
+
+
