@@ -121,8 +121,7 @@ on load do:
   select c.ansa.aloc
    case "100" EndDate = c.ansa.alocdate + 7
    case "106" EndDate = c.ansa.alocdate + 90
-   case "108" EndDate = c.ansa.alocdate + 90   
-   case "109" EndDate = c.ansa.alocdate + 90
+   case "109" EndDate = c.ansa.alocdate + 365
    case "111" EndDate = c.ansa.alocdate + 365   
    case "112" EndDate = c.ansa.alocdate + 180   
    case "113" EndDate = c.ansa.alocdate + 180   

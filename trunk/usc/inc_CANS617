@@ -630,6 +630,8 @@ errors[] is x       'array for capturing errors by section
 %define loc9_1_errortxt "Change this Assessment Type to a Discharge or continue with the Update assessment by selecting an LOC Deviation"
 %define locdev1_errortxt "Invalid Reason for a Higher Deviation. Must be Clinical Need or Continuity of Care"
 %define locdev2_errortxt "Invalid Reason for Crisis Deviation. Must be Clinical Need or Other"
+%define extdrv1_errortxt "Extended Review is limited to 101/LOC - 1: Medication Management"
+%define extdrv2_errortxt "Assessment does not meet criteria for Extended Review to be authorized"
 
 rc_cans_dstlist = $dstlist(cans_dstlist,02,
 c.cans.rec,c.cans.staff,c.cans.ver,c.cans.date,c.cans.age,c.cans.aloc,c.cans.rloc,c.cans.dloc,c.cans.compd,c.cans.type,
