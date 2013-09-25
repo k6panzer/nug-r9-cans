@@ -1,5 +1,5 @@
 library lib_ANSA()
- %version 1.0.005 09/24/2013
+ %version 1.0.006 09/25/2013
 on load do:
  %include inc_SCHIZALG
  %include inc_QIDSALG
@@ -48,7 +48,7 @@ on load do:
    'Initial Non Admission
    case "12" (void)$arrpush(assessments[],"1")
              (void)$arrpush(assessments[],"11")   
-  endselect 
+  endselect
  end Allow_Assesment
 
  dynamic function Last_Assessment(clientid,c.ansa.type,c.ansa.staff,c.ansa.ver,c.ansa.date,c.ansa.age,c.ansa.aloc,c.ansa.rloc,c.ansa.dloc,c.ansa.compd,c.ansa.alocdate) is null
@@ -94,9 +94,24 @@ on load do:
    do until c.ansa.compd dp or rc > 1
     rc = $dbreadnextdst(02,clientid,c.ansa.rec,c.ansa.type,c.ansa.staff,c.ansa.date,c.ansa.rloc,c.ansa.compd,c.ansa.alocdate,c.ansa.aloc)
    enddo
-   if c.ansa.aloc = "6" or c.ansa.aloc = "8" or c.ansa.aloc = "9"
-    $clear(c.ansa.type)
+   if c.ansa.aloc = "6"
+    c.ansa.type = "12"
+	c.ansa.aloc = "108"
    endif
+   if c.ansa.aloc = "8"
+    c.ansa.type = "12"
+	c.ansa.aloc = "109"   
+   endif
+   if c.ansa.aloc = "9"
+    c.ansa.type = "12"
+	c.ansa.aloc = "120"   
+   endif
+   if c.ansa.aloc = "108"
+    c.ansa.type = "12"   
+   endif
+   if c.ansa.aloc = "109"
+    c.ansa.type = "12"
+   endif	
   endif
  end Last_Assessment
  

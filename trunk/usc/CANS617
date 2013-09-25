@@ -1,5 +1,5 @@
 start CANS617(parmfile,option,client,retcode)
- %version 1.0.007 09/24/2013
+ %version 1.0.008 09/25/2013
  $looplimit = 0
  %include inc_CANS617
  e.ser     is b
@@ -2387,7 +2387,11 @@ end Validate
 
 function Validate0() is i
  assessment_age is i
- last_date      is d
+ last_type     is x
+ last_aloc     is x
+ last_date     is d
+ last_alocdate is d
+ datediff      is i
  $clear(errors[])
  if c.cans.type = "1" or c.cans.type = "12"
   $clear(c.cans.disdt,c.cans.disreas,c.cans.disref,c.cans.disoth)
@@ -2456,26 +2460,36 @@ function Validate0() is i
   ClearPage2()
   ClearPage3()
   ClearPage4()
- elseif c.cans.type = "12"
-  $clear(c.cans.disdt,c.cans.disreas,c.cans.disref,c.cans.disoth)
-  if c.cans.tcoommi !dp
-   (void)$arrpush(errors[],oth_tc_errortxt)   
-  endif
-  if c.cans.sped !dp
-   (void)$arrpush(errors[],oth_ed_errortxt)   
-  endif  
-  if c.cans.extdrev !dp
-   (void)$arrpush(errors[],oth_ex_errortxt)
-  endif
-  if c.cans.foster !dp
-   (void)$arrpush(errors[],oth_fc_errortxt)
-  endif  
-  if c.cans.riskplc !dp
-   (void)$arrpush(errors[],oth_rp_errortxt)
-  endif 
  endif
  
- {"lib_CANS"}Last_Assessment($regid,,,,last_date)
+ {"lib_CANS"}Last_Assessment($regid,,,,last_date,,,,,,last_alocdate)
+ if c.cans.type = "3"
+  datediff = c.cans.disdt - c.cans.date
+  if c.cans.disdt !dp
+   (void)$arrpush(errors[],disch1_errortxt)
+  endif
+  if c.cans.disdt < last_alocdate
+   (void)$arrpush(errors[],disch4_errortxt)
+  endif  
+  if c.cans.disreas = "11"
+   if datediff > 0
+    (void)$arrpush(errors[],disch5_errortxt)
+   elseif datediff < -30
+    (void)$arrpush(errors[],disch3_errortxt)        
+   endif
+  else 
+   if datediff > 30
+    (void)$arrpush(errors[],disch2_errortxt)     
+   endif
+   if datediff < -30
+    (void)$arrpush(errors[],disch3_errortxt)        
+   endif
+   if last_date > c.cans.disdt
+    (void)$arrpush(errors[],disch6_errortxt)           
+   endif
+  endif 
+ endif    
+
  if c.cans.date < $today
   assessment_age = $today - c.cans.date 
   if assessment_age > 30
@@ -2808,42 +2822,46 @@ function ReportHdr() is null
  $table($funcname,,"width='100%' cellspacing='0' cellpadding='2' bgcolor='White' style='border-style: solid; border-width: 1px'")
   $row()
    $col(,,"5%")
-   $col(,,"15%")$text("Assessment Date: ")
+   $col(,,"15%")$text(q_text_date)
    $col(,,"80%")$text(c.cans.date)
   $row()
    $col()
-   $col()$text("Assessment Type: ")
+   $col()$text(q_text_type)
    $col()$text(c_cans_type) 
   if c.cans.type = "1" or c.cans.type = "12"
    $row()
     $col()
-    $col()$text("Referral Source: ")
+    $col()$text(q_text_intref)
     $col()$text(c_cans_intref)
    if c.cans.intrefoth dp
     $row()
      $col()
-     $col()$text("Referral Other: ")
+     $col()$text(q_text_intrefoth)
      $col()$text(c.cans.intrefoth)
    endif
   endif
   if c.cans.type = "3"
    $row()
     $col()
-    $col()$text("Discharge Date: ")
+    $col()if c.cans.alocdate dp
+	       $text(q_text_disdt)
+		  else
+	       $text(q_text_rdisdt)		  
+		  endif 
     $col()$text(c.cans.disdt)
    $row()
     $col()
-    $col()$text("Discharge Reason: ")
+    $col()$text(q_text_disreas)
     $col()$text(c_cans_disreas)
    if c.cans.disoth dp
     $row()
      $col()
-     $col()$text("Discharge Other Reason: ")
+     $col()$text(q_text_disoth)
      $col()$text(c.cans.disoth)
    endif
    $row()
     $col()
-    $col()$text("Referred To: ")
+    $col()$text(q_text_disref)
     $col()$text(c_cans_disref)
   endif  
  $endtable($funcname)
@@ -3294,7 +3312,7 @@ function AssessmentType() is null
   $block("1","1")
    $table("1",,table_nobgcolor)
     $row()
-     $col("right",,"50%")$text("Referral Source: ","datatag")
+     $col("right",,"50%")$text(q_text_intref,"datatag")
      $col()$dropboxdct(c.cans.intref,CansIntRefDCT,,,,"Y")
 	       $dropbox(c.cans.intref,"Other","5",,,"1","OTHER","Y")
    $endtable("1")
@@ -3302,23 +3320,31 @@ function AssessmentType() is null
   $block("1","OTHER")
    $table("OTHER",,table_nobgcolor)
     $row()
-     $col("right",,"50%")$text("Referral Other: ","datatag")
+     $col("right",,"50%")$text(q_text_intrefoth,"datatag")
      $col()$textbox(c.cans.intrefoth,,50,60,"Y")
    $endtable("OTHER")
   $endblock("1","OTHER")
   $block("3","3")
    $table("3",,table_nobgcolor)
     $row()
-     $col("right",,"50%")$text("Discharge Date: ","datatag")
+     $col("right",,"50%")$text(q_text_rdisdt,"datatag")
      $col()$textbox(c.cans.disdt,"CAL",10,6,,"normal")
     $row()
-     $col("right",,"50%")$text("Discharge Reason: ","datatag")
+     $col("right",,"50%")$text(q_text_disreas,"datatag")
      $col()$dropboxdct(c.cans.disreas,CansDisReasDCT,,,,"Y")
+           $dropbox(c.cans.disreas,"Other","7",,,"3","OTHER","Y")	 
     $row()
-     $col("right",,"50%")$text("Referred To: ","datatag")
+     $col("right",,"50%")$text(q_text_disref,"datatag")
      $col()$dropboxdct(c.cans.disref,CansDisRefDCT,,,,"Y")
    $endtable("3")
   $endblock("3","3")
+  $block("3","OTHER")
+   $table("OTHER",,table_nobgcolor)
+    $row()
+     $col("right",,"50%")$text(q_text_disoth,"datatag")
+     $col()$textbox(c.cans.disoth,,50,60,"Y")
+   $endtable("OTHER")
+  $endblock("3","OTHER")  
 end AssessmentType
 
 function OtherQuestions() is null
@@ -3378,53 +3404,58 @@ function ALOC() is null
  if c.cans.rloc = "100" or c.cans.type = "11" or (c.cans.type = "3" and c.cans.disreas != "9")
   CurrentDX = "Y"
  endif
- {"lib_CANS"}Last_Assessment($regid,last_type,,,,,last_aloc,,last_alocdate) 
+ {"lib_CANS"}Last_Assessment($regid,last_type,,,,,last_aloc) 
  $table($funcname,,"width='100%' cellspacing='0' cellpadding='2' bgcolor='White'  style='border-style: solid; border-width: 1px'")
-   $row(,col_color_multi)
-    if c.cans.type = "1" or c.cans.type = "2" or c.cans.type = "12"
-	 $col("center",,,"2")$text("Authorized Level Of Care","datatag")
-	elseif c.cans.type = "3"
-	 $col("center",,,"2")$text("Discharge","datatag")	
-	elseif c.cans.type = "11"
-	 $col("center",,,"2")$text("Authorized Level Of Care: Crisis","datatag")
-	endif
-  if CurrentDX = "Y"
-   $row()
-    $col("right",,"50%")$text(q_text_alocdate,"datatag")
-    $col()$textbox(c.cans.alocdate,"CAL",10,6,"Y","normal")
-    if c.cans.type = "1" or c.cans.type = "2" or c.cans.type = "12"
-     $row()
-      $col("right",,"50%")$text(q_text_rloc,"datatag")
-      $col()$text(c_cans_rloc)
-     if c.cans.dloc dp
+  $row(,col_color_multi)
+   if c.cans.type = "1" or c.cans.type = "2" or c.cans.type = "12"
+    $col("center",,,"2")$text("Authorized Level Of Care","datatag")
+   elseif c.cans.type = "3"
+    $col("center",,,"2")$text("Discharge","datatag")	
+   elseif c.cans.type = "11"
+    $col("center",,,"2")$text("Authorized Level Of Care: Crisis","datatag")
+   endif
+   if c.cans.type = "3"
+    $row()
+     $col("right",,"50%")$text(q_text_rdisdt,"datatag")
+     $col()$textbox(c.cans.disdt,"CAL",10,6,,"normal")  
+   endif  
+   if CurrentDX = "Y"
+    $row()
+     $col("right",,"50%")$text(q_text_alocdate,"datatag")
+     $col()$textbox(c.cans.alocdate,"CAL",10,6,"Y","normal")
+     if c.cans.type = "1" or c.cans.type = "2" or c.cans.type = "12"
       $row()
-       $col("right",,"50%")$text(q_text_dloc,"error")
-	   $col()$text(c_cans_dloc) 
-     endif	
-     $row()
-      $col("right",,"50%")$text(q_text_aloc,"datatag")
-	  $col()$dropboxdct(c.cans.aloc,CansAuthLevelDCT,,,,"Y")
-     if (c.cans.aloc dp and c.cans.rloc dp) and (c.cans.rloc != c.cans.aloc)
-	  $row()
-       $col("right",,"50%")$text(q_text_loc_dev,"datatag")
-	   $col()$dropboxdct(c.cans.loc_dev,CansDeviationDCT)
-             $dropbox(c.cans.loc_dev,"Other","5",,,"OTHER","OTHER")	
+       $col("right",,"50%")$text(q_text_rloc,"datatag")
+       $col()$text(c_cans_rloc)
+      if c.cans.dloc dp
+       $row()
+        $col("right",,"50%")$text(q_text_dloc,"error")
+	    $col()$text(c_cans_dloc) 
+      endif	
       $row()
-       $col("right",,"50%")$text(q_text_devjust,"datatag")
-       $col()$textblock(c.cans.devjust,5,,,"Y",255,"width:100%;")$countbox(c.cans.devjust,"(max chars is 255)")			 
+       $col("right",,"50%")$text(q_text_aloc,"datatag")
+	   $col()$dropboxdct(c.cans.aloc,CansAuthLevelDCT,,,,"Y")
+      if (c.cans.aloc dp and c.cans.rloc dp) and (c.cans.rloc != c.cans.aloc)
+	   $row()
+        $col("right",,"50%")$text(q_text_loc_dev,"datatag")
+	    $col()$dropboxdct(c.cans.loc_dev,CansDeviationDCT)
+              $dropbox(c.cans.loc_dev,"Other","5",,,"OTHER","OTHER")	
+       $row()
+        $col("right",,"50%")$text(q_text_devjust,"datatag")
+        $col()$textblock(c.cans.devjust,5,,,"Y",255,"width:100%;")$countbox(c.cans.devjust,"(max chars is 255)")			 
+      endif
      endif
-    endif
-    if c.cans.type = "11" or c.cans.rloc = "100"
-     c.cans.aloc = "100"
-	 c_cans_aloc = $dct(CansAuthLevelDCT,c.cans.aloc) 
-     $row()
-      $col("right",,"50%")$text(q_text_rloc,"datatag")
-      $col()$text(c_cans_rloc)  
-     $row()
-      $col("right",,"50%")$text(q_text_aloc,"datatag")
-      $col()$text(c_cans_aloc)  
-    endif	 	
-  $endtable($funcname)
+     if c.cans.type = "11" or c.cans.rloc = "100"
+      c.cans.aloc = "100"
+	  c_cans_aloc = $dct(CansAuthLevelDCT,c.cans.aloc) 
+      $row()
+       $col("right",,"50%")$text(q_text_rloc,"datatag")
+       $col()$text(c_cans_rloc)  
+      $row()
+       $col("right",,"50%")$text(q_text_aloc,"datatag")
+       $col()$text(c_cans_aloc)  
+     endif	 	
+ $endtable($funcname)
   $block("OTHER","OTHER")
    $table("OTHER",,table_nobgcolor)
     $row()
@@ -3438,7 +3469,7 @@ function ALOC() is null
     $row()
      $col("right",,"50%")$text(q_text_fairhear,"datatag")
      $col()$radio(c.cans.fairhear,"Yes","Y",,,,,,"Y")$ctag("&nbsp;&nbsp;&nbsp;&nbsp;")$radio(c.cans.fairhear,"No","N",,,,,,"Y")
-  $endtable($funcname)
+   $endtable($funcname)
   endif 		  
 
   $table($funcname,,table_nobgcolor)
@@ -3447,13 +3478,14 @@ function ALOC() is null
     $col()$textblock(c.cans.acomment,5,,,,255,"width:100%;")$countbox(c.cans.acomment,"(max chars is 255)")  
    $row()
     $col("right")$text("Include LPHA Medical Necessity Statement?")
-	$col()$checkbox(chk_MedNec, "Yes", "Y")
-  $endtable($funcname)
+    $col()$checkbox(chk_MedNec, "Yes", "Y")
+  $endtable($funcname) 
 
-  else
-   $row()
-   $col("center",,"100%","2")$text(diag_errortxt,"error")
-  endif
+   else
+     $row()
+      $col("center",,"100%","2")$text(diag_errortxt,"error")
+    $endtable($funcname) 
+   endif
 end ALOC
 
 function ALOCRpt(RptTitle,ReportID) is null
@@ -3545,11 +3577,12 @@ function ValidateALOC() is i
  CurrentDX     is x
  last_type     is x
  last_aloc     is x
+ last_date     is d
  last_alocdate is d
  datediff      is i
  
   $clear(last_type)
- {"lib_CANS"}Last_Assessment($regid,last_type,,,,,last_aloc,,last_alocdate)
+ {"lib_CANS"}Last_Assessment($regid,last_type,,,,,last_aloc,,,,last_alocdate)  
  if c.cans.aloc dp 
   if c.cans.rloc = "100" and c.cans.aloc != c.cans.rloc
    (void)$arrpush(errors[],aloc1_errortxt)  
@@ -3589,6 +3622,33 @@ function ValidateALOC() is i
  else
   (void)$arrpush(errors[],aloc5_errortxt)  
  endif
+
+ if c.cans.type = "3"
+  datediff = c.cans.disdt - c.cans.date
+  if c.cans.disdt !dp
+   (void)$arrpush(errors[],disch1_errortxt)
+  endif
+  if c.cans.disdt < last_alocdate
+   (void)$arrpush(errors[],disch4_errortxt)
+  endif  
+  if c.cans.disreas = "11"
+   if datediff > 0
+    (void)$arrpush(errors[],disch5_errortxt)
+   elseif datediff < -30
+    (void)$arrpush(errors[],disch3_errortxt)        
+   endif
+  else 
+   if datediff > 30
+    (void)$arrpush(errors[],disch2_errortxt)     
+   endif
+   if datediff < -30
+    (void)$arrpush(errors[],disch3_errortxt)        
+   endif
+   if last_date > c.cans.disdt
+    (void)$arrpush(errors[],disch6_errortxt)           
+   endif
+  endif 
+ endif    
 
  CurrentDX = {"lib_UACOMMON"}CurrentDX($regid,c.cans.date)
  if CurrentDX = "N"

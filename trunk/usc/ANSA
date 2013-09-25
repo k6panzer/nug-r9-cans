@@ -1,5 +1,5 @@
 start ANSA(parmfile,option,client,retcode)
- %version 1.0.008 09/24/2013
+ %version 1.0.009 09/25/2013
  $looplimit = 0
  %include inc_ANSA
  e.ser     is b
@@ -3329,9 +3329,13 @@ end Page0
 
 function Validate0() is i
  assessment_age is i
- last_date      is d
+ last_type     is x
+ last_aloc     is x
+ last_date     is d
+ last_alocdate is d
+ datediff      is i
  $clear(errors[]) 
- if c.ansa.type = "1"
+ if c.ansa.type = "1" or c.ansa.type = "12"
   $clear(c.ansa.disdt,c.ansa.disreas,c.ansa.disref,c.ansa.disoth)
   if c.ansa.intref != "5"
    $clear(c.ansa.intrefoth)
@@ -3360,17 +3364,39 @@ function Validate0() is i
   ClearPage1()
   ClearPage2()
   ClearPage34()
- else
-  $clear(c.ansa.disdt,c.ansa.disreas,c.ansa.disref,c.ansa.disoth)
-  if c.ansa.tcoommi !dp
-   (void)$arrpush(errors[],oth_tc_errortxt)
-  endif
  endif
 
- {"lib_ANSA"}Last_Assessment($regid,,,,last_date) 
+ {"lib_ANSA"}Last_Assessment($regid,,,,last_date,,,,,,last_alocdate)
  if last_date !dp
-  {"lib_CANS"}Last_Assessment($regid,,,,last_date) 
+  {"lib_CANS"}Last_Assessment($regid,,,,last_date,,,,,,last_alocdate)
  endif
+ if c.ansa.type = "3"
+  datediff = c.ansa.disdt - c.ansa.date
+  if c.ansa.disdt !dp
+   (void)$arrpush(errors[],disch1_errortxt)
+  endif
+  if c.ansa.disdt < last_alocdate
+   (void)$arrpush(errors[],disch4_errortxt)
+  endif  
+  if c.ansa.disreas = "13"
+   if datediff > 0
+    (void)$arrpush(errors[],disch5_errortxt)
+   elseif datediff < -30
+    (void)$arrpush(errors[],disch3_errortxt)        
+   endif
+  else 
+   if datediff > 30
+    (void)$arrpush(errors[],disch2_errortxt)     
+   endif
+   if datediff < -30
+    (void)$arrpush(errors[],disch3_errortxt)        
+   endif
+   if last_date > c.ansa.disdt
+    (void)$arrpush(errors[],disch6_errortxt)           
+   endif
+  endif 
+ endif    
+
  if c.ansa.date < $today
   assessment_age = $today - c.ansa.date
   if assessment_age > 30
@@ -3475,11 +3501,15 @@ function ValidateALOC() is i
  CurrentDX     is x
  last_type     is x
  last_aloc     is x
+ last_date     is d
  last_alocdate is d
  datediff      is i
  
   $clear(last_type)
- {"lib_ANSA"}Last_Assessment($regid,last_type,,,,,last_aloc,,last_alocdate)
+ {"lib_ANSA"}Last_Assessment($regid,last_type,,,last_date,,last_aloc,,,,last_alocdate)
+ if last_date !dp
+  {"lib_CANS"}Last_Assessment($regid,last_type,,,last_date,,last_aloc,,,,last_alocdate)
+ endif
  if c.ansa.aloc dp 
   if c.ansa.rloc = "100" and c.ansa.aloc != c.ansa.rloc
    (void)$arrpush(errors[],aloc1_errortxt)  
@@ -3531,6 +3561,33 @@ function ValidateALOC() is i
  else
   (void)$arrpush(errors[],aloc5_errortxt)  
  endif
+ 
+ if c.ansa.type = "3"
+  datediff = c.ansa.disdt - c.ansa.date
+  if c.ansa.disdt !dp
+   (void)$arrpush(errors[],disch1_errortxt)
+  endif
+  if c.ansa.disdt < last_alocdate
+   (void)$arrpush(errors[],disch4_errortxt)
+  endif  
+  if c.ansa.disreas = "11"
+   if datediff > 0
+    (void)$arrpush(errors[],disch5_errortxt)
+   elseif datediff < -30
+    (void)$arrpush(errors[],disch3_errortxt)        
+   endif
+  else 
+   if datediff > 30
+    (void)$arrpush(errors[],disch2_errortxt)     
+   endif
+   if datediff < -30
+    (void)$arrpush(errors[],disch3_errortxt)        
+   endif
+   if last_date > c.ansa.disdt
+    (void)$arrpush(errors[],disch6_errortxt)           
+   endif
+  endif 
+ endif     
 
  CurrentDX = {"lib_UACOMMON"}CurrentDX($regid,c.ansa.date)
  if CurrentDX = "N"
@@ -3618,42 +3675,46 @@ function ReportHdr() is null
  $table($funcname,,"width='100%' cellspacing='0' cellpadding='2' bgcolor='White' style='border-style: solid; border-width: 1px'")
   $row()
    $col(,,"5%")
-   $col(,,"15%")$text("Assessment Date: ")
+   $col(,,"15%")$text(q_text_date)
    $col(,,"80%")$text(c.ansa.date)
   $row()
    $col()
-   $col()$text("Assessment Type: ")
+   $col()$text(q_text_type)
    $col()$text(c_ansa_type)
   if c.ansa.type = "1"
    $row()
     $col()
-    $col()$text("Referral Source: ")
+    $col()$text(q_text_intref)
     $col()$text(c_ansa_intref)
    if c.ansa.intrefoth dp
     $row()
      $col()
-     $col()$text("Referral Other: ")
+     $col()$text(q_text_intrefoth)
      $col()$text(c.ansa.intrefoth)
    endif
   endif
   if c.ansa.type = "3"
    $row()
     $col()
-    $col()$text("Discharge Date: ")
+    $col()if c.ansa.alocdate dp
+	       $text(q_text_disdt)
+		  else
+	       $text(q_text_rdisdt)
+		  endif 
     $col()$text(c.ansa.disdt)
    $row()
     $col()
-    $col()$text("Discharge Reason: ")
+    $col()$text(q_text_disreas)
     $col()$text(c_ansa_disreas)
    if c.ansa.disoth dp
     $row()
      $col()
-     $col()$text("Discharge Other Reason: ")
+     $col()$text(q_text_disoth)
      $col()$text(c.ansa.disoth)
    endif
    $row()
     $col()
-    $col()$text("Referred To: ")
+    $col()$text(q_text_disref)
     $col()$text(c_ansa_disref)
   endif
  $endtable($funcname)
@@ -3683,6 +3744,7 @@ end StaffComments
 
 function ALOC() is null
  last_type     is x
+ last_date     is d
  last_aloc     is x
  last_alocdate is d
  CurrentDX     is x
@@ -3695,16 +3757,21 @@ function ALOC() is null
  if c.ansa.rloc = "100" or c.ansa.type = "11" or (c.ansa.type = "3" and c.ansa.disreas != "14")
   CurrentDX = "Y"
  endif
- {"lib_ANSA"}Last_Assessment($regid,last_type,,,,,last_aloc,,last_alocdate) 
+ {"lib_ANSA"}Last_Assessment($regid,last_type,,,last_date,,last_aloc,,,,last_alocdate) 
  $table($funcname,,"width='100%' cellspacing='0' cellpadding='2' bgcolor='White'  style='border-style: solid; border-width: 1px'")
-   $row(,col_color_multi)
-    if c.ansa.type = "1" or c.ansa.type = "2" or c.ansa.type = "12"
-	 $col("center",,,"2")$text("Authorized Level Of Care","datatag")
-	elseif c.ansa.type = "3"
-	 $col("center",,,"2")$text("Discharge","datatag")	
-	elseif c.ansa.type = "11"
-	 $col("center",,,"2")$text("Authorized Level Of Care: Crisis","datatag")
-	endif
+  $row(,col_color_multi)
+   if c.ansa.type = "1" or c.ansa.type = "2" or c.ansa.type = "12"
+    $col("center",,,"2")$text("Authorized Level Of Care","datatag")
+   elseif c.ansa.type = "3"
+    $col("center",,,"2")$text("Discharge","datatag")	
+   elseif c.ansa.type = "11"
+    $col("center",,,"2")$text("Authorized Level Of Care: Crisis","datatag")
+   endif
+   if c.ansa.type = "3"
+    $row()
+     $col("right",,"50%")$text(q_text_rdisdt,"datatag")
+     $col()$textbox(c.ansa.disdt,"CAL",10,6,,"normal")  
+   endif  
   if CurrentDX = "Y"
    $row()
     $col("right",,"50%")$text(q_text_alocdate,"datatag")
@@ -3767,10 +3834,11 @@ function ALOC() is null
 	$col()$checkbox(chk_MedNec, "Yes", "Y")	
   $endtable($funcname)
 
-  else
+ else
    $row()
-   $col("center",,"100%","2")$text(diag_errortxt,"error")
-  endif
+    $col("center",,"100%","2")$text(diag_errortxt,"error")
+  $endtable($funcname)	
+ endif
 end ALOC
 
 function ALOCRpt(RptTitle,ReportID) is null
