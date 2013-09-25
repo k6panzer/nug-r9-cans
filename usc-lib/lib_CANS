@@ -109,18 +109,24 @@ $allowupdate(c.cans.type,c.cans.staff,c.cans.ver,c.cans.date,c.cans.age,c.cans.a
   endif
  end Last_Assessment
  
- function EndDate(c.cans.aloc,c.cans.alocdate) is d
+ function EndDate(c.cans.aloc,c.cans.alocdate,c.cans.extdrev) is d
   c.cans.aloc     is x
   c.cans.alocdate is d
+  c.cans.extdrev  is x
   select c.cans.aloc
    case "100" EndDate = c.cans.alocdate + 7
-   case "101" EndDate = c.cans.alocdate + 90
+   case "101" if c.cans.extdrev = "Y"
+			   EndDate = c.cans.alocdate + 180
+			  else 
+			   EndDate = c.cans.alocdate + 90
+			  endif 
    case "102" EndDate = c.cans.alocdate + 90
    case "103" EndDate = c.cans.alocdate + 90
    case "104" EndDate = c.cans.alocdate + 90
    case "105" EndDate = c.cans.alocdate + 90
-   case "106" EndDate = c.cans.alocdate + 90
-   case "107" EndDate = c.cans.alocdate + 7
+   case "106" EndDate = c.cans.alocdate + 30
+   case "107" EndDate = c.cans.alocdate + 90
+   case "108" EndDate = c.cans.alocdate + 365
    case other EndDate = c.cans.alocdate
   endselect 
  end EndDate
@@ -168,3 +174,16 @@ $allowupdate(c.cans.type,c.cans.staff,c.cans.ver,c.cans.date,c.cans.age,c.cans.a
    PromptNewEditDel = 5
   endif
  end PromptNewEditDel
+ 
+ function Allow_ExtdRevYN() is x
+  assessment_age  is i
+  c.cans.aloc     is x
+  c.cans.rloc     is x
+  c.cans.alocdate is d
+  Allow_ExtdRevYN = "N"
+  Last_Assessment($regid,,,,,,c.cans.aloc,c.cans.rloc,,,c.cans.alocdate)
+  assessment_age = $today - c.cans.alocdate
+  if assessment_age >= 90 and c.cans.aloc = "101" and c.cans.aloc = c.cans.rloc
+   Allow_ExtdRevYN = "Y"
+  endif   
+ end Allow_ExtdRevYN

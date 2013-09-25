@@ -1,5 +1,5 @@
 start CANS617(parmfile,option,client,retcode)
- %version 1.0.008 09/25/2013
+ %version 1.0.009 09/25/2013
  $looplimit = 0
  %include inc_CANS617
  e.ser     is b
@@ -2404,9 +2404,6 @@ function Validate0() is i
   if c.cans.sped !dp
    (void)$arrpush(errors[],oth_ed_errortxt)   
   endif  
-  if c.cans.extdrev !dp
-   (void)$arrpush(errors[],oth_ex_errortxt)
-  endif
   if c.cans.foster !dp
    (void)$arrpush(errors[],oth_fc_errortxt)
   endif  
@@ -2421,7 +2418,7 @@ function Validate0() is i
   if c.cans.sped !dp
    (void)$arrpush(errors[],oth_ed_errortxt)   
   endif  
-  if c.cans.extdrev !dp
+  if c.cans.extdrev !dp and {"lib_CANS"}Allow_ExtdRevYN() = "Y"
    (void)$arrpush(errors[],oth_ex_errortxt)
   endif
   if c.cans.foster !dp
@@ -2439,9 +2436,6 @@ function Validate0() is i
    if c.cans.sped !dp
     (void)$arrpush(errors[],oth_ed_errortxt)   
    endif  
-   if c.cans.extdrev !dp
-    (void)$arrpush(errors[],oth_ex_errortxt)
-   endif
    if c.cans.foster !dp
     (void)$arrpush(errors[],oth_fc_errortxt)
    endif  
@@ -3355,9 +3349,11 @@ function OtherQuestions() is null
   $row()
    $col("right",,"50%")$text(q_text_sped,"datatag")
    $col()$radio(c.cans.sped,"No","N")$radio(c.cans.sped,"Yes","Y")
-  $row()
-   $col("right",,"50%")$text(q_text_extdrev,"datatag")
-   $col()$radio(c.cans.extdrev,"No","N")$radio(c.cans.extdrev,"Yes","Y")
+  if {"lib_CANS"}Allow_ExtdRevYN() = "Y"
+   $row()
+    $col("right",,"50%")$text(q_text_extdrev,"datatag")
+    $col()$radio(c.cans.extdrev,"No","N")$radio(c.cans.extdrev,"Yes","Y")
+  endif
   $row()
    $col("right",,"50%")$text(q_text_foster,"datatag")
    $col()$radio(c.cans.foster,"No","N")$radio(c.cans.foster,"Yes","Y")
@@ -3377,9 +3373,11 @@ function OtherQuestionRpt() is null
    $row()
     $col("right",,"50%")$text(q_text_sped)
     $col()$text(c.cans.sped)
-   $row()
-    $col("right",,"50%")$text(q_text_extdrev)
-    $col()$text(c.cans.extdrev)
+   if c.cans.extdrev dp
+    $row()
+     $col("right",,"50%")$text(q_text_extdrev)
+     $col()$text(c.cans.extdrev)
+   endif
    $row()
     $col("right",,"50%")$text(q_text_foster)
     $col()$text(c.cans.foster)
@@ -3420,7 +3418,12 @@ function ALOC() is null
      $col()$textbox(c.cans.disdt,"CAL",10,6,,"normal")  
    endif  
    if CurrentDX = "Y"
-    $row()
+    if c.cans.extdrev = "Y"
+     $row()
+      $col("right",,"50%")$text(q_text_extdrev,"datatag")
+      $col()$radio(c.cans.extdrev,"No","N")$radio(c.cans.extdrev,"Yes","Y")
+	endif
+	$row()
      $col("right",,"50%")$text(q_text_alocdate,"datatag")
      $col()$textbox(c.cans.alocdate,"CAL",10,6,"Y","normal")
      if c.cans.type = "1" or c.cans.type = "2" or c.cans.type = "12"
@@ -3583,6 +3586,15 @@ function ValidateALOC() is i
  
   $clear(last_type)
  {"lib_CANS"}Last_Assessment($regid,last_type,,,,,last_aloc,,,,last_alocdate)  
+ if c.cans.extdrev = "Y"
+  if c.cans.aloc != "101"
+   (void)$arrpush(errors[],extdrv1_errortxt)  
+  endif
+  if c.cans.rloc != "101"
+   (void)$arrpush(errors[],extdrv2_errortxt)   
+  endif 
+ endif 
+  
  if c.cans.aloc dp 
   if c.cans.rloc = "100" and c.cans.aloc != c.cans.rloc
    (void)$arrpush(errors[],aloc1_errortxt)  
