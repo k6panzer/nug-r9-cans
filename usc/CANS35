@@ -562,7 +562,36 @@ function SaveData() is i
   case "UPDATE" if (c.cans.dloc = c.cans.rloc) and (c.cans.dloc = c.cans.aloc)
                  $clear(c.cans.dloc)
 				endif 
-                SaveData = $dbupdate(02, $regid, cans_dstlist)
+                SaveData = $dbupdate(02, $regid, 
+c.cans.rec,c.cans.staff,c.cans.ver,c.cans.date,c.cans.age,c.cans.aloc,c.cans.rloc,c.cans.dloc,c.cans.compd,c.cans.type,
+c.cans.school3m,c.cans.arrest,c.cans.grade,c.cans.restype,c.cans.resother1,c.cans.resother2,
+c.cans.sped,c.cans.extdrev,c.cans.foster,c.cans.riskplc,c.cans.tcoommi,
+c.cans.disdt,c.cans.disreas,c.cans.disref,c.cans.disoth,
+c.cans.intref,c.cans.intrefoth,
+c.cans.loc_dev,c.cans.devoth,c.cans.devr1,c.cans.devr2,c.cans.devr2,c.cans.devr3,c.cans.devr4,c.cans.devr5,
+c.cans.alocstaff,c.cans.alocdate,c.cans.alocedate,c.cans.fairhear,
+c.cans.snapid,
+c.cans.isn,
+c.cans.commdate,
+c.cans.comment,c.cans.acomment,
+c.cans.devjust,
+c.cans.canstype,
+'c.cans.resv6,c.cans.resv7,c.cans.resv8,c.cans.resv9,
+c.cans.ld.family,c.cans.ld.livsit,c.cans.ld.preday,c.cans.ld.socFun,c.cans.ld.recret,c.cans.ld.develp,c.cans.ld.motor,c.cans.ld.commun,c.cans.ld.medicl,c.cans.ld.physcl,c.cans.ld.sleep ,c.cans.ld.relper, 
+c.cans.cs.family,c.cans.cs.extfam,c.cans.cs.intper,c.cans.cs.adapt,c.cans.cs.persis,c.cans.cs.curios,
+c.cans.ac.langua,c.cans.ac.identy,c.cans.ac.ritual,c.cans.ac.culstr,c.cans.ac.culdif,
+c.cans.cg.super,c.cans.cg.involv,c.cans.cg.knoldg,c.cans.cg.organz,c.cans.cg.socres,c.cans.cg.ressbl,c.cans.cg.physcl,c.cans.cg.menhth,c.cans.cg.subabs,c.cans.cg.develp,c.cans.cg.chldcr,c.cans.cg.miltra,c.cans.cg.famsts,c.cans.cg.safety,
+c.cans.cg.empath,c.cans.cg.marvio,
+c.cans.cb.attach,c.cans.cb.regula,c.cans.cb.fthriv,c.cans.cb.depres,c.cans.cb.anxity,c.cans.cb.atypic,c.cans.cb.implsv,c.cans.cb.oppdef,c.cans.cb.adjtrm,
+c.cans.cr.sfharm,c.cans.cr.aggbeh,c.cans.cr.socbeh,
+c.cans.cf.birthw,c.cans.cf.pica,c.cans.cf.prenat,c.cans.cf.labdel,c.cans.cf.subexp,c.cans.cf.psprob,c.cans.cf.matava,c.cans.cf.abuse,
+c.cans.sc.prequa,c.cans.sc.pbehav,c.cans.sc.pachie,c.cans.sc.patten,
+c.cans.dv.cognit,c.cans.dv.selfcr,
+c.cans.fc.selfcr,c.cans.fc.culstr,c.cans.fc.empedu,c.cans.fc.eduatt,c.cans.fc.legal,c.cans.fc.motive,c.cans.fc.finres,c.cans.fc.transp,
+c.cans.tr.sexabs,c.cans.tr.phyabs,c.cans.tr.emoabs,c.cans.tr.medtrm,c.cans.tr.natdis,c.cans.tr.wtofam,c.cans.tr.wtocom,c.cans.tr.wcrime,c.cans.tr.waraff,c.cans.tr.teraff,c.cans.tr.emclos,c.cans.tr.freq ,c.cans.tr.durat,c.cans.tr.force,c.cans.tr.react,
+c.cans.ad.affreg,c.cans.ad.reexp,c.cans.ad.avoid,c.cans.ad.incaro,c.cans.ad.numres,c.cans.ad.timb4t,
+c.cans.rg.eating,c.cans.rg.elim,c.cans.rg.sensor,c.cans.rg.emot,
+c.cans.caredt)				
  endselect
   select SaveData
    case 0 $brmsg("CANS Assessment Successfully saved to Database!",1,"W","Process Complete")

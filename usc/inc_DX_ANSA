@@ -113,3 +113,64 @@ c.dxaxiii1,c.dxaxiii2,c.dxaxiii3,c.dxaxiii4,c.dxaxiii5,c.dxaxiii6,c.dxaxiv,c.dxa
 c.dx.isn,c.dxaxiv-a,c.who.diag,c.dx.stat,c.dxflag,c.a1l1,c.dx.ax3,c.dx.ax4.a,c.dx.ser,c.dx.time,c.dx.dur,c.dx.ru,c.dx.loc,c.dx.proj,c.dx.serv,c.dx.fill,c.dx.comme,c.dx.by,
 c.dx.ax4.c,c.dx.ax4.d,c.paamd,c.saamd,c.taamd,c.genetic,c.c.anomal,c.sen.imp,c.precept,c.conv.dis,c.psy.impa,c.motor.dy,c.aamd.dat,c.iq.score,
 c.iq.date,c.iq.type,c.sq.score,c.sq.date,c.sq.type,c.dx.prese,c.dx.ax4.b,c.dx.ax4.e,c.dx.ax4.f,c.dx.ax4.g,c.dx.ax4.h,c.dx.sys,c.dx.ax4.i,c.dx.ax4.j,c.dx.needed)
+
+ function GETDX(DXType,DX,DXCat,DXDate,DXGaf) is null
+  DXType is x
+  DX     is x
+  DXCat  is x
+  DXDate is d
+  DXGaf  is i
+  rc     is b 
+
+  rc = $dbread(02, $regid, dx_dstlist)  
+  dxtype = $dct(dx_dct, c.diag, "1")
+  DX     = c.diag
+  DXGaf  = c.dxaxvc
+  DXDate = c.dxdate
+ 
+  if dxtype = "O" and C.DXAXI2 dp
+   dxtype = $dct(dx_dct, C.DXAXI2, "1")
+   if dxtype = "S" or dxtype = "B" or dxtype = "D"
+ 	DX = C.DXAXI2
+   endif
+  endif
+  if dxtype = "O" and C.DXAXI3 dp
+   dxtype = $dct(dx_dct, C.DXAXI3, "1")
+   if dxtype = "S" or dxtype = "B" or dxtype = "D"
+    DX = C.DXAXI3
+   endif
+  endif
+  if dxtype = "O" and C.DXAXI4 dp
+   dxtype = $dct(dx_dct, C.DXAXI4, "1")
+   if dxtype = "S" or dxtype = "B" or dxtype = "D"
+    DX = C.DXAXI4
+   endif
+  endif
+  if dxtype = "O" and C.DXAXI5 dp
+   dxtype = $dct(dx_dct, C.DXAXI5, "1")
+   if dxtype = "S" or dxtype = "B" or dxtype = "D"
+    DX = C.DXAXI5
+   endif
+  endif
+  if dxtype = "O" and C.DXAXI6 dp
+   dxtype = $dct(dx_dct, C.DXAXI6, "1")
+   if dxtype = "S" or dxtype = "B" or dxtype = "D"
+    DX = C.DXAXI6
+   endif
+  endif
+  select DXType
+   case "B" dxcat = "Bipolar"
+   case "S" dxcat = "Schizophrenia"
+   case "D" select DX
+             case "29624" dxcat = "MDD - With Psychotic Features"
+			 case "29634" dxcat = "MDD - With Psychotic Features"
+             case "296.24" dxcat = "MDD - With Psychotic Features"
+			 case "296.34" dxcat = "MDD - With Psychotic Features"
+			 case other    dxcat = "MDD - Without Psychotic Features"
+			endselect 
+   case "O" dxcat = "Other"
+   case !dp dxcat = "Other"
+            DXType = "O"
+  endselect
+  $allowupdate(dxtype, DX, dxcat, DXGAF, DXDate)
+ end GETDX
