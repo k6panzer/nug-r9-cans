@@ -3094,8 +3094,11 @@ function ValidateALOC() is i
    endif
   endif    
 
-  if c.cans.aloc = "108" and c.cans.type != "1"
+  if c.cans.aloc = "106" and c.cans.type != "1"
   (void)$arrpush(errors[],aloc13_errortxt)
+  endif
+  if c.cans.aloc = "108" and c.cans.type != "1"
+  (void)$arrpush(errors[],aloc15_errortxt)
   endif
 
   if c.cans.aloc = "110" and (c.cans.type != "1" and c.cans.type != "11")

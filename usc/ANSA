@@ -2852,8 +2852,11 @@ function ValidateALOC() is i
    (void)$arrpush(errors[],aloc12_errortxt)
   endif
   
+  if c.ansa.aloc = "106" and c.ansa.type != "1"
+  (void)$arrpush(errors[],aloc13_errortxt)
+  endif
   if c.ansa.aloc = "108" and c.ansa.type != "1"
-   (void)$arrpush(errors[],aloc13_errortxt)
+  (void)$arrpush(errors[],aloc15_errortxt)
   endif
 
   if c.ansa.aloc = "120" and (c.ansa.type != "1" and c.ansa.type != "11")

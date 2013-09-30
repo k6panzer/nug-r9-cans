@@ -626,6 +626,7 @@ errors[] is x       'array for capturing errors by section
 %define aloc11_errortxt "Due to the Discharge Reason, the ALOC will be changed to Ineligible"
 %define aloc13_errortxt "LOC 6: Consumer Refuses Services cannot be authorized when the assessment type is not Intake"
 %define aloc14_errortxt "LOC 9: Ineligible cannot be authorized when the assessment type is not Intake"
+%define aloc15_errortxt "LOC 8: Waiting for All Authorized Services cannot be authorized when the assessment type is not Intake"
 %define dloc_errortxt "The LOC requested for deviation is the same as the Recommended LOC. It will be unselected now. You can either leave the field blank or select another LOC."
 %define crisis1_errortxt "Client is currently in crisis, please resolve this crisis and re-assess"
 %define crisis2_errortxt "Scoring does not indicate a crisis episode"
