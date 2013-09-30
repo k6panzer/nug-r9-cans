@@ -2838,7 +2838,11 @@ function ValidateALOC() is i
    if c.ansa.loc_dev !dp
     (void)$arrpush(errors[],aloc3_errortxt)
    else
-    if $num(c.ansa.aloc) > $num(c.ansa.rloc) and (c.ansa.loc_dev != "3" and c.ansa.loc_dev != "4")
+	if c.ansa.aloc = "108" and c.ansa.loc_dev != "1"
+     (void)$arrpush(errors[],locdev4_errortxt)		
+	elseif c.ansa.aloc = "106" and c.ansa.loc_dev != "2"
+     (void)$arrpush(errors[],locdev3_errortxt)		
+	elseif $num(c.ansa.aloc) > $num(c.ansa.rloc) and (c.ansa.loc_dev != "3" and c.ansa.loc_dev != "4")
      (void)$arrpush(errors[],locdev1_errortxt)	
 	endif
    endif
