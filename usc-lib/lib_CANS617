@@ -1609,10 +1609,8 @@ function RLOC(c.cans.ac.sexgen,c.cans.ad.affreg,c.cans.ad.dissoc,c.cans.ad.intru
 
 'IntensiveFamilyServices
   if c.cans.ld.legal = "3"
-   if $num(c.cans.dv.cognit) > 1 and $num(c.cans.dv.develp) > 1
-    RLOC = intensive
-	return 
-   endif
+   RLOC = intensive
+   return 
   endif
 
   if (c.cans.cr.suicid = "3" and c.cans.sr.hissui = "3")
@@ -1620,22 +1618,22 @@ function RLOC(c.cans.ac.sexgen,c.cans.ad.affreg,c.cans.ad.dissoc,c.cans.ad.intru
    return
   endif
 
-  if	(c.cans.cr.runawy = "3" and $num(c.cans.rn.frqncy) > 1 and c.cans.rn.invill = "3")
+  if c.cans.cr.runawy = "3" and $num(c.cans.rn.frqncy) > 1 and c.cans.rn.invill = "3"
    RLOC = intensive
    return
   endif
 
-  if (c.cans.cr.sexagr = "3" and c.cans.ld.livsit = "3" and c.cans.ld.school != "0" and c.cans.sc.behavr = "3")
+  if c.cans.cr.sexagr = "3" and c.cans.ld.livsit = "3" and c.cans.ld.school != "0" and c.cans.sc.behavr = "3"
    RLOC = intensive
    return
   endif 
 
-  if	(c.cans.cr.delqcy = "3" and c.cans.ld.livsit = "3" and c.cans.ld.school != "0" and c.cans.sc.behavr = "3")
+  if c.cans.cr.delqcy = "3" and c.cans.ld.livsit = "3" and c.cans.ld.school != "0" and c.cans.sc.behavr = "3"
    RLOC = intensive
    return
   endif
 
-  if	(c.cans.cb.anxity = "3" and c.cans.ld.livsit = "3" and c.cans.ld.school != "0" and $num(c.cans.sc.behavr) > 1 and $num(c.cans.sc.attend) > 1)
+  if c.cans.cb.anxity = "3" and c.cans.ld.livsit = "3" and c.cans.ld.school != "0" and $num(c.cans.sc.behavr) > 1 and $num(c.cans.sc.attend) > 1
    RLOC = intensive
    return
   endif 

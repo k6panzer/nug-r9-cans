@@ -1,5 +1,5 @@
 start ANSA(parmfile,option,client,retcode)
- %version 1.0.010 09/27/2013
+ %version 1.0.011 09/28/2013
  $looplimit = 0
  %include inc_ANSA
  e.ser     is b
@@ -2838,13 +2838,17 @@ function ValidateALOC() is i
    if c.ansa.loc_dev !dp
     (void)$arrpush(errors[],aloc3_errortxt)
    else
-	if c.ansa.aloc = "108" and c.ansa.loc_dev != "1"
+	if c.ansa.aloc = "109" and c.ansa.loc_dev != "1"
      (void)$arrpush(errors[],locdev4_errortxt)		
-	elseif c.ansa.aloc = "106" and c.ansa.loc_dev != "2"
+	elseif c.ansa.aloc = "108" and c.ansa.loc_dev != "2"
      (void)$arrpush(errors[],locdev3_errortxt)		
-	elseif $num(c.ansa.aloc) > $num(c.ansa.rloc) and (c.ansa.loc_dev != "3" and c.ansa.loc_dev != "4")
+	endif
+	if (c.ansa.aloc != "109" and c.ansa.aloc != "108") and $num(c.ansa.aloc) > $num(c.ansa.rloc) and (c.ansa.loc_dev != "3" and c.ansa.loc_dev != "4")
      (void)$arrpush(errors[],locdev1_errortxt)	
 	endif
+	if (c.ansa.aloc != "109" and c.ansa.aloc != "108") and $num(c.ansa.aloc) < $num(c.ansa.rloc) and (c.ansa.loc_dev != "3" and c.ansa.loc_dev != "4")
+     (void)$arrpush(errors[],locdev2_errortxt)	
+	endif	
    endif
   endif
   
@@ -2852,14 +2856,14 @@ function ValidateALOC() is i
    (void)$arrpush(errors[],aloc12_errortxt)
   endif
   
-  if c.ansa.aloc = "106" and c.ansa.type != "1"
+  if c.ansa.aloc = "109" and (c.ansa.type != "1" and c.ansa.type != "12")
   (void)$arrpush(errors[],aloc13_errortxt)
   endif
-  if c.ansa.aloc = "108" and c.ansa.type != "1"
+  if c.ansa.aloc = "108" and (c.ansa.type != "1" and c.ansa.type != "12")
   (void)$arrpush(errors[],aloc15_errortxt)
   endif
 
-  if c.ansa.aloc = "120" and (c.ansa.type != "1" and c.ansa.type != "11")
+  if c.ansa.aloc = "120" and (c.ansa.type != "1" and c.ansa.type != "12")
    (void)$arrpush(errors[],aloc14_errortxt)
   endif  
 
