@@ -460,11 +460,16 @@ errors[] is x  'array for capturing errors by section
 %define aloc9_errortxt "Crisis may only be assigned to a child/youth who is not currently assigned to an LOC"
 %define aloc10_errortxt "If client is in Foster Care then YES Waiver cannot be authorized"
 %define aloc11_errortxt "Due to the Discharge Reason, the ALOC will be changed to Ineligible"
+%define aloc13_errortxt "LOC 6: Consumer Refuses Services cannot be authorized when the assessment type is not Intake"
+%define aloc14_errortxt "LOC 9: Ineligible cannot be authorized when the assessment type is not Intake"
 %define dloc_errortxt "The LOC requested for deviation is the same as the Recommended LOC. It will be unselected now. You can either leave the field blank or select another LOC."
 %define staff_errortxt "You cannot authorize your own assessment, another UM staff must authorize it."
 %define crisis1_errortxt "Client is currently in crisis, please resolve this crisis and re-assess"
 %define crisis2_errortxt "Scoring does not indicate a crisis episode"
+%define locdev1_errortxt "Invalid Reason for a Higher Deviation. Must be Clinical Need or Continuity of Care"
 %define locdev2_errortxt "Invalid Reason for Crisis Deviation. Must be Clinical Need or Other"
+%define locdev3_errortxt "Invalid Reason for Deviation. Must be Consumer Refused"
+%define locdev4_errortxt "Invalid Reason for Deviation. Must be Resource Limitations"
 
 rc_cans_dstlist = $dstlist(cans_dstlist,02,
 c.cans.rec,c.cans.staff,c.cans.ver,c.cans.date,c.cans.age,c.cans.aloc,c.cans.rloc,c.cans.dloc,c.cans.compd,c.cans.type,

@@ -3633,6 +3633,14 @@ function ValidateALOC() is i
    (void)$arrpush(errors[],extdrv2_errortxt)   
   endif 
  endif 
+ 
+  if c.cans.aloc = "108" and c.cans.type != "1"
+   (void)$arrpush(errors[],aloc13_errortxt)
+  endif
+
+  if c.cans.aloc = "110" and (c.cans.type != "1" and c.cans.type != "11")
+   (void)$arrpush(errors[],aloc14_errortxt)
+  endif   
   
  if c.cans.aloc dp 
   if c.cans.rloc = "100" and c.cans.aloc != c.cans.rloc
@@ -3643,11 +3651,15 @@ function ValidateALOC() is i
    if c.cans.loc_dev !dp
     (void)$arrpush(errors[],aloc3_errortxt)
    else
-    if $num(c.cans.aloc) > $num(c.cans.rloc) and (c.cans.loc_dev != "3" and c.cans.loc_dev != "4")
+	if c.cans.aloc = "108" and c.cans.loc_dev != "1"
+     (void)$arrpush(errors[],locdev4_errortxt)		
+	elseif c.cans.aloc = "106" and c.cans.loc_dev != "2"
+     (void)$arrpush(errors[],locdev3_errortxt)		
+	elseif $num(c.cans.aloc) > $num(c.cans.rloc) and (c.cans.loc_dev != "3" and c.cans.loc_dev != "4")
      (void)$arrpush(errors[],locdev1_errortxt)	
 	endif
    endif
-  endif  
+  endif    
 
   if c.cans.aloc = "100" and (last_type = "I" or last_type = "U")
     (void)$arrpush(errors[],aloc9_errortxt)  

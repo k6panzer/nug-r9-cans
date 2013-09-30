@@ -3079,6 +3079,29 @@ function ValidateALOC() is i
  $clear(last_type, last_aloc, last_alocdate)
  {"lib_CANS"}Last_Assessment($regid,last_type,,,,,last_aloc,,,,last_alocdate) 
  if c.cans.aloc dp 
+
+  if c.cans.aloc != c.cans.rloc
+   if c.cans.loc_dev !dp
+    (void)$arrpush(errors[],aloc3_errortxt)
+   else
+	if c.cans.aloc = "108" and c.cans.loc_dev != "1"
+     (void)$arrpush(errors[],locdev4_errortxt)		
+	elseif c.cans.aloc = "106" and c.cans.loc_dev != "2"
+     (void)$arrpush(errors[],locdev3_errortxt)		
+	elseif $num(c.cans.aloc) > $num(c.cans.rloc) and (c.cans.loc_dev != "3" and c.cans.loc_dev != "4")
+     (void)$arrpush(errors[],locdev1_errortxt)	
+	endif
+   endif
+  endif    
+
+  if c.cans.aloc = "108" and c.cans.type != "1"
+  (void)$arrpush(errors[],aloc13_errortxt)
+  endif
+
+  if c.cans.aloc = "110" and (c.cans.type != "1" and c.cans.type != "11")
+   (void)$arrpush(errors[],aloc14_errortxt)
+  endif   
+ 
   if c.cans.rloc = "100" and c.cans.aloc != c.cans.rloc
    (void)$arrpush(errors[],aloc1_errortxt)  
   endif
