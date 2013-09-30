@@ -1827,6 +1827,7 @@ end Page3Rpt
                         c.ansa.ld.sexdev,q_text_ld_living,c.ansa.ld.living,q_text_ld_restab,c.ansa.ld.restab,q_text_ld_legal,c.ansa.ld.legal,q_text_ld_sleep,c.ansa.ld.sleep,q_text_ld_decisi,c.ansa.ld.decisi,q_text_ld_invrec,             
                         c.ansa.ld.invrec,q_text_ld_trans,c.ansa.ld.trans,
 						c.ansa.pm.chi,c.ansa.pm.mehv,c.ansa.pm.mp,c.ansa.pm.pcpc,q_text_pm,q_text_pm_chi,q_text_pm_mehv,q_text_pm_mp,q_text_pm_pcpc,
+                        c.ansa.vc.career,c.ansa.vc.jatt,c.ansa.vc.jper,c.ansa.vc.jrel,c.ansa.vc.jskill,c.ansa.vc.jtime,q_text_vc,q_text_vc_career,q_text_vc_jatt,q_text_vc_jper,q_text_vc_jrel,q_text_vc_jskill,q_text_vc_jtime,
 						c.ansa.dn.cog,c.ansa.dn.comm,c.ansa.dn.dev,q_text_dn,q_text_dn_cog,q_text_dn_comm,q_text_dn_dev) is null
   c.ansa.disreas is x
   q_text_nonpp   is x
