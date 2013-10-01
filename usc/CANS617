@@ -2535,7 +2535,7 @@ function Validate0() is i
   Validate0 = 0	
  endif 
  c.cans.staff = $operstaffid
- c.cans.ver   = $scriptid   
+ c.cans.ver   = $scriptver
 end Validate0
 
 function Validate1() is i
