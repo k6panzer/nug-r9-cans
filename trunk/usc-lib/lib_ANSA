@@ -2877,43 +2877,6 @@ end Page3Rpt
   {"l_snapLibSC"}sn_CreateReport(RptTitle,,,ReportID)
  end ALOCRpt
   
- function RLOCRpt(ansaauthleveldct,c.ansa.comment,c.ansa.dloc,c.ansa.rloc,c.ansa.type,c_ansa_rloc,q_text_comment,q_text_dloc,q_text_rloc) is null
-  ansaauthleveldct is b
-  c.ansa.comment   is x
-  c.ansa.dloc      is x
-  c.ansa.rloc      is x
-  c.ansa.type      is x
-  c_ansa_rloc      is x
-  q_text_comment   is x
-  q_text_dloc      is x
-  q_text_rloc      is x
-  c_ansa_rloc = $dct(ansaAuthLevelDCT,c.ansa.rloc)
-   $table($funcname,,"width='100%' cellspacing='0' cellpadding='2' bgcolor='White'  style='border-style: solid; border-width: 1px'")
-   if c.ansa.type = "1" or c.ansa.type = "2" or c.ansa.type = "12"
-   $row(,col_color_multi)
-    $col("center",,,"2")$text("Recommended Level Of Care","datatag")
-    $row()
-     $col("right",,"50%")$text(q_text_rloc,"datatag")
-     $col()$text(c_ansa_rloc)
-    $row()
-     $col("right",,"50%")$text(q_text_dloc,"datatag")
-     $col()$dropboxdct(c.ansa.dloc,ansaAuthLevelDCT)
-   elseif c.ansa.type = "11"
-   $row(,col_color_multi)
-    $col("center",,,"2")$text("Recommended Level Of Care: Crisis","datatag")
-    $row()
-     $col("right",,"50%")$text(q_text_rloc,"datatag")
-     $col()$text(c_ansa_rloc)
-   elseif c.ansa.type = "3"
-   $row(,col_color_multi)
-    $col("center",,,"2")$text("Discharge","datatag")
-   endif
-   $row()
-    $col("right",,"50%")$text(q_text_comment,"datatag")
-    $col()$textblock(c.ansa.comment,5,,,,255,"width:100%;")$countbox(c.ansa.comment,"(max chars is 255)")
-  $endtable($funcname)
- end RLOCRpt
-
  'Behavioral Health Needs Report
  function BehavioralRpt(c.ansa.b.adjtrm,c.ansa.b.angctr,c.ansa.b.antisoc,c.ansa.b.anxity,c.ansa.b.cog,c.ansa.b.depres,c.ansa.b.eatdst,c.ansa.b.implsv,c.ansa.b.inter,c.ansa.b.mania,
                         c.ansa.b.psychs,c.ansa.b.subabs,c.ansa.disreas,c.ansa.type,q_text_b,q_text_b_adjtrm,q_text_b_angctr,q_text_b_antisoc,q_text_b_anxity,q_text_b_cog,q_text_b_depres,q_text_b_eatdst,q_text_b_implsv,q_text_b_inter,q_text_b_mania,

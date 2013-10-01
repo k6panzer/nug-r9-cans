@@ -2477,7 +2477,7 @@ function Report(mode) is null
                              c.ansa.type,c_ansa_aloc,c_ansa_dloc,c_ansa_fairhear,c_ansa_loc_dev,c_ansa_rloc,chk_mednec,medicalnecessity,q_text_acomment,q_text_aloc,q_text_alocdate,q_text_alocedate,q_text_alocstaff,
                              q_text_devjust,q_text_devoth,q_text_dloc,q_text_fairhear,q_text_loc_dev,q_text_rloc,sigline)
    else
-    $br(){"lib_ANSA"}RLOCRpt(ansaauthleveldct,c.ansa.comment,c.ansa.dloc,c.ansa.rloc,c.ansa.type,c_ansa_rloc,q_text_comment,q_text_dloc,q_text_rloc)
+    $br()RLOCRpt()
    endif
   elseif mode = "Authorize"
    $br()StaffComments()
@@ -3165,6 +3165,34 @@ function ALOC() is null
   $endtable($funcname)	
  endif
 end ALOC
+
+function RLOCRpt() is null
+ c_ansa_rloc = $dct(ansaAuthLevelDCT,c.ansa.rloc)
+  $table($funcname,,"width='100%' cellspacing='0' cellpadding='2' bgcolor='White'  style='border-style: solid; border-width: 1px'")
+  if c.ansa.type = "1" or c.ansa.type = "2" or c.ansa.type = "12"
+  $row(,col_color_multi)
+   $col("center",,,"2")$text("Recommended Level Of Care","datatag")
+   $row()
+    $col("right",,"50%")$text(q_text_rloc,"datatag")
+    $col()$text(c_ansa_rloc)
+   $row()
+    $col("right",,"50%")$text(q_text_dloc,"datatag")
+    $col()$dropboxdct(c.ansa.dloc,ansaAuthLevelDCT)
+  elseif c.ansa.type = "11"
+  $row(,col_color_multi)
+   $col("center",,,"2")$text("Recommended Level Of Care: Crisis","datatag")
+   $row()
+    $col("right",,"50%")$text(q_text_rloc,"datatag")
+    $col()$text(c_ansa_rloc)
+  elseif c.ansa.type = "3"
+  $row(,col_color_multi)
+   $col("center",,,"2")$text("Discharge","datatag")
+  endif
+  $row()
+   $col("right",,"50%")$text(q_text_comment,"datatag")
+   $col()$textblock(c.ansa.comment,5,,,,255,"width:100%;")$countbox(c.ansa.comment,"(max chars is 255)")
+ $endtable($funcname)
+end RLOCRpt
 
 function ClearPage1() is null
  if c.ansa.type = "11"
