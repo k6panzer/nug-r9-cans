@@ -38,6 +38,13 @@ endselect
 AssessorSig      = "Y"
 AuthSig          = "Y"
 MaxClinRatingAge = 90
+
+select $custnumber
+   case 641 'GCC
+      SkipSer = "Y"
+      AnsaDisReasDCT = 9703
+endselect
+
 '*******************************************************
 if LogFile !dp
  LogUsage = "N"
