@@ -26,6 +26,13 @@ select $uc($seg($mscname,1,5))
               AssessmentSer = 10
  case "PECAN" SkipSer = "Y"
 endselect 
+
+select $custnumber
+   case 641 'GCC
+      SkipSer = "Y"
+      CansDisRefDCT = 9704
+endselect
+
 '*******************************************************
 
 '*********Medical Necessity Statement Related***********
