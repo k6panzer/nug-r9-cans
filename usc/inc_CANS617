@@ -1,6 +1,7 @@
 'Include file for the CANS (Children's Assessment of Needs and Strengths) 6-17
  
 %global CansTypeDCT,CansIntRefDCT,CansDisReasDCT,CansDisRefDCT,CansAuthLevelDCT,CansDeviationDCT,CansGradeDCT,CansResTypeDCT,SkiPSer,AssessmentSer
+%global Title,RptTitle,ReportID,ChangeIrmsHeader,CheckStfCred
 CansTypeDCT      is b
 CansIntRefDCT    is b
 CansDisReasDCT   is b
@@ -11,6 +12,11 @@ CansGradeDCT     is b
 CansResTypeDCT   is b
 SkipSer          is x
 AssessmentSer    is b
+Title       	 is x 'Irms form title
+RptTitle    	 is x 'Irms form title
+ReportID    	 is x 'IRMS form name
+ChangeIrmsHeader is x 'Y/N Call the changetitle function on the final snapshot? Not a very good var name, I agree
+CheckStfCred     is x 'Y/N Call the Check_UACredentials function?
 
 '*********Datacode Tables, Change These*****************
 CansTypeDCT      = 9700
@@ -21,11 +27,30 @@ CansAuthLevelDCT = 9705
 CansDeviationDCT = 9706
 CansGradeDCT     = 9710
 CansResTypeDCT   = 9012
-select $uc($seg($mscname,1,5))
- case "HELEN" SkipSer = "N"
-              AssessmentSer = 10
- case "PECAN" SkipSer = "Y"
-endselect 
+Title 		     = "CANS (6-17) Report"
+RptTitle 		 = Title
+ReportID 		 = "CANS"
+ChangeIrmsHeader = "Y"
+CheckStfCred     = "Y"		
+
+'Various overrides based on the custnumber
+ select $custnumber
+ 'Helen Farabee and Pecan Valley
+    case 256 select $uc($seg($mscname,1,5))
+              case "HELEN" SkipSer = "N"
+                           AssessmentSer = 10			   
+              case "PECAN" SkipSer = "Y"
+             endselect
+
+ 'GCC
+   case 641 SkipSer = "Y"
+	        CansDisRefDCT = 9704
+            Title = "CANS (6-17) Report"
+            RptTitle = Title
+            ReportID = "CANS"
+            ChangeIrmsHeader = "N"
+            CheckStfCred = "N"
+ endselect 
 
 select $custnumber
    case 641 'GCC
@@ -34,6 +59,23 @@ select $custnumber
 endselect
 
 '*******************************************************
+if SkipSer !dp
+ SkipSer = "N"
+else
+ SkipSer = $uc(SkipSer)
+endif
+
+if ChangeIrmsHeader !dp
+ ChangeIrmsHeader = "N"
+else
+ ChangeIrmsHeader = $uc(ChangeIrmsHeader)
+endif
+
+if CheckStfCred !dp
+ CheckStfCred = "N"
+else
+ CheckStfCred = $uc(CheckStfCred)
+endif
 
 '*********Medical Necessity Statement Related***********
 %define MedicalNecessity "As a Licensed Professional of Healing Arts (LPHA), I verify that the services authorized in the 'Authorized Level Of Care' section above are medically necessary and I concur with the plan of care."
@@ -638,10 +680,11 @@ errors[] is x       'array for capturing errors by section
 %define crisis1_errortxt "Client is currently in crisis, please resolve this crisis and re-assess"
 %define crisis2_errortxt "Scoring does not indicate a crisis episode"
 %define loc9_1_errortxt "Change this Assessment Type to a Discharge or continue with the Update assessment by selecting an LOC Deviation"
-%define locdev1_errortxt "Invalid Reason for a Higher Deviation. Must be Clinical Need or Continuity of Care"
-%define locdev2_errortxt "Invalid Reason for Crisis Deviation. Must be Clinical Need or Other"
+%define locdev1_errortxt "Invalid Reason for a Higher Deviation. Must be Clinical Need,Continuity of Care or Other"
+%define locdev2_errortxt "Invalid Reason for Lower Deviation. Must be Resource Limitation, Consumer Refused, Clinical Need, Continuity of Care or Other"
 %define locdev3_errortxt "Invalid Reason for Deviation. Must be Consumer Refused"
 %define locdev4_errortxt "Invalid Reason for Deviation. Must be Resource Limitations"
+%define locdev5_errortxt "Invalid Reason for Deviation. Must be Consumer Refused, Consumer Need or Other"
 %define extdrv1_errortxt "Extended Review is limited to 101/LOC - 1: Medication Management"
 %define extdrv2_errortxt "Assessment does not meet criteria for Extended Review to be authorized"
 
