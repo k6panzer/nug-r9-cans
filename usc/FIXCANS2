@@ -1,0 +1,88 @@
+start FIXCANS2()
+ $looplimit = 0
+ %include inc_CANS617
+ cid is x
+ rc  is i
+ rc2  is i 
+ bad_char_index is i
+ bad_char[] is x
+ bad_char[1] = "<"
+ bad_char[2] = ">"
+ bad_char[3] = "&" 
+(void)$dbstart(02, CID)
+ rc = $dbread(2,cid,CANS_dstlist)
+ do while rc < 3
+
+   if c.cans.resother1 dp
+   	$dblock()
+    rc2 = $dbread(2,cid,c.cans.rec,c.cans.resother1)
+    bad_char_index = 0
+    do while bad_char_index++ < $maxarray(bad_char[])
+     c.cans.resother1 = $replace(bad_char[bad_char_index],"_",c.cans.resother1)
+    enddo
+    rc2 = $dbupdate(2,cid,c.cans.rec,c.cans.resother1)			 
+   endif 
+
+   if c.cans.intrefoth dp
+   	$dblock()
+    rc2 = $dbread(2,cid,c.cans.rec, c.cans.intrefoth)
+    bad_char_index = 0
+    do while bad_char_index++ < $maxarray(bad_char[])
+     c.cans.intrefoth = $replace(bad_char[bad_char_index],"_",c.cans.intrefoth)
+    enddo
+    rc2 = $dbupdate(2,cid,c.cans.rec,c.cans.intrefoth)			 
+   endif
+   
+   if c.cans.disoth dp
+   	$dblock()
+    rc2 = $dbread(2,cid,c.cans.rec, c.cans.disoth)	
+    bad_char_index = 0	
+    do while bad_char_index++ < $maxarray(bad_char[])
+     c.cans.disoth = $replace(bad_char[bad_char_index],"_",c.cans.disoth)
+    enddo
+    rc2 = $dbupdate(2,cid,c.cans.rec,c.cans.disoth)			 
+   endif
+   
+   if c.cans.acomment dp
+   	$dblock()
+    rc2 = $dbread(2,cid,c.cans.rec, c.cans.acomment)	
+    bad_char_index = 0
+    do while bad_char_index++ < $maxarray(bad_char[])
+     c.cans.acomment = $replace(bad_char[bad_char_index],"_",c.cans.acomment)
+    enddo
+    rc2 = $dbupdate(2,cid,c.cans.rec,c.cans.acomment)			 
+   endif
+   
+   if c.cans.comment dp
+   	$dblock()
+    rc2 = $dbread(2,cid,c.cans.rec, c.cans.comment)	
+    bad_char_index = 0
+    do while bad_char_index++ < $maxarray(bad_char[])
+     c.cans.comment = $replace(bad_char[bad_char_index],"_",c.cans.comment)
+    enddo
+    rc2 = $dbupdate(2,cid,c.cans.rec,c.cans.comment)			 	
+   endif
+
+   if c.cans.devjust dp
+   	$dblock()
+    rc2 = $dbread(2,cid,c.cans.rec, c.cans.devjust)	   
+    bad_char_index = 0
+    do while bad_char_index++ < $maxarray(bad_char[])
+     c.cans.devjust = $replace(bad_char[bad_char_index],"_",c.cans.devjust)
+    enddo
+    rc2 = $dbupdate(2,cid,c.cans.rec,c.cans.devjust)			 
+   endif
+
+   if c.cans.devoth dp
+   	$dblock()
+    rc2 = $dbread(2,cid,c.cans.rec, c.cans.devoth)	
+    bad_char_index = 0
+    do while bad_char_index++ < $maxarray(bad_char[])
+     c.cans.devoth = $replace(bad_char[bad_char_index],"_",c.cans.devoth)
+    enddo
+    rc2 = $dbupdate(2,cid,c.cans.rec,c.cans.devoth)			 
+   endif
+
+  rc = $dbreadnext(2,cid,CANS_dstlist)
+ enddo
+end FIXCANS2
