@@ -91,7 +91,7 @@ on load do:
    $setvarname(c.ansa.rloc,     "C.UABD.RLOC")
    $setvarname(c.ansa.compd,    "C.UABD.COMPD")
    $setvarname(c.ansa.type,     "C.UABD.PUR")
-   $setvarname(c.ansa.alocdate, "C.UABD.ALOCD")
+   $setvarname(c.ansa.alocdate, "C.UABD.DATE1")
    rc = $dbread(02,clientid,c.ansa.rec,c.ansa.type,c.ansa.staff,c.ansa.date,c.ansa.rloc,c.ansa.compd,c.ansa.alocdate,c.ansa.aloc)
    do until c.ansa.compd dp or rc > 1
     rc = $dbreadnextdst(02,clientid,c.ansa.rec,c.ansa.type,c.ansa.staff,c.ansa.date,c.ansa.rloc,c.ansa.compd,c.ansa.alocdate,c.ansa.aloc)
@@ -939,7 +939,7 @@ on load do:
    elseif c_bdss_othr dp and c.bdss.othr !dp
     $brmsg("You Must Provide a Description if Other is a Questionable Reason.",1,"W","Error")
    elseif c.bdss.conf !dp
-    $brmsg("You Must Score the Confidence in the Assessment To Move On.",1,"W","Erroe")
+    $brmsg("You Must Score the Confidence in the Assessment To Move On.",1,"W","Error")
    else 
     return
    endif	
@@ -2758,7 +2758,7 @@ end Page3Rpt
 
  function ALOCRpt(RptTitle,ReportID,ansaauthleveldct,ansadeviationdct,c.ansa.acomment,c.ansa.aloc,c.ansa.alocdate,c.ansa.alocedate,c.ansa.devjust,c.ansa.devoth,c.ansa.dloc,c.ansa.fairhear,c.ansa.loc_dev,c.ansa.rloc,
                   c.ansa.type,c_ansa_aloc,c_ansa_dloc,c_ansa_fairhear,c_ansa_loc_dev,c_ansa_rloc,chk_mednec,medicalnecessity,q_text_acomment,q_text_aloc,q_text_alocdate,q_text_alocedate,q_text_alocstaff,
-                  q_text_devjust,q_text_devoth,q_text_dloc,q_text_fairhear,q_text_loc_dev,q_text_rloc,sigline) is null
+                  q_text_devjust,q_text_devoth,q_text_dloc,q_text_fairhear,q_text_loc_dev,q_text_rloc,sigline,ChangeIrmsTitle) is null
   RptTitle         is x
   ReportID         is x
   ansaauthleveldct is b
@@ -2793,6 +2793,7 @@ end Page3Rpt
   q_text_loc_dev   is x
   q_text_rloc      is x
   sigline          is x
+  ChangeIrmsTitle  is x
 
   sigline = $dct(2071, $oper, "D")
   sigline += " (" + $operstaffid + ")"
@@ -2870,7 +2871,9 @@ end Page3Rpt
    $br(2)$text(MedicalNecessity,"siginfo")
   endif 
   $br()
-  {"lib_UACOMMON"}ChangeTitle($scriptid)
+  if ChangeIrmsTitle = "Y"
+   {"lib_UACOMMON"}ChangeTitle($scriptid)
+  endif 
   {"l_snapLibSC"}sn_CreateReport(RptTitle,,,ReportID)
  end ALOCRpt
   

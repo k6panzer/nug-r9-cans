@@ -1,5 +1,5 @@
 start ANSA(parmfile,option,client,retcode)
- %version 1.0.011 09/28/2013
+ %version 1.0.012 10/01/2013
  $looplimit = 0
  %include inc_ANSA
  e.ser     is b
@@ -45,16 +45,8 @@ start ANSA(parmfile,option,client,retcode)
  option   is x
  client   is x
  retcode  is i
- rc       is i
- 
- Title     is x
- RptTitle  is x
- ReportID  is x
-  
- Title = "ANSA Report" 
- RptTitle = "ANSA Report" 
- ReportID = "ANSA"
-      
+ rc       is i 
+    
  if $regid !dp
   if client dp
    $regid = client
@@ -84,7 +76,10 @@ start ANSA(parmfile,option,client,retcode)
  if {"lib_UACOMMON"}StaffCanDo() = 1
   return
  endif 
- call "CHECK_UACREDENTIALS"() 
+ 
+ if CheckStfCred = "Y"
+  call "CHECK_UACREDENTIALS"() 
+ endif 
  
  {"lib_ANSA"}GETDX(DXType, DX, DXCat, DXDate, DXGaf)
 
@@ -437,7 +432,7 @@ start ANSA(parmfile,option,client,retcode)
               if c.ansa.type = "3"
                $clear(c.ansa.rloc,c.ansa.aloc,c.ansa.dloc)
               endif									 
-              Report(RptTitle,ReportID,page)
+              Report(page)
 	 if $endbutton = "SUBMIT"
 	  if UM_StaffYN = "Y"
 	       if (c.ansa.staff = $operstaffid and c.ansa.staff dp)
@@ -489,7 +484,7 @@ start ANSA(parmfile,option,client,retcode)
     if c.ansa.type = "3"
      $clear(c.ansa.rloc,c.ansa.aloc,c.ansa.dloc)
     endif									 
-    REPORT(RptTitle,ReportID,page)
+    Report(page)
     if $endbutton = "SUBMIT"
 	  if (c.ansa.aloc dp and c.ansa.aloc != c.ansa.rloc) and c.ansa.loc_dev !dp
        $brmsg("Please select the reason for deviation from the Recommended LOC!",1,"W","Deviation Reason") 
@@ -2407,11 +2402,8 @@ function CanSkipPage4() is x
 ' endif 
 end CanSkipPage4
 
-function Report(RptTitle,ReportID,mode) is null
- RptTitle is x
- ReportID is x
+function Report(mode) is null
  mode     is x
-
 ' if (StaffAssign_YN = "Y" and UM_StaffYN = "Y") and (c.ansa.staff != $operstaffid and c.ansa.staff dp)
 '  UM_StaffYN = "N"
 ' endif
@@ -2843,12 +2835,15 @@ function ValidateALOC() is i
 	elseif c.ansa.aloc = "108" and c.ansa.loc_dev != "2"
      (void)$arrpush(errors[],locdev3_errortxt)		
 	endif
-	if (c.ansa.aloc != "109" and c.ansa.aloc != "108") and $num(c.ansa.aloc) > $num(c.ansa.rloc) and (c.ansa.loc_dev != "3" and c.ansa.loc_dev != "4")
+	if (c.ansa.aloc != "109" and c.ansa.aloc != "108") and $num(c.ansa.aloc) > $num(c.ansa.rloc) and (c.ansa.loc_dev != "3" and c.ansa.loc_dev != "4" and c.ansa.loc_dev != "5")
      (void)$arrpush(errors[],locdev1_errortxt)	
 	endif
-	if (c.ansa.aloc != "109" and c.ansa.aloc != "108") and $num(c.ansa.aloc) < $num(c.ansa.rloc) and (c.ansa.loc_dev != "3" and c.ansa.loc_dev != "4")
+	if (c.ansa.aloc != "109" and c.ansa.aloc != "108") and $num(c.ansa.aloc) < $num(c.ansa.rloc) and (c.ansa.loc_dev != "1" and c.ansa.loc_dev != "2" and c.ansa.loc_dev != "3" and c.ansa.loc_dev != "4" and c.ansa.loc_dev != "5")
      (void)$arrpush(errors[],locdev2_errortxt)	
 	endif	
+    if (c.ansa.rloc = "120" and c.ansa.aloc = "106") and (c.ansa.loc_dev != "2" and c.ansa.loc_dev != "4" and c.ansa.loc_dev != "5")
+	 (void)$arrpush(errors[],locdev5_errortxt)	
+	endif
    endif
   endif
   

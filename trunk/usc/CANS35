@@ -1,5 +1,5 @@
  start CANS35(parmfile,option,client,retcode)
- %version 1.0.008 09/30/2013
+ %version 1.0.009 10/01/2013
  $looplimit = 0
  %include inc_CANS35
  e.ser     is b
@@ -34,14 +34,6 @@
  retcode  is i
  rc       is i
 
- Title     is x
- RptTitle is x
- ReportID  is x
-
- Title = "CANS (3-5) Report" 
- RptTitle = Title
- ReportID = "CANS"  
- 
  if $regid !dp
   if client dp
    $regid = client
@@ -71,7 +63,10 @@
  if {"lib_UACOMMON"}StaffCanDo() = 1
   return
  endif 
- call "CHECK_UACREDENTIALS"()
+ 
+ if CheckStfCred = "Y"
+  call "CHECK_UACREDENTIALS"()
+ endif 
  
  if Validate() = 1
   {"lib_UACOMMON"}DisplayErrors(errors[])
@@ -315,7 +310,7 @@
                     if c.cans.type = "3" 'and c.cans.disreas != "9"
                      $clear(c.cans.rloc,c.cans.aloc,c.cans.dloc)
                     endif									 
-                    Report(RptTitle,ReportID,page)
+                    Report(page)
 					select $endbutton
 					 case "SUBMIT" if UM_StaffYN = "Y"
 								    if (c.cans.staff = $operstaffid and c.cans.staff dp)
@@ -357,7 +352,7 @@
                     if c.cans.type = "3" 'and c.cans.disreas != "9"
                      $clear(c.cans.rloc,c.cans.aloc,c.cans.dloc)
                     endif									 
-                    REPORT(RptTitle,ReportID,page)
+                    Report(page)
                     select $endbutton
 					 case "SUBMIT"  if (c.cans.aloc dp and c.cans.aloc != c.cans.rloc) and c.cans.loc_dev !dp
                                      $brmsg("Please select the reason for deviation from the Recommended LOC!",1,"W","Deviation Reason") 
@@ -407,9 +402,7 @@
  enddo
 end CANS35
 
-function Report(RptTitle,ReportID,mode) is null
- RptTitle is x
- ReportID is x
+function Report(mode) is null
  mode     is x
 
  if UM_StaffYN = "Y" and (c.cans.staff != $operstaffid and c.cans.staff dp)
@@ -442,7 +435,7 @@ function Report(RptTitle,ReportID,mode) is null
   select mode
    case "Report"  if UM_StaffYN = "Y" and (c.cans.staff != $operstaffid and c.cans.staff dp)
                    $br()StaffComments()
-				   $br()ALOCRpt(RptTitle,ReportID)
+				   $br()ALOCRpt()
 				  else 
 				   $br()RLOCRpt()
 				  endif
@@ -2964,10 +2957,7 @@ function ALOC() is null
    endif
 end ALOC
 
-function ALOCRpt(RptTitle,ReportID) is null
- RptTitle is x
- ReportID is x
- 
+function ALOCRpt() is null
  sigline = $dct(2071, $oper, "D")
  sigline += " (" + $operstaffid + ")" 
  
@@ -3043,7 +3033,9 @@ function ALOCRpt(RptTitle,ReportID) is null
   $br(2)$text(MedicalNecessity,"siginfo")
  endif 
  $br()
- {"lib_UACOMMON"}ChangeTitle($scriptid)
+ if ChangeIRMSHeader = "Y"
+  {"lib_UACOMMON"}ChangeTitle($scriptid)
+ endif 
  {"l_snapLibSC"}sn_CreateReport(RptTitle,,,ReportID)
 end ALOCRpt
 
@@ -3089,14 +3081,15 @@ function ValidateALOC() is i
 	elseif c.cans.aloc = "108" and c.cans.loc_dev != "2"
      (void)$arrpush(errors[],locdev3_errortxt)		
 	endif
-	if (c.cans.aloc != "109" and c.cans.aloc != "108" and c.cans.aloc != "107") and $num(c.cans.aloc) > $num(c.cans.rloc) and (c.cans.loc_dev != "3" and c.cans.loc_dev != "4")
+	if (c.cans.aloc != "109" and c.cans.aloc != "108" and c.cans.aloc != "107") and $num(c.cans.aloc) > $num(c.cans.rloc) and (c.cans.loc_dev != "3" and c.cans.loc_dev != "4" and c.cans.loc_dev != "5")
      (void)$arrpush(errors[],locdev1_errortxt)	
 	endif
-	if (c.cans.aloc != "109" and c.cans.aloc != "108" and c.cans.aloc != "107") and $num(c.cans.aloc) < $num(c.cans.rloc) and (c.cans.loc_dev != "3" and c.cans.loc_dev != "4")
+    if (c.cans.aloc != "109" and c.cans.aloc != "108" and c.cans.aloc != "107") and $num(c.cans.aloc) < $num(c.cans.rloc) and 
+       (c.cans.loc_dev != "1" and  c.cans.loc_dev != "2" and  c.cans.loc_dev != "3" and  c.cans.loc_dev != "4" and  c.cans.loc_dev != "5")
      (void)$arrpush(errors[],locdev2_errortxt)	
 	endif	
    endif
-  endif 
+  endif
 
   if c.cans.aloc = "108" and (c.cans.type != "1" and c.cans.type != "12")
   (void)$arrpush(errors[],aloc13_errortxt)
