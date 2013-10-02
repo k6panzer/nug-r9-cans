@@ -1,8 +1,7 @@
-'Include file for the ANSA (Adult Needs And Strengths Assessment)
+'Include file for the ANSA (Adult Needs And Strengths Assessment) 
 
 %global AnsaTypeDCT,AnsaIntRefDCT,AnsaDisReasDCT,AnsaDisRefDCT,AnsaAuthLevelDCT,AnsaDeviationDCT,AnsaGradeDCT,AnsaResTypeDCT,SkiPSer,AssessmentSer,AssessorSig,AuthSig,LogUsage,LogFile,MaxClinRatingAge
 %global Title,RptTitle,ReportID,ChangeIrmsHeader,CheckStfCred
-
 AnsaTypeDCT      is b
 AnsaIntRefDCT    is b
 AnsaDisReasDCT   is b
@@ -18,9 +17,9 @@ AuthSig          is x 'Y/N Include the authorizer signature line on snapshot
 LogUsage         is x 'Log the usage of the script? Used to determine how long an assessment takes staff to complete, etc
 LogFile          is x '$today|$regid|c.ansa.staff|c.ansa.alocstaff|start_time|end_time|sent_to_um_YN|c.ansa.date|c.ansa.compd|c.ansa.type|c.ansa.rloc|c.ansa.aloc ?
 MaxClinRatingAge is i 'Maximum number of days from the assessment date before prompting for a new Clinical Ratings Scale, 0-90. If 0 then new scale will be prompted every time
-Title           is x 'Irms form title
-RptTitle        is x 'Irms form title
-ReportID        is x 'IRMS form name
+Title       	 is x 'Irms form title
+RptTitle    	 is x 'Irms form title
+ReportID    	 is x 'IRMS form name
 ChangeIrmsHeader is x 'Y/N Call the changetitle function on the final snapshot? Not a very good var name, I agree
 CheckStfCred     is x 'Y/N Call the Check_UACredentials function?
 
@@ -38,29 +37,30 @@ ChangeIrmsHeader = "Y"
 CheckStfCred     = "Y"
 Title            = "ANSA Report"
 RptTitle         = Title
-ReportID         = "ANSA"
+ReportID         = "ANSA"	
 
 'Various overrides based on the custnumber
-select $custnumber
-   'Helen Farabee and Pecan Valley
-   case 256
-      select $uc($seg($mscname,1,5))
-         case "HELEN"
-            SkipSer = "N"
-            AssessmentSer = 7
-            LogUsage = "Y"
-            LogFile  = "/c0/SQLTRANSFER/t_client_ansa_usage.txt"
-         case "PECAN" SkipSer = "Y"
-            LogUsage = "Y"
-            LogFile  = "/c0/SQLTRANSFER/PV/t_client_ansa_usage.txt"
-         endselect
-   'GCC
-   case 641
-      AnsaDisReasDCT = 9703
-      SkipSer = "Y"
-      ReportID = "GCADLUA"
-      ChangeIrmsHeader = "N"
-      CheckStfCred = "N"
+ select $custnumber
+ 'Helen Farabee and Pecan Valley
+    case 256 select $uc($seg($mscname,1,5))
+              case "HELEN" SkipSer = "N"
+                           AssessmentSer = 7
+			               LogUsage = "Y"
+                           LogFile  = "/c0/SQLTRANSFER/t_client_ansa_usage.txt"
+              case "PECAN" SkipSer = "Y"
+  			               LogUsage = "Y"
+                           LogFile  = "/c0/SQLTRANSFER/PV/t_client_ansa_usage.txt"				   
+            endselect 
+ 'GCC
+    case 641 AnsaDisReasDCT = 9703
+	         SkipSer = "Y"
+			 LogUsage = "N"
+			 $clear(logfile)
+             Title = "ANSA Report"
+             RptTitle = "ANSA Report"
+             ReportID = "ANSA"				 
+  		     ChangeIrmsHeader = "N"
+			 CheckStfCred = "N"
  endselect
 '*******************************************************
 if SkipSer !dp
@@ -93,12 +93,12 @@ endif
 
 if MaxClinRatingAge > 90
  MaxClinRatingAge = 90
-endif
+endif 
 
 '*********Medical Necessity Statement Related***********
 %define MedicalNecessity "As a Licensed Professional of Healing Arts (LPHA), I verify that the services authorized in the 'Authorized Level Of Care' section above are medically necessary and I concur with the plan of care."
 %global chk_MedNec
-chk_MedNec is x
+chk_MedNec is x 
 '*******************************************************
 
 %global ansa_dstlist
@@ -541,7 +541,7 @@ c.ansa.dn.dev     is x
 %define q_text_intrefoth "Intake Referral Other: "
 
 'LOC related
-%define q_text_aloc "Authorized Level of Care: "
+%define q_text_aloc "Authorized Level of Care: " 
 %define q_text_rloc "Recommended Level of Care: "
 %define q_text_dloc "Deviation of Level of Care Requested by Staff: "
 %define q_text_loc_dev "Deviation Explanation: "
