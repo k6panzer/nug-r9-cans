@@ -2829,7 +2829,7 @@ function ValidateALOC() is i
   endif
   
   if medicaid_status = "Medicaid Recipient" and c.ansa.fairhear !dp
-   if ($num(c.ansa.aloc) <  $num(last_aloc) and last_aloc dp) and (c.ansa.type = "2" or (c.ansa.type = "3" and c.ansa.disreas = "14"))
+   if ($num(c.ansa.aloc) <  $num(last_aloc) and last_aloc dp) and (c.ansa.type = "2" or (c.ansa.type = "3" and c.ansa.disreas != "14"))
     (void)$arrpush(errors[],fairhear_errtxt)  
    endif  
    if c.ansa.type = "1" and $num(c.ansa.aloc) < $num(c.ansa.rloc)
@@ -3158,7 +3158,7 @@ function ALOC() is null
   $endblock("OTHER","OTHER")
 
   if medicaid_status = "Medicaid Recipient"
-   if (($num(c.ansa.aloc) <  $num(last_aloc) and last_aloc dp) and (c.ansa.type = "2" or (c.ansa.type = "3" and c.ansa.disreas = "14"))) or
+   if (($num(c.ansa.aloc) <  $num(last_aloc) and last_aloc dp) and (c.ansa.type = "2" or (c.ansa.type = "3" and c.ansa.disreas != "14"))) or
       (c.ansa.type = "1" and $num(c.ansa.aloc) < $num(c.ansa.rloc))
     $table($funcname,,table_nobgcolor)
      $row()
