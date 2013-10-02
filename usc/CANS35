@@ -1,5 +1,5 @@
  start CANS35(parmfile,option,client,retcode)
- %version 1.0.011 10/02/2013
+ %version 1.0.012 10/02/2013
  $looplimit = 0
  %include inc_CANS35
  e.ser     is b
@@ -2940,12 +2940,13 @@ function ALOC() is null
   $endblock("OTHER","OTHER")
 
   if medicaid_status = "Medicaid Recipient"
-   if ($num(c.cans.aloc) < $num(last_aloc) and last_aloc dp) and (c.cans.type != "11" and c.cans.type != "12")
+   if (($num(c.cans.aloc) <  $num(last_aloc) and last_aloc dp) and (c.cans.type = "2" or (c.cans.type = "3" and c.cans.disreas = "14"))) or
+      (c.cans.type = "1" and $num(c.cans.aloc) < $num(c.cans.rloc))
     $table($funcname,,table_nobgcolor)
      $row()
       $col("right",,"50%")$text(q_text_fairhear,"datatag")
       $col()$radio(c.cans.fairhear,"Yes","Y",,,,,,"Y")$ctag("&nbsp;&nbsp;&nbsp;&nbsp;")$radio(c.cans.fairhear,"No","N",,,,,,"Y")
-    $endtable($funcname)
+   $endtable($funcname)
    endif 		  
   endif 
 
@@ -3098,6 +3099,15 @@ function ValidateALOC() is i
 	endif	
    endif
   endif
+
+  if medicaid_status = "Medicaid Recipient" and c.cans.fairhear !dp
+   if ($num(c.cans.aloc) <  $num(last_aloc) and last_aloc dp) and (c.cans.type = "2" or (c.cans.type = "3" and c.cans.disreas = "14"))
+    (void)$arrpush(errors[],fairhear_errtxt)  
+   endif  
+   if c.cans.type = "1" and $num(c.cans.aloc) < $num(c.cans.rloc)
+    (void)$arrpush(errors[],fairhear_errtxt)     
+   endif
+  endif   
 
   if c.cans.aloc = "108" and (c.cans.type != "1" and c.cans.type != "12")
   (void)$arrpush(errors[],aloc13_errortxt)

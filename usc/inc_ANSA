@@ -632,6 +632,7 @@ errors[] is x
 %define qidsalg_errortxt "Assessment cannot be authorized until Assessor has completed the Depression Algorithm Scale. This occurs when the Diagnosis is entered after the ANSA"
 %define schzalg_errortxt "Assessment cannot be authorized until Assessor has completed the Schizophrenia Algorithm Scale. This occurs when the Diagnosis is entered after the ANSA"
 %define bipalg_errortxt "Assessment cannot be authorized until Assessor has completed the Bipolar Algorithm Scale. This occurs when the Diagnosis is entered after the ANSA"
+%define fairhear_errtxt "Please answer Yes or No to the Medicaid Fair Hearing Letter required question."
 
 rc_ansa_dstlist = $dstlist(ansa_dstlist,02,
 c.ansa.rec,c.ansa.staff,c.ansa.ver,c.ansa.date,c.ansa.caredt,c.ansa.age,c.ansa.aloc,c.ansa.rloc,c.ansa.dloc,c.ansa.compd,c.ansa.type,
