@@ -1,5 +1,5 @@
 start ANSA(parmfile,option,client,retcode)
- %version 1.0.014 10/02/2013
+ %version 1.0.015 10/02/2013
  $looplimit = 0
  %include inc_ANSA
  e.ser     is b
@@ -413,9 +413,7 @@ start ANSA(parmfile,option,client,retcode)
     if ValidateReport() = 0
      if SaveData() = 0
       Page = "Exit"
-	  if $regid != "10604"
-	   {"lib_UACOMMON"}AddUMMonitor($regid,$scriptid)
-	  endif 
+      {"lib_UACOMMON"}AddUMMonitor($regid,$scriptid)
      endif 
     else
      Page = "Report"
@@ -475,9 +473,7 @@ start ANSA(parmfile,option,client,retcode)
 	  if SaveData() = 0
 	   Page = "Exit"
 	   {"lib_UACOMMON"}RemUMMonitor($regid,$scriptid)
-	   if $regid != "10604"
-	    {"lib_UACOMMON"}AddBatch($regid,$scriptid)	   
-	   endif	
+	   {"lib_UACOMMON"}AddBatch($regid,$scriptid)	   
 	  endif 
 	 endif
    elseif Page = "Authorize"
