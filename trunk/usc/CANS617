@@ -17,7 +17,7 @@ start CANS617(parmfile,option,client,retcode)
  %global radio_index
  radio_index is i  
  
- %global c_cans_rloc, c_cans_dloc, c_cans_aloc,c_cans_loc_dev,c_cans_fairhear,c_cans_grade,c_cans_restype,sigline
+ %global c_cans_rloc, c_cans_dloc, c_cans_aloc,c_cans_loc_dev,c_cans_fairhear,c_cans_grade,c_cans_restype,sigline,medicaid_status
  c_cans_rloc     is x
  c_cans_dloc     is x
  c_cans_aloc     is x
@@ -26,6 +26,7 @@ start CANS617(parmfile,option,client,retcode)
  c_cans_grade    is x
  c_cans_restype  is x
  sigline         is x
+ medicaid_status is x
 
  %global parmfile,option,client,retcode, rc
  parmfile is x
@@ -75,7 +76,8 @@ start CANS617(parmfile,option,client,retcode)
  
  %global assessments
  assessments[] is x
- {"lib_CANS"}Allow_Assesment($regid,assessments[]) 
+ {"lib_CANS"}Allow_Assesment($regid,assessments[])
+ {"lib_UAMEDICAID"}check_medicaid($regid,medicaid_status)  
 
  %global bgcolor
  bgcolor is x 
@@ -2890,6 +2892,10 @@ function ReportHdr() is null
     $col()$text(q_text_disref)
     $col()$text(c_cans_disref)
   endif  
+   $row()
+    $col()
+    $col()$text("Medicaid Status:")
+    $col()$text(medicaid_status)
  $endtable($funcname)
  $br()$tag("<hr/>")
  $br()
@@ -3499,13 +3505,15 @@ function ALOC() is null
    $endtable("OTHER")
   $endblock("OTHER","OTHER")
 
-  if (c.cans.aloc != last_aloc and last_aloc dp) and c.cans.type != "3"
-   $table($funcname,,table_nobgcolor)
-    $row()
-     $col("right",,"50%")$text(q_text_fairhear,"datatag")
-     $col()$radio(c.cans.fairhear,"Yes","Y",,,,,,"Y")$ctag("&nbsp;&nbsp;&nbsp;&nbsp;")$radio(c.cans.fairhear,"No","N",,,,,,"Y")
-   $endtable($funcname)
-  endif 		  
+  if medicaid_status = "Medicaid Recipient"
+   if ($num(c.cans.aloc) < $num(last_aloc) and last_aloc dp) and (c.cans.type != "11" and c.cans.type != "12")
+    $table($funcname,,table_nobgcolor)
+     $row()
+      $col("right",,"50%")$text(q_text_fairhear,"datatag")
+      $col()$radio(c.cans.fairhear,"Yes","Y",,,,,,"Y")$ctag("&nbsp;&nbsp;&nbsp;&nbsp;")$radio(c.cans.fairhear,"No","N",,,,,,"Y")
+    $endtable($funcname)
+   endif 		  
+  endif 
 
   $table($funcname,,table_nobgcolor)
    $row()

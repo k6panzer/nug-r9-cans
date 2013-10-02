@@ -1,5 +1,5 @@
 start ANSA(parmfile,option,client,retcode)
- %version 1.0.013 10/01/2013
+ %version 1.0.014 10/02/2013
  $looplimit = 0
  %include inc_ANSA
  e.ser     is b
@@ -17,7 +17,7 @@ start ANSA(parmfile,option,client,retcode)
  %global radio_index
  radio_index is i
  
- %global c_ansa_rloc, c_ansa_dloc, c_ansa_aloc,c_ansa_loc_dev,c_ansa_fairhear,c_ansa_grade,c_ansa_restype,c_ansa_emptype,c_ansa_labor,sigline,ansa_start_time,ansa_end_time,ansa_duration,ansa_log
+ %global c_ansa_rloc, c_ansa_dloc, c_ansa_aloc,c_ansa_loc_dev,c_ansa_fairhear,c_ansa_grade,c_ansa_restype,c_ansa_emptype,c_ansa_labor,sigline,ansa_start_time,ansa_end_time,ansa_duration,ansa_log,medicaid_status
  c_ansa_rloc     is x
  c_ansa_dloc     is x
  c_ansa_aloc     is x
@@ -32,6 +32,7 @@ start ANSA(parmfile,option,client,retcode)
  ansa_end_time   is t
  ansa_duration   is t
  ansa_log        is x
+ medicaid_status is x
  
  %global DXType, DX, DXCat, DXDate, DXGaf
  DXType is x
@@ -90,7 +91,8 @@ start ANSA(parmfile,option,client,retcode)
  
  %global assessments
  assessments[] is x
- {"lib_ANSA"}Allow_Assesment($regid,assessments[])  
+ {"lib_ANSA"}Allow_Assesment($regid,assessments[])
+ {"lib_UAMEDICAID"}check_medicaid($regid,medicaid_status)  
 
  %global bgcolor
  bgcolor is x 
@@ -3042,7 +3044,11 @@ function ReportHdr() is null
     $col()$text(q_text_disref)
     $col()$text(c_ansa_disref)
   endif
- $endtable($funcname)
+  $row()
+   $col()
+   $col()$text("Medicaid Status:")
+   $col()$text(medicaid_status)
+  $endtable($funcname)
  $br()$tag("<hr/>")
  $br()
 end ReportHdr
@@ -3142,13 +3148,15 @@ function ALOC() is null
    $endtable("OTHER")
   $endblock("OTHER","OTHER")
 
-  if (c.ansa.aloc != last_aloc and last_aloc dp) and c.ansa.type != "3"
-   $table($funcname,,table_nobgcolor)
-    $row()
-     $col("right",,"50%")$text(q_text_fairhear,"datatag")
-     $col()$radio(c.ansa.fairhear,"Yes","Y",,,,,,"Y")$ctag("&nbsp;&nbsp;&nbsp;&nbsp;")$radio(c.ansa.fairhear,"No","N",,,,,,"Y")
-  $endtable($funcname)
-  endif 		  
+  if medicaid_status = "Medicaid Recipient"
+   if ($num(c.ansa.aloc) <  $num(last_aloc) and last_aloc dp) and (c.ansa.type != "11" and c.ansa.type != "12")
+    $table($funcname,,table_nobgcolor)
+     $row()
+      $col("right",,"50%")$text(q_text_fairhear,"datatag")
+      $col()$radio(c.ansa.fairhear,"Yes","Y",,,,,,"Y")$ctag("&nbsp;&nbsp;&nbsp;&nbsp;")$radio(c.ansa.fairhear,"No","N",,,,,,"Y")
+   $endtable($funcname)
+   endif 		  
+  endif 
 
   $table($funcname,,table_nobgcolor)
    $row()
