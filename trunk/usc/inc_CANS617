@@ -51,13 +51,6 @@ CheckStfCred     = "Y"
             ChangeIrmsHeader = "N"
             CheckStfCred = "N"
  endselect 
-
-select $custnumber
-   case 641 'GCC
-      SkipSer = "Y"
-      CansDisRefDCT = 9704
-endselect
-
 '*******************************************************
 if SkipSer !dp
  SkipSer = "N"
@@ -687,6 +680,7 @@ errors[] is x       'array for capturing errors by section
 %define locdev5_errortxt "Invalid Reason for Deviation. Must be Consumer Refused, Consumer Need or Other"
 %define extdrv1_errortxt "Extended Review is limited to 101/LOC - 1: Medication Management"
 %define extdrv2_errortxt "Assessment does not meet criteria for Extended Review to be authorized"
+%define fairhear_errtxt "Please answer Yes or No to the Medicaid Fair Hearing Letter required question."
 
 rc_cans_dstlist = $dstlist(cans_dstlist,02,
 c.cans.rec,c.cans.staff,c.cans.ver,c.cans.date,c.cans.age,c.cans.aloc,c.cans.rloc,c.cans.dloc,c.cans.compd,c.cans.type,
