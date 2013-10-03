@@ -1,5 +1,5 @@
 start ANSA(parmfile,option,client,retcode)
- %version 1.0.015 10/02/2013
+ %version 1.0.016 10/03/2013
  $looplimit = 0
  %include inc_ANSA
  e.ser     is b
@@ -2655,6 +2655,9 @@ function Validate0() is i
  last_alocdate is d
  datediff      is i
  $clear(errors[]) 
+ if {"lib_UACOMMON"}CurrentDX($regid,c.ansa.date) = "N" and (c.ansa.type != "3" and c.ansa.type = "11")
+  (void)$arrpush(errors[],diag_errortxt)
+ endif
  if c.ansa.type = "1" or c.ansa.type = "12"
   $clear(c.ansa.disdt,c.ansa.disreas,c.ansa.disref,c.ansa.disoth)
   if c.ansa.intref != "5"
