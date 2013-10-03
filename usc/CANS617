@@ -1,5 +1,5 @@
 start CANS617(parmfile,option,client,retcode)
- %version 1.0.013 10/02/2013
+ %version 1.0.014 10/03/2013
  $looplimit = 0
  %include inc_CANS617
  e.ser     is b
@@ -2427,6 +2427,9 @@ function Validate0() is i
  last_alocdate is d
  datediff      is i
  $clear(errors[])
+ if {"lib_UACOMMON"}CurrentDX($regid,c.cans.date) = "N" and (c.cans.type != "3" and c.cans.type = "11")
+  (void)$arrpush(errors[],diag_errortxt)
+ endif 
  if c.cans.type = "1" or c.cans.type = "12"
   $clear(c.cans.disdt,c.cans.disreas,c.cans.disref,c.cans.disoth)
   if c.cans.intref != "5"
