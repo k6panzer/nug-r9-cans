@@ -1,11 +1,11 @@
 start UM_MONITOR3()
- %version 1.0.003 10/03/2013
+ %version 1.0.004 10/04/2013
  %global bgcolor, row_color, formtimeout
  %global assessment_date, assessment_ID, assessment_name, assessment, assessment_type, assessment_rloc, assessment_dloc, assessment_adate, assessment_pfile, assessment_opt, view_btn, assessment_staff,assessment_sname,medicaid_status
- %global assessment_email,assessment_rcode,assessment_dcode,assessment_auth,assessment_color, full_refresh_btn, RefreshScript, LPHA
+ %global assessment_email,assessment_rcode,assessment_dcode,assessment_auth,assessment_color, full_refresh_btn, RefreshScript, LPHA, delete_btn, EnableDelete
  %global ansa_sl, cans35_sl, cans617_sl
  %global pending, cans35_count, cans617_count, ansa_count
- %global UM_StaffYN
+ %global UM_StaffYN,MISStaffYN
  %global load_medicaid, lib_UAMEDICAID
  %global Email_Assessor,StaffEmailDST,email_subject,email_body
  %global RestrictedStaff
@@ -17,6 +17,7 @@ start UM_MONITOR3()
  cans35_sl         is x
  cans617_sl        is x
  UM_StaffYN        is x
+ MISStaffYN        is x
  load_medicaid     is i 'determined if the medicaid library exists and is loadable
  lib_UAMEDICAID    is i 'Medicaid library
  Email_Assessor    is x 'Y/N
@@ -25,6 +26,7 @@ start UM_MONITOR3()
  RestrictedStaff[] is x 'List of QMHP users, if needed
  StaffEmailDST     is v 'DST with staff email address
  RefreshScript     is x 'Script that manages the saved lists, UM_MONITOR4?, leave blank to disable
+ EnableDelete      is x
 '*****************************Change these******************************************************************
  %define table_wbgcolor "width='100%' cellspacing='0' cellpadding='0' bgcolor='" + bgcolor + "'"
  %define table_nobgcolor "width='100%' cellspacing='0' cellpadding='0'"
@@ -49,8 +51,10 @@ start UM_MONITOR3()
  endif
  (void)$arrpush(RestrictedStaff[],"4284")
  RefreshScript = "UM_MONITOR4"
+ EnableDelete = "Y"
 '*********************************************************************************************************** 
  UM_StaffYN = {"lib_UACOMMON"}UMStaff()
+ MISStaffYN = {"lib_UACOMMON"}MISStaff()
  load_medicaid = $regloadlib(lib_UAMEDICAID,"lib_UAMEDICAID")
  $looplimit = 0
  assessments[]      is x
@@ -77,6 +81,7 @@ start UM_MONITOR3()
  assessment_color[] is x
  full_refresh_btn   is x
  LPHA               is x
+ delete_btn[]       is x
 
  pending       is i
  cans35_count  is i
@@ -149,7 +154,11 @@ start UM_MONITOR3()
                                endif
                endselect          
                $clear(view_btn[])
-              elseif full_refresh_btn = "Y"
+              elseif $maxarray(delete_btn[]) > 0
+               index = $maxarray(delete_btn[])
+               DeleteAssessment(index)
+			   $clear(delete_btn[])
+			  elseif full_refresh_btn = "Y"
 			   $brmsg("Please Wait, Building Saved Lists. ", 1, "C", "Searching")
 			   call RefreshScript()
 			   $brmsgclose()
@@ -159,7 +168,7 @@ start UM_MONITOR3()
 end UM_MONITOR3
 
 function ViewLists() is null
- $clear(view_btn[])
+ $clear(view_btn[],delete_btn[])
  index      is i
  prev_index is i
  col_span   is i
@@ -208,7 +217,6 @@ function ViewLists() is null
    endif
   $endtable($funcname)
   $br()
-  $bstyle("link","link")
   $table($funcname)
    $row()
     $col()$text("Date","datatag") 
@@ -236,6 +244,10 @@ function ViewLists() is null
    if $maxarray(medicaid_status[]) > 0
     $col()$text("Medicaid Status","datatag")   
 	col_span++	
+   endif
+   if MISStaffYN = "Y" and EnableDelete = "Y"
+    $col()$text("Delete","datatag")   
+    col_span++
    endif	
    $row()
     $col()$tag("<hr/>")  
@@ -258,7 +270,10 @@ function ViewLists() is null
     $col()$tag("<hr/>")  
     if $maxarray(medicaid_status[]) > 0
      $col()$tag("<hr/>")  	
-	endif 
+	endif
+	if MISStaffYN = "Y"
+	 $col()$tag("<hr/>")    
+	endif  
    if pending = 0
     $row(,row_even)
 	 $col("center",,"100%",$castx(col_span),"1")$text("No Pending Assessments or Manual Scan in Progress, Please wait","error")   
@@ -279,6 +294,7 @@ function ViewLists() is null
 	endif
     $row(,row_color)           
     if assessment_auth[index] = "Y" or LPHA = "Y"
+     $bstyle("link","link")
      $col()$submit(view_btn[index],`assessment_date[index]`)
     else
      $col()$text(assessment_date[index])
@@ -307,7 +323,11 @@ function ViewLists() is null
 	  $col()$text(medicaid_status[index],"error")
      endif
     endif
-    prev_index = index
+    if MISStaffYN = "Y" and EnableDelete = "Y"
+	 $bstyle("buttondown","button")
+	 $col()$submit(delete_btn[index],assessment_id[index])
+	endif
+	prev_index = index
    enddo 
   $endtable($funcname)
  $sendform($funcname)
@@ -392,6 +412,9 @@ function GetSavedLists() is null
 	 case "11" assessment_auth[index2] = "N"
 	 case "12" assessment_auth[index2] = "N"	 
 	endselect
+	if c.ansa.staff = $operstaffid
+	 assessment_auth[index2] = "N"	 
+	endif
     if c.ansa.rloc = "100"
      assessment_color[index2] = crisis_color	
     elseif c.ansa.dloc dp
@@ -449,6 +472,9 @@ function GetSavedLists() is null
 	 case "11" assessment_auth[index2] = "N"
 	 case "12" assessment_auth[index2] = "N"	 
 	endselect
+	if c.cans.staff = $operstaffid
+	 assessment_auth[index2] = "N"	 
+	endif	
     if c.cans.rloc = "100"
      assessment_color[index2] = crisis_color	
     elseif c.cans.dloc dp
@@ -505,7 +531,10 @@ function GetSavedLists() is null
 	 case "3"  assessment_auth[index2] = "Y"	 
 	 case "11" assessment_auth[index2] = "N"
 	 case "12" assessment_auth[index2] = "N"	 
-	endselect   
+	endselect
+	if c.cans.staff = $operstaffid
+	 assessment_auth[index2] = "N"	 
+	endif		   
     if c.cans.rloc = "100"
      assessment_color[index2] = crisis_color	
     elseif c.cans.dloc dp
@@ -550,3 +579,141 @@ function ConfirmCANS(cid) is i
   ConfirmCANS = 0
  endif
 end ConfirmCANS
+
+function DeleteAssessment(index) is i
+ index       is i
+ rc          is i
+ yes_btn     is x
+ no_btn      is x
+ c.ansa.rec  is h
+ c.ansa.date is x
+ c.cans.rec  is h
+ c.cans.date is d
+ staffid     is x
+ $clear(rc,yes_btn,no_btn,c.ansa.rec,c.ansa.date,c.cans.rec,c.cans.date)
+ $submitopt("off","Delete")
+ $cancelopt("off","Exit")
+ $form($funcname)
+  $br(5)$text("{center}Are you Sure you want to delete this assessment?{/center}","Error")
+  $br()
+  $bstyle("link","link")
+  $table($funcname)
+   $row()
+    $col()$text("Date","datatag") 
+    $col()$text("ID","datatag")
+    $col()$text("Name","datatag")
+    $col()$text("Assessment","datatag")
+    if $maxarray(assessment[]) > 0
+     $col()$text("Type","datatag")
+    endif 
+    if $maxarray(assessment_rloc[]) > 0
+     $col()$text("RLOC","datatag")
+    endif 
+    if $maxarray(assessment_dloc[]) > 0
+     $col()$text("DLOC","datatag")
+    endif 
+    if $maxarray(assessment_adate[]) > 0
+     $col()$text("Authorize By Date","datatag")
+   endif 
+   $col()$text("Staff","datatag")
+   $col()$text("Staff Name","datatag")
+   if $maxarray(medicaid_status[]) > 0
+    $col()$text("Medicaid Status","datatag")   
+   endif
+   $row()
+    $col()$tag("<hr/>")  
+    $col()$tag("<hr/>")  
+    $col()$tag("<hr/>")  
+    $col()$tag("<hr/>")  
+    if $maxarray(assessment_type[]) > 0
+     $col()$tag("<hr/>")  
+    endif
+    if $maxarray(assessment_rloc[]) > 0
+     $col()$tag("<hr/>")
+    endif
+    if $maxarray(assessment_dloc[]) > 0
+     $col()$tag("<hr/>")
+    endif
+    if $maxarray(assessment_adate[]) > 0
+     $col()$tag("<hr/>")
+    endif 
+    $col()$tag("<hr/>")  
+    $col()$tag("<hr/>")  
+    if $maxarray(medicaid_status[]) > 0
+     $col()$tag("<hr/>")  	
+	endif
+	if assessment_color[index] dp
+	 row_color = assessment_color[index]
+	else
+     if $mod(index,2) = 0
+      row_color = row_odd
+     else
+      row_color = row_even
+     endif		
+	endif
+    $row(,row_color)           
+    if assessment_auth[index] = "Y" or LPHA = "Y"
+     $col()$submit(view_btn[index],`assessment_date[index]`)
+    else
+     $col()$text(assessment_date[index])
+    endif
+    $col()$text(assessment_id[index]) 
+    $col()$text(assessment_name[index]) 
+    $col()$text(assessment[index])
+    if $maxarray(assessment_type[]) > 0
+     $col()$text(assessment_type[index])
+    endif
+    if $maxarray(assessment_rloc[]) > 0
+     $col()$text(assessment_rloc[index])
+    endif
+    if $maxarray(assessment_dloc[]) > 0
+     $col()$text(assessment_dloc[index])
+    endif
+    if $maxarray(assessment_adate[]) > 0
+     $col()$text(assessment_adate[index])   
+    endif 
+    $col()$text(assessment_staff[index])     
+    $col()$text(assessment_sname[index])      
+    if $maxarray(medicaid_status[]) > 0
+     if medicaid_status[index] = "No Medicaid"
+	  $col()$text(medicaid_status[index])
+     else
+	  $col()$text(medicaid_status[index],"error")
+     endif
+    endif
+  $endtable($funcname)
+  $tag("<center>")
+  $br(5)$text("Please Type Your Staff ID to Confirm the Deletion: ","error")$textbox(staffid,"DB``03",10,,"Y")$editmsg(Staffid)
+   $br(2)$submit(yes_btn,"Delete")$ctag("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;")$submit(no_btn,"No")
+  $tag("</center>")	
+ $sendform($funcname)
+ if ($endbutton = "SUBMIT" or yes_btn = "Y")
+  if $operstaffid = staffid
+   rc = 0
+   select assessment[index]
+    case "ANSA"     $dblock()
+                    rc = $dbread(2,assessment_id[index],c.ansa.rec,c.ansa.date)
+				    rc = $dbremovedst(2,assessment_id[index],c.ansa.rec,c.ansa.date)
+    case "CANS35"   $dblock()
+                    rc = $dbread(2,assessment_id[index],c.cans.rec,c.cans.date)
+				    rc = $dbremovedst(2,assessment_id[index],c.cans.rec,c.cans.date)
+    case "CANS617"  $dblock()
+                    rc = $dbread(2,assessment_id[index],c.cans.rec,c.cans.date)
+				    rc = $dbremovedst(2,assessment_id[index],c.cans.rec,c.cans.date)
+   endselect  
+   if rc = 0
+    $brmsg("Assessment Delete",1,"W","Deleted")
+   else
+    $brmsginit(6,80)
+    $brmsg(`"Error Removing Data,  RC=" + rc`,1,"C","Error Deleting")
+    $brmsg(`"$regid = " + $regid`,2,"C")
+    $brmsg(`"$DBRC = " + $dbrc`,3,"C")
+    $brmsg(`"$DBSTAT = " + $dbstat`,4,"C")
+    $brmsg(`"$ERRMSG = " + $errmsg`,5,"C")
+    $brmsg("Press OK to Continue", 6,"WC")
+   endif  
+  else
+   $brmsg("Staff ID Does Not Match",1,"W","Could Not Confirm") 
+  endif 
+ endif 
+end DeleteAssessment
