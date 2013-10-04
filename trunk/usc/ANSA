@@ -2655,7 +2655,7 @@ function Validate0() is i
  last_alocdate is d
  datediff      is i
  $clear(errors[]) 
- if {"lib_UACOMMON"}CurrentDX($regid,c.ansa.date) = "N" and (c.ansa.type != "3" and c.ansa.type = "11")
+ if {"lib_UACOMMON"}CurrentDX($regid,c.ansa.date) = "N" and (c.ansa.type != "3" and c.ansa.type != "11")
   (void)$arrpush(errors[],diag_errortxt)
  endif
  if c.ansa.type = "1" or c.ansa.type = "12"
