@@ -1,5 +1,5 @@
 start ANSA(parmfile,option,client,retcode)
- %version 1.0.016 10/03/2013
+ %version 1.0.017 10/07/2013
  $looplimit = 0
  %include inc_ANSA
  e.ser     is b
@@ -2473,7 +2473,7 @@ function Report(mode) is null
     $br()StaffComments()
     $br(){"lib_ANSA"}ALOCRpt(RptTitle,ReportID,ansaauthleveldct,ansadeviationdct,c.ansa.acomment,c.ansa.aloc,c.ansa.alocdate,c.ansa.alocedate,c.ansa.devjust,c.ansa.devoth,c.ansa.dloc,c.ansa.fairhear,c.ansa.loc_dev,c.ansa.rloc,
                              c.ansa.type,c_ansa_aloc,c_ansa_dloc,c_ansa_fairhear,c_ansa_loc_dev,c_ansa_rloc,chk_mednec,medicalnecessity,q_text_acomment,q_text_aloc,q_text_alocdate,q_text_alocedate,q_text_alocstaff,
-                             q_text_devjust,q_text_devoth,q_text_dloc,q_text_fairhear,q_text_loc_dev,q_text_rloc,sigline)
+                             q_text_devjust,q_text_devoth,q_text_dloc,q_text_fairhear,q_text_loc_dev,q_text_rloc,sigline,ChangeIrmsHeader)
    else
     $br()RLOCRpt()
    endif
