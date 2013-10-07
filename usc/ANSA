@@ -1,5 +1,5 @@
 start ANSA(parmfile,option,client,retcode)
- %version 1.0.017 10/07/2013
+ %version 1.0.018 10/07/2013
  $looplimit = 0
  %include inc_ANSA
  e.ser     is b
@@ -2851,7 +2851,7 @@ function ValidateALOC() is i
 	if (c.ansa.aloc != "109" and c.ansa.aloc != "108") and $num(c.ansa.aloc) < $num(c.ansa.rloc) and (c.ansa.loc_dev != "1" and c.ansa.loc_dev != "2" and c.ansa.loc_dev != "3" and c.ansa.loc_dev != "4" and c.ansa.loc_dev != "5")
      (void)$arrpush(errors[],locdev2_errortxt)	
 	endif	
-    if (c.ansa.rloc = "120" and c.ansa.aloc = "106") and (c.ansa.loc_dev != "2" and c.ansa.loc_dev != "4" and c.ansa.loc_dev != "5")
+    if (c.ansa.rloc = "120" and c.ansa.aloc = "106") and (c.ansa.loc_dev != "2" and c.ansa.loc_dev != "3" and c.ansa.loc_dev != "5")
 	 (void)$arrpush(errors[],locdev5_errortxt)	
 	endif
    endif

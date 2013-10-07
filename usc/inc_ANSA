@@ -39,6 +39,8 @@ CheckStfCred     = "Y"
 Title            = "ANSA Report"
 RptTitle         = Title
 ReportID         = "ANSA"
+ChangeIrmsHeader = "Y"
+CheckStfCred 	 = "Y"	
 
 'Various overrides based on the custnumber
 select $custnumber
@@ -627,7 +629,7 @@ errors[] is x
 %define locdev2_errortxt "Invalid Reason for Lower Deviation. Must be Resource Limitation, Consumer Refused, Clinical Need, Continuity of Care or Other"
 %define locdev3_errortxt "Invalid Reason for Deviation. Must be Consumer Refused"
 %define locdev4_errortxt "Invalid Reason for Deviation. Must be Resource Limitations"
-%define locdev5_errortxt "Invalid Reason for Deviation. Must be Consumer Refused, Consumer Need or Other"
+%define locdev5_errortxt "Invalid Reason for Deviation. Must be Consumer Refused, Clinical Need or Other"
 %define scaledt_errortxt "Assessment cannot be Authorized until Assessor has completed the Diagnostic Specific Scale section. This occurs when the Diagnosis is entered after the ANSA"
 %define qidsalg_errortxt "Assessment cannot be authorized until Assessor has completed the Depression Algorithm Scale. This occurs when the Diagnosis is entered after the ANSA"
 %define schzalg_errortxt "Assessment cannot be authorized until Assessor has completed the Schizophrenia Algorithm Scale. This occurs when the Diagnosis is entered after the ANSA"
