@@ -1,0 +1,216 @@
+start TRRDISPLAY(client)
+ %define row_odd "bgcolor='White'"
+ %define row_even "bgcolor='CornSilk'"
+ client        is x
+ c.fn          is x
+ c.ln          is x
+ s.fn          is x
+ s.ln          is x
+
+ c.ansa.rec    is h
+ c.ansa.compd  is d
+ c.ansa.snapid is x
+ c.ansa.staff  is x
+ c.ansa.rloc   is x
+ c.ansa.aloc   is x
+ c.ansa.date   is d
+ c.ansa.caredt is d
+ c.ansa.type   is x
+ c.ansa.alocedate is d
+
+ c.cans.rec    is h
+ c.cans.compd  is d
+ c.cans.snapid is x
+ c.cans.staff  is x
+ c.cans.rloc   is x
+ c.cans.aloc   is x
+ c.cans.date   is d
+ c.cans.caredt is d
+ c.cans.type   is x
+ c.cans.alocedate is d
+ c.cans.canstype is x
+
+ ansa_rec[]    is x
+ ansa_effd[]   is d
+ ansa_compd[]  is d
+ ansa_snapid[] is x
+ ansa_staff[]  is x
+ ansa_rloc[]   is x
+ ansa_aloc[]   is x
+ ansa_date[]   is d
+ ansa_caredt[] is d
+ ansa_type[]   is x
+ ansa_alocedate[] is d 
+
+ cans_rec[]    is x
+ cans_effd[]   is d
+ cans_compd[]  is d
+ cans_snapid[] is x
+ cans_staff[]  is x
+ cans_rloc[]   is x
+ cans_aloc[]   is x
+ cans_date[]   is d
+ cans_caredt[] is d 
+ cans_type[]   is x 
+ cans_alocedate[] is d  
+ cans_canstype[] is x
+
+ rc              is i
+ index           is i
+ view_ansa_btn[] is x
+ view_cans_btn[] is x
+ col_span        is i
+ ansa_records    is i
+ cans_records    is i
+ row_color       is x
+ 
+ if $regid !dp
+  if client dp
+   $regid = client
+  else
+   $regid = {"lib_UACOMMON"}GetClientID()
+   if $regid !dp
+    return
+   endif
+  endif
+ elseif ($regid dp and client dp) and client != $regid
+  $regid = {"lib_UACOMMON"}GetClientID()
+  if $regid !dp
+   return
+  endif
+ endif
+
+ rc = $dbread(2,$regid,c.fn,c.ln)
+ rc = $dbreadtoarray(2,$regid,c.ansa.rec,c.ansa.compd,c.ansa.snapid,c.ansa.staff,c.ansa.rloc,c.ansa.aloc,c.ansa.date,c.ansa.caredt,c.ansa.type,c.ansa.alocedate,
+                              ansa_rec[],ansa_effd[],ansa_compd[],,ansa_snapid[],,ansa_staff[],,ansa_rloc[],,ansa_aloc[],,ansa_date[],,ansa_caredt[],,ansa_type[],,ansa_alocedate[])
+ rc = $dbreadtoarray(2,$regid,c.cans.rec,c.cans.compd,c.cans.snapid,c.cans.staff,c.cans.rloc,c.cans.aloc,c.cans.date,c.cans.caredt,c.cans.type,c.cans.alocedate,c.cans.canstype,
+                              cans_rec[],cans_effd[],cans_compd[],,cans_snapid[],,cans_staff[],,cans_rloc[],,cans_aloc[],,cans_date[],,cans_caredt[],,cans_type[],,cans_alocedate[],,cans_canstype[])
+ index = 0
+ do while index++ < $maxarray(ansa_rec[])
+  if ansa_snapid[index] !dp
+   (void)$arrremove(ansa_rec[index],1,ansa_effd[],ansa_compd[],ansa_snapid[],ansa_staff[],ansa_rloc[],ansa_aloc[],ansa_date[],ansa_caredt[],ansa_type[],ansa_alocedate[])
+  endif 
+ enddo
+ index = 0
+ do while index++ < $maxarray(cans_rec[])
+  if cans_snapid[index] !dp
+   (void)$arrremove(cans_rec[index],1,cans_effd[],cans_compd[],cans_snapid[],cans_staff[],cans_rloc[],cans_aloc[],cans_date[],cans_caredt[],cans_type[],cans_alocedate[],cans_canstype[])
+  endif 
+ enddo 
+ ansa_records  = $maxarray(ansa_rec[])
+ cans_records = $maxarray(cans_rec[])
+ do while 1 = 1
+  index = 0
+  col_span = 7
+  $submitopt("off", "")
+  $cancelopt("off", "Exit")   
+  $form($scriptid)
+   $bstyle("link","link")
+   $br(2)$text(`"{center}TRR Record for:  " + c.fn + " " + c.ln + " (" + $regid + "){/center}"`, "datatag")
+   $br(2)$table("TRR",,"width='100%' cellspacing='0' cellpadding='0'")
+          $row()
+		   $col()$text("Date","datatag")
+		   $col()$text("Staff","datatag")
+		   $col()$text("Type","datatag")
+		   $col()$text("RLOC","datatag")
+		   $col()$text("ALOC","datatag")
+		   $col()$text("Authorize Date","datatag")
+		   $col()$text("End Date","datatag")		   
+		   if $maxarray(cans_caredt[]) > 0 or $maxarray(ansa_caredt[]) > 0
+		    $col()$text("Batch Date","datatag")
+			col_span++
+           endif
+		  $row()
+		   $col()$tag("<hr/>")
+		   $col()$tag("<hr/>")
+		   $col()$tag("<hr/>")
+		   $col()$tag("<hr/>")
+		   $col()$tag("<hr/>")
+		   $col()$tag("<hr/>")
+		   $col()$tag("<hr/>")
+		   if $maxarray(cans_caredt[]) > 0 or $maxarray(ansa_caredt[]) > 0
+		    $col()$tag("<hr/>")
+		   endif	
+          if ansa_records = 0 and cans_records = 0
+           $row(,"bgcolor='Black'")
+            $col("center",,"100%",$castx(col_span),"1")$text("No ANSA or CANS Records for this client")
+          endif
+		  if ansa_records > 0
+           $row(,"bgcolor='Black'")
+            $col("center",,"100%",$castx(col_span),"1")$text(`"{font color='#FFFFFF'}ANSA:  " + ansa_records + "{/font}"`)
+		    index = 0
+		    do while index++ < ansa_records
+             if $mod(index,2) = 0
+              row_color = row_odd
+             else
+              row_color = row_even
+             endif		   
+             $row(,row_color)
+		      $col()$submit(view_ansa_btn[index],`ansa_date[index]`)
+		      $col()$text(ansa_staff[index])
+		      $col()$text($dct(9700,ansa_type[index]))
+		      $col()$text($dct(9712,ansa_rloc[index]))
+		      $col()$text($dct(9712,ansa_aloc[index]))
+		      $col()$text(ansa_compd[index])
+		      $col()$text(ansa_alocedate[index])			  
+		      if $maxarray(ansa_caredt[]) > 0
+			   $col()$text(ansa_caredt[index])
+			  endif 
+		    enddo
+          endif
+		  if cans_records > 0
+		   $row(,"bgcolor='Black'")
+            $col("center",,"100%",$castx(col_span),"1")$text(`"{font color='#FFFFFF'}CANS:  " + cans_records + "{/font}"`)
+		    index = 0
+		    do while index++ < cans_records
+             if $mod(index,2) = 0
+              row_color = row_odd
+             else
+              row_color = row_even
+             endif		   
+             $row(,row_color)
+		      $col()$submit(view_cans_btn[index],`cans_date[index]`)
+		      $col()$text(cans_staff[index])
+		      $col()$text($dct(9700,cans_type[index]))
+		      $col()$text($dct(9712,cans_rloc[index]))
+		      $col()$text(cans_aloc[index])
+		      $col()$text(cans_compd[index])
+		      $col()$text(cans_alocedate[index])			  			  
+		      if $maxarray(cans_caredt[]) > 0
+			   $col()$text(cans_caredt[index])
+			  endif 
+		    enddo	   
+          endif
+		 $endtable("TRR")
+   $br(2)
+   %include c_pbutton		  
+  $sendform($scriptid)							 
+  if $endbutton dp
+   return
+  elseif $maxarray(view_ansa_btn[]) > 0
+   index = $maxarray(view_ansa_btn[])
+   $form("ANSA")
+    {"lib_UACOMMON"}ChangeTitle("ANSA")
+    {"l_snapLibSC"}sn_viewSnap(ansa_snapid[index])   
+	%include c_pbutton		  
+   $sendform("ANSA")	
+   $clear(view_ansa_btn[])
+  elseif $maxarray(view_cans_btn[]) > 0
+   index = $maxarray(view_cans_btn[])
+   if cans_canstype[index] = "1"
+    $form("CANS617")
+     {"lib_UACOMMON"}ChangeTitle("CANS617")
+     {"l_snapLibSC"}sn_viewSnap(cans_snapid[index])
+     %include c_pbutton		  
+    $sendform("CANS617")
+   else
+    $form("CANS35")
+     {"lib_UACOMMON"}ChangeTitle("CANS35")
+     {"l_snapLibSC"}sn_viewSnap(cans_snapid[index])
+     %include c_pbutton		  	 
+    $sendform("CANS35")   
+   endif	
+   $clear(view_cans_btn[])
+  endif
+ enddo 
+end TRRDISPLAY
