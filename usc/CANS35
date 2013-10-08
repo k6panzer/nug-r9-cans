@@ -1,5 +1,5 @@
 start CANS35(parmfile,option,client,retcode)
- %version 1.0.014 10/03/2013
+ %version 1.0.015 10/08/2013
  $looplimit = 0
  %include inc_CANS35
  e.ser     is b
@@ -553,10 +553,14 @@ function SaveData() is i
 			 c.cans.rec[effd] = $today
 			 NewUID = c.cans.rec[uid]
 			 c.cans.canstype = "2"
+			 $clear(c.cans.aloc)
              SaveData = $dbadddst(02, $regid, cans_dstlist)
   case "UPDATE" if (c.cans.dloc = c.cans.rloc) and (c.cans.dloc = c.cans.aloc)
                  $clear(c.cans.dloc)
 				endif 
+				if c.cans.compd !dp and c.cans.aloc = "100"
+				 $clear(c.cans.aloc)
+				endif				 
                 SaveData = $dbupdate(02, $regid, 
 c.cans.rec,c.cans.staff,c.cans.ver,c.cans.date,c.cans.age,c.cans.aloc,c.cans.rloc,c.cans.dloc,c.cans.compd,c.cans.type,
 c.cans.school3m,c.cans.arrest,c.cans.grade,c.cans.restype,c.cans.resother1,c.cans.resother2,
