@@ -43,13 +43,14 @@ CheckStfCred     = "Y"
              endselect
 
  'GCC
-   case 641 SkipSer = "Y"
-	        CansDisRefDCT = 9704
-            Title = "CANS (6-17) Report"
-            RptTitle = Title
-            ReportID = "CANS"
-            ChangeIrmsHeader = "N"
-            CheckStfCred = "N"
+   case 641
+      SkipSer = "Y"
+      CansDisRefDCT = 9704
+      Title = "CANS (6-17) Report"
+      RptTitle = Title
+      ReportID = "GCCCHDUA"
+      ChangeIrmsHeader = "N"
+      CheckStfCred = "N"
  endselect 
 '*******************************************************
 if SkipSer !dp
