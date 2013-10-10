@@ -1,5 +1,5 @@
 library lib_ANSA()
- %version 1.0.008 09/27/2013
+ %version 1.0.009 10/10/2013
  %define row_color2 "bgcolor='White'"
  %define col_color_multi "bgcolor='LightGrey'"
 on load do:
@@ -1186,6 +1186,7 @@ on load do:
 
 '4/115/ACT
    if ($num(c.ansa.hs.num180) > 1 or c.ansa.hs.numl30 = "3" or $num(c.ansa.hs.numg30) > 0) or (c.ansa.cr.episds = "3" and (c.ansa.hs.num180 = "1" or c.ansa.hs.numl30 = "2"))
+    and (DXType = "S" or DXType = "B" or DXCat = "MDD - With Psychotic Features")
     RLOC = act
 	return
    endif
