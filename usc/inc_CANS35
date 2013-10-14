@@ -71,6 +71,11 @@ else
  CheckStfCred = $uc(CheckStfCred)
 endif
 
+(void)$setdcvact(CansIntRefDCT,"5","I")
+(void)$setdcvact(CansDisReasDCT,"7","I")
+(void)$setdcvact(CansDisRefDCT,"5","I")
+(void)$setdcvact(CansResTypeDCT,"9","I")
+
 '*********Medical Necessity Statement Related***********
 %define MedicalNecessity "As a Licensed Professional of Healing Arts (LPHA), I verify that the services authorized in the 'Authorized Level Of Care' section above are medically necessary and I concur with the plan of care."
 %global chk_MedNec

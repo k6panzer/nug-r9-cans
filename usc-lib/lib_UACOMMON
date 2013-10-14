@@ -1,5 +1,7 @@
 library lib_UACOMMON()
- %version 1.0.003 09/23/2013
+ %version 1.0.005 10/14/2013
+on load do:
+ %include inc_DX_ANSA
 
 function StaffCanDo() is i
  s.trr.certified is x
@@ -20,12 +22,25 @@ function UMSTAFF(staff[]) is x
  a1[]       is x
  a2[]       is x
  a3[]       is x
- staff[1] = "3479" 'Andy Martin
- staff[2] = "1951" 'Paula Staats Maloney
- staff[3] = "3908" 'Irma Escobedo
- staff[4] = "2481" 'Gianna Harris
- staff[5] = "1529" 'Judy Michael (For displaying authorized UA's only)
- (void)$dctloada(110,code[], desc[], act-code[], a1[], a2[], a3[])
+ $clear(staff[])
+ select $custnumber
+  case 256 select $uc($seg($mscname,1,5))
+            case "HELEN" (void)$arrpush(staff[],"3479")   'Andy Martin
+                         (void)$arrpush(staff[],"1951")   'Paula Staats Maloney
+                         (void)$arrpush(staff[],"3908")   'Irma Escobedo
+                         (void)$arrpush(staff[],"2481")   'Gianna Harris
+                         (void)$arrpush(staff[],"1529")   'Judy Michael (For displaying authorized UA's only)
+			             (void)$dctloada(110,code[], desc[], act-code[], a1[], a2[], a3[])
+	        case "PECAN" (void)$arrpush(staff[],"3242")   'Ralph Whaite
+                         (void)$arrpush(staff[],"3737")   'Chris Love
+                         (void)$arrpush(staff[],"001407") 'Donna Gilmore
+                         (void)$arrpush(staff[],"001601") 'Diana Thompson
+                         (void)$arrpush(staff[],"001523") 'Jan Walker
+                         (void)$arrpush(staff[],"001705") 'Britni Warren
+			             (void)$dctloada(8998,code[], desc[], act-code[], a1[], a2[], a3[])
+           endselect
+  case 641 (void)$dctloada(110,code[], desc[], act-code[], a1[], a2[], a3[])  
+ endselect 
  if ($find($operstaffid, staff[],1,"F") > 0) or ($find($operstaffid, code[],1,"F") > 0)
   UMSTAFF = "Y"
  else
@@ -34,18 +49,26 @@ function UMSTAFF(staff[]) is x
 end UMSTAFF
 
 function MISStaff(staff[]) is x
- staff[]   is x
- s.ru      is b
- MIS_ru is b
-
- MIS_ru = 106
- staff[1] = "3243"  'Ralph Whaite
- staff[2] = "1343"  'Scott Reeves
- staff[3] = "3737"  'Chris Love
- staff[4] = "3956"  'Chris Ashley
-
+ staff[] is x
+ s.ru    is b
+ MIS_ru  is b
+ $clear(staff[])
+ select $custnumber
+  case 256 select $uc($seg($mscname,1,5))
+            case "HELEN" MIS_ru = 106
+			             (void)$arrpush(staff[],"3243")  'Ralph Whaite
+                         (void)$arrpush(staff[],"1343")  'Scott Reeves
+                         (void)$arrpush(staff[],"3737")  'Chris Love
+                         (void)$arrpush(staff[],"3956")  'Chris Ashley
+			case "PECAN" (void)$arrpush(staff[],"3243")  'Ralph Whaite
+                         (void)$arrpush(staff[],"1343")  'Scott Reeves
+                         (void)$arrpush(staff[],"3737")  'Chris Love
+                         (void)$arrpush(staff[],"3956")  'Chris Ashley
+			             (void)$arrpush(staff[],"001639")  'John Edwards
+           endselect
+  endselect
  (void)$dbread(3,$operstaffid,s.ru)
- if s.ru = MIS_ru
+ if s.ru = MIS_ru and MIS_RU dp
   (void)$arrinsert(staff[],$operstaffid)
   MISStaff = "Y"
  elseif $find($operstaffid, staff[],1,"F") > 0
@@ -120,29 +143,6 @@ dynamic function ClientAge(regid, date) is i
  endif
 end ClientAge
 
-function CurrentDX(client,compare_date) is x
- client       is x
- compare_date is d
- c.dsmiiir    is h
- c.dxdate     is d
- c.diag       is x
- dx_age       is i
-
- CurrentDX = "Y"
- if compare_date !dp
-  compare_date = $today
- endif
- (void)$dbread(02,client,c.dsmiiir,c.dxdate,c.diag)
- (void)$datediff(c.dxdate,compare_date,dx_age)
- if c.diag !dp or dx_age > 0
-  CurrentDX = "N"
- endif
-'For testing
-' if client = "10020"
-'  CurrentDX = "Y"
-' endif
-end CurrentDX
-
 function GetEvent(c.cans.isn,$$isn.sac,$$isn.ru,$$isn.tm,$$isn.sdur,$$isn.loc) is i
  c.cans.isn is x
  $$isn.sac  is b
@@ -158,6 +158,15 @@ function GetEvent(c.cans.isn,$$isn.sac,$$isn.ru,$$isn.tm,$$isn.sdur,$$isn.loc) i
 end GetEvent
 
 function GetClientID() is x
+ id_length is i 
+ id_length = 6
+ select $custnumber
+  case 256 select $uc($seg($mscname,1,5))
+            case "HELEN" id_length = 6
+	        case "PECAN" id_length = 10
+           endselect
+  case 641 id_length = 10
+ endselect 
  c.id is x
  $clear(c.id) 
  $submitopt("off", "NEXT")
@@ -166,7 +175,7 @@ function GetClientID() is x
   $text("{H1}Enter Client ID{/H1}")
   $table("t1",,"width='100%'")
    $row()$col("right",,"50%") $text("ENTER CLIENT ID: ","datatag")  
-         $col() $textbox(c.id,"DB``02",6,4,"Y") $editmsg(c.id)
+         $col() $textbox(c.id,"DB``02",id_length,4,"Y") $editmsg(c.id)
   $endtable("t1")
  $sendform()
  if $endbutton = "SUBMIT"
@@ -321,6 +330,99 @@ function AddBATCH(CID[],scriptid) is null
  endif  
 end AddBATCH
 
+function RemBatch(CID[],scriptid) is null
+ CID[]          is x
+ scriptid       is x
+ index          is i
+ ansa_sl        is x
+ cans35_sl      is x
+ cans617_sl     is x
+ cabd_sl        is x
+ uabd_sl        is x
+ get_list       is i
+ replace_list   is i
+ remove_index   is i
+ sort_list      is i
+ entries        is i 
+ list_name      is x
+ list_desc      is x
+ current_list[] is x 
+'Saved lists to batch from
+ ansa_sl    = "ANSAB"
+ cans35_sl  = "CANS35B"
+ cans617_sl = "CANS617B"
+ cabd_sl    = "CABDB"
+ uabd_sl    = "UABDB"     
+ $clear(list_name)
+ select scriptid
+  case "ANSA"        list_name = ansa_sl
+  case "CANS35"      list_name = cans35_sl
+  case "CANS617"     list_name = cans617_sl
+  case "UABDFORM"    list_name = uabd_sl
+  case "CABDFORM"    list_name = cabd_sl
+  case "lib_CABDRPT" list_name = cabd_sl  
+ endselect
+ if list_name dp
+  get_list = $getlist(current_list[],2,list_name,entries,list_desc)
+  if get_list = 0
+   index = 0
+   do while index++ < $maxarray(cid[])
+    remove_index = $find(cid[index],current_list[],,"F")
+	if remove_index > 0
+	 (void)$arrremove(current_list[remove_index])
+	endif
+   enddo
+   replace_list = $putlist(current_list[],2,list_name,list_desc,"R","UM")   
+  endif
+  sort_list = $sortlist(2,list_name,"I",,"Y")
+ endif
+end RemBatch
+
+function UpdateSavedList(cid[],list_name,action) is null
+ cid[]          is x
+ list_name      is x
+ action         is x
+ index          is i
+ get_list       is i
+ replace_list   is i
+ remove_index   is i
+ sort_list      is i
+ entries        is i 
+ list_desc      is x
+ current_list[] is x
+ create_list    is i
+ add_to_list    is i 
+ action = $uc(action)
+ if (action = "ADD" or action = "A") and list_name dp
+  get_list = $getlist(current_list[],2,list_name,entries,list_desc)
+  if get_list = 1
+   list_desc = "Pending: " + list_name
+   create_list = $putlist(cid[],2,list_name,list_desc,"C","UM")			   
+  else
+   index = 0
+   do while index++ < $maxarray(cid[])
+    if $find(cid[index],current_list[],,"F") = 0
+     add_to_list = $putlist(cid[index],2,list_name,list_desc,"A","UM")			   
+    endif
+   enddo
+  endif
+  sort_list = $sortlist(2,list_name,"I",,"Y") 
+ elseif (action = "REMOVE" or action = "DELETE" or action = "R" or action = "D") and list_name dp
+  get_list = $getlist(current_list[],2,list_name,entries,list_desc)
+  if get_list = 0
+   index = 0
+   do while index++ < $maxarray(cid[])
+    remove_index = $find(cid[index],current_list[],,"F")
+    if remove_index > 0
+     (void)$arrremove(current_list[remove_index])
+    endif
+   enddo
+   replace_list = $putlist(current_list[],2,list_name,list_desc,"R","UM")   
+  endif
+  sort_list = $sortlist(2,list_name,"I",,"Y")
+ endif  
+end UpdateSavedList
+
 'old function, needed for medical records
 function changetitle(scriptid) is null
  scriptid    is x
@@ -329,7 +431,7 @@ function changetitle(scriptid) is null
  XTemp       is x 
  c.fn        is x
  c.ln        is x
- center_name = "Helen Farabee Centers"
+' center_name = "Helen Farabee Centers"
  if center_name !dp
   center_name = $mscname
  endif 
@@ -338,6 +440,7 @@ function changetitle(scriptid) is null
   case "ANSA"    newtitle = center_name + " ID:" + $regid + "Name:" + c.ln + ", " + c.fn + "Form: ANSA"
   case "CANS35"  newtitle = center_name + " ID:" + $regid + "Name:" + c.ln + ", " + c.fn + "Form: CANS 3-5"
   case "CANS617" newtitle = center_name + " ID:" + $regid + "Name:" + c.ln + ", " + c.fn + "Form: CANS 6-17"
+  case other newtitle = center_name + " ID:" + $regid + "Name:" + c.ln + ", " + c.fn + "Form: " + scriptid
  endselect 
  $ctag("<script language='Javascript'>")
  XTemp = "    document.title=" + x"22" + newtitle + x"22" + ";"

@@ -97,6 +97,10 @@ if MaxClinRatingAge > 90
  MaxClinRatingAge = 90
 endif
 
+(void)$setdcvact(AnsaIntRefDCT,"5","I")
+(void)$setdcvact(AnsaDisReasDCT,"7","I")
+(void)$setdcvact(AnsaResTypeDCT,"9","I")
+
 '*********Medical Necessity Statement Related***********
 %define MedicalNecessity "As a Licensed Professional of Healing Arts (LPHA), I verify that the services authorized in the 'Authorized Level Of Care' section above are medically necessary and I concur with the plan of care."
 %global chk_MedNec
