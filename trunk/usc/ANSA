@@ -1,5 +1,5 @@
 start ANSA(parmfile,option,client,retcode)
- %version 1.0.021 10/14/2013
+ %version 1.0.022 10/14/2013
  $looplimit = 0
  %include inc_ANSA
  e.ser     is b
@@ -2753,9 +2753,7 @@ function Validate0() is i
  else
   Validate0 = 0
  endif
- if c.ansa.staff !dp
-  c.ansa.staff = $operstaffid
- endif 
+ c.ansa.staff = $operstaffid
  c.ansa.ver = $scriptver
 end Validate0
 
