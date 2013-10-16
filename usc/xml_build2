@@ -48,7 +48,7 @@
 '  ^ Removed logic to place "<?xml version='1.0'?>" at the beginning of the xml batch file.
 '       DSHS has notified that this string is not needed for proper processing of our xml batch
 '       and has updated sample xml files on the CMBHS Documentation website accordingly.
-'  ^ fixed buggs around new .006 options 
+'  ^ fixed buggs around new .006 options
 'TJM 20130725 .009
 '  + $REGID system variable template support
 'RHW 20130910 .010
@@ -66,6 +66,15 @@
 '  + reset $loopcount to 0 between each client
 '    ^^ this is needed for large processing
 '       It was only allowing about 98 clients per batch
+'RLE 201310XX .012
+'  ~ performance improvements by removing $find
+'  ~ pre-parse the string in _tplme
+'RLE 20131016 .013
+'  - remove list[]/list-uid[] vars: use client/uids instead
+'  - remove array sorting
+'  
+
+'''%debug compile
 
 %define lf x"0a"
 '%define d_parmfile "CANSXML"
@@ -73,7 +82,7 @@
 %define d_tpl "/c0/forms/cans.xml"
 %define d_rootnode "Batch"
 
-%version 01.0.011 09/20/13 GCC
+%version 01.0.013 10/16/13 GCC
 
 start xml_build2(parmfile,option,clients[],retcode, uids[])
 
@@ -93,15 +102,17 @@ $looplimit = 32767
    Template       is x
    tplData[]      is x
    tplBuf[]       is x
+   o_dstLib       is x
 
-   list[]         is x
-   list-uid[]     is n
+'   list[]         is x
+'   list-uid[]     is n
 
    dst[]          is x
    values[]       is x
    dsttype[]      is x
    dstinfo[]      is x
    _lookup_dst    is x
+   x_dst          is x
 
    rc             is b
    T              is x
@@ -132,20 +143,20 @@ __MAIN:
          buf = fileheader
       endif
    else
-'      buf = "<?xml version='1.0'?>" + lf
       buf += "<" + d_rootNode + ">" + lf
    endif
    rc = $writefile(_fh,buf)
 
    '' process clients
-   do while ptr_c++ < $maxarray(list[])
+   ptr_c = 0
+   do while ptr_c++ < $maxarray(clients[])
       $loopcount = 0
       $clear(buf,values[])
-      $regid = list[ptr_c]
+      $regid = clients[ptr_c]
       if uids[ptr_c] dp then
-         rc = _dst:readuid(list[ptr_c], list-uid[ptr_c], dst[])
+         rc = _dst:readuid(clients[ptr_c], uids[ptr_c], dst[])
       else
-         rc = _dst:read(list[ptr_c],dst[])
+         rc = _dst:read(clients[ptr_c],dst[])
       endif
       if rc > 1 then
          $errmsg1 = $fmt(rc,"dbread rc:99")
@@ -158,20 +169,14 @@ __MAIN:
       rc = $writefile(_fh,buf)
    enddo
    $clear(buf)
+
    if filefooter dp then
       if filefooter != "!NONE" then
-         buf = filefooter  
+         buf = filefooter
       endif
    else
       buf = "</" + d_rootNode + ">" + lf
    endif
-
-'  buf += "<DST>" + lf
-'   i = 0
-'   do while i++ < $maxarray(dst[])
-'      buf += dst[i] + "==" + values[i] + lf
-'   enddo
-'  buf += "</DST>" + lf
 
    rc = $writefile(_fh,buf)
    rc = $closefile(_fh)
@@ -183,18 +188,15 @@ _TplMe:
    tplBuf[] = tplData[]
    i = 0
    do while i++ < $maxarray(dst[])
-      rc = $dstinfo(dst[i],dstinfo[])
       T = "%" + dst[i] + "%"
       j = $find(T,tplBuf[])
       do while j > 0
          '*dst formatting based on type
-         if values[i] dp and dstinfo[5] = "D" then
-'         if values[i] dp and dsttype[i] = "D" then
+         if values[i] dp and dsttype[i] = "D" then
             values[i] = $fmt(`$date(values[i])`,"YYYY-MM-DD")
          endif
 
          tplBuf[j] = $replace(T,values[i],tplBuf[j])
-
          j = $find(T,tplBuf[],++j)
       enddo
    enddo
@@ -202,58 +204,55 @@ _TplMe:
    '* SYSVAR/LOOKUP replacement
    i = $find("$",tplBuf[])
    do while i > 0
-      if $find("$TODAY",tplBuf[i]) > 0 then
-         tplBuf[i] = $replace("$TODAY",$fmt($today,"YYYY-MM-DD"),tplBuf[i])
-      elseif $find("$EDIT",tplBuf[i]) > 0 then
-      ''FORMAT: $EDIT|DB``03|C.CANS.STAFF
-         T = xml_content(tplBuf[i])
-         $parsem(T,1,"|",tmp[])
-         j = $find(tmp[3],dst[],,"F")
-         rc = $getEditmsg(values[j],tmp[2],xOut)
-         tplBuf[i] = $replace(T,xOut,tplBuf[i])
-      elseif $find("$DBREAD",tplBuf[i]) > 0 then
-      ''FORMAT: $DBREAD|03|C.CANS.STAFF|S.UA.CRED
-         T = xml_content(tplBuf[i])
-         $parsem(T,1,"|",tmp[])
-         j = $find(tmp[3],dst[],,"F")
-         $setvarname(_lookup_dst,tmp[4])
-         rc = $dbread(`$casti(tmp[2])`,values[j],_lookup_dst)
-         tplBuf[i] = $replace(T,_lookup_dst,tplBuf[i])
-      elseif $find("$DCVDB",tplBuf[i]) > 0 then
-      ''FORMAT: $DCVDB|03|C.CANS.STAFF|S.UA.CRED|226|1
-         T = xml_content(tplBuf[i])
-         $parsem(T,1,"|",tmp[])
-         j = $find(tmp[3],dst[],,"F")
-         $setvarname(_lookup_dst,tmp[4])
-         rc = $dbread(`$casti(tmp[2])`,values[j],_lookup_dst)
-         xOut = $dct(tmp[5],_lookup_dst,tmp[6])
-         tplBuf[i] = $replace(T,xOut,tplBuf[i])
-      elseif $find("$RT",tplBuf[i]) > 0 then
-         T = xml_content(tplBuf[i])
-         $parsem(T,1,"|",tmp[])
-         j = $find(tmp[3],dst[],,"F")
-         if tmp[4] !dp then tmp[4] = "R" endif
-         xOut = $rt(values[j],tmp[2],tmp[4])
-         tplBuf[i] = $replace(T,xOut,tplBuf[i])
-      elseif $find("$DCT",tplBuf[i]) > 0 then
-         T = xml_content(tplBuf[i])
-         $parsem(T,1,"|",tmp[])
-         j = $find(tmp[3],dst[],,"F")
-         if tmp[4] !dp then tmp[4] = "D" endif
-         xOut = $dct(tmp[2],values[j],tmp[4])
-         tplBuf[i] = $replace(T,xOut,tplBuf[i])
-      elseif $find("$REGID",tplBuf[i], 1, "F") > 0 then
-         tplBuf[i] = $replace("$REGID", clients[ptr_c], tplBuf[i])
-      endif
+      T = xml_content(tplBuf[i])    'get node content
+      $parsem(T,1,"|",tmp[])        'parse PSV into array
+      j = $find(tmp[3],dst[],,"F")  'find DST pointer
+      select $uc(tmp[1])
+         case "$TODAY"
+            tplBuf[i] = $replace("$TODAY",$fmt($today,"YYYY-MM-DD"),tplBuf[i])
+         case "$EDIT"
+            ''FORMAT: $EDIT|DB``03|C.CANS.STAFF
+            rc = $getEditmsg(values[j],tmp[2],xOut)
+            tplBuf[i] = $replace(T,xOut,tplBuf[i])
+         case "$DBREAD"
+            ''FORMAT: $DBREAD|03|C.CANS.STAFF|S.UA.CRED
+            $setvarname(_lookup_dst,tmp[4])
+            rc = $dbread(`$casti(tmp[2])`,values[j],_lookup_dst)
+            tplBuf[i] = $replace(T,_lookup_dst,tplBuf[i])
+         case "$DCVDB"
+            ''FORMAT: $DCVDB|03|C.CANS.STAFF|S.UA.CRED|226|1
+            $setvarname(_lookup_dst,tmp[4])
+            rc = $dbread(`$casti(tmp[2])`,values[j],_lookup_dst)
+            xOut = $dct(tmp[5],_lookup_dst,tmp[6])
+            tplBuf[i] = $replace(T,xOut,tplBuf[i])
+         case "$RT"
+            ''FORMAT: $RT|RT_TABLE|DST_NAME|OPTION (R=RECODE,D=DESCRIPTION)
+            if tmp[4] !dp then tmp[4] = "R" endif
+            xOut = $rt(values[j],tmp[2],tmp[4])
+            tplBuf[i] = $replace(T,xOut,tplBuf[i])
+         case "$DCT"
+            ''FORMAT: $DCT|DCT_TABLE|DST_NAME|OPTION (D=DESCRIPTION,1,2,3)
+            if tmp[4] !dp then tmp[4] = "D" endif
+            xOut = $dct(tmp[2],values[j],tmp[4])
+            tplBuf[i] = $replace(T,xOut,tplBuf[i])
+         case "$REGID"
+            tplBuf[i] = $replace("$REGID", $regid, tplBuf[i])
+      endselect
       i = $find("$",tplBuf[],++i)
    enddo
 
    rc = $putds(tplBuf[],buf,lf)
-   ''buf += "<!-- ID: " + $fmt(ptr_c,"9999") + " -->" + lf
 goback
 
 __INIT:
-   if $loadlib(_dst,"lib_DST") > 0 then
+   o_dstLib = "lib_DST"
+   %debugstart
+   if $custnumber = 641 then
+      o_dstLib = "lib_DST2"
+   endif
+   %debugend
+
+   if $loadlib(_dst,o_dstLib) > 0 then
       $errmsg1 = "Attack by CoCentrix - cannot load lib_DST"
       return
    endif
@@ -268,14 +267,14 @@ __INIT:
    'GetParm(parmfile)
    GetOption(option)
 
-   if clients[] dp then
-      i = $maxarray(list[])
-      rc = $arrInsert(list[i], clients[])
-      rc = $arrInsert(list-uid[i], uids[])
-'      rc = $arrayMerge(list[],clients[])
-   endif
+   'if clients[] dp then
+   '   i = $maxarray(list[])
+   '   rc = $arrInsert(list[i], clients[])
+   '   rc = $arrInsert(list-uid[i], uids[])
+'  '    rc = $arrayMerge(list[],clients[])
+   'endif
 
-   rc = $sort(list[], list-uid[])
+   'rc = $sort(list[], list-uid[])
 
    gosub __READTPL
    gosub __DST
@@ -300,57 +299,35 @@ goback
 __DST:
    i = 0
    do while i++ < $maxarray(tplData[])
+      $clear(x_dst)
       if $find("%",tplData[i]) > 0 then
          T = xml_content(tplData[i])
          T = $uc(T)
-         T = $seg(T,2,`$len(T) - 2`)
-'         '*dups:
-'            j = $maxarray(dst[]) + 1
-'            dst[j] = T
-'            gosub __CHECKDST
-'            '(void)$arrPush(dst[],T)
-'         endif
-      endif
-
-      if $find("$EDIT",tplData[i]) > 0 OR
-         $find("$DBREAD",tplData[i]) > 0 OR 
-         $find("$DCVDB",tplData[i]) > 0 OR
-         $find("$RT",tplData[i]) > 0 OR
-         $find("$DCT",tplData[i]) > 0 then
+         x_dst = $seg(T,2,`$len(T) - 2`)
+      elseif $find("$",tplData[i]) > 0 then
+      ''if $find("$EDIT",tplData[i]) > 0 OR
+      ''   $find("$DBREAD",tplData[i]) > 0 OR
+      ''   $find("$DCVDB",tplData[i]) > 0 OR
+      ''   $find("$RT",tplData[i]) > 0 OR
+      ''   $find("$DCT",tplData[i]) > 0 then
          T = xml_content(tplData[i])
          $parsem(T,1,"|",tmp[])
-         T = $uc(tmp[3])
-'         tmp[3] = $uc(tmp[3])
-'         if $find(tmp[3],dst[],,"F") = 0 then
-'            j = $maxarray(
-'            (void)$arrPush(dst[],tmp[3])
-'         endif
+         if $find(tmp[1],"$EDIT,$DBREAD,$DCVDB,$RT,$DCT") > 0 then
+            x_dst = $uc(tmp[3])
+         endif
       endif
 
 '      ' build unduplicated dst list
-      if $find(T,dst[],,"F") = 0 then
+      if $find(x_dst,dst[],,"F") = 0 then
          j = $maxarray(dst[]) + 1
-         dst[j] = T
-'         rc = $dstinfo(dst[j], dstinfo[])
-'         if rc > 0 then
-'            $errmsg1 = $fmt(rc, "DSTINFO ERROR - VERIFY TEMPLATE!! RC=99")
-'            $errmsg2 = "DST: " + dst[i]
-'            return
-'         else
-''            dsttype[j] = dstinfo[5]
-''            if list-uid[] dp then
-''               if dstinfo[16] dp then
-''                  if uidRecord !dp then uidRecord = dstinfo[16] endif
-''                  if uidRecord = dstinfo[16] then
-''                     rc = uid-dst[
-'         endif
+         dst[j] = x_dst
       endif
-
    enddo
 
    i = 0
    do while i++ < $maxarray(dst[])
       rc = $dstinfo(dst[i],dstinfo[])
+      dsttype[i] = dstinfo[5]
       if rc > 0 then
          $errmsg1 = $fmt(rc,"DSTINFO ERROR - VERIFY TEMPLATE!! RC=99")
          $errmsg2 = "DST: " + dst[i]
