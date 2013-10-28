@@ -1,5 +1,5 @@
 library lib_ANSA()
- %version 1.0.009 10/10/2013
+ %version 1.0.010 10/28/2013
  %define row_color2 "bgcolor='White'"
  %define col_color_multi "bgcolor='LightGrey'"
 on load do:
@@ -48,8 +48,12 @@ on load do:
      or "E"  (void)$arrpush(assessments[],"1")
              (void)$arrpush(assessments[],"11")   
    'Initial Non Admission
-   case "12" (void)$arrpush(assessments[],"1")
-             (void)$arrpush(assessments[],"11")   
+   case "12" if c.ansa.aloc = "109"
+   	          (void)$arrpush(assessments[],"3")
+             else
+			  (void)$arrpush(assessments[],"1")
+              (void)$arrpush(assessments[],"11")   
+			 endif 
   endselect
  end Allow_Assesment
 
@@ -1123,31 +1127,34 @@ on load do:
  
  function RLOC(c.ansa.b.depres,c.ansa.b.subabs,c.ansa.cr.episds,c.ansa.b.cog,c.ansa.hs.num180,c.ansa.hs.numg30,c.ansa.hs.numl30,c.ansa.ld.employ,c.ansa.ld.family,c.ansa.ld.living,c.ansa.ld.restab,c.ansa.ld.slfcre,
                c.ansa.qids,c.ansa.r.crimbe,c.ansa.r.dangot,c.ansa.r.suicid,c.ansa.sr.hist,c.ansa.sr.idea,c.ansa.sr.intent,c.ansa.sr.plan,c.ansa.st.natsup,c.ansa.type,DXcat,DXgaf,DXtype) is x 
-  c.ansa.b.depres is x 
-  c.ansa.b.subabs  is x 
-  c.ansa.cr.episds is x 
-  c.ansa.b.cog     is x 
-  c.ansa.hs.num180 is x 
-  c.ansa.hs.numg30 is x 
-  c.ansa.hs.numl30 is x 
-  c.ansa.ld.employ is x 
-  c.ansa.ld.family is x 
-  c.ansa.ld.living is x 
-  c.ansa.ld.restab is x 
-  c.ansa.ld.slfcre is x 
-  c.ansa.qids      is x 
-  c.ansa.r.crimbe  is x 
-  c.ansa.r.dangot  is x 
-  c.ansa.r.suicid  is x 
-  c.ansa.sr.hist   is x 
-  c.ansa.sr.idea   is x 
-  c.ansa.sr.intent is x 
-  c.ansa.sr.plan   is x 
-  c.ansa.st.natsup is x 
-  c.ansa.type      is x 
-  DXcat            is x 
-  DXgaf            is x 
-  DXtype           is x   
+  c.ansa.b.depres    is x 
+  c.ansa.b.subabs    is x 
+  c.ansa.cr.episds   is x 
+  c.ansa.b.cog       is x 
+  c.ansa.hs.num180   is x 
+  c.ansa.hs.numg30   is x 
+  c.ansa.hs.numl30   is x 
+  c.ansa.ld.employ   is x 
+  c.ansa.ld.family   is x 
+  c.ansa.ld.living   is x 
+  c.ansa.ld.restab   is x 
+  c.ansa.ld.slfcre   is x 
+  c.ansa.qids        is x 
+  c.ansa.r.crimbe    is x 
+  c.ansa.r.dangot    is x 
+  c.ansa.r.suicid    is x 
+  c.ansa.sr.hist     is x 
+  c.ansa.sr.idea     is x 
+  c.ansa.sr.intent   is x 
+  c.ansa.sr.plan     is x 
+  c.ansa.st.natsup   is x 
+  c.ansa.type        is x 
+  DXcat              is x 
+  DXgaf              is x 
+  DXtype             is x
+  datediff           is i
+  last_ansa_type     is x
+  last_ansa_alocdt   is d  
 
   crisis          is x
   basic_medManage is x
@@ -1176,13 +1183,38 @@ on load do:
    endif
   endif
   
+'Crisis Override handling
+  if c.ansa.type = "11"
+   RLOC = Ineligible
+   return
+  endif  
+  
+'Non-priority population
+  if DXType = "O" or DXType !dp
+   RLOC = Ineligible
+   return
+  endif  
+
+'Business rule R-30.4, if client is MDD and discharged within last 90 days then GAF is not considered. It's not quite clear if it's 90 days between assessment date and last assessment date or
+'90 days between today and last assessment_date. It's also not clear if it matters with/without psychotic features,both
+  if c.ansa.type = "1" and DXType = "D"
+   Last_Assessment($regid,last_ansa_type,,,,,,,,,last_ansa_alocdt)
+   if last_ansa_type = "3"
+    datediff = last_ansa_alocdt - $today
+    if datediff <= 90
+     DXGaf = 0   
+    endif
+   else
+    $clear(last_ansa_type,last_ansa_alocdt)
+   endif
+  endif  
+'Still, GAF is only used for Intakes.
+  if c.ansa.type != "1"
+   DXGaf = 0
+  endif
 
 'Target Population
-  if DXType = "S" or DXType = "B" or (DXType = "D" and (c.ansa.type = "1" and DXGaf <= 50)) or c.ansa.type = "2" or c.ansa.type = "11"
-'GAF is only used for Intakes
-   if c.ansa.type != "1"
-    DXGaf = 0
-   endif
+  if DXType = "S" or DXType = "B" or (DXType = "D" and DXGaf <= 50)
 
 '4/115/ACT
    if ($num(c.ansa.hs.num180) > 1 or c.ansa.hs.numl30 = "3" or $num(c.ansa.hs.numg30) > 0) or (c.ansa.cr.episds = "3" and (c.ansa.hs.num180 = "1" or c.ansa.hs.numl30 = "2"))

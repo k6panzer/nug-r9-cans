@@ -1,5 +1,5 @@
-start ANSA(parmfile,option,client,retcode)
- %version 1.0.022 10/14/2013
+Start ANSA(parmfile,option,client,retcode)
+ %version 1.0.024 10/28/2013
  $looplimit = 0
  %include inc_ANSA
  e.ser     is b
@@ -17,7 +17,7 @@ start ANSA(parmfile,option,client,retcode)
  %global radio_index
  radio_index is i
  
- %global c_ansa_rloc, c_ansa_dloc, c_ansa_aloc,c_ansa_loc_dev,c_ansa_fairhear,c_ansa_grade,c_ansa_restype,c_ansa_emptype,c_ansa_labor,sigline,ansa_start_time,ansa_end_time,ansa_duration,ansa_log,medicaid_status
+ %global c_ansa_rloc, c_ansa_dloc, c_ansa_aloc,c_ansa_loc_dev,c_ansa_fairhear,c_ansa_grade,c_ansa_restype,c_ansa_emptype,c_ansa_labor,sigline,ansa_start_time,ansa_end_time,ansa_duration,ansa_log,medicaid_status,LocalCrisisDesc,LocalIneligDesc
  c_ansa_rloc     is x
  c_ansa_dloc     is x
  c_ansa_aloc     is x
@@ -33,6 +33,8 @@ start ANSA(parmfile,option,client,retcode)
  ansa_duration   is t
  ansa_log        is x
  medicaid_status is x
+ LocalCrisisDesc is x
+ LocalIneligDesc is x
  
  %global DXType, DX, DXCat, DXDate, DXGaf
  DXType is x
@@ -74,10 +76,6 @@ start ANSA(parmfile,option,client,retcode)
   return
  endif
  
- if $regid = "050026776" and $operstaffid = "001523" and $today = 10/07/2013 
-  $trace("path.on","/c0/EXPORT/trace/ASNA_050026776.txt")
- endif 
-
  if {"lib_UACOMMON"}StaffCanDo() = 1
   return
  endif 
@@ -97,6 +95,8 @@ start ANSA(parmfile,option,client,retcode)
  assessments[] is x
  {"lib_ANSA"}Allow_Assesment($regid,assessments[])
  {"lib_UAMEDICAID"}check_medicaid($regid,medicaid_status)  
+ LocalCrisisDesc = $dct(ansaAuthLevelDCT,"100")
+ LocalIneligDesc = $dct(ansaAuthLevelDCT,"120")
 
  %global bgcolor
  bgcolor is x 
@@ -148,7 +148,7 @@ start ANSA(parmfile,option,client,retcode)
      $brmsg("The assessment will exit now.",2,"W")
      return	
 	else
-     $clear(c.ansa.compd,c.ansa.type)
+     $clear(c.ansa.compd)
      Page = "0"
     endif
    elseif c.ansa.staff !dp
@@ -187,7 +187,7 @@ start ANSA(parmfile,option,client,retcode)
      $brmsg("The assessment will exit now.",2,"W")
      return	
 	else
-     $clear(c.ansa.compd,c.ansa.type)
+     $clear(c.ansa.compd)
      Page = "0"
     endif
   endif
@@ -198,7 +198,7 @@ start ANSA(parmfile,option,client,retcode)
    rc = $dbread(02, $regid, c.ansa.rec,c.ansa.date)	
    rc = $dbremovedst(02, $regid, c.ansa.rec,c.ansa.date)
    $clear(c.ansa.date)
-   $brmsg("ansa Assessment Successfully Removed from the Database!",1,"C","Process Complete")
+   $brmsg("ANSA Assessment Successfully Removed from the Database!",1,"C","Process Complete")
    $brmsg("The assessment will restart now.",2,"W")
    Page = "0"   
   elseif PromptNED = 2
@@ -209,17 +209,17 @@ start ANSA(parmfile,option,client,retcode)
    $dblock()
    rc = $dbread(02, $regid, ansa_dstlist)	       
    rc = $dbremovedst(02, $regid, c.ansa.rec,c.ansa.date)
-   $brmsg("ansa Assessment Successfully Removed from the Database!",1,"C","Process Complete")
+   $brmsg("ANSA Assessment Successfully Removed from the Database!",1,"C","Process Complete")
    $brmsg("The assessment will exit now.",2,"W")
    return
   elseif PromptNED = 4
    return
   elseif PromptNED = 5
-   $brmsg("ansa Assessment Currently Being Entered by Another Staff Member!",1,"C","In Progress")
+   $brmsg("ANSA Assessment Currently Being Entered by Another Staff Member!",1,"C","In Progress")
    $brmsg("The assessment will exit now.",2,"W")
    return	
   else
-   $clear(c.ansa.compd,c.ansa.type)
+   $clear(c.ansa.compd)
    Page = "0"
   endif
  endif
@@ -433,10 +433,10 @@ start ANSA(parmfile,option,client,retcode)
    elseif Page = "Report"
     c.ansa.rloc = {"lib_ANSA"}RLOC(c.ansa.b.depres,c.ansa.b.subabs,c.ansa.cr.episds,c.ansa.b.cog,c.ansa.hs.num180,c.ansa.hs.numg30,c.ansa.hs.numl30,c.ansa.ld.employ,c.ansa.ld.family,c.ansa.ld.living,c.ansa.ld.restab,
                                                          c.ansa.ld.slfcre,c.ansa.qids,c.ansa.r.crimbe,c.ansa.r.dangot,c.ansa.r.suicid,c.ansa.sr.hist,c.ansa.sr.idea,c.ansa.sr.intent,c.ansa.sr.plan,c.ansa.st.natsup,c.ansa.type,DXcat,DXgaf,DXtype)
-              if c.ansa.type = "3"
-               $clear(c.ansa.rloc,c.ansa.aloc,c.ansa.dloc)
-              endif									 
-              Report(page)
+     if c.ansa.type = "3"
+      $clear(c.ansa.rloc,c.ansa.aloc,c.ansa.dloc)
+     endif									 
+     Report(page)
 	 if $endbutton = "SUBMIT"
 	  if UM_StaffYN = "Y"
 	       if (c.ansa.staff = $operstaffid and c.ansa.staff dp)
@@ -477,7 +477,13 @@ start ANSA(parmfile,option,client,retcode)
 	  if SaveData() = 0
 	   Page = "Exit"
 	   {"lib_UACOMMON"}RemUMMonitor($regid,$scriptid)
-	   {"lib_UACOMMON"}AddBatch($regid,$scriptid)	   
+	   if c.ansa.type = "11"
+        if c.ansa.aloc = "100"
+		 {"lib_UACOMMON"}AddBatch($regid,$scriptid)	   
+		endif 
+	   else
+	    {"lib_UACOMMON"}AddBatch($regid,$scriptid)	   
+       endif	
 	  endif 
 	 endif
    elseif Page = "Authorize"
@@ -488,8 +494,11 @@ start ANSA(parmfile,option,client,retcode)
     endif									 
     Report(page)
     if $endbutton = "SUBMIT"
-	  if (c.ansa.aloc dp and c.ansa.aloc != c.ansa.rloc) and c.ansa.loc_dev !dp
-       $brmsg("Please select the reason for deviation from the Recommended LOC!",1,"W","Deviation Reason") 
+	  if c.ansa.type = "11" and c.ansa.rloc = "120" and c.ansa.aloc = "100"
+	   c.ansa.loc_dev = "3"
+	  endif
+	  if (c.ansa.aloc dp and c.ansa.aloc != c.ansa.rloc) and c.ansa.loc_dev !dp and c.ansa.type != "11"
+	   $brmsg("Please select the reason for deviation from the Recommended LOC!",1,"W","Deviation Reason") 
 	   Page = "Authorize"
 	  else									
 	   Page = "ValidateALOC"
@@ -2142,10 +2151,6 @@ function Validate1() is i
   if c.ansa.ld.slfcre !dp
    (void)$arrpush(errors[],`ld_errortext`)
   endif
- 
-  if $num(c.ansa.r.suicid) < 2 and c.ansa.r.dangot != "3" and c.ansa.ld.slfcre != "3" and c.ansa.b.subabs != "3" and c.ansa.b.cog != "3"
-   (void)$arrpush(errors[],crisis2_errortxt)
-  endif 
  endif     
 
  'Suicide Risk
@@ -2293,12 +2298,6 @@ function Validate2() is i
  if c.ansa.type = "2" and (c.ansa.r.suicid = "3" or (c.ansa.r.suicid = "2" and (c.ansa.sr.idea = "3" or $num(c.ansa.sr.intent) > 1 or $num(c.ansa.sr.plan) > 1 or $num(c.ansa.sr.hist) > 1)) or
                                                      c.ansa.r.dangot = "3" or c.ansa.ld.slfcre = "3" or c.ansa.b.cog = "3" or c.ansa.b.subabs = "3")
   (void)$arrpush(errors[],crisis1_errortxt)      
- endif
-
- if c.ansa.type = "11"
-  if ($num(c.ansa.r.suicid) = "2" and (c.ansa.sr.idea != "3" and $num(c.ansa.sr.intent) < 2 and $num(c.ansa.sr.plan) < 2 and $num(c.ansa.sr.hist) < 2)) and c.ansa.b.cog != "3"
-   (void)$arrpush(errors[],crisis2_errortxt)
-  endif 
  endif
 
  if errors[1] dp
@@ -2530,7 +2529,7 @@ function SaveData() is i
  else
   $clear(c.ansa.devR1,c.ansa.devR2,c.ansa.devR3,c.ansa.devR4,c.ansa.devR5)
  endif
- if c.ansa.aloc = "100"
+ if c.ansa.type = "11"
   $clear(c.ansa.intref,c.ansa.intrefoth)
  endif
 'replace characters that could cause parsing errors in the batch, textbox/block fields
@@ -2588,11 +2587,11 @@ function SaveData() is i
    if c.ansa.isn !dp
     c.ansa.isn = SaveEvent()
    endif
-   endif
-   c.ansa.rec[effd] = c.ansa.date
-   NewUID = c.ansa.rec[uid]
-   $clear(c.ansa.aloc)
-   SaveData = $dbadddst(02, $regid, ansa_dstlist)
+  endif
+  c.ansa.rec[effd] = c.ansa.date
+  NewUID = c.ansa.rec[uid]
+  $clear(c.ansa.aloc)
+  SaveData = $dbadddst(02, $regid, ansa_dstlist)
  elseif mode = "UPDATE"
   c.ansa.rec[effd] = c.ansa.date
   if (c.ansa.dloc = c.ansa.rloc) and (c.ansa.dloc = c.ansa.aloc)
@@ -2601,6 +2600,14 @@ function SaveData() is i
   if c.ansa.compd !dp and c.ansa.aloc = "100"
    $clear(c.ansa.aloc)
   endif
+  if c.ansa.type = "11" and c.ansa.rloc = "120" and c.ansa.aloc = "100"
+   CrisisOverride()
+  endif
+  if c.ansa.type = "11" and c.ansa.rloc = "120" and c.ansa.aloc = "120"
+   c.ansa.type = "12"
+   c.ansa.caredt = c.ansa.alocdate
+   $clear(c.ansa.dloc,c.ansa.devjust,c.ansa.loc_dev)
+  endif  
   SaveData = $dbupdate(02, $regid, 
 c.ansa.rec,c.ansa.staff,c.ansa.ver,c.ansa.date,c.ansa.caredt,c.ansa.age,c.ansa.aloc,c.ansa.rloc,c.ansa.dloc,c.ansa.compd,c.ansa.type,
 c.ansa.arrest,c.ansa.grade,c.ansa.restype,c.ansa.resother1,c.ansa.emptype,c.ansa.labor,c.ansa.laboroth,c.ansa.minor,c.ansa.scaledt,
@@ -2840,6 +2847,11 @@ function ValidateALOC() is i
    (void)$arrpush(errors[],aloc1_errortxt)  
   endif
   
+  if c.ansa.type = "11" and c.ansa.rloc = "120" and (c.ansa.aloc != "100" and c.ansa.aloc != "120")
+   (void)$arrpush(errors[],crisis3_errortxt)  
+  endif   
+    
+  
   if medicaid_status = "Medicaid Recipient" and c.ansa.fairhear !dp
    if ($num(c.ansa.aloc) <  $num(last_aloc) and last_aloc dp) and (c.ansa.type = "2" or (c.ansa.type = "3" and c.ansa.disreas != "14"))
     (void)$arrpush(errors[],fairhear_errtxt)  
@@ -2849,9 +2861,13 @@ function ValidateALOC() is i
    endif
   endif 
 
-  if c.ansa.aloc != c.ansa.rloc
+  if (c.ansa.aloc = "100" and c.ansa.rloc = "120") and c.ansa.type = "11"
+   c.ansa.loc_dev = "3"
+  endif
+
+  if (c.ansa.aloc != c.ansa.rloc)
    if c.ansa.loc_dev !dp
-    (void)$arrpush(errors[],aloc3_errortxt)
+	(void)$arrpush(errors[],aloc3_errortxt)
    else
 	if c.ansa.aloc = "109" and c.ansa.loc_dev != "1"
      (void)$arrpush(errors[],locdev4_errortxt)		
@@ -2881,13 +2897,14 @@ function ValidateALOC() is i
   (void)$arrpush(errors[],aloc15_errortxt)
   endif
 
-  if c.ansa.aloc = "120" and (c.ansa.type != "1" and c.ansa.type != "12")
+  if c.ansa.aloc = "120" and (c.ansa.type != "1" and c.ansa.type != "12" and c.ansa.type != "11")
    (void)$arrpush(errors[],aloc14_errortxt)
   endif  
 
   if c.ansa.aloc = "100" and (last_type = "I" or last_type = "U")
    (void)$arrpush(errors[],aloc9_errortxt)  
   endif
+
   if c.ansa.aloc = c.ansa.rloc and c.ansa.loc_dev dp
    $clear(c.ansa.loc_dev,c.ansa.devoth,c.ansa.devR1,c.ansa.devR2,c.ansa.devR3,c.ansa.devR4,c.ansa.devR5, c.ansa.devjust)   
   endif
@@ -2896,6 +2913,7 @@ function ValidateALOC() is i
    (void)$arrpush(errors[],aloc4_errortxt)  
   endif
  endif
+ 
  if c.ansa.alocdate dp
   if c.ansa.alocdate > $today
    (void)$arrpush(errors[],aloc7_errortxt)    
@@ -2952,8 +2970,12 @@ function ValidateALOC() is i
  c.ansa.alocedate = {"lib_ANSA"}EndDate(c.ansa.aloc,c.ansa.alocdate)
  c.ansa.alocstaff = $operstaffid
  c.ansa.compd = $today
+
  if c.ansa.aloc = "100"
   c.ansa.type = "11"
+  if (c.ansa.aloc = "100" and c.ansa.rloc = "120") and c.ansa.type = "11"
+   $clear(c.ansa.loc_dev,c.ansa.devjust)
+  endif
  elseif c.ansa.aloc = "120"
   if c.ansa.type = "1"
    c.ansa.type = "12"
@@ -2964,7 +2986,7 @@ function ValidateALOC() is i
   endif 
   c.ansa.loc_dev = "2"
   $clear(c.ansa.devjust)     
- elseif c.ansa.aloc = "109"
+ elseif c.ansa.aloc = "120"
   c.ansa.loc_dev = "1"
   $clear(c.ansa.devjust)       
  endif
@@ -2983,6 +3005,9 @@ function ValidateReport() is i
   (void)$arrpush(errors[],dloc2_errortxt)
   $clear(c.ansa.dloc)
  endif 
+ if c.ansa.rloc != "100" and c.ansa.type = "11" and c.ansa.dloc != "100"
+  (void)$arrpush(errors[],dloc3_errortxt)
+ endif
  if errors[1] dp	
   ValidateReport = 1
  else
@@ -3112,12 +3137,14 @@ function ALOC() is null
  {"lib_ANSA"}Last_Assessment($regid,last_type,,,last_date,,last_aloc,,,,last_alocdate) 
  $table($funcname,,"width='100%' cellspacing='0' cellpadding='2' bgcolor='White'  style='border-style: solid; border-width: 1px'")
   $row(,col_color_multi)
-   if c.ansa.type = "1" or c.ansa.type = "2" or c.ansa.type = "12"
+   if c.ansa.type = "1" or c.ansa.type = "2" or c.ansa.type = "12" or (c.ansa.type = "11" and c.ansa.rloc != "100")
     $col("center",,,"2")$text("Authorized Level Of Care","datatag")
    elseif c.ansa.type = "3"
     $col("center",,,"2")$text("Discharge","datatag")	
-   elseif c.ansa.type = "11"
+   elseif c.ansa.type = "11" and c.ansa.rloc = "100"
     $col("center",,,"2")$text("Authorized Level Of Care: Crisis","datatag")
+   elseif c.ansa.type = "11" and c.ansa.rloc = "120"
+    $col("center",,,"2")$text("Authorized Level Of Care: Crisis Override Requested","datatag")
    endif
    if c.ansa.type = "3"
     $row()
@@ -3128,7 +3155,7 @@ function ALOC() is null
    $row()
     $col("right",,"50%")$text(q_text_alocdate,"datatag")
     $col()$textbox(c.ansa.alocdate,"CAL",10,6,"Y","normal")
-    if c.ansa.type = "1" or c.ansa.type = "2" or c.ansa.type = "12"
+    if c.ansa.type = "1" or c.ansa.type = "2" or c.ansa.type = "12" or (c.ansa.type = "11" and c.ansa.rloc = "120")
      $row()
       $col("right",,"50%")$text(q_text_rloc,"datatag")
       $col()$text(c_Ansa_rloc)
@@ -3137,20 +3164,38 @@ function ALOC() is null
        $col("right",,"50%")$text(q_text_dloc,"error")
 	   $col()$text(c_Ansa_dloc) 
      endif	
-     $row()
-      $col("right",,"50%")$text(q_text_aloc,"datatag")
-	  $col()$dropboxdct(c.ansa.aloc,AnsaAuthLevelDCT,,,,"Y")
+     if c.ansa.type = "11" and c.ansa.rloc = "120"
+	  $row()
+       $col("right",,"50%")
+	   $col()$text(CrisisOverTxt2,"error")
+	  $row()
+       $col("right",,"50%")
+	   $col()$text(CrisisOverTxt3,"error")
+	  $row()
+       $col("right",,"50%")$text(q_text_aloc,"datatag")
+	   $col()$dropbox(c.ansa.aloc,"","",,,,,,"Y")
+		     $dropbox(c.ansa.aloc,LocalCrisisDesc,"100")
+		     $dropbox(c.ansa.aloc,LocalIneligDesc,"120")
+     else
+	  $row()
+       $col("right",,"50%")$text(q_text_aloc,"datatag")
+	   $col()$dropboxdct(c.ansa.aloc,AnsaAuthLevelDCT,,,,"Y")	 
+	 endif
+
      if (c.ansa.aloc dp and c.ansa.rloc dp) and (c.ansa.rloc != c.ansa.aloc)
 	  $row()
        $col("right",,"50%")$text(q_text_loc_dev,"datatag")
 	   $col()$dropboxdct(c.ansa.loc_dev,AnsaDeviationDCT)
              $dropbox(c.ansa.loc_dev,"Other","5",,,"OTHER","OTHER")	
-      $row()
-       $col("right",,"50%")$text(q_text_devjust,"datatag")
-       $col()$textblock(c.ansa.devjust,5,,,"Y",255,"width:100%;")$countbox(c.ansa.devjust,"(max chars is 255)")			 
-     endif
-    endif
-    if c.ansa.type = "11" or c.ansa.rloc = "100"
+      if c.ansa.type != "11"
+	   $row()
+        $col("right",,"50%")$text(q_text_devjust,"datatag")
+        $col()$textblock(c.ansa.devjust,5,,,"Y",255,"width:100%;")$countbox(c.ansa.devjust,"(max chars is 255)")			 
+      endif
+	 endif
+	endif
+
+    if c.ansa.type = "11" and c.ansa.rloc = "100"
      c.ansa.aloc = "100"
      c_Ansa_aloc = $dct(AnsaAuthLevelDCT,c.ansa.aloc) 	 
      $row()
@@ -3159,7 +3204,8 @@ function ALOC() is null
      $row()
       $col("right",,"50%")$text(q_text_aloc,"datatag")
       $col()$text(c_Ansa_aloc)  
-    endif	 	
+	endif
+
   $endtable($funcname)
   $block("OTHER","OTHER")
    $table("OTHER",,table_nobgcolor)
@@ -3199,16 +3245,26 @@ end ALOC
 function RLOCRpt() is null
  c_ansa_rloc = $dct(ansaAuthLevelDCT,c.ansa.rloc)
   $table($funcname,,"width='100%' cellspacing='0' cellpadding='2' bgcolor='White'  style='border-style: solid; border-width: 1px'")
-  if c.ansa.type = "1" or c.ansa.type = "2" or c.ansa.type = "12"
+  if c.ansa.type = "1" or c.ansa.type = "2" or c.ansa.type = "12" or (c.ansa.type = "11" and c.ansa.rloc != "100")
   $row(,col_color_multi)
    $col("center",,,"2")$text("Recommended Level Of Care","datatag")
    $row()
     $col("right",,"50%")$text(q_text_rloc,"datatag")
     $col()$text(c_ansa_rloc)
-   $row()
-    $col("right",,"50%")$text(q_text_dloc,"datatag")
-    $col()$dropboxdct(c.ansa.dloc,ansaAuthLevelDCT)
-  elseif c.ansa.type = "11"
+   if(c.ansa.type = "11" and c.ansa.rloc != "100")
+    $row()
+     $col("right",,"50%")
+     $col()$text(CrisisOverTxt1,"error")
+    $row()
+     $col("right",,"50%")$text(q_text_dloc,"datatag")
+	 $col()$dropbox(c.ansa.dloc,"","",,,,,,"Y")
+		   $dropbox(c.ansa.dloc,LocalCrisisDesc,"100")	 
+   else
+    $row()
+     $col("right",,"50%")$text(q_text_dloc,"datatag")
+     $col()$dropboxdct(c.ansa.dloc,ansaAuthLevelDCT)
+   endif
+  elseif c.ansa.type = "11" and c.ansa.rloc = "100"
   $row(,col_color_multi)
    $col("center",,,"2")$text("Recommended Level Of Care: Crisis","datatag")
    $row()
@@ -3229,7 +3285,12 @@ function ClearPage1() is null
   $clear(c.ansa.r.smutil,c.ansa.r.oslfhr,c.ansa.r.exploit,c.ansa.r.gamble,c.ansa.r.sexagr,c.ansa.r.crimbe,
          c.ansa.b.psychs,c.ansa.b.depres,c.ansa.b.anxity,c.ansa.b.mania,c.ansa.b.implsv,c.ansa.b.inter,c.ansa.b.antisoc,c.ansa.b.adjtrm,c.ansa.b.angctr,c.ansa.b.eatdst,
          c.ansa.ld.phymed,c.ansa.ld.family,c.ansa.ld.employ,c.ansa.ld.socfun,c.ansa.ld.recret,c.ansa.ld.sexdev,c.ansa.ld.living,c.ansa.ld.restab,c.ansa.ld.legal,c.ansa.ld.sleep,c.ansa.ld.decisi,c.ansa.ld.invrec,
-         c.ansa.ld.trans)
+         c.ansa.ld.trans,
+		 c.ansa.fc.na,c.ansa.fc.phlth,c.ansa.fc.invcre,c.ansa.fc.know,c.ansa.fc.sfres,c.ansa.fc.famst,c.ansa.fc.safe,
+         c.ansa.st.fam,c.ansa.st.soccon,c.ansa.st.opti,c.ansa.st.tal,c.ansa.st.edu,c.ansa.st.vol,c.ansa.st.jobhi,c.ansa.st.relig,c.ansa.st.comcon,c.ansa.st.natsup,c.ansa.st.resil,c.ansa.st.resour,
+         c.ansa.ac.langua,c.ansa.ac.identy,c.ansa.ac.ritual,c.ansa.ac.culstr,
+         c.ansa.hs.num180,c.ansa.hs.numl30,c.ansa.hs.numg30,
+         c.ansa.cr.episds)
  else
   $clear(c.ansa.r.suicid,c.ansa.r.dangot,c.ansa.r.smutil,c.ansa.r.oslfhr,c.ansa.r.exploit,c.ansa.r.gamble,c.ansa.r.sexagr,c.ansa.r.crimbe,
          c.ansa.b.psychs,c.ansa.b.cog,c.ansa.b.depres,c.ansa.b.anxity,c.ansa.b.mania,c.ansa.b.implsv,c.ansa.b.inter,c.ansa.b.antisoc,c.ansa.b.adjtrm,c.ansa.b.angctr,c.ansa.b.subabs,c.ansa.b.eatdst,
@@ -3274,3 +3335,93 @@ function AssessmentStaff() is null
     $col()$dropboxdct(c.ansa.staff,110,,,,"Y")
   $endtable($funcname)
 end AssessmentStaff
+
+function CrisisOverride() is null
+ c.ansa.rloc = "100"
+ $clear(c.ansa.dloc,c.ansa.loc_dev)
+'Page1 Values
+'Risk
+ if c.ansa.r.suicid = "0"
+  $clear(c.ansa.sr.idea, c.ansa.sr.intent, c.ansa.sr.plan, c.ansa.sr.hist, c.ansa.sr.ffsui)
+ endif
+ if c.ansa.r.dangot = "0"
+  $clear(c.ansa.d.frusman,c.ansa.d.host,c.ansa.d.pthink,c.ansa.d.gainang,c.ansa.d.vthink,c.ansa.d.potent,c.ansa.d.respon,c.ansa.d.csctrl,c.ansa.d.tinv)
+ endif
+
+ c.ansa.r.smutil  = "0"
+ c.ansa.r.oslfhr  = "0"
+ c.ansa.r.exploit = "0"
+ c.ansa.r.gamble  = "0"
+ c.ansa.r.sexagr  = "0"
+ c.ansa.r.crimbe  = "0"
+ 
+'Behavioral
+ c.ansa.b.psychs  = "0"
+ c.ansa.b.depres  = "0"
+ c.ansa.b.anxity  = "0"
+ c.ansa.b.mania   = "0"
+ c.ansa.b.implsv  = "0"
+ c.ansa.b.inter   = "0"
+ c.ansa.b.antisoc = "0"
+ c.ansa.b.adjtrm  = "0"
+ c.ansa.b.angctr  = "0"
+ c.ansa.b.eatdst  = "0"
+ if c.ansa.b.subabs = "0"
+   $clear(c.ansa.sa.severe,c.ansa.sa.durati,c.ansa.sa.stgrec,c.ansa.sa.perinf,c.ansa.sa.envinf,c.ansa.sa.reccom)
+ endif
+
+'LifeDomain
+ c.ansa.ld.phymed = "0"
+ c.ansa.ld.family = "0"
+ c.ansa.ld.employ = "9"
+ c.ansa.ld.socfun = "0"
+ c.ansa.ld.recret = "0"
+ c.ansa.ld.sexdev = "0"
+ c.ansa.ld.living = "0"
+ c.ansa.ld.restab = "0"
+ c.ansa.ld.legal  = "0"
+ c.ansa.ld.sleep  = "0"
+ c.ansa.ld.decisi = "0"
+ c.ansa.ld.invrec = "0"		 
+ c.ansa.ld.trans  = "0"
+
+'Family/Care Giver
+ c.ansa.fc.na     = "9"
+ c.ansa.fc.phlth  = "9"
+ c.ansa.fc.invcre = "9"
+ c.ansa.fc.know   = "9"
+ c.ansa.fc.sfres  = "9"
+ c.ansa.fc.famst  = "9"
+ c.ansa.fc.safe   = "9"
+
+'Strengths
+ c.ansa.st.fam    = "0"
+ c.ansa.st.soccon = "0"
+ c.ansa.st.opti   = "0"
+ c.ansa.st.tal    = "0"
+ c.ansa.st.edu    = "9"
+ c.ansa.st.vol    = "0"
+ c.ansa.st.jobhi  = "0"
+ c.ansa.st.relig  = "0"
+ c.ansa.st.comcon = "0"
+ c.ansa.st.natsup = "0"
+ c.ansa.st.resil  = "0"
+ c.ansa.st.resour = "0"
+
+'Culture/Acculturation
+ c.ansa.ac.langua = "0"
+ c.ansa.ac.identy = "0"
+ c.ansa.ac.ritual = "0"
+ c.ansa.ac.culstr = "0"
+
+'Hospital
+ c.ansa.hs.num180 = "0"
+ c.ansa.hs.numl30 = "0"
+ c.ansa.hs.numg30 = "0"
+
+'Crisis
+ c.ansa.cr.episds = "0"
+ 
+ ClearPage2() 
+ ClearPage34()
+end CrisisOverride
