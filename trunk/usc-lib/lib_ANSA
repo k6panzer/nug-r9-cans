@@ -33,8 +33,15 @@ on load do:
              (void)$arrpush(assessments[],"11")
    'Initial
    case "1"  
-     or "I"  (void)$arrpush(assessments[],"2")
-             (void)$arrpush(assessments[],"3")
+     or "I"  if (c.ansa.aloc = "6" or c.ansa.aloc = "9")
+              (void)$arrpush(assessments[],"1")
+              (void)$arrpush(assessments[],"11")
+             elseif c.ansa.aloc = "8"
+			  (void)$arrpush(assessments[],"3")  
+			 else
+	          (void)$arrpush(assessments[],"2")
+              (void)$arrpush(assessments[],"3")
+			 endif 
    'Update
    case "2"
      or "U"  (void)$arrpush(assessments[],"2")
