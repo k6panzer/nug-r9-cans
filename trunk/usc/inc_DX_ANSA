@@ -174,3 +174,19 @@ c.iq.date,c.iq.type,c.sq.score,c.sq.date,c.sq.type,c.dx.prese,c.dx.ax4.b,c.dx.ax
   endselect
   $allowupdate(dxtype, DX, dxcat, DXGAF, DXDate)
  end GETDX
+
+ function CurrentDX(client,compare_date) is x
+  client       is x
+  compare_date is d
+  dx_age       is i
+
+  CurrentDX = "Y"
+  if compare_date !dp
+   compare_date = $today
+  endif
+  (void)$dbread(02,client,dx_dstlist)
+  (void)$datediff(c.dxdate,compare_date,dx_age)
+  if c.diag !dp or dx_age > 0
+   CurrentDX = "N"
+  endif
+ end CurrentDX 
