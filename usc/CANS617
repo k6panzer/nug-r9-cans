@@ -1,5 +1,5 @@
 start CANS617(parmfile,option,client,retcode)
- %version 1.0.016 10/14/2013
+ %version 1.0.017 11/01/2013
  $looplimit = 0
  %include inc_CANS617
  e.ser     is b
@@ -3524,15 +3524,20 @@ function ALOC() is null
    endif 		  
   endif  
 
-  $table($funcname,,table_nobgcolor)
-   $row()
-    $col("right",,"50%")$text(q_text_acomment,"datatag")
-    $col()$textblock(c.cans.acomment,5,,,,255,"width:100%;")$countbox(c.cans.acomment,"(max chars is 255)")  
-   $row()
-    $col("right")$text("Include LPHA Medical Necessity Statement?")
-    $col()$checkbox(chk_MedNec, "Yes", "Y")
-  $endtable($funcname) 
 
+   $table($funcname,,table_nobgcolor)
+    $row()
+     $col("right",,"50%")$text(q_text_acomment,"datatag")
+     $col()$textblock(c.cans.acomment,5,,,,255,"width:100%;")$countbox(c.cans.acomment,"(max chars is 255)")  
+    if c.cans.type != "3"
+      $row()
+       $col("right")$text("Include LPHA Medical Necessity Statement?")
+       $col()$checkbox(chk_MedNec, "Yes", "Y")
+    else
+     chk_MedNec = "N"
+    endif
+   $endtable($funcname) 
+   
    else
      $row()
       $col("center",,"100%","2")$text(diag_errortxt,"error")
@@ -3686,7 +3691,7 @@ function ValidateALOC() is i
    endif
   endif     
 
-  if c.cans.aloc = "100" and (last_type = "I" or last_type = "U")
+  if c.cans.aloc = "100" and (last_type = "I" or last_type = "U" or last_type = "1" or last_type = "2")
     (void)$arrpush(errors[],aloc9_errortxt)  
   endif
   if c.cans.aloc = c.cans.rloc and c.cans.loc_dev dp
