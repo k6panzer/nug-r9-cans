@@ -1,5 +1,5 @@
 library lib_ANSA()
- %version 1.0.010 10/28/2013
+ %version 1.0.011 11/01/2013
  %define row_color2 "bgcolor='White'"
  %define col_color_multi "bgcolor='LightGrey'"
 on load do:
@@ -90,7 +90,7 @@ on load do:
   $setvarname(c.ANSA.alocdate, "C.ANSA.ALOCDATE")
 
   $allowupdate(c.ansa.type,c.ansa.staff,c.ansa.ver,c.ansa.date,c.ansa.age,c.ansa.aloc,c.ansa.rloc,c.ansa.dloc,c.ansa.compd) 
-  rc = 0
+  rc = $dbread(02,clientid,c.ansa.rec,c.ansa.type,c.ansa.staff,c.ansa.ver,c.ansa.date,c.ansa.age,c.ansa.aloc,c.ansa.rloc,c.ansa.dloc,c.ansa.compd,c.ansa.alocdate)
   do until c.ansa.compd dp or rc > 1
    rc = $dbreadnextdst(02,clientid,c.ansa.rec,c.ansa.type,c.ansa.staff,c.ansa.ver,c.ansa.date,c.ansa.age,c.ansa.aloc,c.ansa.rloc,c.ansa.dloc,c.ansa.compd,c.ansa.alocdate)
   enddo 
