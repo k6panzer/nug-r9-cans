@@ -1,5 +1,5 @@
 start UM_MONITOR3()
- %version 1.0.004 10/04/2013
+ %version 1.0.006 11/12/2013
  %global bgcolor, row_color, formtimeout
  %global assessment_date, assessment_ID, assessment_name, assessment, assessment_type, assessment_rloc, assessment_dloc, assessment_adate, assessment_pfile, assessment_opt, view_btn, assessment_staff,assessment_sname,medicaid_status
  %global assessment_email,assessment_rcode,assessment_dcode,assessment_auth,assessment_color, full_refresh_btn, RefreshScript, LPHA, delete_btn, EnableDelete
@@ -10,6 +10,7 @@ start UM_MONITOR3()
  %global Email_Assessor,StaffEmailDST,email_subject,email_body
  %global RestrictedStaff
  %global old_assessment,crisis_color,override_color
+ %global CreateGR_FS
  bgcolor           is x
  row_color         is x
  formtimeout       is i
@@ -27,6 +28,7 @@ start UM_MONITOR3()
  StaffEmailDST     is v 'DST with staff email address
  RefreshScript     is x 'Script that manages the saved lists, UM_MONITOR4?, leave blank to disable
  EnableDelete      is x
+ CreateGR_FS       is x
 '*****************************Change these******************************************************************
  %define table_wbgcolor "width='100%' cellspacing='0' cellpadding='0' bgcolor='" + bgcolor + "'"
  %define table_nobgcolor "width='100%' cellspacing='0' cellpadding='0'"
@@ -52,6 +54,7 @@ start UM_MONITOR3()
  (void)$arrpush(RestrictedStaff[],"4284")
  RefreshScript = "UM_MONITOR4"
  EnableDelete = "Y"
+ CreateGR_FS = "N"
 '*********************************************************************************************************** 
  UM_StaffYN = {"lib_UACOMMON"}UMStaff()
  MISStaffYN = {"lib_UACOMMON"}MISStaff()
@@ -403,7 +406,7 @@ function GetSavedLists() is null
 	 case "2" assessment_auth[index2] = "N"
 	          if c.ansa.dloc !dp
 	            $clear(last_type,last_date,last_aloc)
-                {"lib_COMMON"}ClientLastUA(assessment_id[index],,last_date,last_type,,last_aloc)
+                {"lib_UACOMMON"}ClientLastUA(assessment_id[index],,last_date,last_type,,last_aloc)
                 if (last_aloc = c.ansa.rloc) or (last_aloc = "1" and (c.ansa.rloc = "112" or c.ansa.rloc = "111"))
                  assessment_auth[index2] = "Y"
 	            endif
@@ -463,7 +466,7 @@ function GetSavedLists() is null
 	 case "2" assessment_auth[index2] = "N"
 	          if c.cans.dloc !dp
 	            $clear(last_type,last_date,last_aloc)
-                {"lib_COMMON"}ClientLastUA(assessment_id[index],,last_date,last_type,,last_aloc)
+                {"lib_UACOMMON"}ClientLastUA(assessment_id[index],,last_date,last_type,,last_aloc)
                 if last_aloc = c.cans.rloc
                  assessment_auth[index2] = "Y"
 	            endif
@@ -523,11 +526,11 @@ function GetSavedLists() is null
 	 case "2" assessment_auth[index2] = "N"
 	          if c.cans.dloc !dp
 	            $clear(last_type,last_date,last_aloc)
-                {"lib_COMMON"}ClientLastUA(assessment_id[index],,last_date,last_type,,last_aloc)
+                {"lib_UACOMMON"}ClientLastUA(assessment_id[index],,last_date,last_type,,last_aloc)
                 if last_aloc = c.cans.rloc
                  assessment_auth[index2] = "Y"
 	           endif
-                endif			  
+              endif			  
 	 case "3"  assessment_auth[index2] = "Y"	 
 	 case "11" assessment_auth[index2] = "N"
 	 case "12" assessment_auth[index2] = "N"	 
@@ -557,24 +560,50 @@ function GetSavedLists() is null
 end GetSavedLists
 
 function ConfirmANSA(cid) is i
- cid          is x
- c.ansa.rec   is h
- c.ansa.compd is d
- (void)$dbread(2,cid,c.ansa.rec,c.ansa.compd)
+ cid             is x
+ c.ansa.rec      is h
+ c.ansa.compd    is d
+ c.ansa.date     is d
+ c.ansa.alocdate is d
+ c.ansa.aloc     is x
+ c.ansa.type     is x
+ contract        is x
+ crisis_flag     is x
+ (void)$dbread(2,cid,c.ansa.rec,c.ansa.compd,c.ansa.date,c.ansa.alocdate,c.ansa.aloc,c.ansa.type)
  if c.ansa.compd dp
   ConfirmAnsa = 1
+  crisis_flag = "N"  
+  if CreateGR_FS = "Y" and (c.ansa.aloc != "108" and c.ansa.aloc != "109" and c.ansa.aloc != "120") and (c.ansa.type != "3" and c.ansa.type != "12")
+   if c.ansa.aloc = "100"
+    crisis_flag = "Y"
+   endif
+   {"lib_FUNDSOURCE"}FSCheck($regid, "15", c.ansa.alocdate, c.ansa.date, crisis_flag)
+  endif 
  else
   ConfirmAnsa = 0
  endif
 end ConfirmAnsa
 
 function ConfirmCANS(cid) is i
- cid          is x
- c.cans.rec   is h
- c.cans.compd is d
- (void)$dbread(2,cid,c.cans.rec,c.cans.compd)
+ cid             is x
+ c.cans.rec      is h
+ c.cans.compd    is d
+ c.cans.date     is d
+ c.cans.alocdate is d
+ c.cans.aloc     is x
+ c.cans.type     is x 
+ contract        is x
+ crisis_flag     is x
+ (void)$dbread(2,cid,c.cans.rec,c.cans.compd,c.cans.date,c.cans.alocdate,c.cans.aloc,c.cans.type)
  if c.cans.compd dp
-  ConfirmCANS = 1
+  ConfirmCans = 1
+  crisis_flag = "N"
+  if CreateGR_FS = "Y" and (c.cans.aloc != "108" and c.cans.aloc != "109" and c.cans.aloc != "110") and (c.cans.type != "3" and c.cans.type != "12")
+   if c.cans.aloc = "100"
+    crisis_flag = "Y"
+   endif
+   {"lib_FUNDSOURCE"}FSCheck($regid, "15", c.cans.alocdate, c.cans.date, crisis_flag)
+  endif
  else
   ConfirmCANS = 0
  endif

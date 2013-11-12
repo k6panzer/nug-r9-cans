@@ -494,3 +494,236 @@ function DisplayErrors(errors[]) is null
   $tag("</CENTER>")
  $sendform("errors")
 end DisplayErrors
+
+dynamic function ClientLastUA(Client,date, ua_date, ua_type, ua_locr, ua_loca, ua_due, client_age,ua_discharge, ua_rdmtrr, a_add_stg, a_add_sti, a_add_se, c_addfca, c_addgca, loca, loca_desc,trr_loca) is null
+ Client       is x
+ date         is d
+ ua_date      is d
+ ua_type      is x
+ ua_locr      is x
+ ua_loca      is x
+ ua_due       is d
+ ua_discharge is d
+ ua_rdmtrr    is x   'This var will hold a "R" if the UA is RDM or a "T" if the UA is TRR.  
+ a_add_stg    is x
+ a_add_sti    is x
+ a_add_se     is x
+ c_addfca     is x
+ c_addgca     is x
+ loca         is x
+ loca_desc    is x
+ trr_loca     is x
+ client_age   is i
+              
+ c.uabd          is h
+ c.uabd.pur      is x
+ c.uabd.aloc     is x
+ c.uabd.rloc     is x
+ c.uabd.date     is d
+ c.uabd.extd     is x
+ c.uabd.annual   is x
+ c.uabd.disdt    is d
+ c.uabd.addonstg is x 'Adult UA Skills Training Group Add on
+ c.uabd.addonse  is x 'Adult UA Skills Supported Employment Add on
+ c.uabd.addonsti is x 'Adult UA Skills Training Individual Add on 
+
+ c.cabd.rec      is h
+ c.cabd.ass      is x
+ c.cabd.aloc     is x
+ c.cabd.locr     is x
+ c.cabd.date     is d
+ c.cabd.extd     is x
+ c.cabd.disdt    is d
+ c.cabd.addonfca is x 'Child UA Addon Family Counseling
+ c.cabd.addongca is x 'Child UA Addon Group Counseling
+ 
+ c.ansa.rec       is h
+ c.ansa.type      is x
+ c.ansa.aloc      is x
+ c.ansa.rloc      is x
+ c.ansa.date  	  is d
+ c.ansa.disdt 	  is d
+ c.ansa.alocedate is d
+ c.ansa.compd     is d
+ 
+ c.cans.rec   	  is h
+ c.cans.type  	  is x
+ c.cans.aloc  	  is x
+ c.cans.rloc  	  is x
+ c.cans.date  	  is d
+ c.cans.disdt 	  is d
+ c.cans.alocedate is d
+ c.cans.compd     is d 
+ 
+ $clear(ua_date, ua_type, ua_locr, ua_loca, ua_due, client_age,a_add_stg, a_add_sti, a_add_se, c_addfca, c_addgca,loca,loca_desc,trr_loca)
+ $allowupdate(ua_date, ua_type, ua_locr, ua_loca, ua_due, ua_discharge, client_age, ua_rdmtrr, a_add_stg, a_add_sti, a_add_se, c_addfca, c_addgca,loca,loca_desc,trr_loca)
+
+ if date !dp
+  date = $today
+ endif
+ client_age = ClientAge(Client,date)
+
+ if client_age >= 18
+'CALCULATE DUE DATE FOR ADULT UA  
+'Read both UABD and ANSA record, then decide which date to use
+  (void)$dbread(02, client, c.ansa.rec, c.ansa.type, c.ansa.aloc, c.ansa.rloc, c.ansa.date, c.ansa.disdt, c.ansa.alocedate, c.ansa.compd)
+  if c.ansa.rec dp and c.ansa.compd !dp or c.ansa.date > date
+   (void)$dbreadnextdst(02, client, c.ansa.rec, c.ansa.type, c.ansa.aloc, c.ansa.rloc, c.ansa.date, c.ansa.disdt, c.ansa.alocedate, c.ansa.compd)
+  endif
+  (void)$dbread(02, client, c.uabd, c.uabd.pur, c.uabd.aloc, c.uabd.date, c.uabd.extd, c.uabd.rloc, c.uabd.annual, c.uabd.disdt,c.uabd.addonstg,c.uabd.addonsti,c.uabd.addonse)  
+  if c.ansa.rec dp and c.ansa.compd dp
+   ua_due = c.ansa.alocedate
+   if c.ansa.disdt dp
+    ua_discharge = c.ansa.disdt
+   else
+    ua_date = c.ansa.date
+    ua_type = c.ansa.type
+    ua_due  = c.ansa.alocedate
+    ua_locr = $dct(9712,c.ansa.rloc,"1")
+	if ua_locr !dp
+     ua_locr = $dct(9712,c.ansa.rloc,"2")	
+	endif
+	if ua_locr !dp
+     ua_locr = $dct(9712,c.ansa.rloc,"3")	
+	endif	
+	if ua_locr !dp
+     ua_locr = c.ansa.rloc
+	endif			
+    ua_loca = $dct(9712,c.ansa.aloc,"1")
+	if ua_loca !dp
+     ua_loca = $dct(9712,c.ansa.aloc,"2")	
+	endif
+	if ua_loca !dp
+     ua_loca = $dct(9712,c.ansa.aloc,"3")	
+	endif	
+	if ua_loca !dp
+     ua_loca = c.ansa.aloc
+	endif
+    loca = c.ansa.aloc
+	loca_desc = $dct(9712,c.ansa.aloc,"D")
+	trr_loca = $dct(9712,c.ansa.aloc,"2")
+	 
+    ua_rdmtrr = "T"
+    if ua_loca = "1S" or ua_loca = "2" or ua_loca = "3" or ua_loca = "4" or ua_loca = "5"
+	 a_add_stg = "Y"
+     a_add_sti = "Y"
+     a_add_se = "Y"
+    endif	
+   endif
+  elseif c.uabd dp
+   if c.uabd.disdt dp 
+    ua_discharge = c.uabd.disdt
+   endif
+   if (c.uabd dp and c.uabd.pur != "D" and c.uabd.aloc !dp) or
+ 'added to keep working down through the layers with the current layer has a UABD date > the date passed to the libarary
+       c.uabd.date > date  'or c.uabd.pur = "D"
+    (void)$dbreadnextdst(02, client, c.uabd, c.uabd.pur, c.uabd.aloc, c.uabd.date, c.uabd.extd, c.uabd.rloc, c.uabd.annual, c.uabd.disdt,c.uabd.addonstg,c.uabd.addonsti,c.uabd.addonse)    
+   endif
+   ua_date = c.uabd.date
+   ua_type = c.uabd.pur
+   ua_locr = c.uabd.rloc
+   ua_loca = c.uabd.aloc
+   a_add_stg = c.uabd.addonstg
+   a_add_sti = c.uabd.addonsti
+   a_add_se  = c.uabd.addonse
+   c_addfca  = c.cabd.addonfca
+   c_addgca  = c.cabd.addongca
+   ua_rdmtrr = "R"   
+   loca = c.uabd.aloc
+   loca_desc = $dct(9002,c.uabd.aloc,"D")   
+   if c.uabd.aloc = "1" and c.uabd.annual = "Y"
+    ua_due = c.uabd.date + 365
+   elseif (c.uabd.pur = "I" or c.uabd.pur = "U") and (c.uabd.aloc = "1" or c.uabd.aloc = "2" or c.uabd.aloc = "3" or  c.uabd.aloc = "4") and (c.uabd.extd != "Y")
+    ua_due = c.uabd.date + 90
+   elseif (c.uabd.pur = "I" or c.uabd.pur = "U") and (c.uabd.extd = "Y")
+    ua_due = c.uabd.date + 180
+   elseif (c.uabd.pur = "I" or c.uabd.pur = "U") and (c.uabd.aloc = "5")
+    ua_due = c.uabd.date + 90
+   elseif c.uabd.aloc = "0"
+    ua_due = c.uabd.date + 7
+   elseif c.uabd.aloc = "8"
+    ua_due = c.uabd.date + 365
+   else
+    $clear(ua_due)
+   endif
+  endif
+ elseif client_age < 18
+'CALCULATE DUE DATE FOR CHILD UA
+'read both CABD and CANS data and then decide which data to use
+  (void)$dbread(02, client, c.cans.rec, c.cans.type, c.cans.aloc, c.cans.rloc, c.cans.date, c.cans.disdt, c.cans.alocedate, c.cans.compd)
+  if c.cans.rec dp and c.cans.compd !dp or c.cans.date > date
+   (void)$dbreadnextdst(02, client, c.cans.rec, c.cans.type, c.cans.aloc, c.cans.rloc, c.cans.date, c.cans.disdt, c.cans.alocedate, c.cans.compd)  
+  endif
+  (void)$dbread(02, client, c.cabd.rec, c.cabd.ass, c.cabd.aloc, c.cabd.date, c.cabd.extd, c.cabd.locr, c.cabd.disdt,c.cabd.addonfca,c.cabd.addongca)
+  if c.cans.rec dp and c.cans.compd dp
+   ua_due = c.cans.alocedate
+   if c.cans.disdt dp
+    ua_discharge = c.cans.disdt
+   else
+    ua_date = c.cans.date
+    ua_type = c.cans.type
+    ua_due  = c.cans.alocedate
+    ua_locr = $dct(9705,c.cans.rloc,"1")
+	if ua_locr !dp
+     ua_locr = $dct(9705,c.cans.rloc,"2")	
+	endif
+	if ua_locr !dp
+     ua_locr = $dct(9705,c.cans.rloc,"3")	
+	endif	
+	if ua_locr !dp
+     ua_locr = c.cans.rloc
+	endif			
+    ua_loca = $dct(9705,c.cans.aloc,"1")
+	if ua_loca !dp
+     ua_loca = $dct(9705,c.cans.aloc,"2")	
+	endif
+	if ua_loca !dp
+     ua_loca = $dct(9705,c.cans.aloc,"3")	
+	endif	
+	if ua_loca !dp
+     ua_loca = c.cans.aloc
+	endif
+    loca = c.cans.aloc
+	loca_desc = $dct(9705,c.cans.aloc,"D")
+	trr_loca = $dct(9705,c.cans.aloc,"2")		
+    ua_rdmtrr = "T"
+	if ua_loca = "2" or ua_loca = "3" or ua_loca = "4" or ua_loca = "YC" or ua_loca = "5" or ua_loca = "2.1" or ua_loca = "2.2"
+     c_addfca = "Y"
+     c_addgca = "Y"
+	endif    
+   endif  
+  elseif c.cabd.rec dp 
+   if c.cabd.disdt dp 
+    ua_discharge = c.cabd.disdt
+   endif   
+   if (c.cabd.rec dp and c.cabd.ass != "D" and c.cabd.aloc !dp) or
+ 'added to keep working down through the layers with the current layer has a UABD date > the date passed to the libarary
+       c.cabd.date > date 'or c.cabd.ass = "D"
+    (void)$dbreadnextdst(02, client, c.cabd.rec, c.cabd.ass, c.cabd.aloc, c.cabd.date, c.cabd.extd, c.cabd.locr, c.cabd.disdt,c.cabd.addonfca,c.cabd.addongca)  
+   endif
+   ua_date = c.cabd.date
+   ua_type = c.cabd.ass
+   ua_locr = c.cabd.locr
+   ua_loca = c.cabd.aloc
+   c_addfca = c.cabd.addonfca
+   c_addgca = c.cabd.addongca   
+   loca = c.cabd.aloc
+   loca_desc = $dct(9014,c.cabd.aloc,"D")   
+   ua_rdmtrr = "R"
+   if (c.cabd.ass = "I" or c.cabd.ass = "U") and (c.cabd.aloc = "1.1" or c.cabd.aloc = "1.2" or c.cabd.aloc = "2.1" or c.cabd.aloc = "2.2" or c.cabd.aloc = "2.3" or c.cabd.aloc = "2.4" or c.cabd.aloc = "3" or c.cabd.aloc = "4") and
+    (c.cabd.extd != "Y")
+    ua_due = c.cabd.date + 90
+   elseif (c.cabd.ass = "I" or c.cabd.ass = "U") and (c.cabd.extd = "Y")
+    ua_due = c.cabd.date + 180
+   elseif (c.cabd.ass = "I" or c.cabd.ass = "U") and (c.cabd.aloc = "5")
+    ua_due = c.cabd.date + 90
+   elseif c.cabd.aloc = "0"
+    ua_due = c.cabd.date + 7
+   elseif c.cabd.aloc = "8"
+    ua_due = c.cabd.date + 365
+   else
+    $clear(ua_due)
+   endif
+  endif
+ endif
+end ClientLastUA
