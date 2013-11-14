@@ -58,13 +58,11 @@
 '			is provided the process will run for all dates.  If both datefrom and datethru are !dp, the process will 
 '			run for all dates.
 '	 ^  Changed the email_notify var to an array email_notify[].  This allows sending email notices to multiple persons
-'RHW 0.5 09/18/2013
-'	 ^  Fixed issue where the entire saved list is marked as batched when using a date range for the batch. 
-'     	Specifically, if the date range used does not send all clients in the saved list, prior to this fix, the 
-'		proces would not consider the date range and would mark each record as batched, even it if was not 
-'     	sent in the batch. 
+'
+'RHW 0.5 11/14/2013
+'	 ^  Corrected logic for updating the caredt (CANS & ANSA) on subsequent layers of the record(s)
 
-%version 0.5 9/18/2013 TxACE
+%version 0.5 11/114/2013 TxACE
 
 %define CANS_TYPE617 "1"
 %define CANS_TYPE35 "2"
@@ -182,7 +180,7 @@ uid            is n
 email_notify[1] = "whaiter@helenfarabee.org"
 buildOneFile = "N"
 autoFTP = "N"
-markAsBatched = "N"
+markAsBatched = "Y"
 archiveAfter = "N"
 use80byte = "N"
 
@@ -240,7 +238,7 @@ msg_stat_cmp = "{{{{{ Process Complete }}}}}"
 getparm(parmfile)
 getoption(option)
 
-'$looplimit = 0
+$looplimit = 0
 
 'build the client list
 status(msg_stat_clt)
@@ -499,7 +497,7 @@ if $uc(markAsBatched) = "Y" then
 		            rc = 99
 		         else
 		            $dblock()
-		            rc = $dbreadnextdst(2, list[i], c.cans.rec, c.cans.compd, c.cans.caredt)
+		            rc = $dbreadnextdst(2, list[i], c.cans.rec, c.cans.compd, c.cans.caredt, c.ansa.rec, c.ansa.compd, c.ansa.caredt)
 		         endif
 					case "Y"
 		         if c.cans.compd >= datefrom and c.cans.compd <= datethru and c.cans.caredt !dp then
@@ -519,7 +517,7 @@ if $uc(markAsBatched) = "Y" then
 		            rc = 99
 		         else
 		            $dblock()
-		            rc = $dbreadnextdst(2, list[i], c.cans.rec, c.cans.compd, c.cans.caredt)
+		            rc = $dbreadnextdst(2, list[i], c.cans.rec, c.cans.compd, c.cans.caredt, c.ansa.rec, c.ansa.compd, c.ansa.caredt)
 		         endif
 				endselect
       enddo
