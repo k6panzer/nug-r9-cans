@@ -55,12 +55,8 @@ on load do:
      or "E"  (void)$arrpush(assessments[],"1")
              (void)$arrpush(assessments[],"11")   
    'Initial Non Admission
-   case "12" if c.ansa.aloc = "109"
-   	          (void)$arrpush(assessments[],"3")
-             else
-			  (void)$arrpush(assessments[],"1")
-              (void)$arrpush(assessments[],"11")   
-			 endif 
+   case "12" (void)$arrpush(assessments[],"1")
+             (void)$arrpush(assessments[],"11")   
   endselect
  end Allow_Assesment
 
@@ -112,7 +108,6 @@ on load do:
 	c.ansa.aloc = "108"
    endif
    if c.ansa.aloc = "8"
-    c.ansa.type = "12"
 	c.ansa.aloc = "109"   
    endif
    if c.ansa.aloc = "9"
@@ -122,9 +117,6 @@ on load do:
    if c.ansa.aloc = "108"
     c.ansa.type = "12"   
    endif
-   if c.ansa.aloc = "109"
-    c.ansa.type = "12"
-   endif	
   endif
  end Last_Assessment
  

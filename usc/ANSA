@@ -1,5 +1,5 @@
 Start ANSA(parmfile,option,client,retcode)
- %version 1.0.025 11/01/2013
+ %version 1.0.026 11/18/2013
  $looplimit = 0
  %include inc_ANSA
  e.ser     is b
@@ -110,8 +110,10 @@ Start ANSA(parmfile,option,client,retcode)
  %global UM_StaffYN, StaffAssign_YN
  UM_StaffYN is x
  UM_StaffYN = {"lib_UACOMMON"}UMStaff()
+'****DENTON*****
  StaffAssign_YN is x
-' StaffAssign_YN = {"lib_UACOMMON"}StaffAssign()
+ StaffAssign_YN = {"lib_UACOMMON"}StaffAssign()
+'************* 
  %global PromptNED
  PromptNED is i
  
@@ -439,7 +441,7 @@ Start ANSA(parmfile,option,client,retcode)
      Report(page)
 	 if $endbutton = "SUBMIT"
 	  if UM_StaffYN = "Y"
-	       if (c.ansa.staff = $operstaffid and c.ansa.staff dp)
+       if (c.ansa.staff = $operstaffid and c.ansa.staff dp)
 	    Page = "ValidateReport"
 	   else
 	    Page = "Exit"
@@ -2411,9 +2413,9 @@ end CanSkipPage4
 
 function Report(mode) is null
  mode     is x
-' if (StaffAssign_YN = "Y" and UM_StaffYN = "Y") and (c.ansa.staff != $operstaffid and c.ansa.staff dp)
-'  UM_StaffYN = "N"
-' endif
+ if (StaffAssign_YN = "Y" and UM_StaffYN = "Y") and (c.ansa.staff != $operstaffid and c.ansa.staff dp)
+  UM_StaffYN = "N"
+ endif
  
  if UM_StaffYN = "Y" and (c.ansa.staff != $operstaffid and c.ansa.staff dp)
   if mode = "Report"
@@ -2656,9 +2658,9 @@ function Page0() is null
  $form($funcname)
   {"lib_UACOMMON"}ClientPageHeader($regid)
   $br()AssessmentDate()
-'  if {"lib_UACOMMON"}StaffAssign() = "Y" 
-'   $br()AssessmentStaff()
-'  endif
+  if StaffAssign_YN = "Y" 
+   $br()AssessmentStaff()
+  endif
   $br()AssessmentType()
   $tag("<hr/>")
   $br()OtherQuestions()
@@ -2760,7 +2762,9 @@ function Validate0() is i
  else
   Validate0 = 0
  endif
- c.ansa.staff = $operstaffid
+ if c.ansa.staff !dp
+  c.ansa.staff = $operstaffid
+ endif 
  c.ansa.ver = $scriptver
 end Validate0
 
@@ -2890,7 +2894,7 @@ function ValidateALOC() is i
    (void)$arrpush(errors[],aloc12_errortxt)
   endif
   
-  if c.ansa.aloc = "109" and (c.ansa.type != "1" and c.ansa.type != "12")
+  if c.ansa.aloc = "109" and c.ansa.type != "1"
   (void)$arrpush(errors[],aloc13_errortxt)
   endif
   if c.ansa.aloc = "108" and (c.ansa.type != "1" and c.ansa.type != "12")
@@ -3333,11 +3337,13 @@ function ClearPage34() is null
 end ClearPage34
 
 function AssessmentStaff() is null
+ if StaffSelectDCT dp
   $table($funcname)
    $row()
     $col("right",,"50%")$text("Staff ID: ","datatag")
-    $col()$dropboxdct(c.ansa.staff,110,,,,"Y")
+    $col()$dropboxdct(c.ansa.staff,StaffSelectDCT,,,,"Y")
   $endtable($funcname)
+ endif 
 end AssessmentStaff
 
 function CrisisOverride() is null
