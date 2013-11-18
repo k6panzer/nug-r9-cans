@@ -1,7 +1,7 @@
 'Include file for the ANSA (Adult Needs And Strengths Assessment)
 
 %global AnsaTypeDCT,AnsaIntRefDCT,AnsaDisReasDCT,AnsaDisRefDCT,AnsaAuthLevelDCT,AnsaDeviationDCT,AnsaGradeDCT,AnsaResTypeDCT,SkiPSer,AssessmentSer,AssessorSig,AuthSig,LogUsage,LogFile,MaxClinRatingAge
-%global Title,RptTitle,ReportID,ChangeIrmsHeader,CheckStfCred
+%global Title,RptTitle,ReportID,ChangeIrmsHeader,CheckStfCred,StaffSelectDCT
 
 AnsaTypeDCT      is b
 AnsaIntRefDCT    is b
@@ -18,11 +18,12 @@ AuthSig          is x 'Y/N Include the authorizer signature line on snapshot
 LogUsage         is x 'Log the usage of the script? Used to determine how long an assessment takes staff to complete, etc
 LogFile          is x '$today|$regid|c.ansa.staff|c.ansa.alocstaff|start_time|end_time|sent_to_um_YN|c.ansa.date|c.ansa.compd|c.ansa.type|c.ansa.rloc|c.ansa.aloc ?
 MaxClinRatingAge is i 'Maximum number of days from the assessment date before prompting for a new Clinical Ratings Scale, 0-90. If 0 then new scale will be prompted every time
-Title           is x 'Irms form title
-RptTitle        is x 'Irms form title
-ReportID        is x 'IRMS form name
+Title            is x 'Irms form title
+RptTitle         is x 'Irms form title
+ReportID         is x 'IRMS form name
 ChangeIrmsHeader is x 'Y/N Call the changetitle function on the final snapshot? Not a very good var name, I agree
 CheckStfCred     is x 'Y/N Call the Check_UACredentials function?
+StaffSelectDCT   is b 'DCT used by the AssessmentStaff dropbox, used by Denton
 
 '*********Datacode Tables, Change These*****************
 AnsaTypeDCT      = 9700
@@ -52,9 +53,11 @@ select $custnumber
             AssessmentSer = 7
             LogUsage = "Y"
             LogFile  = "/c0/SQLTRANSFER/t_client_ansa_usage.txt"
+			$clear(StaffSelectDCT)
          case "PECAN" SkipSer = "Y"
             LogUsage = "Y"
             LogFile  = "/c0/SQLTRANSFER/PV/t_client_ansa_usage.txt"
+			$clear(StaffSelectDCT)			
          endselect
    'GCC
    case 641
@@ -63,6 +66,10 @@ select $custnumber
       ReportID = "GCADLUA"
       ChangeIrmsHeader = "N"
       CheckStfCred = "N"
+  	  $clear(StaffSelectDCT)
+'Denton
+   case 365
+     StaffSelectDCT = 7051    	  	  
  endselect
 '*******************************************************
 if SkipSer !dp

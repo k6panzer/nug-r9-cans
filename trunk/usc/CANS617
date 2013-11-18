@@ -1,5 +1,5 @@
 start CANS617(parmfile,option,client,retcode)
- %version 1.0.017 11/01/2013
+ %version 1.0.018 11/18/2013
  $looplimit = 0
  %include inc_CANS617
  e.ser     is b
@@ -88,9 +88,13 @@ start CANS617(parmfile,option,client,retcode)
  %define row_color3 "bgcolor='PaleGreen'"
  %define col_color_multi "bgcolor='LightGrey'"
  Page is x
- %global UM_StaffYN
+ %global UM_StaffYN, StaffAssign_YN
  UM_StaffYN is x
  UM_StaffYN = {"lib_UACOMMON"}UMStaff()
+ '****DENTON*****
+ StaffAssign_YN is x
+ StaffAssign_YN = {"lib_UACOMMON"}StaffAssign()
+'*************
  %global PromptNED
  PromptNED is i
  
@@ -448,6 +452,9 @@ end CANS617
 
 function Report(mode) is null
  mode     is x
+ if (StaffAssign_YN = "Y" and UM_StaffYN = "Y") and (c.cans.staff != $operstaffid and c.cans.staff dp)
+  UM_StaffYN = "N"
+ endif 
 
  if UM_StaffYN = "Y" and (c.cans.staff != $operstaffid and c.cans.staff dp)
   if mode = "Report"
@@ -2544,7 +2551,9 @@ function Validate0() is i
  else
   Validate0 = 0	
  endif 
- c.cans.staff = $operstaffid
+ if c.cans.staff !dp
+  c.cans.staff = $operstaffid
+ endif 
  c.cans.ver   = $scriptver
 end Validate0
 
@@ -2915,6 +2924,9 @@ function Page0() is null
  $form($funcname)
   {"lib_UACOMMON"}ClientPageHeader($regid)
   $br()AssessmentDate()
+  if StaffAssign_YN = "Y"
+   $br()AssessmentStaff()
+  endif  
   $br()AssessmentType()
   $tag("<hr/>")
   $br()OtherQuestions()
@@ -3887,3 +3899,13 @@ end ClearPage3
 function ClearPage4() is null
  $clear(c.cans.commdate,c.cans.school3m,c.cans.grade,c.cans.arrest,c.cans.restype,c.cans.resother1)
 end ClearPage4
+
+function AssessmentStaff() is null
+ if StaffSelectDCT dp
+  $table($funcname)
+   $row()
+    $col("right",,"50%")$text("Staff ID: ","datatag")
+    $col()$dropboxdct(c.cans.staff,StaffSelectDCT,,,,"Y")
+  $endtable($funcname)
+ endif
+end AssessmentStaff

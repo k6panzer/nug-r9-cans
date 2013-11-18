@@ -1,7 +1,7 @@
 'Include file for the CANS (Children's Assessment of Needs and Strengths) 3-5
 
 %global CansTypeDCT,CansIntRefDCT,CansDisReasDCT,CansDisRefDCT,CansAuthLevelDCT,CansDeviationDCT,CansGradeDCT,CansResTypeDCT,SkiPSer,AssessmentSer
-%global Title,RptTitle,ReportID,ChangeIrmsHeader,CheckStfCred
+%global Title,RptTitle,ReportID,ChangeIrmsHeader,CheckStfCred,StaffSelectDCT
 CansTypeDCT      is b
 CansIntRefDCT    is b
 CansDisReasDCT   is b
@@ -17,6 +17,7 @@ RptTitle    	 is x 'Irms form title
 ReportID    	 is x 'IRMS form name
 ChangeIrmsHeader is x 'Y/N Call the changetitle function on the final snapshot? Not a very good var name, I agree
 CheckStfCred     is x 'Y/N Call the Check_UACredentials function?
+StaffSelectDCT   is b 'DCT used by the AssessmentStaff dropbox, used by Denton
 
 '*********Datacode Tables, Change These*****************
 CansTypeDCT      = 9700
@@ -38,8 +39,10 @@ CheckStfCred 	 = "Y"
  'Helen Farabee and Pecan Valley
     case 256 select $uc($seg($mscname,1,5))
               case "HELEN" SkipSer = "N"
-                           AssessmentSer = 10				   
+                           AssessmentSer = 10
+			               $clear(StaffSelectDCT)
               case "PECAN" SkipSer = "Y"
+			  			   $clear(StaffSelectDCT)
              endselect
 
  'GCC
@@ -51,6 +54,10 @@ CheckStfCred 	 = "Y"
       ReportID = "GCCCHDUA"
       ChangeIrmsHeader = "N"
       CheckStfCred = "N"
+	  $clear(StaffSelectDCT)
+'Denton
+   case 365
+     StaffSelectDCT = 7051    	  	  	  
  endselect 
 '*******************************************************
 if SkipSer !dp
