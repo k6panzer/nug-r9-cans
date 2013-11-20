@@ -67,17 +67,17 @@ library lib_CANS()
   rc              is i 
 
 'have to set these variable names incase the library doesn't get unloaded / reloaded and the names where changed previously
-$setvarname(c.cans.rec,      "C.CANS.REC")
-$setvarname(c.cans.staff,    "C.CANS.STAFF")
-$setvarname(c.cans.date,     "C.CANS.DATE")
-$setvarname(c.cans.aloc,     "C.CANS.ALOC")
-$setvarname(c.cans.rloc,     "C.CANS.RLOC")
-$setvarname(c.cans.compd,    "C.CANS.COMPD")
-$setvarname(c.cans.type,     "C.CANS.TYPE")
-$setvarname(c.cans.alocdate, "C.CANS.ALOCDATE")
+  $setvarname(c.cans.rec,      "C.CANS.REC")
+  $setvarname(c.cans.staff,    "C.CANS.STAFF")
+  $setvarname(c.cans.date,     "C.CANS.DATE")
+  $setvarname(c.cans.aloc,     "C.CANS.ALOC")
+  $setvarname(c.cans.rloc,     "C.CANS.RLOC")
+  $setvarname(c.cans.compd,    "C.CANS.COMPD")
+  $setvarname(c.cans.type,     "C.CANS.TYPE")
+  $setvarname(c.cans.alocdate, "C.CANS.ALOCDATE")
 
-$allowupdate(c.cans.type,c.cans.staff,c.cans.ver,c.cans.date,c.cans.age,c.cans.aloc,c.cans.rloc,c.cans.dloc,c.cans.compd) 
-  rc = 0
+  $allowupdate(c.cans.type,c.cans.staff,c.cans.ver,c.cans.date,c.cans.age,c.cans.aloc,c.cans.rloc,c.cans.dloc,c.cans.compd) 
+  rc = $dbread(02,clientid,c.cans.rec,c.cans.type,c.cans.staff,c.cans.ver,c.cans.date,c.cans.age,c.cans.aloc,c.cans.rloc,c.cans.dloc,c.cans.compd,c.cans.alocdate)
   do until c.cans.compd dp or rc > 1
    rc = $dbreadnextdst(02,clientid,c.cans.rec,c.cans.type,c.cans.staff,c.cans.ver,c.cans.date,c.cans.age,c.cans.aloc,c.cans.rloc,c.cans.dloc,c.cans.compd,c.cans.alocdate)
   enddo
