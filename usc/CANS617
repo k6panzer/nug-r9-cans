@@ -1,5 +1,5 @@
 start CANS617(parmfile,option,client,retcode)
- %version 1.0.018 11/18/2013
+ %version 1.0.019 11/20/2013
  $looplimit = 0
  %include inc_CANS617
  e.ser     is b
@@ -112,7 +112,7 @@ start CANS617(parmfile,option,client,retcode)
      $dblock()
      rc = $dbread(02, $regid, c.cans.rec,c.cans.date)	
      rc = $dbremovedst(02, $regid, c.cans.rec,c.cans.date)
-	 $clear(c.cans.date)
+	 $clear(c.cans.date,c.cans.compd,c.cans.type,c.cans.staff,c.cans.canstype)
      $brmsg("CANS Assessment Successfully Removed from the Database!",1,"C","Process Complete")
      $brmsg("The assessment will restart now.",2,"W")
 	 Page = "0"
@@ -136,11 +136,11 @@ start CANS617(parmfile,option,client,retcode)
      $brmsg("The assessment will exit now.",2,"W")
      return	
 	else
-     $clear(c.cans.compd,c.cans.type)
+     $clear(c.cans.compd,c.cans.type,c.cans.staff,c.cans.canstype)
      Page = "0"
     endif
    elseif c.cans.staff !dp
-    $clear(c.cans.compd,c.cans.type)
+    $clear(c.cans.compd,c.cans.type,c.cans.staff,c.cans.canstype)
 	Page = "0"
    else
     rc = $dbread(02, $regid, cans_dstlist)
@@ -153,7 +153,7 @@ start CANS617(parmfile,option,client,retcode)
      $dblock()
      rc = $dbread(02, $regid, c.cans.rec,c.cans.date)	
      rc = $dbremovedst(02, $regid, c.cans.rec,c.cans.date)
-	 $clear(c.cans.date)
+	 $clear(c.cans.date,c.cans.compd,c.cans.type,c.cans.staff,c.cans.canstype)
      $brmsg("CANS Assessment Successfully Removed from the Database!",1,"C","Process Complete")
      $brmsg("The assessment will restart now.",2,"W")
 	 Page = "0"	 
@@ -175,7 +175,7 @@ start CANS617(parmfile,option,client,retcode)
      $brmsg("The assessment will exit now.",2,"W")
      return	
 	else
-     $clear(c.cans.compd,c.cans.type)
+     $clear(c.cans.compd,c.cans.type,c.cans.staff,c.cans.canstype)
      Page = "0"
     endif
   endif
@@ -185,7 +185,7 @@ start CANS617(parmfile,option,client,retcode)
    $dblock()
    rc = $dbread(02, $regid, c.cans.rec,c.cans.date)	
    rc = $dbremovedst(02, $regid, c.cans.rec,c.cans.date)
-   $clear(c.cans.date)
+   $clear(c.cans.date,c.cans.compd,c.cans.type,c.cans.staff,c.cans.canstype)
    $brmsg("CANS Assessment Successfully Removed from the Database!",1,"C","Process Complete")
    $brmsg("The assessment will restart now.",2,"W")
    Page = "0"   
@@ -207,7 +207,7 @@ start CANS617(parmfile,option,client,retcode)
    $brmsg("The assessment will exit now.",2,"W")
    return	
   else
-   $clear(c.cans.compd,c.cans.type)
+   $clear(c.cans.compd,c.cans.type,c.cans.staff,c.cans.canstype)
    Page = "0"
   endif
  endif
