@@ -1,5 +1,5 @@
 Start ANSA(parmfile,option,client,retcode)
- %version 1.0.026 11/18/2013
+ %version 1.0.027 11/20/2013
  $looplimit = 0
  %include inc_ANSA
  e.ser     is b
@@ -126,7 +126,7 @@ Start ANSA(parmfile,option,client,retcode)
      $dblock()
      rc = $dbread(02, $regid, c.ansa.rec,c.ansa.date)	
      rc = $dbremovedst(02, $regid, c.ansa.rec,c.ansa.date)
-	 $clear(c.ansa.date)
+	 $clear(c.ansa.date,c.ansa.compd,c.ansa.type,c.ansa.staff)
      $brmsg("ANSA Assessment Successfully Removed from the Database!",1,"C","Process Complete")
      $brmsg("The assessment will restart now.",2,"W")
 	 Page = "0"
@@ -150,11 +150,11 @@ Start ANSA(parmfile,option,client,retcode)
      $brmsg("The assessment will exit now.",2,"W")
      return	
 	else
-     $clear(c.ansa.compd)
+     $clear(c.ansa.compd,c.ansa.type,c.ansa.staff)
      Page = "0"
     endif
    elseif c.ansa.staff !dp
-    $clear(c.ansa.compd,c.ansa.type)
+    $clear(c.ansa.compd,c.ansa.type,c.ansa.staff)
 	Page = "0"
    else
     rc = $dbread(02, $regid, ansa_dstlist)
@@ -167,7 +167,7 @@ Start ANSA(parmfile,option,client,retcode)
      $dblock()
      rc = $dbread(02, $regid, c.ansa.rec,c.ansa.date)	
      rc = $dbremovedst(02, $regid, c.ansa.rec,c.ansa.date)
-	 $clear(c.ansa.date)
+	 $clear(c.ansa.date,c.ansa.compd,c.ansa.type,c.ansa.staff)
      $brmsg("ANSA Assessment Successfully Removed from the Database!",1,"C","Process Complete")
      $brmsg("The assessment will restart now.",2,"W")
 	 Page = "0"	 
@@ -189,7 +189,7 @@ Start ANSA(parmfile,option,client,retcode)
      $brmsg("The assessment will exit now.",2,"W")
      return	
 	else
-     $clear(c.ansa.compd)
+     $clear(c.ansa.compd,c.ansa.type,c.ansa.staff)
      Page = "0"
     endif
   endif
@@ -199,7 +199,7 @@ Start ANSA(parmfile,option,client,retcode)
    $dblock()
    rc = $dbread(02, $regid, c.ansa.rec,c.ansa.date)	
    rc = $dbremovedst(02, $regid, c.ansa.rec,c.ansa.date)
-   $clear(c.ansa.date)
+   $clear(c.ansa.date,c.ansa.compd,c.ansa.type,c.ansa.staff)
    $brmsg("ANSA Assessment Successfully Removed from the Database!",1,"C","Process Complete")
    $brmsg("The assessment will restart now.",2,"W")
    Page = "0"   
@@ -221,7 +221,7 @@ Start ANSA(parmfile,option,client,retcode)
    $brmsg("The assessment will exit now.",2,"W")
    return	
   else
-   $clear(c.ansa.compd)
+   $clear(c.ansa.compd,c.ansa.type,c.ansa.staff)
    Page = "0"
   endif
  endif

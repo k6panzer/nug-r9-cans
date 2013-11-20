@@ -1,5 +1,5 @@
  start CANS35(parmfile,option,client,retcode)
- %version 1.0.019 11/18/2013
+ %version 1.0.020 11/20/2013
  $looplimit = 0
  %include inc_CANS35
  e.ser     is b
@@ -111,7 +111,7 @@
                        case 1 $dblock()
                               rc = $dbread(02, $regid, c.cans.rec,c.cans.date)	
                               rc = $dbremovedst(02, $regid, c.cans.rec,c.cans.date)
-							  $clear(c.cans.date)
+							  $clear(c.cans.date,c.cans.compd,c.cans.type,c.cans.staff,c.cans.canstype)
 		                      $brmsg("CANS Assessment Successfully Removed from the Database!",1,"C","Process Complete")
 		                      $brmsg("The assessment will restart now.",2,"W")
 							  Page = "0"
@@ -135,13 +135,13 @@
 		                      $brmsg("The assessment will exit now.",2,"W")
 							  PromptNED = 5
 		                      return	
-                       case !dp $clear(c.cans.compd,c.cans.type)
+                       case !dp $clear(c.cans.compd,c.cans.type,c.cans.staff,c.cans.canstype)
                                 Page = "0"
                       endselect    
 	case other rc = $dbread(02, $regid, cans_dstlist)
 	           GetEvent(e.ser,e.ru,e.start,e.dur,e.loc)	
 	           Page = "Authorize"
-	case !dp $clear(c.cans.compd,c.cans.type)
+	case !dp $clear(c.cans.compd,c.cans.type,c.cans.staff,c.cans.canstype)
 	         Page = "0"
    endselect
   else
@@ -149,7 +149,7 @@
     case 1 $dblock()
            rc = $dbread(02, $regid, c.cans.rec,c.cans.date)	
            rc = $dbremovedst(02, $regid, c.cans.rec,c.cans.date)
-           $clear(c.cans.date)
+           $clear(c.cans.date,c.cans.compd,c.cans.type,c.cans.staff,c.cans.canstype)
 		   $brmsg("CANS Assessment Successfully Removed from the Database!",1,"C","Process Complete")
 		   $brmsg("The assessment will restart now.",2,"W")
 		   Page = "0"
@@ -171,7 +171,7 @@
 		   $brmsg("The assessment will exit now.",2,"W")
 		   PromptNED = 5
 		   return	
-    case !dp $clear(c.cans.compd,c.cans.type)
+    case !dp $clear(c.cans.compd,c.cans.type,c.cans.staff,c.cans.canstype)
              Page = "0"
    endselect    
   endif
@@ -180,7 +180,7 @@
    case 1 $dblock()
           rc = $dbread(02, $regid, c.cans.rec,c.cans.date)	
           rc = $dbremovedst(02, $regid, c.cans.rec,c.cans.date)
-          $clear(c.cans.date)
+          $clear(c.cans.date,c.cans.compd,c.cans.type,c.cans.staff,c.cans.canstype)
 	      $brmsg("CANS Assessment Successfully Removed from the Database!",1,"C","Process Complete")
 	      $brmsg("The assessment will restart now.",2,"W")
           ClearPage1()
@@ -205,7 +205,7 @@
 		  $brmsg("The assessment will exit now.",2,"W")
 		  PromptNED = 5
 		  return
-   case !dp $clear(c.cans.compd,c.cans.type)
+   case !dp $clear(c.cans.compd,c.cans.type,c.cans.staff,c.cans.canstype)
             Page = "0"
   endselect    
  endif
