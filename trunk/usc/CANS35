@@ -1,5 +1,5 @@
- start CANS35(parmfile,option,client,retcode)
- %version 1.0.020 11/20/2013
+start CANS35(parmfile,option,client,retcode)
+ %version 1.0.021 11/25/2013
  $looplimit = 0
  %include inc_CANS35
  e.ser     is b
@@ -3075,18 +3075,18 @@ end ALOCRpt
 
 'CANS 3-5 RLOC
 function RLOC() is x
-' DXType is x
-' {"lib_ANSA"}GETDX(DXType) 
+ DXType is x
+ {"lib_ANSA"}GETDX(DXType) 
  select c.cans.type
   case "1" if c.cans.cr.sfharm = "3"
             RLOC = "100"
 			c.cans.type = "11"
 		   else
-'		    if (DXType = "B" or DXType = "S" or DXType = "D")
+		    if (DXType = "B" or DXType = "S" or DXType = "D")
 		     RLOC = "105"
-'			elseif (DXType = "O" or DXType !dp) 
- '            RLOC = "110"		   
-'			endif
+			elseif (DXType = "O" or DXType !dp) 
+             RLOC = "110"		   
+			endif
 		   endif	
   case "3" 'select c.cans.disreas
            ' case "9" RLOC = "105"

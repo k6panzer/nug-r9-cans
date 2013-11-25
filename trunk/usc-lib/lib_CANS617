@@ -1,5 +1,5 @@
 library lib_CANS617()
- %version 1.0.004 09/04/2013
+ %version 1.0.006 11/25/2013
  %define row_color2 "bgcolor='White'"
  %define col_color_multi "bgcolor='LightGrey'"
  
@@ -1541,6 +1541,7 @@ function RLOC(c.cans.ac.sexgen,c.cans.ad.affreg,c.cans.ad.dissoc,c.cans.ad.intru
  c.cans.type      is x
  c.cans.vi.hxviol is x
  c.cans.disreas   is x
+ DXType           is x
 
  crisis           is x
  med_management   is x
@@ -1581,6 +1582,14 @@ function RLOC(c.cans.ac.sexgen,c.cans.ad.affreg,c.cans.ad.dissoc,c.cans.ad.intru
    return
   endif
  endif 			
+
+ {"lib_ANSA"}GETDX(DXType)
+
+ if (c.cans.type = "1" or c.cans.type = "12") and (DXType = "O" or DXType !dp)
+  RLOC = Ineligible
+  return
+ endif
+
 'All Child Risk Behavior Items = 0
  if c.cans.type = "1" or c.cans.type = "2" or c.cans.type = "12" 
 'This is commented out for the moment due to causing a batch error. From the manual it is a possibility but cmbhs integration services project kicks it back as an error for type "3"
