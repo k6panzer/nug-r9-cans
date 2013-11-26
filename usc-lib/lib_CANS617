@@ -1,5 +1,5 @@
 library lib_CANS617()
- %version 1.0.006 11/25/2013
+ %version 1.0.007 11/26/2013
  %define row_color2 "bgcolor='White'"
  %define col_color_multi "bgcolor='LightGrey'"
  
@@ -1542,6 +1542,7 @@ function RLOC(c.cans.ac.sexgen,c.cans.ad.affreg,c.cans.ad.dissoc,c.cans.ad.intru
  c.cans.vi.hxviol is x
  c.cans.disreas   is x
  DXType           is x
+ PP               is x
 
  crisis           is x
  med_management   is x
@@ -1583,9 +1584,9 @@ function RLOC(c.cans.ac.sexgen,c.cans.ad.affreg,c.cans.ad.dissoc,c.cans.ad.intru
   endif
  endif 			
 
- {"lib_ANSA"}GETDX(DXType)
-
- if (c.cans.type = "1" or c.cans.type = "12") and (DXType = "O" or DXType !dp)
+ {"lib_ANSA"}GETDX(DXType,,,,,PP)
+'Non-Target and Non-Priority 
+ if (c.cans.type = "1" or c.cans.type = "12") and (DXType != "S" and DXType != "B" and DXType != "D" and PP != "Y")
   RLOC = Ineligible
   return
  endif
