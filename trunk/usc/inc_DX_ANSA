@@ -114,12 +114,13 @@ c.dx.isn,c.dxaxiv-a,c.who.diag,c.dx.stat,c.dxflag,c.a1l1,c.dx.ax3,c.dx.ax4.a,c.d
 c.dx.ax4.c,c.dx.ax4.d,c.paamd,c.saamd,c.taamd,c.genetic,c.c.anomal,c.sen.imp,c.precept,c.conv.dis,c.psy.impa,c.motor.dy,c.aamd.dat,c.iq.score,
 c.iq.date,c.iq.type,c.sq.score,c.sq.date,c.sq.type,c.dx.prese,c.dx.ax4.b,c.dx.ax4.e,c.dx.ax4.f,c.dx.ax4.g,c.dx.ax4.h,c.dx.sys,c.dx.ax4.i,c.dx.ax4.j,c.dx.needed)
 
- function GETDX(DXType,DX,DXCat,DXDate,DXGaf) is null
+ function GETDX(DXType,DX,DXCat,DXDate,DXGaf,PP) is null
   DXType is x
   DX     is x
   DXCat  is x
   DXDate is d
   DXGaf  is i
+  PP     is x
   rc     is b 
 
   rc = $dbread(02, $regid, dx_dstlist)  
@@ -172,7 +173,24 @@ c.iq.date,c.iq.type,c.sq.score,c.sq.date,c.sq.type,c.dx.prese,c.dx.ax4.b,c.dx.ax
    case !dp dxcat = "Other"
             DXType = "O"
   endselect
-  $allowupdate(dxtype, DX, dxcat, DXGAF, DXDate)
+
+  PP = "N"  
+  if DXType = "O"
+   if PriorityPop(c.diag) = "Y"
+    PP = "Y"
+   elseif PriorityPop(C.DXAXI2) = "Y" 
+    PP = "Y"   
+   elseif PriorityPop(C.DXAXI3) = "Y" 
+    PP = "Y"
+   elseif PriorityPop(C.DXAXI4) = "Y" 
+    PP = "Y"
+   elseif PriorityPop(C.DXAXI5) = "Y" 
+    PP = "Y"
+   elseif PriorityPop(C.DXAXI6) = "Y"	
+    PP = "Y"
+   endif
+  endif  
+  $allowupdate(dxtype, DX, dxcat, DXGAF, DXDate, PP)
  end GETDX
 
  function CurrentDX(client,compare_date) is x
