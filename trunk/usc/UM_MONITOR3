@@ -609,13 +609,13 @@ function ConfirmCANS(cid) is i
  endif
 end ConfirmCANS
 
-function DeleteAssessment(index) is i
+dynamic function DeleteAssessment(index) is i
  index       is i
  rc          is i
  yes_btn     is x
  no_btn      is x
  c.ansa.rec  is h
- c.ansa.date is x
+ c.ansa.date is d
  c.cans.rec  is h
  c.cans.date is d
  staffid     is x
