@@ -253,6 +253,7 @@ if datefrom dp
 	endif
 else
 	$clear(datefrom,datethru,usedates)
+	usedates = "N"
 endif
 
 if client dp then          'treat the client argument as a savedlist name
