@@ -1,0 +1,586 @@
+'wrapper script for batching cans assessments.
+'
+'author: Robert Edeker
+'date: 5/13/2013
+'version: 0.0
+'
+'updates:
+'--------
+'
+'tim 0.1 5/29/2013
+'  + client selection functionality
+'  + multiple canstype template processing functionality
+'  + ftp functionality
+'  + register marked with batched date functionality
+'  + batch file archive functionality
+'  + whole bunch of options: see https://code.google.com/p/nug-r9-cans/wiki/PageName
+'     for option details
+'  ^ TODO:
+'     beefer archive functionality
+'     sql lookups?
+'
+'tim 0.1.1 5/30/2013
+'  ^ fix ftp issue
+'  ^ fix buildOneFile option file head and footer formatting issue
+'  ^ fix archiveafter functionality
+'  + add multi directory archive functionality
+'  ^ fix markasbatched functionality 
+'
+'tim 0.2 6/11/2013
+'  + add uid look up functionality to pass off to xml build script for reading / updating specific layers
+'
+'tim 0.2.1 7/23/2013
+'  + ansa batching functionality
+'  ~ still working on the uid look up functionality for multi layer batching support.
+'
+'tim 0.2.1.2 7/24/2013
+'  + ansa batching functionality
+'  ~ still working on the uid look up functionality for multi layer batching support.
+'
+' 0.2.2 7/25/2013
+'  ^ fixed ansa batching functionality so that it actually works
+'  ~ continuting to have issues with uid look up functionality. currently disabled.
+'
+' 0.2.3 7/25/2013
+'  ^ uid issues fixed 
+'     **** functionality requires updates to xml_build2, lib_DST, and all xml templates
+'  * TODO:
+'     ~ test ansa search functionality.
+'
+'tim 0.3 7/26/2013
+'  ~ renamed to UAbatch_wrap
+'  + exit logic for mark as batched record looping
+'  ~ redone some of the search logic / consolodated search function
+'
+'RHW 0.4 09/11/2013
+'	 +	Added logic to select a specific date range to be batched.  Added arguments for datefrom (5) and datethru (6) to 
+'			accomplish this.  If only datefrom is provided the process will only run for a single date.  If only datethru is
+'			is provided the process will run for all dates.  If both datefrom and datethru are !dp, the process will 
+'			run for all dates.
+'	 ^  Changed the email_notify var to an array email_notify[].  This allows sending email notices to multiple persons
+'
+'RHW 0.5 11/14/2013
+'	 ^  Corrected logic for updating the caredt (CANS & ANSA) on subsequent layers of the record(s)
+'
+'RHW 0.6 12/13/2013
+'	^		Significant revision of the script.
+'			-	Removed any references & functionality for 80Byte Batch Program
+'			-	Removed any references & functionality for using DBSearch to find assessments needing to batch
+'			- Removed GOTO's
+'	^		Corrected Logic to more reliably get the Client ID's and UID's to hand off to xml_build2 so that
+'			all record layers needed to be selected are correctly selected.
+'	^		Revised the mark as batched routine to work from the the Client ID's and UID's pushed to arrays
+'			as the process creates the XML file(s).  Using $dbupdateuid to make sure that we always get the 
+'			correct layer of the record.
+
+
+%version 0.5 11/114/2013 TxACE
+
+%define CANS_TYPE617 "1"
+%define CANS_TYPE35 "2"
+
+start UABATCH_ONE(parmfile, option, client, retcode, datefrom, datethru)
+
+parmfile       is x
+option         is x
+client         is x
+retcode        is x
+
+out-file[]     is x
+arc-dir[]      is x
+
+email_notify[]   is x
+buildOneFile   is x
+autoFtp        is x
+markAsBatched  is x
+archiveAfter   is x
+use80byte      is x
+trr_start_date is d
+
+'listType       is x     '35 | 617 | ANSA | null
+list[]         is x
+list35[]       is x
+list35uid[]    is n
+list617[]      is x
+list617uid[]   is n
+listAnsa[]     is x
+listAnsaUid[]  is n
+
+'sequential read
+c.cans.rec     is h
+c.cans.compd   is d
+c.cans.caredt  is d
+c.cans.canstype    is x
+
+c.ansa.rec     is h
+c.ansa.compd   is d
+c.ansa.caredt  is d
+
+'xml batch
+xml_script     is x
+xml_dir        is x
+xml_35         is x
+xml_35_sx      is x
+xml_617        is x
+xml_617_sx     is x
+xml_ansa       is x
+xml_ansa_sx    is x
+xml_Default    is x
+xml_default_sx is x
+xml-file       is x
+xml-option     is x
+
+ftp_site       is x
+ftp_login      is x
+ftp_pass       is x
+ftp_local_dir  is x
+ftp_remote_dir is x
+ftp_retry      is b
+ftp_delay      is b
+ftp-msg[]      is x
+ftp-cmds[]     is x
+ftp-ptr        is b
+ftp-ts[]       is n
+ftp-diff       is n
+
+arc_dir_default   is x
+arc_dir_35     is x
+arc_dir_617    is x
+arc_dir_ansa   is x
+arc_by_year    is x
+
+msg_stat_clt   is x
+msg_stat_xml   is x
+msg_stat_ftp   is x
+msg_stat_arc   is x
+msg_stat_upt   is x
+msg_stat_cmp   is x
+msg_stat_def   is x
+
+datefrom			 is d
+datethru			 is d
+datefrom		   = datefrom
+datethru       = datethru
+usedates			 is x		usedates = "N"   'Flag to indicate just batching UA's in a specific date range
+
+stdout[]       is x
+clt_err[]      is x
+T              is x
+i              is b
+rc             is b
+rec-idx        is b
+uid            is n
+n							 is i
+
+
+'Set script default values:
+email_notify[1] = "whaiter@helenfarabee.org"
+buildOneFile = "N"
+autoFTP = "N"
+markAsBatched = "Y"
+archiveAfter = "N"
+use80byte = "N"
+
+trr_start_date = 09/01/2013
+
+'sequential read defaults
+
+'xml build settings
+xml_script = "xml_build2"
+xml_dir = "/c4/EXPORT2/CMBHS/queue/"
+xml_default = "/c4/EXPORT2/CMBHS/forms/cans617.xml"
+xml_default_sx = "_default"
+xml_35 = "/c4/EXPORT2/CMBHS/forms/cansbaby.xml"
+xml_35_sx = "_baby"
+xml_617 = "/c4/EXPORT2/CMBHS/forms/cans617.xml"
+xml_617_sx = "_cans"
+xml_ansa = "/c4/EXPORT2/CMBHS/forms/ansa.xml"
+xml_ansa_sx = "_ansa"
+
+'UID Creation Error Logs
+cansUIDerr is x
+ansaUIDerr is x
+notifyUIDerr is x
+cansUIDerr = "/c4/EXPORT2/CMBHS/LOGS/CANS_UIDErr.log"
+ansaUIDerr = "/c4/EXPORT2/CMBHS/LOGS/ANSA_UIDErr.log"
+
+'ftp settings
+ftp_site = "sftp.dshs.state.tx.us"
+'ftp_site = "wiki"
+ftp_login = "cmbhs-batch-230"
+'ftp_login = "test1"
+ftp_pass = "SBjzC(K6"
+'ftp_pass = "Test!!4"
+ftp_local_dir = "/c4/EXPORT2/CMBHS/queue/"
+ftp_remote_dir = "Test/XML"
+ftp_retry = 5
+ftp_delay = 2
+
+'archive settings
+arc_dir_default = "/c4/EXPORT2/CMBHS/archive/"
+arc_dir_35 = "/c4/EXPORT2/CMBHS/archive/"
+arc_dir_617 = "/c4/EXPORT2/CMBHS/archive/"
+arc_dir_ansa = "/c4/EXPORT2/CMBHS/archive/"
+arc_by_year = "Y"
+
+'status messages for user
+msg_stat_clt = "{{{{{ Building Client List }}}}}"
+msg_stat_xml = "{{{{{ Building Batch File }}}}}"
+msg_stat_ftp = "{{{{{ Attempting to FTP Files.... }}}}}"
+msg_stat_arc = "{{{{{ Archiving Batch Files }}}}}"
+msg_stat_upt = "{{{{{ Marking Client Registers as Submitted }}}}}"
+msg_stat_cmp = "{{{{{ Process Complete }}}}}"
+
+cidval				 is x
+uidval				 is x
+cansupd[] 		 is x		'delimited array of cid and uid to be marked as batched
+ansaupd[]			 is x		'delimited array of cid and uid to be marked as batched
+
+
+'process script configuration
+getparm(parmfile)
+getoption(option)
+
+$looplimit = 0
+
+'build the client list
+status(msg_stat_clt)
+
+if datefrom dp 
+	usedates = "Y"
+	if datefrom < trr_start_date
+		datefrom = trr_start_date
+	endif
+	if datethru !dp or datethru < datefrom
+		datethru = datefrom
+	endif
+else
+	$clear(datefrom,datethru,usedates)
+	usedates = "N"
+endif
+
+'if client dp then          'treat the client argument as a savedlist name
+'   if $getlist(list[], 2, client) > 0 then
+'      'error retrieving saved list
+'      return
+'   endif
+
+if client dp
+
+
+	list[1] = client
+
+   'sort the list
+   i = 0
+   do while i++ < $maxarray(list[])
+      client = list[i]
+      $dblock()
+      rc = $dbread(2, client, c.cans.rec, c.cans.compd, c.cans.caredt, c.cans.canstype,
+         c.ansa.rec, c.ansa.compd, c.ansa.caredt)
+
+   		do while rc < 2
+
+	      if (usedates = "Y" and c.cans.compd >= datefrom and c.cans.compd <= datethru and c.cans.caredt !dp) or
+	      	 (usedates = "N" and c.cans.compd dp and c.cans.caredt !dp)
+	      	
+        	uid = c.cans.rec[uid]
+         	select c.cans.canstype
+            case CANS_TYPE617    rec-idx = $maxarray(list617[]) + 1 
+                                 list617[rec-idx] = client
+                                 list617uid[rec-idx] = uid
+
+'                                    (void)$arrPush(list617uid[], uid)
+            case CANS_TYPE35     rec-idx = $maxarray(list35[]) + 1 
+                                 list35[rec-idx] = client
+                                 list35uid[rec-idx] = uid
+'                                    (void)$arrPush(list35uid[], uid)
+            case other           '##thumb -- skip?? log invalid cans types??
+         	endselect
+
+						if uid dp
+							(void)$arrpush(cansupd[],`client + "," + uid`)
+						else
+							$log(cansUIDerr, `client + "|" + uid`)
+							notifyUIDerr = "Y"
+						endif
+ 				endif
+      
+      	if 	(usedates = "Y" and c.ansa.compd >= datefrom and c.ansa.compd <= datethru and c.ansa.caredt !dp) or 
+      			(usedates = "N" and c.ansa.compd dp and c.ansa.caredt !dp)
+
+         uid = c.ansa.rec[uid]
+         rec-idx = $maxarray(listAnsa[]) + 1 
+         listAnsa[rec-idx] = client
+         listAnsaUid[rec-idx] = uid 
+      	
+						if uid dp
+							(void)$arrpush(ansaupd[],`client + "," + uid`)
+						else
+							$log(cansUIDerr, `client + "|" + uid`)
+							notifyUIDerr = "Y"
+						endif
+      	endif
+         $dblock()
+         rc = $dbreadnextdst(2, client, c.cans.rec, c.cans.compd, c.cans.caredt, c.cans.canstype,
+            c.ansa.rec, c.ansa.compd, c.ansa.caredt)
+         'pull down the current client 
+   		enddo
+ 	enddo
+
+else
+		'Client Arguement Missing
+		return
+
+endif
+
+
+'xml batch
+
+   $clear(xml-option, xml-file)
+   'set the file header if you are only making one file
+   if buildOneFile = "Y" then
+      xml-file = $fmt($today,"YYYYMMDD_") + $fmt($timenow,"HHMM") + ".xml"
+      xml-file = $replace(" ", "_", xml-file)
+      xml-option = "fileHeader`<?xml version='1.0'?><Batch>;filefooter`!NONE;"
+      arc-dir[1] = arc_dir_default
+   endif
+
+
+   i = 0
+   'cans 3-5 list
+   if list35[] dp then
+      if buildOneFile = "Y" then 
+         xml-option = "fileHeader`!NONE;filefooter`!NONE;"
+      else
+         $clear(xml-option)
+         i++ 
+         arc-dir[i] = arc_dir_35
+      endif
+      out-file[i] = buildxml(xml_script, xml_35, xml_dir, xml-file, xml_35_sx, xml-option, list35[], list35uid[])
+   endif
+   
+   'cans 6-17 list
+   if list617[] dp then
+      if buildOneFile = "Y" then
+         xml-option = "fileHeader`!NONE;filefooter`</Batch>;"
+      else
+         $clear(xml-option)
+         i++
+         arc-dir[i] = arc_dir_617
+      endif
+      out-file[i] = buildxml(xml_script, xml_617, xml_dir, xml-file, xml_617_sx, xml-option, list617[], list617uid[])
+   endif
+
+   'ansa list
+   if listAnsa[] dp then
+      if buildOneFile = "Y" then
+         xml-option = "fileHeader`!NONE;filefooter`</Batch>;"
+      else
+         $clear(xml-option)
+         i++
+         arc-dir[i] = arc_dir_ansa
+      endif
+      out-file[i] = buildxml(xml_script, xml_ansa, xml_dir, xml-file, xml_ansa_sx, xml-option, listAnsa[], listAnsaUid[])
+   endif
+
+'automate the ftp submission
+if $uc(autoFtp) = "Y" then
+   'do the ftp only if we have all the pieces
+   status(msg_stat_ftp)
+
+   if ftp_site dp and ftp_login dp and ftp_pass dp and ftp_local_dir dp and ftp_remote_dir dp then
+      $clear( ftp-msg[], stdout[], ftp-cmds[])
+      stdout[1] = option
+      i = $maxarray(list[]) + $maxarray(list35[]) + $maxarray(list617[])
+      stdout[2] = $format(i, "Number of Records: ZZZ,ZZ9")
+      stdout[3] = " "
+   
+      '  setup the FTP Commands
+      i = 0
+      do while i++ < $maxarray(out-file[])
+         if out-file[i] dp then 
+            T = "put " + out-file[i]
+            (void)$arrPush(ftp-cmds[], T)
+         endif
+      enddo
+      'execute these for process confirmation
+      (void)$arrpush(ftp-cmds[], "pwd")                    ' Show remote directory
+      (void)$arrpush(ftp-cmds[], "dir -l *")                ' Show matching files (confirmation)
+   
+      '  Make n attempts to send the files
+   
+      rc = 999                                                                         ' Default to Error Code
+      ftp-ptr = 0                                                                      ' Zero the Loop Counter
+      do while ftp-ptr++ < ftp_retry and rc > 0                                        ' Loop while problems sending
+         (void)$arrPush(stdout[],$fmt($today,$timenow,"Timestamp: MM/DD/YY HH:MMAP"))  'document the ftp attempt
+         (void)$arrPush(stdout[],$fmt(ftp-ptr,"FTP Attempt: LZZ9"))
+         ftp-ts[1] = $ts
+         
+         rc = $sftp(ftp-cmds[], ftp_site, ftp_login, ftp_pass, ftp_local_dir, ftp_remote_dir, ftp-msg[])
+         
+         ftp-ts[2] = $ts
+         ftp-diff = (ftp-ts[2] - ftp-ts[1]) / 100
+   
+         '* hang out for a bit if we have an error...
+         if rc > 0 and ftp_delay > 0 then
+            $sleep(ftp_delay)
+         endif
+   
+         (void)$arrPush(stdout[],$fmt(ftp-diff,"FTP Duration: LZZZZ9.99"))             'document ftp status
+         (void)$arrPush(stdout[],$fmt(rc,"FTP Error Code RZ9"))
+         (void)$arraymerge(stdout[],ftp-msg[])
+         (void)$arrPush(stdout[],$mchar("-",50))
+         (void)$arrPush(stdout[]," ")
+      enddo
+   
+      (void)$arrPush(stdout[],`"Files placed in directory on the remote server: " + ftp_remote_dir`)
+      (void)$arrPush(stdout[]," ")
+      
+      T = "CANS BATCH FTP "
+      if rc > 0 then
+         T += "FAIL"
+         'don't mark or archive on ftp fail
+         markAsBatched = "N"
+         archiveAfter = "N"
+      else
+         T += "SUCCESS"
+      endif
+   else
+      T = "CANS BATCH FTP FAIL"
+      (void)$arrPush(stdout[], "Script not Configured for ftp")
+   endif
+   (void)$email(EMAIL_NOTIFY[], T, stdout[])
+
+endif
+
+''mark registers as batched
+
+if $uc(markAsBatched) = "Y" and $maxarray(cansupd[]) > 0 
+
+   status(msg_stat_upt)
+	
+   n = 0
+   
+  do while n++ < $maxarray(cansupd[])
+  	$parsem(cansupd[n],1,",",cidval,uidval)
+  	c.cans.caredt = $today
+  	rc = $dbreaduid($castn(uidval),2,cidval,c.cans.rec)
+  	$dblock()
+		c.cans.rec[effd] = c.cans.rec[effd]
+  	rc = $dbupdateuid($castn(uidval),2,cidval,c.cans.rec,c.cans.caredt)
+  enddo
+
+endif   
+
+$clear(cidval,uidval)
+
+if $uc(markAsBatched) = "Y" and $maxarray(ansaupd[]) > 0 
+
+   status(msg_stat_upt)
+	
+   n = 0
+   
+  do while n++ < $maxarray(ansaupd[])
+  	$parsem(ansaupd[n],1,",",cidval,uidval)
+  	c.ansa.caredt = $today
+  	rc = $dbreaduid($castn(uidval),2,cidval,c.ansa.rec)
+  	$dblock()
+		c.ansa.rec[effd] = c.ansa.rec[effd]	
+  	rc = $dbupdateuid($castn(uidval),2,cidval,c.ansa.rec,c.ansa.caredt)
+  enddo
+
+endif   
+
+'move the batch files to archive directory
+
+if $uc(archiveAfter) = "Y" then
+  
+   status(msg_stat_arc)
+   
+   if arc-dir[] dp then
+      i = 0
+      do while i++ < $maxarray(out-file[])
+         if out-file[i] dp then
+            if $uc(arc_by_year) = "Y" then
+               'push file into this year's subdirectory
+               T = $fmt($today, "YYYY")
+               if T dp then T += "/" endif
+               T = arc-dir[i] + T 
+            endif
+            T = "mv " + out-file[i] + " " + T
+            if $unix(T, stdout[], , clt_err[]) > 0 then
+               (void)$arrayMerge(clt_err[], stdout[])
+               (void)$arrInsert(clt_err[1], T)
+            endif
+            if clt_err[] dp then
+               (void)$email(EMAIL_NOTIFY[], "CANS BATCH ARCHIVE FAIL", clt_err[])
+            endif
+         endif
+      enddo
+   else
+      (void)$email(email_notify[], "CANS BATCH ARCHIVE FAIL", "Script Configuration Fail")
+   endif
+endif
+
+if notifyUIDerr = "Y"
+	(void)$email(email_notify[], "POSSIBLE UID Errors", "Check Logs /c4/EXPORT2/CMBHS/LOGS")
+endif
+
+
+status(msg_stat_cmp)
+
+return
+
+end UABATCH_ONE
+
+%include inc_GetParm
+%include inc_GetOption
+
+'build the option string for xml building script and call script
+dynamic function buildxml(script, template, dir, appendFile, suffix, optionstring, cltlist[] cltuid[]) is x
+script         is x
+template       is x
+dir            is x
+appendfile     is x
+suffix         is x
+optionstring   is x
+cltlist[]      is x
+cltuid[]       is n
+T              is x
+
+$clear(buildxml)
+   optionstring += "noEmptyFile`Y;Template`" + template + ";"            'add the template
+   optionstring += "FileOut`" 
+   if appendfile dp then
+      optionstring += dir + appendfile + ";"
+      optionstring += "appendFile`Y;"
+      buildxml = appendfile
+   else
+      T = dir + $fmt($today,"YYYYMMDD_") + $fmt($timenow,"HHMM") + suffix + ".xml"
+      T = $replace(" ", "_", T)
+      optionstring += T + ";"
+      if cltlist[] dp then
+         buildxml = T
+      endif
+   endif
+   
+   call script (,optionstring, cltlist[],,cltuid[])
+   
+end buildxml
+
+
+'display the program status
+dynamic function status(msg) is null
+msg      is x
+if msg !dp then msg = "{{{{ I'm Working On It }}}}" endif
+if ($operioallow = "Y") then
+   if $bui = "Y" then
+      $brmsg(msg, 1, "EC")
+   else
+      $disp(msg, 23, 20)
+   endif
+endif
+end status
+
+ 
+
