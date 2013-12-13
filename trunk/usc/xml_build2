@@ -73,6 +73,9 @@
 '  - remove list[]/list-uid[] vars: use client/uids instead
 '  - remove array sorting
 '  
+'RHW 20131213 .014
+'  - added the $sort(clients[], uids[]) to sort the arrays.  This will allow the oldest assessment to be
+'		 first in the batch file.
 
 '''%debug compile
 
@@ -274,7 +277,7 @@ __INIT:
 '  '    rc = $arrayMerge(list[],clients[])
    'endif
 
-   'rc = $sort(list[], list-uid[])
+   rc = $sort(clients[], uids[])
 
    gosub __READTPL
    gosub __DST
