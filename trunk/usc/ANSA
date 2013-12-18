@@ -3389,6 +3389,7 @@ function CrisisOverride() is null
  c.ansa.ld.employ = "9"
  c.ansa.ld.socfun = "0"
  c.ansa.ld.recret = "0"
+ c.ansa.ld.indliv = "0"
  c.ansa.ld.sexdev = "0"
  c.ansa.ld.living = "0"
  c.ansa.ld.restab = "0"
