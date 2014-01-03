@@ -3767,7 +3767,7 @@ function ValidateALOC() is i
  else
   ValidateALOC = 0	
  endif 
- c.cans.alocedate = {"lib_CANS"}EndDate(c.cans.aloc,c.cans.alocdate)
+ c.cans.alocedate = {"lib_CANS"}EndDate(c.cans.aloc,c.cans.alocdate,c.cans.extdrev)
  c.cans.alocstaff = $operstaffid
  c.cans.compd = $today
  if c.cans.aloc = "100"

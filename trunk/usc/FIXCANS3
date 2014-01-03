@@ -1,0 +1,39 @@
+start FIXCANS3()
+ $looplimit = 0
+ %include inc_CANS617
+ cid  is x
+ rc   is i
+ rc2  is i
+ 
+ (void)$dbstart(02, CID)
+ $dblock()
+ 
+ rc = $dbread(2,cid,cans_dstlist)
+ if rc = 4
+  do until rc != 4
+   $dblock()
+    rc = $dbread(2,cid,cans_dstlist)
+   $sleep(10)
+  enddo
+ endif   
+ 
+ do while rc < 3
+  if c.cans.rec dp and c.cans.aloc = "101" and c.cans.extdrev = "Y" and (c.cans.alocstaff != "MIGRATION" and c.cans.alocstaff dp)
+   c.cans.alocedate = {"lib_CANS"}EndDate(c.cans.aloc,c.cans.alocdate,c.cans.extdrev)
+   rc2 = $dbupdate(2,cid,c.cans.rec,c.cans.alocedate)
+  else
+   $dbunlock()
+  endif
+
+  $dblock()
+  rc = $dbreadnext(2,cid,cans_dstlist)
+  if rc = 4
+   do until rc != 4
+    $dblock()
+     rc = $dbread(2,cid,cans_dstlist)
+    $sleep(10)
+   enddo
+  endif 
+   
+ enddo
+end FIXCANS3
