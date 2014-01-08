@@ -1,5 +1,5 @@
 library lib_CANS617()
- %version 1.0.007 11/26/2013
+ %version 1.0.008 01/08/2014
  %define row_color2 "bgcolor='White'"
  %define col_color_multi "bgcolor='LightGrey'"
  
@@ -1988,6 +1988,14 @@ function RLOC(c.cans.ac.sexgen,c.cans.ad.affreg,c.cans.ad.dissoc,c.cans.ad.intru
     return	
    endif
   endif 
+
+'Unasigned Target and Priority
+'From the Level of Care Sorting, Use Case file, release 1
+'IF CONDITIONS ARE NOT MET FOR LOC 0, 1, 3, 4, 9, YC THEN LOC= 2 
+ if RLOC !dp and ((DXType = "S" or DXType = "B" or DXType = "D") or PP = "Y")
+  RLOC = targeted
+  return
+ endif
    
 'At this point, if there is no RLOC assigned then the assessment is 110-Ineligible?
   if RLOC !dp
