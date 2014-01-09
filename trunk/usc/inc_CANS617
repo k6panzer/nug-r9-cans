@@ -666,7 +666,7 @@ errors[] is x       'array for capturing errors by section
 %define oth_ex_errortxt "Extended Review Period Requested must be marked Yes or No"
 %define oth_fc_errortxt "Foster Care must be marked Yes or No"
 %define oth_rp_errortxt "Risk of Placement must be marked Yes or No"
-%define oth_rp2_errortxt "Risk of Placement cannot be checked No when discharge reason is Successfully Completed Outpatient Services"
+%define oth_rp2_errortxt "Risk of Placement cannot be checked Yes when discharge reason is Successfully Completed Outpatient Services"
 %define oth_tc_errortxt "TCOOMMI Consumer must be marked Yes or No"
 %define aloc1_errortxt "If RLOC is Crisis then Crisis must be Authorized"
 %define aloc2_errortxt "Authorization for this age group can only be for Crisis or Young Child"
