@@ -2601,7 +2601,7 @@ function Validate1() is i
  (void)$arrpush(errors[],cb_errortxt)
   endif
 
-  if c.cans.cr.smutil !dp or c.cans.cr.oslfhr !dp or c.cans.cr.dangot !dp or c.cans.cr.sexagr !dp or c.cans.cr.runawy !dp or c.cans.cr.delqcy !dp or c.cans.cr.firset !dp or c.cans.cr.socbeh !dp or c.cans.cr.bully !dp
+  if c.cans.cr.suicid !dp or c.cans.cr.smutil !dp or c.cans.cr.oslfhr !dp or c.cans.cr.dangot !dp or c.cans.cr.sexagr !dp or c.cans.cr.runawy !dp or c.cans.cr.delqcy !dp or c.cans.cr.firset !dp or c.cans.cr.socbeh !dp or c.cans.cr.bully !dp
    (void)$arrpush(errors[],cr_errortxt)
   endif
  endif
