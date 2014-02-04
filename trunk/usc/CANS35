@@ -1,5 +1,5 @@
 start CANS35(parmfile,option,client,retcode)
- %version 1.0.023 12/09/2013
+ %version 1.0.024 02/04/2013
  $looplimit = 0
  %include inc_CANS35
  e.ser     is b
