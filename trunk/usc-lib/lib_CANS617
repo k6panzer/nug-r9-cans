@@ -1,5 +1,5 @@
 library lib_CANS617()
- %version 1.0.008 01/08/2014
+ %version 1.0.009 02/04/2014
  %define row_color2 "bgcolor='White'"
  %define col_color_multi "bgcolor='LightGrey'"
  
@@ -1999,7 +1999,11 @@ function RLOC(c.cans.ac.sexgen,c.cans.ad.affreg,c.cans.ad.dissoc,c.cans.ad.intru
    
 'At this point, if there is no RLOC assigned then the assessment is 110-Ineligible?
   if RLOC !dp
-   RLOC = Ineligible
+   if c.cans.type = "1"
+    RLOC = Ineligible
+   else
+    RLOC = med_management
+   endif
   endif 
  else
   $clear(RLOC)
