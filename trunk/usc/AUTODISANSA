@@ -1,0 +1,33 @@
+start AUTODISANSA(target,discharge_dt,rc)
+ %include inc_ANSA
+ NewUID 	  is n
+ target 	  is x
+ discharge_dt is d 
+ rc 		  is i
+
+ if target dp and discharge_dt dp  
+  (void)$dbread(2,target,c.ansa.rec,c.ansa.type)
+  if c.ansa.type != "3"
+   $clear(c.ansa.rec,c.ansa.type)
+   $dblock()
+   rc = $dbpoint(2,target,c.ansa.rec)
+   c.ansa.age = {"lib_UACOMMON"}ClientAge(target)  
+   NewUID = c.ansa.rec[uid]
+   c.ansa.rec[effd] = discharge_dt
+   c.ansa.date  = discharge_dt
+   c.ansa.compd = discharge_dt
+   c.ansa.alocdate = discharge_dt
+   c.ansa.alocedate = discharge_dt
+   c.ansa.disdt = discharge_dt 
+   c.ansa.comment = "AUTODISCHARGE"
+   c.ansa.acomment = "AUTODISCHARGE"
+   c.ansa.disreas = "6"
+   c.ansa.disref = "10"
+   c.ansa.ver = "01.0.000"
+   c.ansa.type = "3"
+   rc = $dbadddst(2,target,ansa_dstlist)
+  else
+   rc = 99
+  endif 
+ endif
+end AUTODISANSA
