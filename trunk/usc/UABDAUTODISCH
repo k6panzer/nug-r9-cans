@@ -11,57 +11,24 @@
 '08/08/2013 lovec adapted for RDM to TRR migration
 
 start UABDAUTODISCH()
-'HFC Lapse Community Based Assign Record
- LapseCB  is x
- LapseCB = "Y"
-
-'HFC Lapse ASR records
- LapseASR is x 
- LapseASR = "Y"
-
 'HFC Discharge Staff
  DischargeStaff is x
  DischargeStaff = "3479"
 
 'Output file
  logfile is x
- logfile = "/c0/EXPORT/LOGS/UABDCLOSED_TRR.log"
+ if $uc($seg($mscname,1,5)) = "HELEN"
+  logfile = "/c0/EXPORT/LOGS/UABDCLOSED.log"
+ else
+  logfile = "/c4/EXPORT/LOGS/UABDCLOSED.log" 
+ endif 
 
-'***************************VARIABLE DECLARATIONS*******************************
- c.uabd        	 is h 'UABD Record Header DST           
- c.uabd.date     is d 'UABD Trag Date DST               
- c.uabd.date1  	 is d 'ALOC Date DST                    
- c.uabd.staff1 	 is x 'UABD Trag Staff DST              
- c.uabd.staff2 	 is x 'UABD Loca Staff DST              
- c.uabd.compd  	 is d 'UABD Completion Date DST         
- c.uabd.aloc   	 is x 'UABD Loca DST                    
- c.uabd.pur    	 is x 'UABD Purpose DST                 
- c.uabd.act    	 is x 'UABD Action DST                  
- c.uabd.disch  	 is x 'UABD Discharge Reason DST        
- c.uabd.disdt  	 is d 'UABD Discharge Date DST          
- c.uabd.dischref is x 'UABD Discharge Referral DST      
- c.uabd.stat   	 is x 'UABD Status DST                  
- c.uabd.autodis  is x 'UABD Autodischarged Flag DST     
- c.uabd.caredt 	 is d 'UABD Care Flag DST               
- c.uabd.extd   	 is x 'UABD Extended Review Period DST  
- c.uabd.annual 	 is x 'UABD Annual Review Option
-
-'COMMUNITY BASED ASSIGNMENT DSTS
- c.cb.asn.r    is h 'Community Based Assignment Record Header     
- c.cb.asn      is x 'Community Based Assignment Code              
- c.cb.laps     is d 'Community Based Assignment Lapse Date        
- c.cb.sdate    is d 'Community Based Assignment Last Service Date 
- c.cb.type     is x 'Community Based Assignment Type              
- c.cb.autoclos is x 'Community Based Assignment Autoclose Flag    
-
-'ASR RECORD DSTS
- $$as.rec is h 'ASR RECORD HEADER DST
- $$as.con is x 'ASR CONTRACT DST
- $$as.lap is d 'ASR LAPSE DATE DST
+ %include inc_UABD
 
 'PROCESS VARIABLEs
  rc        is b 'RETURN CODE
  rc1       is b 'RETURN CODE
+ rc2       is b 'RETURN CODE
  CID       is x 'CLIENT ID VARIABLE
  ua_age    is i 'DIFFERENCE IN DATES
  LapseDate is d 'XXX DAYS FROM TRAG DATE
@@ -72,7 +39,7 @@ start UABDAUTODISCH()
 'START THE CLIENT DB READ IN SEQUENTIAL ORDER
  rc = $dbstart(02, CID, "I")
  do while rc1 < 3
-  rc1 = $dbreadnext(02, CID, c.uabd, c.uabd.pur, c.uabd.date, c.uabd.staff1,c.uabd.staff2, c.uabd.aloc, c.uabd.extd, c.uabd.compd, c.uabd.date1, c.uabd.annual)
+  rc1 = $dbreadnext(02, CID, uabd_dstlist)
   if c.uabd.compd dp and c.uabd.pur != "D" and c.uabd.aloc != "6" and c.uabd.aloc != "8" and c.uabd.aloc != "9" and c.uabd.pur != "E"
    ua_age = $today - c.uabd.date
 'Annual Review checked
@@ -89,64 +56,14 @@ start UABDAUTODISCH()
    if c.uabd.aloc = "5"
     LapseDate = c.uabd.date + 90
    endif
-   if ((LapseDate < 9/1/2013 and c.uabd.compd dp and c.uabd.aloc != "9" and c.uabd.aloc != "0" and c.uabd.aloc != "6" and c.uabd.aloc != "8" and c.uabd.extd != "Y" and c.uabd.annual != "Y")
+   if ((ua_age >= 90 and c.uabd.compd dp and c.uabd.aloc != "9" and c.uabd.aloc != "0" and c.uabd.aloc != "6" and c.uabd.aloc != "8" and c.uabd.extd != "Y" and c.uabd.annual != "Y" and c.uabd.comt != "TRR REPORTING")
       or
-       (LapseDate < 9/1/2013 and c.uabd.compd dp and c.uabd.aloc != "9" and c.uabd.aloc != "0" and c.uabd.aloc != "6" and c.uabd.aloc != "8" and c.uabd.extd = "Y" and c.uabd.annual != "Y")
+       (ua_age >= 180 and c.uabd.compd dp and c.uabd.aloc != "9" and c.uabd.aloc != "0" and c.uabd.aloc != "6" and c.uabd.aloc != "8" and c.uabd.extd = "Y" and c.uabd.annual != "Y" and c.uabd.comt != "TRR REPORTING")
       or
-       (LapseDate < 9/1/2013 and c.uabd.compd dp and c.uabd.aloc != "9" and c.uabd.aloc != "0" and c.uabd.aloc != "6" and c.uabd.aloc != "8" and c.uabd.annual = "Y")) and (c.uabd.pur = "I" or c.uabd.pur = "U")
-'Lapse all open tc & ho assignments as of 90 days from last ua or last applicable svc date whichever is older.
-    LapseDate = $today - 1
-	if LapseCB = "Y"  
-     $dblock()
-     rc = $dbread(02, CID, c.cb.asn.r, c.cb.asn, c.cb.laps, c.cb.sdate, c.cb.type, c.cb.autoclos)
-     do while c.cb.asn.r dp
-	  if c.cb.asn dp and c.cb.laps !dp and $seg(c.cb.asn, 1, 2) != "R0" and c.cb.asn != "H050" and c.cb.asn != "TC50"
-	   if c.cb.sdate dp and c.cb.sdate < LapseDate
-	    c.cb.laps = c.cb.sdate
-	   else
-	    c.cb.laps = LapseDate
-	   endif
-       c.cb.type = "E"
-	   c.cb.autoclos = "Y"
-	   rc = $dbupdate(02, CID, c.cb.asn.r, c.cb.laps, c.cb.type, c.cb.autoclos)
-       $dblock()
-       rc = $dbread(02, CID, c.cb.asn.r, c.cb.asn, c.cb.laps, c.cb.sdate, c.cb.type, c.cb.autoclos)
-       endif
-       rc = $dbreadnextdst(02, CID, c.cb.asn.r, c.cb.asn, c.cb.laps, c.cb.sdate, c.cb.type, c.cb.autoclos)	
-     enddo  
-	endif 
-'Lapse authorizations
-    if LapseASR = "Y"  
-	 $dblock()
-     rc = $dbread(02, CID, $$as.rec, $$as.con, $$as.lap)
-     do while $$as.rec dp
-      if $seg($$as.con, 1, 3) = "ASP" and $$as.lap >= LapseDate
-       $$as.lap = LapseDate
-       rc = $dbupdate(02, CID, $$as.rec, $$as.lap)
-       $dblock()
-	   rc = $dbread(02, CID, $$as.rec, $$as.con, $$as.lap)
-      endif
-      rc = $dbreadnextdst(02, CID, $$as.rec, $$as.con, $$as.lap)
-     enddo
-	endif 
-'Add the ua discharge record
-    $dblock()
-    rc = $dbread(02,CID,c.uabd,c.uabd.pur,c.uabd.act,c.uabd.disch,c.uabd.disdt,c.uabd.dischref,c.uabd.date,c.uabd.staff1,c.uabd.stat,c.uabd.compd,c.uabd.caredt,c.uabd.autodis) 
-    c.uabd[effd]    = LapseDate
-    c.uabd.pur      = "D"
-    c.uabd.act      = "A"
-    c.uabd.disch    = "Z"
-    c.uabd.dischref = "9"
-    c.uabd.date     = LapseDate
-    c.uabd.disdt    = LapseDate
-    c.uabd.staff1   = DischargeStaff
-    c.uabd.stat     = "2"
-    c.uabd.compd    = $today
-    c.uabd.autodis  = "AUTODISCHARGE"
-    $clear(c.uabd.caredt)  
-    rc = $dbadddst(02,CID,c.uabd,c.uabd.pur,c.uabd.act,c.uabd.disch,c.uabd.disdt,c.uabd.dischref,c.uabd.date,c.uabd.staff1,c.uabd.stat,c.uabd.compd,c.uabd.caredt,c.uabd.autodis)
+       (ua_age >= 365 and c.uabd.compd dp and c.uabd.aloc != "9" and c.uabd.aloc != "0" and c.uabd.aloc != "6" and c.uabd.aloc != "8" and c.uabd.annual = "Y")) and (c.uabd.pur = "I" or c.uabd.pur = "U") and c.uabd.comt != "TRR REPORTING"
+  call "AUTODISANSA"(CID,LapseDate,rc2)
 'Write to the logfile
-    $log(`$castx($today) + "|" + c.uabd.aloc + "|" + CID + "|" + "TRR AUTOCLOSE ADULT"`,logfile)  
+    $log(`$castx($today) + "|" + c.uabd.aloc + "|" + CID + "|" + "AUTOCLOSE ADULT"`,logfile)  
    endif	  
   endif
   $loopcount = 0

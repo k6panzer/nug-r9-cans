@@ -1,0 +1,230 @@
+'HFC-CABD
+'01-17-2006
+'CLove
+'This include file contains all DSTs in the CABD record and several of DST variables used by the CABD scripts
+
+'06-05-2006
+'Added a new DST for PV named c.cabd.location, this will store a clients location code used with PVs reports
+
+'11-09-2006
+'Added a temp variable c_cabd_location so PV can manually select the location code
+
+'09082008
+'added c.cabd.foster and c_cabd_foster
+
+'09152009
+'added c.cabd.r65ios
+
+'03-08-2010
+'Added c.cabd.isn, c.cabd.autocomp
+
+'11-01-2011
+'added dstlist
+
+'07/31/2012
+'added .arrest30, school3m and .grade
+'*************************************CABD DSTs********************************************
+rc_cabd_dstlist       is i
+%global cabd_dstlist
+cabd_dstlist          is dstlist
+C.CABD.REC            is h  'C&A BD ASSESSMENT               
+C.CABD.ACT            is x  'C&A BD ASSESSMENT ACTION       
+C.CABD.ASS            is x  'C&A ASSESSMENT TYPE            
+C.CABD.REF            is x  'C&A REFERRAL SOURCE            
+C.CABD.RISK           is x  'C&A RISK OF PLACEMENT          
+C.CABD.SPED           is x  'C&A SPECIAL EDUCATION          
+C.CABD.PSEVER         is x  'IHIO PARENT PRB SEVERITY SCORE 
+C.CABD.PFUNCT         is x  'OHIO PARENT FUNCTIONING SCORE  
+C.CABD.YSEVER         is x  'OHIO YOUTH PROB SERVERITY SCOR 
+C.CABD.YFUNCT         is x  'OHIO YOUTH FUNCTIONING SCORE   
+C.CABD.WSEVER         is x  'OHIO WORKER PRB SEVERITY SCORE 
+C.CABD.WFUNCT         is x  'OHIO WORKER FUNCTIONING SCORE  
+C.CABD.ARREST         is x  'C&A # ARRESTS LAST 90 DAYS     
+C.CABD.SCHOL          is x  'SCHOOL DAYS MISSED LAST 90 DAY 
+C.CABD.RES            is x  'TYPE RESIDENCE LAST 90 DAYS    
+C.CABD.SSCORE         is x  'OHIO PROBLEM SEVERITY SCORE    
+C.CABD.FSCORE         is x  'OHIO FUNCTIONING SCORE         
+C.CABD.HARM           is x  'RISK OF HARM                   
+C.CABD.BEHAV          is x  'SEVERE DISRUPT/AGRESSIVE BEHAV 
+C.CABD.RESOUR         is x  'FAMILY RESOURCES               
+C.CABD.PSYCH          is x  'HISTORY OF PSYCHIATRIC TRMT    
+C.CABD.ABUSE          is x  'CO-OCCURING SUBSTANCE ABUSE    
+C.CABD.JJ             is x  'JUVENILE JUSTICE INVOLVEMENT   
+C.CABD.SCHOOL         is x  'SCHOOL BEHAVIOR                
+C.CABD.MEDS           is x  'PSYCHOACTIVE MEDICATION TRMT   
+C.CABD.LOCR           is x  'CA-TRAG LEVEL OF CARE RECOMMED 
+C.CABD.ALOC           is x  'LEVEL OF CARE AUTHORIZED LOC-R 
+C.CABD.RESLIM         is x  'RESOURCE LIMITATIONS           
+C.CABD.CHOICE         is x  'CONSUMER CHOICE                
+C.CABD.ORIDE          is x  'CLINICAL OVERRIDE              
+C.CABD.COC            is x  'CONTINUITY OF CARE PER UM GUID 
+C.CABD.OTHER          is x  'OTHER DEVIATION REASON         
+C.CABD.STAFF          is x  'C&A TRAG DIMENSION STAFF       
+C.CABD.DATE           is d  'C&A DIMENSION DATE             
+C.CABD.FILLER         is x  'C&A TRAG FILLER                
+C.CABD.OPR            is x  'DATA ENTRY OPERATOR            
+C.CABD.USER           is x  'C&A BD USER                    
+C.CABD.CAREDT         is d  'C&A BD CARE DATE               
+C.CABD.DISCH          is x  'REASON FOR DISCHARGE           
+C.CABD.CMT            is dbtext-l  'COMMENT                        
+C.CABD.SP123          is x  'COMPLETED CA SP 1,2OR3         
+C.CABD.ASDT           is d  'ASSESSMENT DATE                
+C.CABD.WORIDE         is dbtext-l  'REASON FOR WORKER OVERRIDE     
+C.CABD.STAFF2         is x  'C&A BD SECTION 2 STAFF         
+C.CABD.DATE2          is d  'C&A BD SECTION 2 DATE          
+C.CABD.STAFF3         is x  'C&A BD AUTHORIZED LOC STAFF    
+C.CABD.DATE3          is d  'C&A BD AUTHORIZED LOC DATE     
+C.CABD.STAT           is x  'C&A BD COMPLETION STATUS       
+C.CABD.COMPD          is d  'C&A BD COMPLETION DATE         
+C.CABD.OHCOMP         is x  'C&A OHIO COMPLETED BY          
+C.CABD.OHORIDE        is x  'C&A OH WORKER OVERRIDE         
+C.CABD.OHWORIDE       is dbtext-l  'C&A OH WORKER OVERRIDE REASON  
+C.CABD.DISDT          is d  'C&A DISCHARGE DATE             
+C.CABD.SER            is b  'C&A EVENT SERVICE CODE         
+C.CABD.TIME           is t  'C&A EVENT START TIME           
+C.CABD.DUR            is t  'C&A EVENT DURATION             
+C.CABD.RU             is b  'C&A EVENT RU                   
+C.CABD.LOC            is x  'C&A EVENT LOCATION CODE        
+C.CABD.PROJ           is b  'C&A EVENT PROJECT CODE         
+C.CABD.LPHAID         is x  'C&A LPHA EMAIL STAFF ID        
+C.CABD.COMMNA         is x  'CABD COMMUNITY DATA NOT AVAIL  
+C.CABD.MEDICAID       is x  'CABD CLIENT MEDICAID STATUS    
+C.CABD.MEDNEC         is x  'MEDICAL NECESSITY              
+C.CABD.ADDONPE        is x  'ASR PSYCHIATRIC EVALUATION     
+C.CABD.ADDONMM        is x  'ASR ADDON MEDICATION MANGEMENT 
+C.CABD.REQUEST        is x  'CABD REQUESTED LOC             
+C.CABD.ADDONPEA       is x  'CABD PSYCHIATRIC EVAL AUTH     
+C.CABD.ADDONMMA       is x  'CABD MEDICATION MGMT AUTH      
+C.CABD.MEDNECA        is x  'CABD MEDICAL NECESSITY QUES 1  
+C.CABD.MEDNECB        is x  'CABD MEDICAL NCESSITY QUEST 2  
+C.CABD.MEDNECC        is x  'CABD MEDICAL NECESSITY QUES 3  
+C.CABD.MEDNECD        is x  'CABD MEDICAL NECESSITY QUES 4  
+C.CABD.MEDNECE        is x  'CABD MEDICAL NECESSITY QUES 5  
+C.CABD.DISCHREF       is x  'CABD DISCHARGE REFERRAL        
+C.CABD.FORC           is x  'CHILD UA FORCE BATCH           
+C.CABD.EXCLD          is x  'CHILD UA BATCH EXCLUDE         
+C.CABD.AALOCD         is d  'C&A ACTUAL AUTHORIZATION DATE  
+C.CABD.AUTODIS        is x  'CABD AUTO DISCHARGE FLAG       
+C.CABD.EXTD           is x  'CABD EXTENDED REVIEW REQUESTED 
+C.CABD.MMSTABLE       is x  'CABD MMI STABLE ON MEDS        
+C.CABD.INEXDIAG       is x  'CABD INT OR EXT DIAG           
+C.CABD.DXQUAL         is x  'CABD DIAGNOSTIC QUALIFIER      
+C.CABD.ADDONGC        is x  'ASR GROUP COUNSELING ADDON     
+C.CABD.ADDONFC        is x  'ASR FAMILY COUNSELING ADDON    
+C.CABD.ADDONTF        is x  'ASR TRAUMA FOCUSED COUNSELING  
+C.CABD.ADDONGCA       is x  'ASR GROUP COUNSELING AUTHORIZD 
+C.CABD.ADDONFCA       is x  'ASR FAMILY COUNSELING AUTHORID 
+C.CABD.ADDONTFA       is x  'ASR TRAUMA FOCUSED CON AUTHORD
+C.CABD.LOCATION       is x  'USED by PV
+C.CABD.LOCD           is x  'LOC Deviation, same as C.CABD.REQUEST 
+C.CABD.FOSTER         is x
+C.CABD.ISN            is x
+C.CABD.AUTOCOMP       is x
+C.CABD.R65IOS         is x   'Rider 65 Intensive Ongoing Services
+C.CABD.DAYS           is i   'Days since last UA activity
+C.CABD.DAYS.AUTH      is i   'Days since Authoirzation
+C.CABD.ARREST30       is x   'Number of arrests last 30 days
+C.CABD.SCHOOL3M       is x   'Has attended school last 3 months
+C.CABD.GRADE          is x   'Highest grade attained
+c.cabd.underride      is x
+
+'*************************************CABD Vars********************************************
+'TRAG VARIABLES
+c_cabd_medicaid is x
+c_cabd_ass      is x    'CABD ASSESSMENT TYPE VARIABLE
+c_cabd_ref      is x    'CABD REFERRAL SOURCE VARIABLE
+c_cabd_act      is x    'CABD ASSESSMENT ACTION VARIABLE
+c_cabd_risk     is x    'CABD AT RISK OF PLACEMENT VARIABLE
+c_cabd_sped     is x    'CABD IN SPECIAL EDUCATION VARIABLE
+c_cabd_harm     is x    'CABD RISK OF HARM VARIABLE
+c_cabd_behav    is x    'CABD BEHAVIOR VARIABLE
+c_cabd_resour   is x    'CABD FAMILY RESOURCES VARIABLE
+c_cabd_psych    is x    'CABD PSYCHIATRIC TRMT VARIABLE
+c_cabd_abuse    is x    'CABD SUBSTANCE ABUSE VARIABLE
+c_cabd_jj       is x    'CABD JUVENILE JUSTICE VARIABLE
+c_cabd_school   is x    'CABD SCHOOL PROBLEMS VARIABLE
+c_cabd_meds     is x    'CABD MEDICATION TRMT VARIABLE
+c_cabd_locr     is x    'CABD RECOMMENDED LEVEL OF CARE VARIABLE
+c_cabd_aloc     is x    'CABD AUTHORIZED LEVEL OF CARE VARIABLE
+c_cabd_reslim   is x    'CABD RESOURCE LIMITATIONS VARIABLE
+c_cabd_choice   is x    'CABD CONSUMER CHOICE VARIABLE
+c_cabd_coc      is x    'CONTINUTY OF CARE
+c_cabd_oride    is x    'CABD CONSUMER NEED VARIABLE
+c_cabd_other    is x    'CABD OTHER REASON VARIABLE
+c_cabd_staff    is x    'CABD TRAG STAFF VARIABLE
+c_cabd_date     is d    'CABD TRAG DATE VARIABLE
+c_cabd_staff3   is x    'CABD A-LOC STAFF VARIABLE
+c_cabd_date3    is d    'CABD A-LOC DATE VARIABLE
+c_cabd_disch    is x    'CABD DISCHARGE REASON VARIABLE
+c_cabd_dischref is x    'CABD DISCHARGE REFERRAL
+c_cabd_sp123    is x    'CABD COMPLETION OF SP 1,2 or 3 VARIABLE
+c_cabd_woride   is dbtext-l 'CABD LEVEL OF CARE OVERRIDE COMMENTS VARIABLE
+c_cabd_cmt      is dbtext-l 'CABD LEVEL OF CARE COMMENTS VARIABLE
+c_cabd_disdt    is d     'CABD DISCHARGE DATE VARIABLE
+c_cabd_extd     is x     'CABD Extended Review Request for SP4 VARIABLE
+c_cabd_mmstable is x     'CABD For MMI Diags, is the child stable with ED or ID features? VARIABLE
+c_cabd_InExDiag is x     'CABD Intended as a form of secondary recode value for diags
+                           '309.4 or 296.9. When this diag is found this must be answered
+					  	   '!dp for any other diag values for now                         VARIABLE
+
+
+'OHIO SCALE DSTS
+c_cabd_psever   is x    'CABD OHIO PARENT SEVERITY DST VARIABLE
+c_cabd_pfunct   is x    'CABD OHIO PARENT FUNCTIONING VARIABLE 
+c_cabd_ysever   is x    'CABD OHIO YOUTH SEVERITY DST VARIABLE
+c_cabd_yfunct   is x    'CABD OHIO YOUTH FUNCTIONING DST VARIABLE
+c_cabd_wsever   is x    'CABD OHIO WORKER SEVERITY DST VARIABLE
+c_cabd_wfunct   is x    'CABD OHIO WORKER FUNCTIONING DST VARIABLE
+c_cabd_sscore   is x    'CABD OHIO SUBMITTED SEVERITY DST VARIABLE
+c_cabd_fscore   is x    'CABD OHIO SUBMITTED FUNCTIONING DST VARIABLE
+c_cabd_ohcomp   is x    'CABD OHIO COMPLETED BY
+c_cabd_ohoride  is x    'CABD OHIO WORKER OVERRIDE VARIABLE
+c_cabd_ohworide is dbtext-l 'CABD OHIO WORKER OVERRIDE REASON
+
+c_cabd_sscore2   is i    'CABD OHIO SUBMITTED SEVERITY FOR INT COMPARISONS
+c_cabd_fscore2   is i    'CABD OHIO SUBMITTED FUNCTIONING FOR INT COMPARISONS
+
+'COMMUNITY DATA VARIABLES
+c_cabd_arrest   is x    'CABD # OF ARRESTS VARIABLE
+c_cabd_schol    is x    'CABD # SCHOOL DAYS MISSED VARIABLE
+c_cabd_res      is x    'CABD RESIDENCE TYPE VARIABLE
+c_cabd_staff2   is x    'CABD COMMUNITY DATA STAFF VARIABLE
+c_cabd_date2    is d    'CABD COMMUNITY DATA DATE VARIABLE
+
+
+c_cabd_addonpea  is x   'CABD Psychiatric Evaluation variable Authorzied
+c_cabd_addonmma  is x   'CABD Medication Management variable Authorzied
+c_cabd_addongca  is x   'CABD Family Counseling variable Authorzied
+c_cabd_addonfca  is x   'CABD Trauma Focused Counseling variable Authorzied
+c_cabd_addontfa  is x   'CABD Requested LOC variable Authorzied
+
+c_cabd_email    is x   'Note to be included in LPHA email message
+
+c_cabd_location is x    'Location code temp variable
+
+c_cabd_foster   is x
+
+c_cabd_arrest30       is x   'Number of arrests last 30 days
+c_cabd_arrest30a      is x   'Number of arrests last 30 days, unknown
+c_cabd_school3m       is x   'Has attended school last 3 months
+c_cabd_grade          is x   'Highest grade attained
+
+
+'Array of diags to check to ask in the TRAG form if they are Internalizing or Externalizing
+'This will be checked by a do while loop later
+IntExtDiags[]   is x
+IntExtDiags[1]  = "309.4"
+IntExtDiags[2]  = "296.90"
+
+
+rc_cabd_dstlist = $dstlist(cabd_dstlist,02,
+c.cabd.rec,c.cabd.act,c.cabd.ass,c.cabd.ref,c.cabd.risk,c.cabd.sped,c.cabd.psever,c.cabd.pfunct,
+c.cabd.ysever,c.cabd.yfunct,c.cabd.wsever,c.cabd.wfunct,c.cabd.arrest,c.cabd.schol,c.cabd.res,c.cabd.sscore,c.cabd.fscore,c.cabd.harm,c.cabd.behav,c.cabd.resour,
+c.cabd.psych,c.cabd.abuse,c.cabd.jj,c.cabd.school,c.cabd.meds,c.cabd.locr,c.cabd.aloc,c.cabd.reslim,c.cabd.choice,c.cabd.coc,c.cabd.oride,c.cabd.other,c.cabd.staff,c.cabd.date,
+c.cabd.filler,c.cabd.opr,c.cabd.user,c.cabd.caredt,c.cabd.disch,c.cabd.cmt,c.cabd.sp123,c.cabd.asdt,c.cabd.woride,c.cabd.staff2,c.cabd.date2,c.cabd.staff3,c.cabd.date3,c.cabd.stat,
+c.cabd.compd,c.cabd.ohcomp,c.cabd.ohoride,c.cabd.ohworide,c.cabd.disdt,c.cabd.ser,c.cabd.time,c.cabd.dur,c.cabd.ru,c.cabd.loc,c.cabd.proj,c.cabd.lphaid,
+c.cabd.commna,c.cabd.medicaid,c.cabd.mednec,c.cabd.addonpe,c.cabd.addonmm,c.cabd.request,
+c.cabd.addonpea,c.cabd.addonmma,c.cabd.medneca,c.cabd.mednecb,c.cabd.mednecc,c.cabd.mednecd,c.cabd.mednece,c.cabd.dischref,c.cabd.forc,c.cabd.excld,c.cabd.aalocd,c.cabd.autodis,
+c.cabd.extd,c.cabd.mmstable,c.cabd.inexdiag,c.cabd.dxqual,c.cabd.addongc,c.cabd.addonfc,c.cabd.addontf,c.cabd.addongca,c.cabd.addonfca,c.cabd.addontfa,c.cabd.location,c.cabd.locd,
+c.cabd.foster,c.cabd.isn,c.cabd.autocomp,c.cabd.r65ios,c.cabd.days,c.cabd.days.auth,
+c.cabd.arrest30,c.cabd.school3m,c.cabd.grade,c.cabd.underride)
