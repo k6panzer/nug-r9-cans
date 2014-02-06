@@ -1,5 +1,5 @@
 Start ANSA(parmfile,option,client,retcode)
- %version 1.0.028 12/09/2013
+ %version 1.0.029 02/06/2014
  $looplimit = 0
  %include inc_ANSA
  e.ser     is b
@@ -2927,7 +2927,10 @@ function ValidateALOC() is i
   endif
   if c.ansa.alocdate < c.ansa.commdate
    (void)$arrpush(errors[],commdt3_errortxt)      
-  endif  
+  endif
+  if c.ansa.alocdate < c.ansa.date  
+   (void)$arrpush(errors[],aloc16_errortxt)    
+  endif
  else
   (void)$arrpush(errors[],aloc5_errortxt)  
  endif
