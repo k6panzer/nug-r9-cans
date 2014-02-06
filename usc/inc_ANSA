@@ -175,7 +175,7 @@ c.ansa.isn        is x 'DB9 regsiter
 c.ansa.commdate   is d 'Community section date
 c.ansa.comment    is dbtext-l 'ansa UA Staff Comment
 c.ansa.acomment   is dbtext-l 'ansa ALOC Staff Comment
-c.ansa.devjust    is dbtext
+c.ansa.devjust    is dbtext-l
 c.ansa.psrs       is x
 c.ansa.bnsa       is x
 c.ansa.bdss       is x
@@ -632,6 +632,7 @@ errors[] is x
 %define aloc13_errortxt "LOC 6: Consumer Refuses Services cannot be authorized when the assessment type is not Intake"
 %define aloc14_errortxt "LOC 9: Ineligible cannot be authorized when the assessment type is not Intake"
 %define aloc15_errortxt "LOC 8: Waiting for All Authorized Services cannot be authorized when the assessment type is not Intake"
+%define aloc16_errortxt "The Authorization Date must be on or after the Assessment Date"
 %define dloc_errortxt "The LOC requested for deviation is the same as the Recommended LOC. It will be unselected now. You can either leave the field blank or select another LOC."
 %define dloc2_errortxt "LOC 1M cannot be requested for deviation, it must be Recommended by the Assessment. It will be unselected now. You can either leave the field blank or select another LOC."
 %define dloc3_errortxt "LOC 0: Crisis must be requested for authorization when scoring does not indicate a crisis"

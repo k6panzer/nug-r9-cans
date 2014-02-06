@@ -1,5 +1,5 @@
 start CANS617(parmfile,option,client,retcode)
- %version 1.0.023 02/05/2014
+ %version 1.0.024 02/06/2014
  $looplimit = 0
  %include inc_CANS617
  e.ser     is b
@@ -3732,7 +3732,10 @@ function ValidateALOC() is i
   endif
   if c.cans.alocdate < c.cans.commdate
    (void)$arrpush(errors[],commdt3_errortxt)      
-  endif  
+  endif
+  if c.cans.alocdate < c.cans.date  
+   (void)$arrpush(errors[],aloc16_errortxt)    
+  endif    
  else
   (void)$arrpush(errors[],aloc5_errortxt)  
  endif
