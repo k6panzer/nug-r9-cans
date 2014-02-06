@@ -19,6 +19,7 @@ start CABDAUTODISCH()
  CID       is x 'CLIENT ID VARIABLE
  ua_age    is i 'ua_ageERENCE IN DATES
  LapseDate is d 'XXX DAYS FROM TRAG DATE
+ additional_days is i
 
 'VARIABLE INITIALIZATION
  rc = 0
@@ -26,8 +27,10 @@ start CABDAUTODISCH()
  rc2 = 0
  if $uc($seg($mscname,1,5)) = "HELEN"
   logfile = "/c0/EXPORT/LOGS/CABDCLOSED.log"
+  additional_days = 3
  else
   logfile = "/c4/EXPORT/LOGS/CABDCLOSED.log" 
+  additional_days = 20
  endif 
 		  
 '***************************PROCEDURE SECTION***********************************
@@ -43,6 +46,7 @@ start CABDAUTODISCH()
   elseif (c.cabd.aloc = "5")
    LapseDate = c.cabd.date + 90
   endif
+  LapseDate = LapseDate + additional_days
   if (
       (ua_age >= 90 and c.cabd.compd dp and c.cabd.aloc != "9" and c.cabd.aloc != "0" and c.cabd.aloc != "6" and c.cabd.aloc != "8" and (c.cabd.extd = "N" or c.cabd.extd !dp)) and c.cabd.cmt != "TRR REPORTING"
        or

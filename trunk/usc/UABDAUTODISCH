@@ -17,10 +17,13 @@ start UABDAUTODISCH()
 
 'Output file
  logfile is x
+ additional_days is i
  if $uc($seg($mscname,1,5)) = "HELEN"
   logfile = "/c0/EXPORT/LOGS/UABDCLOSED.log"
+  additional_days = 3
  else
   logfile = "/c4/EXPORT/LOGS/UABDCLOSED.log" 
+  additional_days = 20
  endif 
 
  %include inc_UABD
@@ -34,6 +37,9 @@ start UABDAUTODISCH()
  LapseDate is d 'XXX DAYS FROM TRAG DATE
  rc = 0
  rc1 = 0
+ 
+ 
+ 
 
 '***************************PROCEDURE SECTION***********************************
 'START THE CLIENT DB READ IN SEQUENTIAL ORDER
@@ -56,6 +62,7 @@ start UABDAUTODISCH()
    if c.uabd.aloc = "5"
     LapseDate = c.uabd.date + 90
    endif
+   LapseDate = LapseDate + additional_days
    if ((ua_age >= 90 and c.uabd.compd dp and c.uabd.aloc != "9" and c.uabd.aloc != "0" and c.uabd.aloc != "6" and c.uabd.aloc != "8" and c.uabd.extd != "Y" and c.uabd.annual != "Y" and c.uabd.comt != "TRR REPORTING")
       or
        (ua_age >= 180 and c.uabd.compd dp and c.uabd.aloc != "9" and c.uabd.aloc != "0" and c.uabd.aloc != "6" and c.uabd.aloc != "8" and c.uabd.extd = "Y" and c.uabd.annual != "Y" and c.uabd.comt != "TRR REPORTING")
