@@ -32,29 +32,40 @@ start CABDAUTODISCH()
   logfile = "/c4/EXPORT/LOGS/CABDCLOSED.log" 
   additional_days = 20
  endif 
+ 
+ datediff is i
 		  
 '***************************PROCEDURE SECTION***********************************
 'START THE CLIENT DB READ IN SEQUENTIAL ORDER
  rc = $dbstart(02, CID, "I")
  do while rc1 < 3
+  datediff = 0
   rc1 = $dbreadnext(02,CID,c.cabd.rec,c.cabd.date,c.cabd.staff,c.cabd.staff3,c.cabd.compd,c.cabd.aloc,c.cabd.lphaid,c.cabd.ass,c.cabd.extd,c.cabd.date3,c.cabd.stat,c.cabd.cmt)
-  ua_age = $today - c.cabd.date
-  if (c.cabd.extd = "N" or c.cabd.extd !dp) and c.cabd.aloc != "5"
-   LapseDate = c.cabd.date + 90
-  elseif (c.cabd.extd = "Y" and c.cabd.aloc = "4")
-   LapseDate = c.cabd.date + 180
-  elseif (c.cabd.aloc = "5")
-   LapseDate = c.cabd.date + 90
-  endif
-  LapseDate = LapseDate + additional_days
-  if (
-      (ua_age >= 90 and c.cabd.compd dp and c.cabd.aloc != "9" and c.cabd.aloc != "0" and c.cabd.aloc != "6" and c.cabd.aloc != "8" and (c.cabd.extd = "N" or c.cabd.extd !dp)) and c.cabd.cmt != "TRR REPORTING"
-       or
-	  (ua_age >= 180 and c.cabd.compd dp and c.cabd.extd = "Y" and c.cabd.aloc = "4") and c.cabd.cmt != "TRR REPORTING"
-	  )	
-   and (c.cabd.ass = "I" or c.cabd.ass = "U")  
-   call "AUTODISCANS"(CID,LapseDate,rc3)
-   $log(`$castx($today) + "|" + c.cabd.aloc + "|" + CID + "|" + "AUTOCLOSE CHILD"`,logfile)
+  if c.cabd.cmt != "TRR REPORTING"
+   ua_age = $today - c.cabd.date
+   if (c.cabd.extd = "N" or c.cabd.extd !dp) and c.cabd.aloc != "5"
+    LapseDate = c.cabd.date + 90
+   elseif (c.cabd.extd = "Y" and c.cabd.aloc = "4")
+    LapseDate = c.cabd.date + 180
+   elseif (c.cabd.aloc = "5")
+    LapseDate = c.cabd.date + 90
+   endif
+   LapseDate = LapseDate + additional_days
+   if (
+       (ua_age >= 90 and c.cabd.compd dp and c.cabd.aloc != "9" and c.cabd.aloc != "0" and c.cabd.aloc != "6" and c.cabd.aloc != "8" and (c.cabd.extd = "N" or c.cabd.extd !dp)) and c.cabd.cmt != "TRR REPORTING"
+        or
+	   (ua_age >= 180 and c.cabd.compd dp and c.cabd.extd = "Y" and c.cabd.aloc = "4") and c.cabd.cmt != "TRR REPORTING"
+	   )	
+    and (c.cabd.ass = "I" or c.cabd.ass = "U")  
+    LapseDate = LapseDate - additional_days
+	call "AUTODISCANS"(CID,LapseDate,rc3)
+    $log(`$castx($today) + "|" + c.cabd.aloc + "|" + CID + "|" + "AUTOCLOSE CHILD"`,logfile)
+   else
+    datediff = $today - LapseDate
+    if datediff = 21 or datediff = 14 or datediff = 7 or datediff < 6 and (c.cabd.ass = "I" or c.cabd.ass = "U") and c.cabd.cmt != "TRR REPORTING" 
+     call "AUTODISNAG"(CID,LapseDate) 
+    endif    
+   endif
   endif
   $loopcount = 0
  enddo
