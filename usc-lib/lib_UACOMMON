@@ -1,5 +1,5 @@
 library lib_UACOMMON()
- %version 1.0.006 11/12/2013
+ %version 1.0.007 01/08/2014
 on load do:
  %include inc_DX_ANSA
 

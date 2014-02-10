@@ -38,15 +38,16 @@ start UABDAUTODISCH()
  rc = 0
  rc1 = 0
  
- 
+datediff is i 
  
 
 '***************************PROCEDURE SECTION***********************************
 'START THE CLIENT DB READ IN SEQUENTIAL ORDER
  rc = $dbstart(02, CID, "I")
  do while rc1 < 3
+  datediff = 0
   rc1 = $dbreadnext(02, CID, uabd_dstlist)
-  if c.uabd.compd dp and c.uabd.pur != "D" and c.uabd.aloc != "6" and c.uabd.aloc != "8" and c.uabd.aloc != "9" and c.uabd.pur != "E"
+  if c.uabd.compd dp and c.uabd.pur != "D" and c.uabd.aloc != "6" and c.uabd.aloc != "8" and c.uabd.aloc != "9" and c.uabd.pur != "E" and c.uabd.comt != "TRR REPORTING"
    ua_age = $today - c.uabd.date
 'Annual Review checked
    if c.uabd.annual = "Y"
@@ -71,6 +72,12 @@ start UABDAUTODISCH()
   call "AUTODISANSA"(CID,LapseDate,rc2)
 'Write to the logfile
     $log(`$castx($today) + "|" + c.uabd.aloc + "|" + CID + "|" + "AUTOCLOSE ADULT"`,logfile)  
+   else
+	datediff = $today - LapseDate
+    if datediff = 21 or datediff = 14 or datediff = 7 or datediff < 6   and (c.uabd.pur = "I" or c.uabd.pur = "U") and c.uabd.comt != "TRR REPORTING"  
+	 LapseDate = LapseDate - additional_days
+	 call "AUTODISNAG"(CID,LapseDate) 
+    endif
    endif	  
   endif
   $loopcount = 0
