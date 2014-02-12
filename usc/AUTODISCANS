@@ -32,6 +32,7 @@ start AUTODISCANS(target,discharge_dt,rc)
     c.cans.ver = "CANS617"
    endif
    rc = $dbadddst(2,target,cans_dstlist) 
+   {"lib_UACOMMON"}AddBatch(target,c.cans.ver)
   else
    rc = 99
   endif 
