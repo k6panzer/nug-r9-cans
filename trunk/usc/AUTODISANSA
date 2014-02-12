@@ -26,6 +26,7 @@ start AUTODISANSA(target,discharge_dt,rc)
    c.ansa.ver = "01.0.000"
    c.ansa.type = "3"
    rc = $dbadddst(2,target,ansa_dstlist)
+   {"lib_UACOMMON"}AddBatch(target,"ANSA")
   else
    rc = 99
   endif 
