@@ -48,7 +48,7 @@
 	 (void)$arrpush(ansa_dates[],c.ansa.alocedate)   
 	 $log(`$castx($today) + "|" + c.ansa.aloc + "|" + CID + "|" + "AUTOCLOSE ADULT"`,ansa_logfile)	
     else
-	 datediff = $today - c.ansa.alocedate
+	 datediff = c.ansa.alocedate - $today
 	 if datediff = 21 or datediff = 14 or datediff = 7 or datediff < 6
 	  (void)$arrpush(nag_list[],cid)
       (void)$arrpush(nag_dates[],c.ansa.alocedate)   	 
@@ -70,7 +70,7 @@
       (void)$arrpush(cans35_dates[],c.cans.alocedate)   	
 	 endif
     else
-	 datediff = $today - c.cans.alocedate
+	 datediff = c.cans.alocedate - $today
 	 if datediff = 21 or datediff = 14 or datediff = 7 or datediff < 6
 	  (void)$arrpush(nag_list[],cid)
       (void)$arrpush(nag_dates[],c.cans.alocedate)   	 
