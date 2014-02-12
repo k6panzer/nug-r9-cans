@@ -9,7 +9,6 @@ start AUTODISNAG(target,discharge_dt,rc)
  s.email       is x
  s.type        is x
  email_1       is x
- email_2       is x
  email_subject is x
  email_body[]  is x
  
@@ -23,17 +22,8 @@ start AUTODISNAG(target,discharge_dt,rc)
 	else
 	 email_1 = "RizanM@helenfarabee.org"
 	endif 
-   endif
-   if c.2cm dp
-    (void)$dbread(3,c.2cm,s.email,s.type)
-    if s.type = "AS"
-     email_2 = s.email
-	else
-	 email_2 = "RizanM@helenfarabee.org"	 
-	endif 
-   endif
-   if email_1 = email_2
-    $clear(email_2)
+   else
+	email_1 = "RizanM@helenfarabee.org"   
    endif
   else
    (void)$dbread(2,target,c.cm)
@@ -44,14 +34,11 @@ start AUTODISNAG(target,discharge_dt,rc)
 	else
 	 email_1 = "dgilmore@pecanvalley.org"	 
 	endif 
+   else
+    email_1 = "dgilmore@pecanvalley.org"	 
    endif
-   $clear(email_2)
   endif 
-  if $today = 02/07/2014 and $operstaffid = "3737"
-   email_1 = "lovec@helenfarabee.org"
-   $clear(email_2)
-  endif
-  if email_1 dp or email_2 dp
+  if email_1 dp
    email_subject = "CANS/ANSA Assessment Required: " + c.fn + " " + c.ln + "  (" + target + ")"
    email_body[1] = "CANS/ANSA Assessment Required: " + c.fn + " " + c.ln + "  (" + target + ")"
    email_body[2] = "Please complete an update or discharge assessment for the above mentioned client by:   " + discharge_dt 
@@ -60,9 +47,6 @@ start AUTODISNAG(target,discharge_dt,rc)
   if email_1 dp
    (void)$email(email_1,email_subject,email_body[])
   endif
-  if email_2 dp
-   (void)$email(email_2,email_subject,email_body[]) 
-  endif 
  endif 
 end AUTODISNAG
 
