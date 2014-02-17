@@ -71,7 +71,8 @@ datediff is i
        (ua_age >= 365 and c.uabd.compd dp and c.uabd.aloc != "9" and c.uabd.aloc != "0" and c.uabd.aloc != "6" and c.uabd.aloc != "8" and c.uabd.annual = "Y")) and (c.uabd.pur = "I" or c.uabd.pur = "U") and c.uabd.comt != "TRR REPORTING"
   call "AUTODISANSA"(CID,LapseDate,rc2)
 'Write to the logfile
-    $log(`$castx($today) + "|" + c.uabd.aloc + "|" + CID + "|" + "AUTOCLOSE ADULT"`,logfile)  
+    LapseDate = LapseDate - additional_days
+	$log(`$castx($today) + "|" + c.uabd.aloc + "|" + CID + "|" + "AUTOCLOSE ADULT|" + LapseDate`,logfile)  
    else
 	datediff = $today - LapseDate
     if datediff = 21 or datediff = 14 or datediff = 7 or datediff < 6   and (c.uabd.pur = "I" or c.uabd.pur = "U") and c.uabd.comt != "TRR REPORTING"  
