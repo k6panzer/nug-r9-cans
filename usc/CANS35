@@ -1,5 +1,5 @@
 start CANS35(parmfile,option,client,retcode)
- %version 1.0.025 02/06/2013
+ %version 1.0.026 04/04/2014
  $looplimit = 0
  %include inc_CANS35
  e.ser     is b
@@ -2106,10 +2106,15 @@ function Validate2() is i
   (void)$arrpush(errors[],rg_errortxt)   
  endif      
 '2
+'Trauma
  if ($num(c.cans.cb.adjtrm) > 0) and (c.cans.tr.sexabs !dp or c.cans.tr.phyabs !dp or c.cans.tr.emoabs !dp or c.cans.tr.medtrm !dp or c.cans.tr.natdis !dp or c.cans.tr.wtofam !dp or c.cans.tr.wtocom !dp or c.cans.tr.wcrime !dp or
                                       c.cans.tr.waraff !dp or c.cans.tr.teraff !dp)   
   (void)$arrpush(errors[],tr_errortxt)                                                                                                                                           
  endif                                                                                                                                                                           
+'Adjustment to trauma
+ if ($num(c.cans.cb.adjtrm) > 0) and (c.cans.ad.affreg !dp or c.cans.ad.reexp !dp or c.cans.ad.avoid !dp or c.cans.ad.incaro !dp or c.cans.ad.numres !dp or c.cans.ad.timb4t !dp)   
+  (void)$arrpush(errors[],adj_errortxt)                                                                                                                                           
+ endif                                                                                                                                                                            
 '3
  if ($num(c.cans.ld.preday) > 0) and (c.cans.sc.prequa !dp or c.cans.sc.pbehav !dp or c.cans.sc.pachie !dp or c.cans.sc.patten !dp) 
   (void)$arrpush(errors[],sc_errortxt)
@@ -2133,7 +2138,10 @@ function Validate2() is i
   endif
 '2
   if $num(c.cans.cb.adjtrm) = 0
-   $clear(c.cans.tr.sexabs,c.cans.tr.phyabs,c.cans.tr.emoabs,c.cans.tr.medtrm,c.cans.tr.natdis,c.cans.tr.wtofam,c.cans.tr.wtocom,c.cans.tr.wcrime,c.cans.tr.waraff,c.cans.tr.teraff)   
+'Trauma
+   $clear(c.cans.tr.sexabs,c.cans.tr.phyabs,c.cans.tr.emoabs,c.cans.tr.medtrm,c.cans.tr.natdis,c.cans.tr.wtofam,c.cans.tr.wtocom,c.cans.tr.wcrime,c.cans.tr.waraff,c.cans.tr.teraff)
+'Adjustment to trauma
+   $clear(c.cans.ad.affreg,c.cans.ad.reexp,c.cans.ad.avoid,c.cans.ad.incaro,c.cans.ad.numres,c.cans.ad.timb4t)
   endif
 '3
  if $num(c.cans.ld.preday) = 0
