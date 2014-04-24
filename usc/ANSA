@@ -1,5 +1,5 @@
 Start ANSA(parmfile,option,client,retcode)
- %version 1.0.029 02/06/2014
+ %version 1.0.030 04/24/2014
  $looplimit = 0
  %include inc_ANSA
  e.ser     is b
@@ -2999,6 +2999,9 @@ function ValidateALOC() is i
  endif
  if c.ansa.type = "12" and (c.ansa.aloc != "108" and c.ansa.aloc != "120")
   c.ansa.type = "1"
+ endif
+ if c.ansa.dloc = "108" or c.ansa.dloc = "109" or c.ansa.dloc = "110"
+  $clear(c.ansa.dloc)
  endif
 end ValidateALOC
 
