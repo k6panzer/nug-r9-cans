@@ -1,5 +1,5 @@
 start CANS617(parmfile,option,client,retcode)
- %version 1.0.024 02/06/2014
+ %version 1.0.025 04/24/2014
  $looplimit = 0
  %include inc_CANS617
  e.ser     is b
@@ -3801,6 +3801,9 @@ function ValidateALOC() is i
  if c.cans.type = "12" and (c.cans.aloc != "108" and c.cans.aloc != "120")
   c.cans.type = "1"
  endif
+ if c.cans.dloc = "108" or c.cans.dloc = "109" or c.cans.dloc = "110"
+  $clear(c.cans.dloc)
+ endif 
 end ValidateALOC
 
 function ValidateReport() is i
