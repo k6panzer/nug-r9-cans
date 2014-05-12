@@ -1,5 +1,5 @@
 start CANS617(parmfile,option,client,retcode)
- %version 1.0.025 04/24/2014
+ %version 1.0.026 05/12/2014
  $looplimit = 0
  %include inc_CANS617
  e.ser     is b
@@ -2443,6 +2443,7 @@ end Validate
 function Validate0() is i
  assessment_age is i
  last_type     is x
+ last_rloc     is x
  last_aloc     is x
  last_date     is d
  last_alocdate is d
@@ -2514,7 +2515,7 @@ function Validate0() is i
   ClearPage4()
  endif
  
- {"lib_CANS"}Last_Assessment($regid,,,,last_date,,,,,,last_alocdate)
+ {"lib_CANS"}Last_Assessment($regid,,,,last_date,,last_aloc,last_rloc,,,last_alocdate)
  if c.cans.type = "3"
   datediff = c.cans.disdt - c.cans.date
   if c.cans.disdt !dp
@@ -2553,7 +2554,7 @@ function Validate0() is i
   (void)$arrpush(errors[],date3_errortxt)  
  elseif c.cans.date = last_date 
  (void)$arrpush(errors[],date4_errortxt)  
- endif    
+ endif    	
 
  if errors[1] dp	
   Validate0 = 1
@@ -2567,6 +2568,11 @@ function Validate0() is i
 end Validate0
 
 function Validate1() is i
+ last_type     is x
+ last_rloc     is x
+ last_aloc     is x
+ last_date     is d
+ last_alocdate is d
  $clear(errors[])
  if c.cans.type = "1" or c.cans.type = "2" or (c.cans.type = "3" and c.cans.disreas = "9") or c.cans.type = "12"
   if c.cans.ld.family !dp or c.cans.ld.livsit !dp or c.cans.ld.school !dp or c.cans.ld.socFun !dp or c.cans.ld.recret !dp or c.cans.ld.develp !dp or c.cans.ld.commun !dp or c.cans.ld.judgmt !dp or 
@@ -2653,6 +2659,24 @@ function Validate1() is i
   c.cans.cg.famsts = "9"  
   c.cans.cg.safety = "9"  
  endif 
+
+ if errors[1] !dp
+  {"lib_CANS"}Last_Assessment($regid,,,,last_date,,last_aloc,last_rloc,,,last_alocdate) 
+  if last_type = "1" or last_type = "2"
+   c.cans.rloc = {"lib_CANS617"}RLOC(c.cans.ac.sexgen,c.cans.ad.affreg,c.cans.ad.dissoc,c.cans.ad.intrus,c.cans.cb.adjtrm,c.cans.cb.angctr,c.cans.cb.anxity,c.cans.cb.condct,
+                                     c.cans.cb.depres,c.cans.cb.eatdst,c.cans.cb.implsv,c.cans.cb.mania,c.cans.cb.oppdef,c.cans.cb.psychs,c.cans.cb.subabs,c.cans.cr.bully,
+                                     c.cans.cr.dangot,c.cans.cr.delqcy,c.cans.cr.episds,c.cans.cr.firset,c.cans.cr.oslfhr,c.cans.cr.runawy,c.cans.cr.sexagr,c.cans.cr.smutil,
+                                     c.cans.cr.socbeh,c.cans.cr.suicid,c.cans.dv.cognit,c.cans.dv.develp,c.cans.fs.inthrm,c.cans.fs.planin,c.cans.hs.durrec,c.cans.hs.timlst,
+                                     c.cans.jj.comsaf,c.cans.jj.histry,c.cans.jj.serios,c.cans.ld.commun,c.cans.ld.develp,c.cans.ld.family,c.cans.ld.indliv,c.cans.ld.jobfun,
+                                     c.cans.ld.judgmt,c.cans.ld.legal,c.cans.ld.livsit,c.cans.ld.medicl,c.cans.ld.physcl,c.cans.ld.recret,c.cans.ld.school,c.cans.ld.sexdev,
+                                     c.cans.ld.sleep,c.cans.ld.socfun,c.cans.ps.hosptl,c.cans.rf.comsc,c.cans.rf.rescon,c.cans.rn.frqncy,c.cans.rn.invill,c.cans.sa.envinf,
+                                     c.cans.sa.parinf,c.cans.sa.perinf,c.cans.sa.severe,c.cans.sa.stgrec,c.cans.sc.attend,c.cans.sc.behavr,c.cans.sr.hissui,c.cans.type,c.cans.vi.hxviol,
+			                         c.cans.disreas)
+   if c.cans.rloc = "110" and last_rloc = "110" and last_aloc != "110"
+    (void)$arrpush(errors[],inelig_errortxt)  
+   endif
+  endif
+ endif 			  
 
  if errors[1] dp	
   Validate1 = 1

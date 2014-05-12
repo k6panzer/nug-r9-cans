@@ -1,5 +1,5 @@
 start CANS35(parmfile,option,client,retcode)
- %version 1.0.027 04/24/2014
+ %version 1.0.028 05/12/2014
  $looplimit = 0
  %include inc_CANS35
  e.ser     is b
@@ -1927,6 +1927,9 @@ end CultureRpt
 
 function Validate0() is i                     
  assessment_age is i
+ last_type      is x
+ last_rloc      is x
+ last_aloc      is x
  last_date      is d
  last_alocdate  is d
  datediff       is i
@@ -1970,7 +1973,7 @@ function Validate0() is i
              endif 
  endselect
 
- {"lib_CANS"}Last_Assessment($regid,,,,last_date,,,,,,last_alocdate)
+ {"lib_CANS"}Last_Assessment($regid,,,,last_date,,last_aloc,last_rloc,,,last_alocdate) 
  if c.cans.type = "3"
   datediff = c.cans.disdt - c.cans.date
   if c.cans.disdt !dp
@@ -2031,8 +2034,8 @@ function Validate0() is i
             ClearPage3()
             ClearPage4()
   case "12" $clear(c.cans.disdt,c.cans.disreas,c.cans.disref,c.cans.disoth)
- endselect 
-
+ endselect
+ 
  if errors[1] dp	
   Validate0 = 1
  else
@@ -2045,58 +2048,73 @@ function Validate0() is i
 end Validate0
 
 function Validate1() is i
+ last_type      is x
+ last_rloc      is x
+ last_aloc      is x
+ last_date      is d
+ last_alocdate  is d
  $clear(errors[])
-   if c.cans.type != "11"
-    if c.cans.ld.family !dp or c.cans.ld.livsit !dp or c.cans.ld.preday !dp or c.cans.ld.socFun !dp or c.cans.ld.recret !dp or c.cans.ld.develp !dp or c.cans.ld.motor !dp or c.cans.ld.commun !dp or c.cans.ld.medicl !dp or c.cans.ld.physcl !dp or
-       c.cans.ld.sleep !dp or c.cans.ld.relper !dp
-     (void)$arrpush(errors[],ld_errortxt)
-    endif  
+ if c.cans.type != "11"
+  if c.cans.ld.family !dp or c.cans.ld.livsit !dp or c.cans.ld.preday !dp or c.cans.ld.socFun !dp or c.cans.ld.recret !dp or c.cans.ld.develp !dp or c.cans.ld.motor !dp or c.cans.ld.commun !dp or c.cans.ld.medicl !dp or c.cans.ld.physcl !dp or
+     c.cans.ld.sleep !dp or c.cans.ld.relper !dp
+   (void)$arrpush(errors[],ld_errortxt)
+  endif  
 
-    if c.cans.cs.family !dp or c.cans.cs.extfam !dp or c.cans.cs.intper !dp or c.cans.cs.adapt !dp or c.cans.cs.persis !dp or c.cans.cs.curios !dp   
-     (void)$arrpush(errors[],cs_errortxt)
-    endif  
+  if c.cans.cs.family !dp or c.cans.cs.extfam !dp or c.cans.cs.intper !dp or c.cans.cs.adapt !dp or c.cans.cs.persis !dp or c.cans.cs.curios !dp   
+   (void)$arrpush(errors[],cs_errortxt)
+  endif  
 
-    if c.cans.ac.langua !dp or c.cans.ac.identy !dp or c.cans.ac.ritual !dp or c.cans.ac.culstr !dp or c.cans.ac.culdif !dp
-     (void)$arrpush(errors[],ac_errortxt)
-    endif  
+  if c.cans.ac.langua !dp or c.cans.ac.identy !dp or c.cans.ac.ritual !dp or c.cans.ac.culstr !dp or c.cans.ac.culdif !dp
+   (void)$arrpush(errors[],ac_errortxt)
+  endif  
 
-    if c.cans.cg.super  !dp or c.cans.cg.involv !dp or c.cans.cg.knoldg !dp or c.cans.cg.empath !dp or c.cans.cg.organz !dp or c.cans.cg.socres !dp or c.cans.cg.ressbl !dp or
-       c.cans.cg.physcl !dp or c.cans.cg.menhth !dp or c.cans.cg.subabs !dp or c.cans.cg.develp !dp or c.cans.cg.chldcr !dp or c.cans.cg.miltra !dp or c.cans.cg.famsts !dp or 
-       c.cans.cg.safety !dp or c.cans.cg.marvio !dp     
-     (void)$arrpush(errors[],cg_errortxt)
-    endif   
+  if c.cans.cg.super  !dp or c.cans.cg.involv !dp or c.cans.cg.knoldg !dp or c.cans.cg.empath !dp or c.cans.cg.organz !dp or c.cans.cg.socres !dp or c.cans.cg.ressbl !dp or
+     c.cans.cg.physcl !dp or c.cans.cg.menhth !dp or c.cans.cg.subabs !dp or c.cans.cg.develp !dp or c.cans.cg.chldcr !dp or c.cans.cg.miltra !dp or c.cans.cg.famsts !dp or 
+     c.cans.cg.safety !dp or c.cans.cg.marvio !dp     
+   (void)$arrpush(errors[],cg_errortxt)
+  endif   
    
-    if c.cans.cb.attach !dp or c.cans.cb.regula !dp or c.cans.cb.fthriv !dp or c.cans.cb.depres !dp or c.cans.cb.anxity !dp or c.cans.cb.atypic !dp or c.cans.cb.implsv !dp or c.cans.cb.oppdef !dp or c.cans.cb.adjtrm !dp
-     (void)$arrpush(errors[],cb_errortxt)
-    endif
-    
-    if c.cans.cf.birthw !dp or c.cans.cf.pica !dp or c.cans.cf.prenat !dp or c.cans.cf.labdel !dp or c.cans.cf.subexp !dp or c.cans.cf.psprob !dp or c.cans.cf.matava !dp or c.cans.cf.abuse !dp
-     (void)$arrpush(errors[],cf_errortxt)
-    endif
+  if c.cans.cb.attach !dp or c.cans.cb.regula !dp or c.cans.cb.fthriv !dp or c.cans.cb.depres !dp or c.cans.cb.anxity !dp or c.cans.cb.atypic !dp or c.cans.cb.implsv !dp or c.cans.cb.oppdef !dp or c.cans.cb.adjtrm !dp
+   (void)$arrpush(errors[],cb_errortxt)
+  endif
+   
+  if c.cans.cf.birthw !dp or c.cans.cf.pica !dp or c.cans.cf.prenat !dp or c.cans.cf.labdel !dp or c.cans.cf.subexp !dp or c.cans.cf.psprob !dp or c.cans.cf.matava !dp or c.cans.cf.abuse !dp
+   (void)$arrpush(errors[],cf_errortxt)
+  endif
+ endif
+   
+ if c.cans.cr.sfharm !dp or c.cans.cr.aggbeh !dp or c.cans.cr.socbeh !dp
+  (void)$arrpush(errors[],cr_errortxt)
+ endif   
+   
+ if c.cans.type = "2" and c.cans.cr.sfharm = "3"   
+  (void)$arrpush(errors[],crisis1_errortxt)
+ endif
+   
+ if c.cans.type = "11" 
+  if c.cans.cr.sfharm != "3"
+   (void)$arrpush(errors[],crisis2_errortxt)   
+  endif
+  if c.cans.cr.sfharm !dp
+   (void)$arrpush(errors[],cr_errortxt)
+  endif   
+ endif	
+
+ if errors[1] !dp
+  {"lib_CANS"}Last_Assessment($regid,,,,last_date,,last_aloc,last_rloc,,,last_alocdate)  
+  if last_type = "1" or last_type = "2"
+   c.cans.rloc = RLOC()
+   if c.cans.rloc = "110" and last_rloc = "110" and last_aloc != "110"
+    (void)$arrpush(errors[],inelig_errortxt)  
    endif
-   
-   if c.cans.cr.sfharm !dp or c.cans.cr.aggbeh !dp or c.cans.cr.socbeh !dp
-    (void)$arrpush(errors[],cr_errortxt)
-   endif   
-   
-   if c.cans.type = "2" and c.cans.cr.sfharm = "3"   
-    (void)$arrpush(errors[],crisis1_errortxt)
-   endif
-   
-   if c.cans.type = "11" 
-    if c.cans.cr.sfharm != "3"
-     (void)$arrpush(errors[],crisis2_errortxt)   
-    endif
-    if c.cans.cr.sfharm !dp
-     (void)$arrpush(errors[],cr_errortxt)
-    endif   
-   endif	
-  
-   if errors[1] dp	
-    Validate1 = 1
-   else
-    Validate1 = 0	
-   endif
+  endif
+ endif 			  
+ 
+ if errors[1] dp	
+  Validate1 = 1
+ else
+  Validate1 = 0	
+ endif
 end Validate1
 
 function Validate2() is i
