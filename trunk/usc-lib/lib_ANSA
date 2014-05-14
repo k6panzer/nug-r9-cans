@@ -1,5 +1,5 @@
 library lib_ANSA()
- %version 1.0.013 01/08/2014
+ %version 1.0.014 05/14/2014
  %define row_color2 "bgcolor='White'"
  %define col_color_multi "bgcolor='LightGrey'"
 on load do:
@@ -1216,11 +1216,19 @@ on load do:
   if DXType = "S" or DXType = "B" or (DXType = "D" and DXGaf <= 50)
 
 '4/115/ACT
-   if ($num(c.ansa.hs.num180) > 1 or c.ansa.hs.numl30 = "3" or $num(c.ansa.hs.numg30) > 0) or (c.ansa.cr.episds = "3" and (c.ansa.hs.num180 = "1" or c.ansa.hs.numl30 = "2"))
-    and (DXType = "S" or DXType = "B" or DXCat = "MDD - With Psychotic Features")
+  if $today >= 6/13/2014
+   if (DXType = "S" or DXType = "B" or DXCat = "MDD - With Psychotic Features")
+    if ($num(c.ansa.hs.num180) > 1 or c.ansa.hs.numl30 = "3" or $num(c.ansa.hs.numg30) > 0) or (c.ansa.cr.episds = "3" and (c.ansa.hs.num180 = "1" or c.ansa.hs.numl30 = "2"))   
+	 RLOC = act
+	 return
+    endif
+   endif 
+  else
+   if ($num(c.ansa.hs.num180) > 1 or c.ansa.hs.numl30 = "3" or $num(c.ansa.hs.numg30) > 0) or (c.ansa.cr.episds = "3" and (c.ansa.hs.num180 = "1" or c.ansa.hs.numl30 = "2"))   
     RLOC = act
-	return
-   endif
+    return
+   endif   
+  endif 
 
 '3/114/Intensive
    if $num(c.ansa.r.suicid) < 3 and $num(c.ansa.r.dangot) < 3 and 
