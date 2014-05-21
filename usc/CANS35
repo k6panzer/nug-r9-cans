@@ -1,5 +1,5 @@
 start CANS35(parmfile,option,client,retcode)
- %version 1.0.028 05/12/2014
+ %version 1.0.029 05/21/2014
  $looplimit = 0
  %include inc_CANS35
  e.ser     is b
@@ -2202,9 +2202,7 @@ function Validate4() is i
   (void)$arrpush(errors[],comm_errortxt) 
  endif
 
- if c.cans.restype = "9" and c.cans.resother1 !dp
-  (void)$arrpush(errors[],comm_ot_errortxt) 
- else
+ if c.cans.restype != "9"
   $clear(c.cans.resother1)
  endif
 
@@ -2457,7 +2455,7 @@ function Page4Rpt() is null
     $col("right")$text(q_text_arrest)
     $col()$text(c.cans.arrest)
    $row()
-    $col("right")$text(q_text_restype,"datatag")
+    $col("right")$text(q_text_restype)
     $col()$text(c_cans_restype)       
   if c.cans.resother1 dp
    $row()
