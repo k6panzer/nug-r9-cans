@@ -574,7 +574,7 @@ c.cans.sr.firear   is x      'CANS SR Accessible Firearm/Lethal Medication
 %define q_text_school3m "Has the child/youth attended school at any time in the last 3 months?: "
 %define q_text_arrest "Number of arrests last 30 days: "
 %define q_text_grade "Current grade level or highest grade level completed?: "
-%define q_text_restype "Primary Residence Type (Last 90 Days: "
+%define q_text_restype "Primary Residence Type (Last 90 Days): "
 %define q_text_resother1 "Primary Residence Other (Part 1): "
 %define q_text_resother2 "Primary Residence Other (Part 2): "
 %define q_text_emptype "Employment Type: "
