@@ -1,5 +1,5 @@
 library lib_ANSA()
- %version 1.0.014 05/14/2014
+ %version 1.0.015 06/10/2014
  %define row_color2 "bgcolor='White'"
  %define col_color_multi "bgcolor='LightGrey'"
 on load do:
@@ -1216,7 +1216,7 @@ on load do:
   if DXType = "S" or DXType = "B" or (DXType = "D" and DXGaf <= 50)
 
 '4/115/ACT
-  if $today >= 6/13/2014
+  if $today >= 6/12/2014
    if (DXType = "S" or DXType = "B" or DXCat = "MDD - With Psychotic Features")
     if ($num(c.ansa.hs.num180) > 1 or c.ansa.hs.numl30 = "3" or $num(c.ansa.hs.numg30) > 0) or (c.ansa.cr.episds = "3" and (c.ansa.hs.num180 = "1" or c.ansa.hs.numl30 = "2"))   
 	 RLOC = act
