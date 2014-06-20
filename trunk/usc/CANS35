@@ -1,5 +1,5 @@
 start CANS35(parmfile,option,client,retcode)
- %version 1.0.030 06/20/2014
+ %version 1.0.029 05/21/2014
  $looplimit = 0
  %include inc_CANS35
  e.ser     is b
@@ -3170,10 +3170,10 @@ function ValidateALOC() is i
   endif   
 
   if c.cans.aloc = "108" and (c.cans.type != "1" and c.cans.type != "12")
-  (void)$arrpush(errors[],aloc15_errortxt)
+  (void)$arrpush(errors[],aloc13_errortxt)
   endif
   if c.cans.aloc = "109" and c.cans.type != "1"
-  (void)$arrpush(errors[],aloc13_errortxt)
+  (void)$arrpush(errors[],aloc15_errortxt)
   endif
 
   if c.cans.aloc = "110" and (c.cans.type != "1" and c.cans.type != "12")
