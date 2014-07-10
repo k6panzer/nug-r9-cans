@@ -1,5 +1,5 @@
  start TRRAUTODISCH2(ansa_list[],ansa_dates[],cans617_list[],cans617_dates[],cans35_list[],cans35_dates[])
- %version 1.0.002 02/07/2014
+ %version 1.0.003 07/10/2014
  $looplimit = 0
  %include inc_ANSA_DST
  %include inc_CANS_DST
@@ -11,7 +11,7 @@
  cans35_list[]   is x
  cans35_dates[]  is d
  nag_list[]      is x
- nag_dates[]      is d
+ nag_dates[]     is d
  datediff        is i
  
  rc 		   is i
@@ -20,18 +20,22 @@
  ansa_logfile  is x
  cans_logfile  is x 
  
- additional_days is i
+ additional_adays is i
+ additional_cdays is i 
+ LapseDate        is d
 
  if $uc($seg($mscname,1,5)) = "HELEN"
   ansa_logfile = "/c0/EXPORT/LOGS/UABDCLOSED.log"
   cans_logfile = "/c0/EXPORT/LOGS/CABDCLOSED.log"
-  additional_days = 3
+'  additional_adays = 3
+  additional_adays = 20
+  additional_cdays = 20
  else
   ansa_logfile = "/c4/EXPORT/LOGS/UABDCLOSED.log"
   cans_logfile = "/c4/EXPORT/LOGS/CABDCLOSED.log" 
-  additional_days = 20
+  additional_adays = 20
+  additional_cdays = 20
  endif
- test is x
 
  if $maxarray(ansa_list[]) = 0 and $maxarray(cans617_list[]) = 0 and $maxarray(cans35_list[]) = 0
   rc = $dbstart(2,CID,"I")
@@ -41,32 +45,29 @@
   do while rc < 3
    if c.ansa.rec dp and c.ansa.compd dp and (c.ansa.type = "1" or c.ansa.type = "2") and (c.ansa.aloc != "120" and c.ansa.aloc != "108" and c.ansa.aloc != "109")and c.ansa.alocstaff != "MIGRATION"
 	datediff = 0
-    c.ansa.alocedate = c.ansa.alocedate + additional_days
-	if c.ansa.alocedate <= $today
+    LapseDate = c.ansa.alocedate + additional_adays
+	if LapseDate <= $today
 	 (void)$arrpush(ansa_list[],cid)
-     c.ansa.alocedate = c.ansa.alocedate - additional_days
 	 (void)$arrpush(ansa_dates[],c.ansa.alocedate)   
-	 $log(`$castx($today) + "|" + c.ansa.aloc + "|" + CID + "|" + "AUTOCLOSE ADULT"`,ansa_logfile)	
+	 $log(`$castx($today) + "|" + c.ansa.aloc + "|" + CID + "|AUTOCLOSE ADULT|" + LapseDate`,ansa_logfile)	
     else
-	 datediff = c.ansa.alocedate - $today
+	 datediff = LapseDate - $today
 	 if datediff = 21 or datediff = 14 or datediff = 7 or datediff < 6
 	  (void)$arrpush(nag_list[],cid)
       (void)$arrpush(nag_dates[],c.ansa.alocedate)   	 
 	 endif
 	endif
    endif
-   if c.cans.rec dp and c.cans.compd dp and (c.cans.type = "1" or c.cans.type = "2") and (c.cans.aloc != "120" and c.cans.aloc != "108" and c.cans.aloc != "109") and c.cans.alocstaff != "MIGRATION"
-    c.cans.alocedate = c.cans.alocedate + additional_days
+   if c.cans.rec dp and c.cans.compd dp and (c.cans.type = "1" or c.cans.type = "2") and (c.cans.aloc != "110" and c.cans.aloc != "108" and c.cans.aloc != "109") and c.cans.alocstaff != "MIGRATION" and c.cans.rec !dp
+    LapseDate = c.cans.alocedate + additional_cdays
 	datediff = 0
-	if c.cans.alocedate <= $today
-	 $log(`$castx($today) + "|" + c.cans.aloc + "|" + CID + "|" + "AUTOCLOSE CHILD"`,cans_logfile)
+	if LapseDate <= $today
+	 $log(`$castx($today) + "|" + c.cans.aloc + "|" + CID + "|AUTOCLOSE CHILD|" + LapseDate`,cans_logfile)
      if c.cans.canstype = "1"
 	  (void)$arrpush(cans617_list[],cid)
-	  c.cans.alocedate = c.cans.alocedate - additional_days
       (void)$arrpush(cans617_dates[],c.cans.alocedate)   
 	 else
 	  (void)$arrpush(cans35_list[],cid)
-	  c.cans.alocedate = c.cans.alocedate - additional_days
       (void)$arrpush(cans35_dates[],c.cans.alocedate)   	
 	 endif
     else
@@ -79,8 +80,9 @@
    elseif c.ansa.rec dp and c.cans.rec dp and c.ansa.compd dp and (c.cans.type = "1" or c.cans.type = "2")
 	(void)$arrpush(cans617_list[],cid)
     c.cans.alocedate = c.ansa.date - 2
+	LapseDate = c.ansa.alocedate
 	(void)$arrpush(cans617_dates[],c.cans.alocedate)      
-    $log(`$castx($today) + "|" + c.cans.aloc + "|" + CID + "|" + "AUTOCLOSE FOR ADULT INTAKE"`,cans_logfile)		
+    $log(`$castx($today) + "|" + c.cans.aloc + "|" + CID + "|AUTOCLOSE FOR ADULT INTAKE|" + LapseDate`,cans_logfile)		
    endif   
    rc = $dbreadnext(2,cid,ansa_dstlist)  
    rc = $dbread(2,cid,cans_dstlist1)
