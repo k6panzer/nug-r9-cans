@@ -1,5 +1,5 @@
 start CANS617(parmfile,option,client,retcode)
- %version 1.0.027 05/21/2014
+ %version 1.0.028 07/14/2014
  $looplimit = 0
  %include inc_CANS617
  e.ser     is b
@@ -683,6 +683,9 @@ function SaveData() is i
   if (c.cans.dloc = c.cans.rloc) and (c.cans.dloc = c.cans.aloc)
    $clear(c.cans.dloc)
   endif
+  if c.cans.dloc dp and c.cans.dloc = c.cans.rloc
+   $clear(c.cans.dloc)
+  endif  
   if c.cans.compd !dp and c.cans.aloc = "100"
    $clear(c.cans.aloc)
   endif 

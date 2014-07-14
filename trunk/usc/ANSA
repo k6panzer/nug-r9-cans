@@ -1,5 +1,5 @@
 Start ANSA(parmfile,option,client,retcode)
- %version 1.0.031 06/20/2014
+ %version 1.0.032 07/14/2014
  $looplimit = 0
  %include inc_ANSA
  e.ser     is b
@@ -2599,6 +2599,9 @@ function SaveData() is i
   if (c.ansa.dloc = c.ansa.rloc) and (c.ansa.dloc = c.ansa.aloc)
    $clear(c.ansa.dloc)
   endif
+  if c.ansa.dloc dp and c.ansa.dloc = c.ansa.rloc
+   $clear(c.ansa.dloc)
+  endif  
   if c.ansa.compd !dp and c.ansa.aloc = "100"
    $clear(c.ansa.aloc)
   endif
