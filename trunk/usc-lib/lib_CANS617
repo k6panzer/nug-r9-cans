@@ -1,5 +1,5 @@
 library lib_CANS617()
- %version 1.0.010 02/04/2014
+ %version 1.0.011 07/16/2014
  %define row_color2 "bgcolor='White'"
  %define col_color_multi "bgcolor='LightGrey'"
  
@@ -1958,6 +1958,14 @@ function RLOC(c.cans.ac.sexgen,c.cans.ad.affreg,c.cans.ad.dissoc,c.cans.ad.intru
    return
   endif
 
+'Medication Management
+  if $num(c.cans.ld.develp) > 0
+   if $num(c.cans.dv.cognit) > 1 or $num(c.cans.dv.develp) > 1
+    RLOC = med_management 
+    return	
+   endif
+  endif 
+
  'MedicationManagement or TargetedServices
   if $num(c.cans.cr.bully) < 2 and c.cans.cr.bully dp
    if 
@@ -1979,15 +1987,6 @@ function RLOC(c.cans.ac.sexgen,c.cans.ad.affreg,c.cans.ad.dissoc,c.cans.ad.intru
     return	
    endif 
   endif
-
-'Medication Management
-'This one will more than likely be moved to the bottom
-  if $num(c.cans.ld.develp) > 0
-   if $num(c.cans.dv.cognit) > 1 or $num(c.cans.dv.develp) > 1
-    RLOC = med_management 
-    return	
-   endif
-  endif 
 
 'Unasigned Target and Priority
 'From the Level of Care Sorting, Use Case file, release 1
