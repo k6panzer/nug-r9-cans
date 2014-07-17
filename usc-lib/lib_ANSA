@@ -1,5 +1,5 @@
 library lib_ANSA()
- %version 1.0.015 06/10/2014
+ %version 1.0.016 07/17/2014
  %define row_color2 "bgcolor='White'"
  %define col_color_multi "bgcolor='LightGrey'"
 on load do:
@@ -1513,9 +1513,13 @@ on load do:
  end HistoryTest
  
  function Current1M() is i
-  c.ansa.rec  is h
-  c.ansa.aloc is x
-  (void)$dbread(2,$regid,c.ansa.rec,c.ansa.aloc)
+  c.ansa.rec   is h
+  c.ansa.aloc  is x
+  c.ansa.compd is d
+  (void)$dbread(2,$regid,c.ansa.rec,c.ansa.aloc,c.ansa.compd)
+  if c.ansa.compd !dp
+   (void)$dbreadnextdst(2,$regid,c.ansa.rec,c.ansa.aloc)  
+  endif 
   if c.ansa.aloc = "111"
    Current1M = 0
   else
