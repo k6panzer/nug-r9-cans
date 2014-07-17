@@ -1,5 +1,5 @@
 library lib_CANS617()
- %version 1.0.011 07/16/2014
+ %version 1.0.012 07/17/2014
  %define row_color2 "bgcolor='White'"
  %define col_color_multi "bgcolor='LightGrey'"
  
@@ -1851,13 +1851,13 @@ function RLOC(c.cans.ac.sexgen,c.cans.ad.affreg,c.cans.ad.dissoc,c.cans.ad.intru
   endif
 
   if $num(c.cans.cb.oppdef) > 1 and
-   ($num(c.cans.cr.sexagr) > 1 or $num(c.cans.cr.runawy) > 1 or $num(c.cans.cr.bully) > 1  or $num(c.cans.ld.sexdev) > 1 or ($num(c.cans.cr.firset) > 0 or $num(c.cans.fs.inthrm) > 1))
+   ($num(c.cans.cr.sexagr) > 1 or $num(c.cans.cr.runawy) > 1 or $num(c.cans.cr.bully) > 1  or $num(c.cans.ld.sexdev) > 1 or ($num(c.cans.cr.firset) > 0 and $num(c.cans.fs.inthrm) > 1))
    RLOC = complex
    return
   endif
 
   if $num(c.cans.cb.condct) > 1 and
-   ($num(c.cans.cr.sexagr) > 1 or $num(c.cans.cr.runawy) > 1 or $num(c.cans.cr.bully) > 1  or $num(c.cans.ld.sexdev) > 1 or ($num(c.cans.cr.firset) > 0 or $num(c.cans.fs.inthrm) > 1))
+   ($num(c.cans.cr.sexagr) > 1 or $num(c.cans.cr.runawy) > 1 or $num(c.cans.cr.bully) > 1  or $num(c.cans.ld.sexdev) > 1 or ($num(c.cans.cr.firset) > 0 and $num(c.cans.fs.inthrm) > 1))
    RLOC = complex
    return
   endif
