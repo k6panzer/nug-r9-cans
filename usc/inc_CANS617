@@ -660,6 +660,8 @@ errors[] is x       'array for capturing errors by section
 %define commdt1_errortxt "The Community Scales Date is required"
 %define commdt2_errortxt "The Community Scales Date cannot be before the Assessment Date"
 %define commdt3_errortxt "The Community Scales Date cannot be after the Authorization Date"
+%define commdt4_errortxt "This document cannot be saved because the Community Data Date must be within 30 days before or after the ANSA Assessment Date in the ANSA tab."
+%define commarr_errortxt "Please enter a numeric value for the number of arrests in the last 30 days."
 %define comm_errortxt "All items in the Community Scales are Required"
 %define comm_ot_errortxt "If Residence type is Other then the Other Description item is required"
 %define oth_ed_errortxt "Special Education must be marked Yes or No"
