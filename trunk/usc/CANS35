@@ -1,5 +1,5 @@
 start CANS35(parmfile,option,client,retcode)
- %version 1.0.030 07/14/2014
+ %version 1.0.031 07/18/2014
  $looplimit = 0
  %include inc_CANS35
  e.ser     is b
@@ -2192,6 +2192,7 @@ function Validate3() is i
 end Validate3
 
 function Validate4() is i
+ datediff is i
  $clear(errors[])
  if c.cans.commdate !dp
   (void)$arrpush(errors[],commdt1_errortxt)
@@ -2208,7 +2209,16 @@ function Validate4() is i
  if c.cans.restype != "9"
   $clear(c.cans.resother1)
  endif
+ 
+ if {"lib_UACOMMON"}IsNumeric(c.cans.arrest) = "N"
+  (void)$arrpush(errors[],commarr_errortxt)
+ endif 
 
+ datediff = c.cans.commdate - c.cans.date
+ if datediff > 30 or datediff < -30
+  (void)$arrpush(errors[],commdt4_errortxt)
+ endif
+ 
  if errors[1] dp	
   Validate4 = 1
  else

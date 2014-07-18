@@ -1,5 +1,5 @@
 Start ANSA(parmfile,option,client,retcode)
- %version 1.0.032 07/14/2014
+ %version 1.0.033 07/18/2014
  $looplimit = 0
  %include inc_ANSA
  e.ser     is b
@@ -2333,6 +2333,10 @@ function Validate4() is i
 
  if c.ansa.restype != "9"
   $clear(c.ansa.resother1)
+ endif
+ 
+ if {"lib_UACOMMON"}IsNumeric(c.ansa.arrest) = "N"
+  (void)$arrpush(errors[],commarr_errortxt)  
  endif
 
  datediff = c.ansa.commdate - c.ansa.date

@@ -1,5 +1,5 @@
 library lib_UACOMMON()
- %version 1.0.007 01/08/2014
+ %version 1.0.009 02/12/2014
 on load do:
  %include inc_DX_ANSA
 
@@ -51,6 +51,7 @@ end UMSTAFF
 function MISStaff(staff[]) is x
  staff[] is x
  s.ru    is b
+ s.type  is x
  MIS_ru  is b
  $clear(staff[])
  select $custnumber
@@ -67,8 +68,8 @@ function MISStaff(staff[]) is x
 			             (void)$arrpush(staff[],"001639")  'John Edwards
            endselect
   endselect
- (void)$dbread(3,$operstaffid,s.ru)
- if s.ru = MIS_ru and MIS_RU dp
+ (void)$dbread(3,$operstaffid,s.ru,s.type)
+ if s.ru = MIS_ru and MIS_RU dp and s.type = "AS"
   (void)$arrinsert(staff[],$operstaffid)
   MISStaff = "Y"
  elseif $find($operstaffid, staff[],1,"F") > 0
@@ -219,12 +220,12 @@ function AddUMMonitor(CID[],scriptid) is null
   get_list = $getlist(current_list[],2,list_name,entries,list_desc)
   if get_list = 1
    list_desc = "Pending: " + scriptid
-   create_list = $putlist(cid[],2,list_name,list_desc,"C","UM")			   
+   create_list = $putlist(cid[],2,list_name,list_desc,"C",,"UM")			   
   else
    index = 0
    do while index++ < $maxarray(cid[])
     if $find(cid[index],current_list[],,"F") = 0
-     add_to_list = $putlist(cid[],2,list_name,list_desc,"A","UM")			   
+     add_to_list = $putlist(cid[],2,list_name,list_desc,"A",,"UM")			   
     endif
    enddo
   endif
@@ -274,7 +275,7 @@ function RemUMMonitor(CID[],scriptid) is null
 	 (void)$arrremove(current_list[remove_index])
 	endif
    enddo
-   replace_list = $putlist(current_list[],2,list_name,list_desc,"R","UM")   
+   replace_list = $putlist(current_list[],2,list_name,list_desc,"R",,"UM")   
   endif
   sort_list = $sortlist(2,list_name,"I",,"Y")
  endif
@@ -317,12 +318,12 @@ function AddBATCH(CID[],scriptid) is null
   get_list = $getlist(current_list[],2,list_name,entries,list_desc)
   if get_list = 1
    list_desc = "Pending: " + scriptid
-   create_list = $putlist(cid[],2,list_name,list_desc,"C","UM")			   
+   create_list = $putlist(cid[],2,list_name,list_desc,"C",,"UM")			   
   else
    index = 0
    do while index++ < $maxarray(cid[])
     if $find(cid[index],current_list[],,"F") = 0
-     add_to_list = $putlist(cid[index],2,list_name,list_desc,"A","UM")			   
+     add_to_list = $putlist(cid[index],2,list_name,list_desc,"A",,"UM")			   
     endif
    enddo
   endif
@@ -372,7 +373,7 @@ function RemBatch(CID[],scriptid) is null
 	 (void)$arrremove(current_list[remove_index])
 	endif
    enddo
-   replace_list = $putlist(current_list[],2,list_name,list_desc,"R","UM")   
+   replace_list = $putlist(current_list[],2,list_name,list_desc,"R",,"UM")   
   endif
   sort_list = $sortlist(2,list_name,"I",,"Y")
  endif
@@ -397,12 +398,12 @@ function UpdateSavedList(cid[],list_name,action) is null
   get_list = $getlist(current_list[],2,list_name,entries,list_desc)
   if get_list = 1
    list_desc = "Pending: " + list_name
-   create_list = $putlist(cid[],2,list_name,list_desc,"C","UM")			   
+   create_list = $putlist(cid[],2,list_name,list_desc,"C",,"UM")			   
   else
    index = 0
    do while index++ < $maxarray(cid[])
     if $find(cid[index],current_list[],,"F") = 0
-     add_to_list = $putlist(cid[index],2,list_name,list_desc,"A","UM")			   
+     add_to_list = $putlist(cid[index],2,list_name,list_desc,"A",,"UM")			   
     endif
    enddo
   endif
@@ -417,7 +418,7 @@ function UpdateSavedList(cid[],list_name,action) is null
      (void)$arrremove(current_list[remove_index])
     endif
    enddo
-   replace_list = $putlist(current_list[],2,list_name,list_desc,"R","UM")   
+   replace_list = $putlist(current_list[],2,list_name,list_desc,"R",,"UM")   
   endif
   sort_list = $sortlist(2,list_name,"I",,"Y")
  endif  
@@ -579,32 +580,13 @@ dynamic function ClientLastUA(Client,date, ua_date, ua_type, ua_locr, ua_loca, u
     ua_date = c.ansa.date
     ua_type = c.ansa.type
     ua_due  = c.ansa.alocedate
-    ua_locr = $dct(9712,c.ansa.rloc,"1")
-	if ua_locr !dp
-     ua_locr = $dct(9712,c.ansa.rloc,"2")	
-	endif
-	if ua_locr !dp
-     ua_locr = $dct(9712,c.ansa.rloc,"3")	
-	endif	
-	if ua_locr !dp
-     ua_locr = c.ansa.rloc
-	endif			
-    ua_loca = $dct(9712,c.ansa.aloc,"1")
-	if ua_loca !dp
-     ua_loca = $dct(9712,c.ansa.aloc,"2")	
-	endif
-	if ua_loca !dp
-     ua_loca = $dct(9712,c.ansa.aloc,"3")	
-	endif	
-	if ua_loca !dp
-     ua_loca = c.ansa.aloc
-	endif
+    ua_locr = c.ansa.rloc
+    ua_loca = c.ansa.aloc
     loca = c.ansa.aloc
 	loca_desc = $dct(9712,c.ansa.aloc,"D")
-	trr_loca = $dct(9712,c.ansa.aloc,"2")
-	 
+	trr_loca = c.ansa.aloc	 
     ua_rdmtrr = "T"
-    if ua_loca = "1S" or ua_loca = "2" or ua_loca = "3" or ua_loca = "4" or ua_loca = "5"
+    if trr_loca = "111" or trr_loca = "113" or trr_loca = "106"
 	 a_add_stg = "Y"
      a_add_sti = "Y"
      a_add_se = "Y"
@@ -664,30 +646,13 @@ dynamic function ClientLastUA(Client,date, ua_date, ua_type, ua_locr, ua_loca, u
     ua_type = c.cans.type
     ua_due  = c.cans.alocedate
     ua_locr = $dct(9705,c.cans.rloc,"1")
-	if ua_locr !dp
-     ua_locr = $dct(9705,c.cans.rloc,"2")	
-	endif
-	if ua_locr !dp
-     ua_locr = $dct(9705,c.cans.rloc,"3")	
-	endif	
-	if ua_locr !dp
-     ua_locr = c.cans.rloc
-	endif			
-    ua_loca = $dct(9705,c.cans.aloc,"1")
-	if ua_loca !dp
-     ua_loca = $dct(9705,c.cans.aloc,"2")	
-	endif
-	if ua_loca !dp
-     ua_loca = $dct(9705,c.cans.aloc,"3")	
-	endif	
-	if ua_loca !dp
-     ua_loca = c.cans.aloc
-	endif
+	ua_locr = c.cans.rloc
+    ua_loca = c.cans.aloc
     loca = c.cans.aloc
 	loca_desc = $dct(9705,c.cans.aloc,"D")
-	trr_loca = $dct(9705,c.cans.aloc,"2")		
+	trr_loca = c.cans.aloc
     ua_rdmtrr = "T"
-	if ua_loca = "2" or ua_loca = "3" or ua_loca = "4" or ua_loca = "YC" or ua_loca = "5" or ua_loca = "2.1" or ua_loca = "2.2"
+	if ua_loca = "102" or ua_loca = "103" or ua_loca = "104" or ua_loca = "YC" or ua_loca = "106"
      c_addfca = "Y"
      c_addgca = "Y"
 	endif    
@@ -727,3 +692,43 @@ dynamic function ClientLastUA(Client,date, ua_date, ua_type, ua_locr, ua_loca, u
   endif
  endif
 end ClientLastUA
+
+function isNumeric(s,IgnoreDash) is x
+ s          is x
+ i          is i
+ x          is x
+ IgnoreDash is x
+ s = $trim(s)
+ if s !dp
+  isNumeric = "N"
+  return
+ endif
+ x = $tran(s," ()-+.0123456789","")
+ if x dp
+  isNumeric = "N"
+  return
+ endif
+ i = $find(".",s)
+ if i > 0
+  i = $find(".",s,++i)
+  if i > 0
+   isNumeric = "N"
+   return
+  endif
+ endif
+ if IgnoreDash !dp or $uc(IgnoreDash) = "N"
+  i = $find("-",s)
+  if i > 0
+   if i != 1
+    isNumeric = "N"
+    return
+   endif
+   i = $find("-",s,++i)
+   if i > 0
+    isNumeric = "N"
+    return
+   endif
+  endif
+ endif
+ isNumeric = "Y"
+end isNumeric
