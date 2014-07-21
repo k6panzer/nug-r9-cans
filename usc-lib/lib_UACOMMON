@@ -1,5 +1,6 @@
+'RLE 20140721 .010 UMSTAFF() - GCC uses DCT 190
 library lib_UACOMMON()
- %version 1.0.009 02/12/2014
+ %version 1.0.010 07/21/14
 on load do:
  %include inc_DX_ANSA
 
