@@ -80,7 +80,11 @@ endif
 
 (void)$setdcvact(CansIntRefDCT,"5","I")
 (void)$setdcvact(CansDisReasDCT,"7","I")
-(void)$setdcvact(CansDisRefDCT,"5","I")
+
+if $custnumber != 641 then
+   (void)$setdcvact(CansDisRefDCT,"5","I")
+endif
+
 (void)$setdcvact(CansResTypeDCT,"9","I")
 
 '*********Medical Necessity Statement Related***********
