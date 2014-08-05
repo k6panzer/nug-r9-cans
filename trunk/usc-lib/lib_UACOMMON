@@ -1,11 +1,20 @@
 'RLE 20140721 .010 UMSTAFF() - GCC uses DCT 190
+'RLE 20140721 .011
+'  - actually make the DCT change
+'  + GCC: add logic in StaffCanDo to ignore
+
 library lib_UACOMMON()
- %version 1.0.010 07/21/14
+ %version 1.0.011 07/21/14
+
 on load do:
  %include inc_DX_ANSA
 
 function StaffCanDo() is i
  s.trr.certified is x
+ select $custnumber
+   case 641 StaffCanDo = 0, return
+ endselect
+
  (void)$dbread(3,$operstaffid,s.trr.certified)
  if s.trr.certified = "Y" or MISStaff() = "Y" or UMStaff() = "Y"
   StaffCanDo = 0
@@ -40,7 +49,7 @@ function UMSTAFF(staff[]) is x
                          (void)$arrpush(staff[],"001705") 'Britni Warren
 			             (void)$dctloada(8998,code[], desc[], act-code[], a1[], a2[], a3[])
            endselect
-  case 641 (void)$dctloada(110,code[], desc[], act-code[], a1[], a2[], a3[])  
+  case 641 (void)$dctloada(190,code[], desc[], act-code[], a1[], a2[], a3[])  
  endselect 
  if ($find($operstaffid, staff[],1,"F") > 0) or ($find($operstaffid, code[],1,"F") > 0)
   UMSTAFF = "Y"
@@ -68,6 +77,10 @@ function MISStaff(staff[]) is x
                          (void)$arrpush(staff[],"3956")  'Chris Ashley
 			             (void)$arrpush(staff[],"001639")  'John Edwards
            endselect
+   case 641
+      MIS_ru = 940
+      (void)$arrPush(staff[],"1721")   'R
+      (void)$arrPush(staff[],"003")    'P
   endselect
  (void)$dbread(3,$operstaffid,s.ru,s.type)
  if s.ru = MIS_ru and MIS_RU dp and s.type = "AS"
