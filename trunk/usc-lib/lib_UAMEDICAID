@@ -18,6 +18,19 @@ library lib_UAMEDICAID()
               (void)$arrpush(medicaid_fs[],210)  			  
  endselect			 
 
+'GULF Coast
+if $custnumber = 641 then
+   'MEDICAID 1011-1051
+   '2001 or 2006 or 2998 2999 or 2011
+   i is i
+   i = 1011
+   do while i < 2012
+      (void)$arrPush(medicaid_fs[],i++)
+   enddo
+   (void)$arrPush(medicaid_fs[],2998)
+   (void)$arrPush(medicaid_fs[],2999)
+endif
+
 'This function will check the client eligibility record to see if the person has Medicaid.
 'Each center will need to edit the function to reflect their own FS ID's for Medicaid.
 function check_medicaid(client, result, number) is x
