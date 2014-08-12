@@ -1,5 +1,5 @@
  start TRRAUTODISCH2(ansa_list[],ansa_dates[],cans617_list[],cans617_dates[],cans35_list[],cans35_dates[])
- %version 1.0.003 07/10/2014
+ %version 1.0.004 08/12/2014
  $looplimit = 0
  %include inc_ANSA_DST
  %include inc_CANS_DST
@@ -23,6 +23,9 @@
  additional_adays is i
  additional_cdays is i 
  LapseDate        is d
+ 
+ c.bd          is d
+ eighteenth_bd is d
 
  if $uc($seg($mscname,1,5)) = "HELEN"
   ansa_logfile = "/c0/EXPORT/LOGS/UABDCLOSED.log"
@@ -39,6 +42,8 @@
 
  if $maxarray(ansa_list[]) = 0 and $maxarray(cans617_list[]) = 0 and $maxarray(cans35_list[]) = 0
   rc = $dbstart(2,CID,"I")
+  rc = $dbread(2,cid,c.bd)
+  eighteenth_bd = $dateoffset(c.bd,,,18)
   rc = $dbread(2,cid,ansa_dstlist)
   rc = $dbread(2,cid,cans_dstlist1)
   rc = $dbread(2,cid,cans_dstlist2)  
@@ -60,8 +65,11 @@
    endif
    if c.cans.rec dp and c.cans.compd dp and (c.cans.type = "1" or c.cans.type = "2") and (c.cans.aloc != "110" and c.cans.aloc != "108" and c.cans.aloc != "109") and c.cans.alocstaff != "MIGRATION" and c.cans.rec !dp
     LapseDate = c.cans.alocedate + additional_cdays
+	if eighteenth_bd <= $today
+	 LapseDate = eighteenth_bd
+	endif 
 	datediff = 0
-	if LapseDate <= $today
+	if LapseDate <= $today 
 	 $log(`$castx($today) + "|" + c.cans.aloc + "|" + CID + "|AUTOCLOSE CHILD|" + LapseDate`,cans_logfile)
      if c.cans.canstype = "1"
 	  (void)$arrpush(cans617_list[],cid)
@@ -70,7 +78,7 @@
 	  (void)$arrpush(cans35_list[],cid)
       (void)$arrpush(cans35_dates[],c.cans.alocedate)   	
 	 endif
-    else
+	else
 	 datediff = c.cans.alocedate - $today
 	 if datediff = 21 or datediff = 14 or datediff = 7 or datediff < 6
 	  (void)$arrpush(nag_list[],cid)
