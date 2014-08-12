@@ -43,7 +43,6 @@
  if $maxarray(ansa_list[]) = 0 and $maxarray(cans617_list[]) = 0 and $maxarray(cans35_list[]) = 0
   rc = $dbstart(2,CID,"I")
   rc = $dbread(2,cid,c.bd)
-  eighteenth_bd = $dateoffset(c.bd,,,18)
   rc = $dbread(2,cid,ansa_dstlist)
   rc = $dbread(2,cid,cans_dstlist1)
   rc = $dbread(2,cid,cans_dstlist2)  
@@ -65,6 +64,7 @@
    endif
    if c.cans.rec dp and c.cans.compd dp and (c.cans.type = "1" or c.cans.type = "2") and (c.cans.aloc != "110" and c.cans.aloc != "108" and c.cans.aloc != "109") and c.cans.alocstaff != "MIGRATION" and c.cans.rec !dp
     LapseDate = c.cans.alocedate + additional_cdays
+	eighteenth_bd = $dateoffset(c.bd,,,18)
 	if eighteenth_bd <= $today
 	 LapseDate = eighteenth_bd
 	endif 
@@ -95,6 +95,7 @@
    rc = $dbreadnext(2,cid,ansa_dstlist)  
    rc = $dbread(2,cid,cans_dstlist1)
    rc = $dbread(2,cid,cans_dstlist2)   
+   rc = $dbread(2,cid,c.bd)
   enddo
  endif 
  
