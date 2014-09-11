@@ -1,5 +1,5 @@
 Start ANSA(parmfile,option,client,retcode)
- %version 1.0.033 07/18/2014
+ %version 1.0.034 09/21/2014
  $looplimit = 0
  %include inc_ANSA
  e.ser     is b
@@ -2077,6 +2077,12 @@ function Validate() is i
  elseif c.ansa.age = 0
   (void)$arrpush(errors[],age1_errortxt)
  endif
+
+ if errors[1] dp
+   Validate = 1
+  else
+   Validate = 0
+  endif 
 end Validate
 
 function Validate1() is i
