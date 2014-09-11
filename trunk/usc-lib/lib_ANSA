@@ -1,5 +1,5 @@
 library lib_ANSA()
- %version 1.0.017 09/10/2014
+ %version 1.0.018 09/11/2014
  %define row_color2 "bgcolor='White'"
  %define col_color_multi "bgcolor='LightGrey'"
 on load do:
@@ -1275,9 +1275,11 @@ on load do:
     if DXType = "D"
 	 if $num(c.ansa.qids) < 11
 	  if $today >= 9/1/2014
-	   if HistoryTest() = 0
-	    RLOC = basic_MedManage
-	    return
+	   if c.ansa.type = "2"
+	    if HistoryTest() = 0
+	     RLOC = basic_MedManage
+	     return
+	    endif
 	   endif
 	  else
 	   if Current1M() = 0
@@ -1288,9 +1290,11 @@ on load do:
 	 endif
 	elseif DXType = "S" or DXType = "B"
 	 if $today >= 9/1/2014
-	  if HistoryTest() = 0
-	   RLOC = basic_MedManage
-	   return
+	  if c.ansa.type = "2"
+	   if HistoryTest() = 0
+	    RLOC = basic_MedManage
+	    return
+	   endif
 	  endif
 	 else
 	  if Current1M() = 0
