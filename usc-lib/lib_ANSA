@@ -1,5 +1,5 @@
 library lib_ANSA()
- %version 1.0.018 09/11/2014
+ %version 1.0.019 09/16/2014
  %define row_color2 "bgcolor='White'"
  %define col_color_multi "bgcolor='LightGrey'"
 on load do:
@@ -1521,6 +1521,9 @@ on load do:
 	assessment_age = $today - c.ansa.date
    endif	
   enddo 
+  if HistoryTest = 0 and assessment_age < 365
+   HistoryTest = 1
+  endif
  end HistoryTest
  
  function Current1M() is i
