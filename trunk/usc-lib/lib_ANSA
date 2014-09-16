@@ -1,5 +1,5 @@
 library lib_ANSA()
- %version 1.0.019 09/16/2014
+ %version 1.0.020 09/16/2014
  %define row_color2 "bgcolor='White'"
  %define col_color_multi "bgcolor='LightGrey'"
 on load do:
@@ -1440,6 +1440,7 @@ on load do:
    assessment_age = $today - c.ansa.date
   else
    assessment_age = 366
+   HistoryTest = 1
   endif 
   do while rc < 2 and assessment_age < 365 and HistoryTest = 0
    if $num(c.ansa.r.suicid) > 1 or $num(c.ansa.r.dangot) > 1 or $num(c.ansa.r.smutil) > 1 or $num(c.ansa.r.oslfhr)  > 1 or $num(c.ansa.r.exploit) > 1 or $num(c.ansa.r.gamble) > 1 or $num(c.ansa.r.sexagr) > 1 or $num(c.ansa.r.crimbe) > 1
