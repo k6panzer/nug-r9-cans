@@ -1,5 +1,5 @@
- start TRRAUTODISCH2(ansa_list[],ansa_dates[],cans617_list[],cans617_dates[],cans35_list[],cans35_dates[])
- %version 1.0.004 08/12/2014
+start TRRAUTODISCH2(ansa_list[],ansa_dates[],cans617_list[],cans617_dates[],cans35_list[],cans35_dates[])
+ %version 1.0.006 09/23/2014
  $looplimit = 0
  %include inc_ANSA_DST
  %include inc_CANS_DST
@@ -52,7 +52,7 @@
     LapseDate = c.ansa.alocedate + additional_adays
 	if LapseDate <= $today
 	 (void)$arrpush(ansa_list[],cid)
-	 (void)$arrpush(ansa_dates[],c.ansa.alocedate)   
+	 (void)$arrpush(ansa_dates[],LapseDate)   
 	 $log(`$castx($today) + "|" + c.ansa.aloc + "|" + CID + "|AUTOCLOSE ADULT|" + LapseDate`,ansa_logfile)	
     else
 	 datediff = LapseDate - $today
@@ -62,7 +62,7 @@
 	 endif
 	endif
    endif
-   if c.cans.rec dp and c.cans.compd dp and (c.cans.type = "1" or c.cans.type = "2") and (c.cans.aloc != "110" and c.cans.aloc != "108" and c.cans.aloc != "109") and c.cans.alocstaff != "MIGRATION" and c.cans.rec !dp
+   if c.cans.rec dp and c.cans.compd dp and (c.cans.type = "1" or c.cans.type = "2") and (c.cans.aloc != "110" and c.cans.aloc != "108" and c.cans.aloc != "109") and c.cans.alocstaff != "MIGRATION" and c.ansa.rec !dp
     LapseDate = c.cans.alocedate + additional_cdays
 	eighteenth_bd = $dateoffset(c.bd,,,18)
 	if eighteenth_bd <= $today
@@ -73,10 +73,10 @@
 	 $log(`$castx($today) + "|" + c.cans.aloc + "|" + CID + "|AUTOCLOSE CHILD|" + LapseDate`,cans_logfile)
      if c.cans.canstype = "1"
 	  (void)$arrpush(cans617_list[],cid)
-      (void)$arrpush(cans617_dates[],c.cans.alocedate)   
+      (void)$arrpush(cans617_dates[],LapseDate)   
 	 else
 	  (void)$arrpush(cans35_list[],cid)
-      (void)$arrpush(cans35_dates[],c.cans.alocedate)   	
+      (void)$arrpush(cans35_dates[],Lapsedate)   	
 	 endif
 	else
 	 datediff = c.cans.alocedate - $today
@@ -87,9 +87,8 @@
 	endif  
    elseif c.ansa.rec dp and c.cans.rec dp and c.ansa.compd dp and (c.cans.type = "1" or c.cans.type = "2")
 	(void)$arrpush(cans617_list[],cid)
-    c.cans.alocedate = c.ansa.date - 2
-	LapseDate = c.ansa.alocedate
-	(void)$arrpush(cans617_dates[],c.cans.alocedate)      
+	LapseDate = c.ansa.date - 2
+	(void)$arrpush(cans617_dates[],LapseDate)      
     $log(`$castx($today) + "|" + c.cans.aloc + "|" + CID + "|AUTOCLOSE FOR ADULT INTAKE|" + LapseDate`,cans_logfile)		
    endif   
    rc = $dbreadnext(2,cid,ansa_dstlist)  
