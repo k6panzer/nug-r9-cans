@@ -1,5 +1,5 @@
 library lib_ANSA()
- %version 1.0.022 10/06/2014
+ %version 1.0.023 10/07/2014
  %define row_color2 "bgcolor='White'"
  %define col_color_multi "bgcolor='LightGrey'"
 on load do:
@@ -1526,6 +1526,82 @@ on load do:
   enddo 
   if HistoryTest = 0 and assessment_age < 365
    HistoryTest = 1
+  endif
+  if HistoryTest = 0 and assessment_age > 365
+   if $num(c.ansa.r.suicid) > 1 or $num(c.ansa.r.dangot) > 1 or $num(c.ansa.r.smutil) > 1 or $num(c.ansa.r.oslfhr)  > 1 or $num(c.ansa.r.exploit) > 1 or $num(c.ansa.r.gamble) > 1 or $num(c.ansa.r.sexagr) > 1 or $num(c.ansa.r.crimbe) > 1
+    HistoryTest = 1
+   endif
+   if HistoryTest = 0
+    if $num(c.ansa.r.suicid) = 1 and ($num(c.ansa.sr.idea) > 1 or $num(c.ansa.sr.intent) > 1 or $num(c.ansa.sr.plan) > 1 or $num(c.ansa.sr.hist) > 1 or $num(c.ansa.sr.ffsui ) > 1)
+	 HistoryTest = 1
+	endif
+   endif   	
+   if HistoryTest = 0
+    if $num(c.ansa.r.dangot) = 1 and 
+	($num(c.ansa.d.frusman) > 1 or $num(c.ansa.d.host) > 1 or $num(c.ansa.d.pthink) > 1 or $num(c.ansa.d.gainang) > 1 or $num(c.ansa.d.vthink) > 1 or $num(c.ansa.d.potent) > 1 or $num(c.ansa.d.respon) > 1 or $num(c.ansa.d.csctrl) > 1 or 
+	$num(c.ansa.d.tinv) > 1)	
+	 HistoryTest = 1
+	endif
+   endif
+   if HistoryTest = 0
+    if $num(c.ansa.b.psychs) > 1 or $num(c.ansa.b.cog) > 1 or $num(c.ansa.b.depres) > 1 or $num(c.ansa.b.anxity) > 1 or $num(c.ansa.b.mania) > 1 or
+    $num(c.ansa.b.implsv) > 1 or $num(c.ansa.b.inter) > 1 or $num(c.ansa.b.antisoc) > 1 or $num(c.ansa.b.adjtrm) > 1 or $num(c.ansa.b.angctr) > 1 or $num(c.ansa.b.subabs) > 1 or $num(c.ansa.b.eatdst) > 1
+     HistoryTest = 1
+    endif
+   endif
+   if HistoryTest = 0
+    if $num(c.ansa.ld.phymed) > 1 or $num(c.ansa.ld.family) > 1 or ($num(c.ansa.ld.employ) > 1 and $num(c.ansa.ld.employ) < 9)or $num(c.ansa.ld.socfun) > 1 or $num(c.ansa.ld.recret) > 1 or $num(c.ansa.ld.indliv) > 1 or $num(c.ansa.ld.sexdev) > 1 or 
+	$num(c.ansa.ld.living) > 1 or $num(c.ansa.ld.restab) > 1 or $num(c.ansa.ld.legal) > 1 or $num(c.ansa.ld.sleep) > 1 or $num(c.ansa.ld.slfcre) > 1 or $num(c.ansa.ld.decisi) > 1 or $num(c.ansa.ld.invrec) > 1 or $num(c.ansa.ld.trans ) > 1
+     HistoryTest = 1
+    endif  
+   endif
+   if HistoryTest = 0
+    if $num(c.ansa.ld.employ) = 1 and ($num(c.ansa.vc.career) > 1 or $num(c.ansa.vc.jtime) > 1 or 
+	($num(c.ansa.vc.jatt) > 1 and $num(c.ansa.vc.jatt) < 9) or ($num(c.ansa.vc.jper) > 1 and $num(c.ansa.vc.jper) < 9) or ($num(c.ansa.vc.jrel) > 1 and $num(c.ansa.vc.jrel) < 9) or $num(c.ansa.vc.jskill) > 1)
+	 HistoryTest = 1
+    endif
+   endif
+   if HistoryTest = 0
+    if $num(c.ansa.ld.indliv) = 1 and ($num(c.ansa.dn.cog) > 1 or $num(c.ansa.dn.comm) > 1 or  $num(c.ansa.dn.dev) > 1)	
+	 HistoryTest = 1
+	endif 
+   endif   
+   if HistoryTest = 0
+    if $num(c.ansa.fc.na) !dp and ($num(c.ansa.fc.phlth) > 1 or $num(c.ansa.fc.invcre) > 1 or $num(c.ansa.fc.know) > 1 or $num(c.ansa.fc.sfres) > 1 or $num(c.ansa.fc.famst) > 1 or $num(c.ansa.fc.safe) > 1)
+     HistoryTest = 1
+    endif
+   endif
+   if HistoryTest = 0
+    if $num(c.ansa.st.fam   ) > 1 or $num(c.ansa.st.soccon) > 1 or $num(c.ansa.st.opti  ) > 1 or $num(c.ansa.st.tal   ) > 1 or ($num(c.ansa.st.edu) > 1 and $num(c.ansa.st.edu) < 9) or $num(c.ansa.st.vol   ) > 1 or $num(c.ansa.st.jobhi ) > 1 or 
+	$num(c.ansa.st.relig ) > 1 or $num(c.ansa.st.comcon) > 1 or $num(c.ansa.st.natsup) > 1 or $num(c.ansa.st.resil ) > 1 or $num(c.ansa.st.resour) > 1
+     HistoryTest = 1
+    endif 
+   endif   
+   if HistoryTest = 0
+    if $num(c.ansa.ac.langua) > 1 or $num(c.ansa.ac.identy) > 1 or $num(c.ansa.ac.ritual) > 1 or $num(c.ansa.ac.culstr) > 1
+     HistoryTest = 1
+    endif
+   endif
+   if HistoryTest = 0
+    if $num(c.ansa.hs.num180) > 1 or $num(c.ansa.hs.numl30) > 1 or $num(c.ansa.hs.numg30) > 1 
+	 HistoryTest = 1
+	endif
+   endif
+   if HistoryTest = 0
+    if $num(c.ansa.cr.episds) > 0
+	 HistoryTest = 1
+	endif 
+   endif
+   if HistoryTest = 0
+    if c.ansa.rloc != "111" and c.ansa.rloc != "112" 
+	 HistoryTest = 1
+    endif
+   endif	   
+   if HistoryTest = 0
+    if c.ansa.aloc != "111" and c.ansa.aloc != "112" 
+	 HistoryTest = 1
+    endif
+   endif     
   endif
  end HistoryTest
  
