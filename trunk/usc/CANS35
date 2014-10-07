@@ -1,5 +1,5 @@
 start CANS35(parmfile,option,client,retcode)
- %version 1.0.031 07/18/2014
+ %version 1.0.032 10/07/2014
  $looplimit = 0
  %include inc_CANS35
  e.ser     is b
@@ -1109,37 +1109,6 @@ function ChildRisk() is null
  $endfieldset()
 end ChildRisk
 
-function ChildRiskCrisis() is null
- bgcolor = "white"
- if $find(cr_errortxt,errors[],,"F") > 0
-  bgcolor = "red"
- endif
- $fieldset("Child Risk Behaviors: Crisis",,"datatag")
-  ChildRiskScoring()
-  $table($funcname,,`table_wbgcolor`)
-   $row()
-    $col("center",,"50%")
-    $col("center",,"10%")$text("NA")
-	radio_index = -1
-	do while radio_index++ < 3
-     $col("center",,"10%")$text(radio_index)
-	enddo	
-   $row()
-    radio_index = 0
-	do while radio_index++ < 6
-     $col()$tag("<hr/>")
-	enddo     
-   $row(,row_color1)
-    $col()$text(q_text_cr_sfharm)
-	$col("center")
-	radio_index = -1
-	do while radio_index++ < 3
-     $col("center")$radio(c.cans.cr.sfharm,,$castx(radio_index))
-	enddo	
-  $endtable($funcname)
- $endfieldset()
-end ChildRiskCrisis
-
 'School Module
 function School() is null
  bgcolor = "white" 
@@ -2057,7 +2026,7 @@ function Validate1() is i
  last_date      is d
  last_alocdate  is d
  $clear(errors[])
- if c.cans.type != "11"
+ if c.cans.type = "1" or c.cans.type = "2" or (c.cans.type = "3" and c.cans.disreas = "9") or c.cans.type = "12"
   if c.cans.ld.family !dp or c.cans.ld.livsit !dp or c.cans.ld.preday !dp or c.cans.ld.socFun !dp or c.cans.ld.recret !dp or c.cans.ld.develp !dp or c.cans.ld.motor !dp or c.cans.ld.commun !dp or c.cans.ld.medicl !dp or c.cans.ld.physcl !dp or
      c.cans.ld.sleep !dp or c.cans.ld.relper !dp
    (void)$arrpush(errors[],ld_errortxt)
@@ -2084,10 +2053,10 @@ function Validate1() is i
   if c.cans.cf.birthw !dp or c.cans.cf.pica !dp or c.cans.cf.prenat !dp or c.cans.cf.labdel !dp or c.cans.cf.subexp !dp or c.cans.cf.psprob !dp or c.cans.cf.matava !dp or c.cans.cf.abuse !dp
    (void)$arrpush(errors[],cf_errortxt)
   endif
- endif
-   
- if c.cans.cr.sfharm !dp or c.cans.cr.aggbeh !dp or c.cans.cr.socbeh !dp
-  (void)$arrpush(errors[],cr_errortxt)
+
+  if c.cans.cr.sfharm !dp or c.cans.cr.aggbeh !dp or c.cans.cr.socbeh !dp
+   (void)$arrpush(errors[],cr_errortxt)
+  endif   
  endif   
    
  if c.cans.type = "2" and c.cans.cr.sfharm = "3"   
@@ -2095,10 +2064,10 @@ function Validate1() is i
  endif
    
  if c.cans.type = "11" 
-  if c.cans.cr.sfharm != "3"
+  if c.cans.cr.sfharm != "3" and c.cans.cr.aggbeh != "3" and c.cans.cr.socbeh != "3"
    (void)$arrpush(errors[],crisis2_errortxt)   
   endif
-  if c.cans.cr.sfharm !dp
+  if c.cans.cr.sfharm !dp or c.cans.cr.aggbeh !dp or c.cans.cr.socbeh !dp
    (void)$arrpush(errors[],cr_errortxt)
   endif   
  endif	
@@ -2257,7 +2226,7 @@ function Page1() is null
    if c.cans.type = "11"
     $table("1",,table_nobgcolor)
      $row()
-      $col(,,"50%")ChildRiskCrisis()
+      $col(,,"50%")ChildRisk()
       $col()
     $endtable("1")
     $br()
@@ -3120,7 +3089,7 @@ function RLOC() is x
  PP     is x
  {"lib_ANSA"}GETDX(DXType,,,,,PP)  
  select c.cans.type
-  case "1" if c.cans.cr.sfharm = "3"
+  case "1" if c.cans.cr.sfharm = "3" or c.cans.cr.aggbeh = "3" or c.cans.cr.socbeh = "3"
             RLOC = "100"
 			c.cans.type = "11"
 		   else
@@ -3383,8 +3352,8 @@ end StaffComments
 
 function ClearPage1() is null
  if c.cans.type = "11"
-  $clear(c.cans.cr.aggbeh,c.cans.cr.socbeh)
- else 
+  $clear(c.cans.cr.sfharm,c.cans.cr.aggbeh,c.cans.cr.socbeh)
+ else
   $clear(c.cans.cr.sfharm,c.cans.cr.aggbeh,c.cans.cr.socbeh)
   $clear(c.cans.cf.birthw,c.cans.cf.pica,c.cans.cf.prenat,c.cans.cf.labdel,c.cans.cf.subexp,c.cans.cf.psprob,c.cans.cf.matava,c.cans.cf.abuse)
   $clear(c.cans.cb.attach,c.cans.cb.regula,c.cans.cb.fthriv,c.cans.cb.depres,c.cans.cb.anxity,c.cans.cb.atypic,c.cans.cb.implsv,c.cans.cb.oppdef,c.cans.cb.adjtrm)
