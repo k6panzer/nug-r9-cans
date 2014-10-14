@@ -1,5 +1,5 @@
 library lib_ANSA()
- %version 1.0.023 10/07/2014
+ %version 1.0.024 10/14/2014
  %define row_color2 "bgcolor='White'"
  %define col_color_multi "bgcolor='LightGrey'"
 on load do:
@@ -1208,7 +1208,7 @@ on load do:
    endif
   endif  
 'Still, GAF is only used for Intakes.
-  if c.ansa.type != "1"
+  if c.ansa.type != "1" and c.ansa.type != "12"
    DXGaf = 0
   endif
 
