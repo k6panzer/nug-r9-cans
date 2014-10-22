@@ -1,5 +1,5 @@
 Start ANSA(parmfile,option,client,retcode)
- %version 1.0.034 09/21/2014
+ %version 1.0.035 10/22/2014
  $looplimit = 0
  %include inc_ANSA
  e.ser     is b
@@ -36,12 +36,13 @@ Start ANSA(parmfile,option,client,retcode)
  LocalCrisisDesc is x
  LocalIneligDesc is x
  
- %global DXType, DX, DXCat, DXDate, DXGaf
- DXType is x
- DX     is x
- DXCat  is x 
- DXDate is d
- DXGaf  is i
+ %global DXType, DX, DXCat, DXDate, DXGaf, IDD_Elig
+ DXType   is x
+ DX       is x
+ DXCat    is x 
+ DXDate   is d
+ DXGaf    is i
+ IDD_Elig is x
 
  %global parmfile,option,client,retcode, rc
  parmfile is x
@@ -84,7 +85,7 @@ Start ANSA(parmfile,option,client,retcode)
   call "CHECK_UACREDENTIALS"() 
  endif 
  
- {"lib_ANSA"}GETDX(DXType, DX, DXCat, DXDate, DXGaf)
+ {"lib_ANSA"}GETDX(DXType, DX, DXCat, DXDate, DXGaf,,IDD_Elig)
 
  if Validate() = 1
   {"lib_UACOMMON"}DisplayErrors(errors[])
@@ -2903,9 +2904,15 @@ function ValidateALOC() is i
    endif
   endif
   
-  if c.ansa.aloc = "111" and c.ansa.rloc != "111"
-   (void)$arrpush(errors[],aloc12_errortxt)
-  endif
+  if $today < 11/7/2014
+   if c.ansa.aloc = "111" and c.ansa.rloc != "111"
+    (void)$arrpush(errors[],aloc12_errortxt)
+   endif
+  else
+   if c.ansa.aloc = "111" and c.ansa.rloc != "111" and IDD_Elig = "N"
+    (void)$arrpush(errors[],aloc12_errortxt)
+   endif  
+  endif 
   
   if c.ansa.aloc = "108" and (c.ansa.type != "1" and c.ansa.type != "12")
   (void)$arrpush(errors[],aloc13_errortxt)
@@ -3027,10 +3034,17 @@ function ValidateReport() is i
   (void)$arrpush(errors[],dloc_errortxt)
   $clear(c.ansa.dloc)
  endif 
- if c.ansa.dloc = "111" and c.ansa.rloc != "111"
-  (void)$arrpush(errors[],dloc2_errortxt)
-  $clear(c.ansa.dloc)
- endif 
+ if $today < 11/7/2014 
+  if c.ansa.dloc = "111" and c.ansa.rloc != "111"
+   (void)$arrpush(errors[],dloc2_errortxt)
+   $clear(c.ansa.dloc)
+  endif
+ else
+  if c.ansa.dloc = "111" and c.ansa.rloc != "111" and IDD_Elig = "N"
+   (void)$arrpush(errors[],dloc2_errortxt)
+   $clear(c.ansa.dloc)
+  endif 
+ endif
  if c.ansa.rloc != "100" and c.ansa.type = "11" and c.ansa.dloc != "100"
   (void)$arrpush(errors[],dloc3_errortxt)
  endif
