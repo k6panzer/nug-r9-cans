@@ -242,7 +242,7 @@ c.iq.date,c.iq.type,c.sq.score,c.sq.date,c.sq.type,c.dx.prese,c.dx.ax4.b,c.dx.ax
  DX           is x
  PopDXCodes[] is x
  index is i
- index = 0
+ index = 1
  if PopDXCodes[1] !dp
   PopDXCodes[index++] = "293"
   PopDXCodes[index++] = "293.0"
@@ -542,7 +542,7 @@ function IDD_Eligible(DX) is x
  DX           is x
  IDDDXCodes[] is x
  index is i
- index = 0
+ index = 1
  if IDDDXCodes[1] !dp
   IDDDXCodes[index++] = "317"
   IDDDXCodes[index++] = "318.0"
