@@ -1,5 +1,5 @@
 library lib_ANSA()
- %version 1.0.024 10/14/2014
+ %version 1.0.025 10/24/2014
  %define row_color2 "bgcolor='White'"
  %define col_color_multi "bgcolor='LightGrey'"
 on load do:
@@ -41,11 +41,17 @@ on load do:
 			 else
 	          (void)$arrpush(assessments[],"2")
               (void)$arrpush(assessments[],"3")
+			  if OnWaitingList() = "Y"
+               (void)$arrpush(assessments[],"11")   			 
+			  endif			  
 			 endif 
    'Update
    case "2"
      or "U"  (void)$arrpush(assessments[],"2")
 	         (void)$arrpush(assessments[],"3")
+			 if OnWaitingList() = "Y"
+              (void)$arrpush(assessments[],"11")   			 
+			 endif
    'Discharge
    case "3"  
      or "D"  (void)$arrpush(assessments[],"1")
@@ -3165,3 +3171,24 @@ end Page3Rpt
    endif	
   $endtable($funcname)
  end BehavioralRpt
+ 
+ function OnWaitingList() is x
+  c.ansa.rec   is h
+  c.ansa.type  is x
+  c.ansa.aloc  is x
+  rc           is i  
+  rc = $dbread(02,$regid,c.ansa.rec,c.ansa.type,c.ansa.aloc)
+  if c.ansa.rec !dp
+   OnWaitingList = "N"
+  endif
+  if c.ansa.type = "1" and c.ansa.aloc = "109"
+   OnWaitingList = "Y"
+  else
+   do while rc < 2 and c.ansa.type != "D"
+    rc = $dbread(02,$regid,c.ansa.rec,c.ansa.type,c.ansa.aloc)
+    if c.ansa.type = "1" and c.ansa.aloc = "109"
+     OnWaitingList = "Y"
+    endif
+   enddo
+  endif
+ end OnWaitingList
