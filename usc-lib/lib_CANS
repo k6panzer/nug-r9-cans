@@ -209,8 +209,8 @@ library lib_CANS()
   if c.cans.type = "1" and c.cans.aloc = "109"
    OnWaitingList = "Y"
   else
-   do while rc < 2 and c.cans.type != "D"
-    rc = $dbread(02,$regid,c.cans.rec,c.cans.type,c.cans.aloc)
+   do while rc < 2 and c.cans.type != "3"
+    rc = $dbreadnextdst(02,$regid,c.cans.rec,c.cans.type,c.cans.aloc)
     if c.cans.type = "1" and c.cans.aloc = "109"
      OnWaitingList = "Y"
     endif
