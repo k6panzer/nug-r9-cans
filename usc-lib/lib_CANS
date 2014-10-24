@@ -1,5 +1,5 @@
 library lib_CANS()
- %version 1.0.003 10/06/2014
+ %version 1.0.004 10/24/2014
  function Allow_Assesment(clientid,assessments[]) is null
   clientid        is x
   c.cans.rec      is h
@@ -32,11 +32,17 @@ library lib_CANS()
 			 else
 			  (void)$arrpush(assessments[],"2")
               (void)$arrpush(assessments[],"3")
+			  if OnWaitingList() = "Y"
+               (void)$arrpush(assessments[],"11")   			 
+			  endif			  
 			 endif 
    'Update
    case "2"
      or "U"  (void)$arrpush(assessments[],"2")
 	         (void)$arrpush(assessments[],"3")
+             if OnWaitingList() = "Y"
+              (void)$arrpush(assessments[],"11")
+             endif			 
    'Discharge
    case "3"  
      or "D"  (void)$arrpush(assessments[],"1")
@@ -190,3 +196,24 @@ library lib_CANS()
    Allow_ExtdRevYN = "Y"
   endif   
  end Allow_ExtdRevYN
+
+ function OnWaitingList() is x
+  c.cans.rec   is h
+  c.cans.type  is x
+  c.cans.aloc  is x
+  rc           is i
+  rc = $dbread(02,$regid,c.cans.rec,c.cans.type,c.cans.aloc)
+  if c.cans.rec !dp
+   OnWaitingList = "N"
+  endif
+  if c.cans.type = "1" and c.cans.aloc = "109"
+   OnWaitingList = "Y"
+  else
+   do while rc < 2 and c.cans.type != "D"
+    rc = $dbread(02,$regid,c.cans.rec,c.cans.type,c.cans.aloc)
+    if c.cans.type = "1" and c.cans.aloc = "109"
+     OnWaitingList = "Y"
+    endif
+   enddo
+  endif
+ end OnWaitingList 
