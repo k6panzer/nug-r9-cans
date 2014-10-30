@@ -1,5 +1,5 @@
 Start ANSA(parmfile,option,client,retcode)
- %version 1.0.035 10/22/2014
+ %version 1.0.037 10/30/2014
  $looplimit = 0
  %include inc_ANSA
  e.ser     is b
@@ -2926,7 +2926,9 @@ function ValidateALOC() is i
   endif  
 
   if c.ansa.aloc = "100" and (last_type = "I" or last_type = "U" or last_type = "1" or last_type = "2")
-   (void)$arrpush(errors[],aloc9_errortxt)  
+   if {"lib_ANSA"}OnWaitingList() != "Y"
+    (void)$arrpush(errors[],aloc9_errortxt)  
+   endif	
   endif
 
   if c.ansa.aloc = c.ansa.rloc and c.ansa.loc_dev dp
