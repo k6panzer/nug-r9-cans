@@ -1,5 +1,5 @@
 start CANS617(parmfile,option,client,retcode)
- %version 1.0.029 07/18/2014
+ %version 1.0.030 10/30/2014
  $looplimit = 0
  %include inc_CANS617
  e.ser     is b
@@ -3748,7 +3748,9 @@ function ValidateALOC() is i
   endif     
 
   if c.cans.aloc = "100" and (last_type = "I" or last_type = "U" or last_type = "1" or last_type = "2")
+   if {"lib_CANS"}OnWaitingList() != "Y"
     (void)$arrpush(errors[],aloc9_errortxt)  
+   endif	
   endif
   if c.cans.aloc = c.cans.rloc and c.cans.loc_dev dp
    $clear(c.cans.loc_dev,c.cans.devoth,c.cans.devR1,c.cans.devR2,c.cans.devR3,c.cans.devR4,c.cans.devR5, c.cans.devjust)   
