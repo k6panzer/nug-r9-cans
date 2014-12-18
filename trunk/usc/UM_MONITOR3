@@ -71,7 +71,7 @@ start UM_MONITOR3()
  assessment_type[]  is x
  assessment_rloc[]  is x
  assessment_dloc[]  is x
- assessment_adate[] is x
+ assessment_adate[] is d
  assessment_pfile[] is x
  assessment_opt[]   is x
  assessment_staff[] is x
@@ -407,7 +407,7 @@ function GetSavedLists() is null
 	          if c.ansa.dloc !dp
 	            $clear(last_type,last_date,last_aloc)
                 {"lib_UACOMMON"}ClientLastUA(assessment_id[index],,last_date,last_type,,last_aloc)
-                if (last_aloc = c.ansa.rloc) or (last_aloc = "1" and (c.ansa.rloc = "112" or c.ansa.rloc = "111"))
+                if (last_aloc = c.ansa.rloc) or ((last_aloc = "111" or last_aloc = "112") and (c.ansa.rloc = "112" or c.ansa.rloc = "111"))
                  assessment_auth[index2] = "Y"
 	            endif
                endif			  
