@@ -1,5 +1,5 @@
 Start ANSA(parmfile,option,client,retcode)
- %version 1.0.037 10/30/2014
+ %version 1.0.038 11/05/2014
  $looplimit = 0
  %include inc_ANSA
  e.ser     is b
@@ -129,7 +129,7 @@ Start ANSA(parmfile,option,client,retcode)
      rc = $dbremovedst(02, $regid, c.ansa.rec,c.ansa.date)
 	 $clear(c.ansa.date,c.ansa.compd,c.ansa.type,c.ansa.staff)
      $brmsg("ANSA Assessment Successfully Removed from the Database!",1,"C","Process Complete")
-     $brmsg("The assessment will restart now.",2,"W")
+     $brmsg("The assessment will restart now.",2,"CW")
 	 Page = "0"
      {"lib_UACOMMON"}RemUMMonitor($regid,$scriptid)	 
 	elseif PromptNED = 2
@@ -141,14 +141,14 @@ Start ANSA(parmfile,option,client,retcode)
      rc = $dbread(02, $regid, ansa_dstlist)	       
      rc = $dbremovedst(02, $regid, c.ansa.rec,c.ansa.date)
      $brmsg("ANSA Assessment Successfully Removed from the Database!",1,"C","Process Complete")
-     $brmsg("The assessment will exit now.",2,"W")
+     $brmsg("The assessment will exit now.",2,"CW")
 	 {"lib_UACOMMON"}RemUMMonitor($regid,$scriptid)	 
      return
 	elseif PromptNED = 4
 	 return
 	elseif PromptNED = 5
      $brmsg("ANSA Assessment Currently Being Entered by Another Staff Member!",1,"C","In Progress")
-     $brmsg("The assessment will exit now.",2,"W")
+     $brmsg("The assessment will exit now.",2,"CW")
      return	
 	else
      $clear(c.ansa.compd,c.ansa.type,c.ansa.staff)
@@ -170,7 +170,7 @@ Start ANSA(parmfile,option,client,retcode)
      rc = $dbremovedst(02, $regid, c.ansa.rec,c.ansa.date)
 	 $clear(c.ansa.date,c.ansa.compd,c.ansa.type,c.ansa.staff)
      $brmsg("ANSA Assessment Successfully Removed from the Database!",1,"C","Process Complete")
-     $brmsg("The assessment will restart now.",2,"W")
+     $brmsg("The assessment will restart now.",2,"CW")
 	 Page = "0"	 
 	elseif PromptNED = 2
      rc = $dbread(02, $regid, ansa_dstlist)
@@ -181,13 +181,13 @@ Start ANSA(parmfile,option,client,retcode)
      rc = $dbread(02, $regid, ansa_dstlist)	       
      rc = $dbremovedst(02, $regid, c.ansa.rec,c.ansa.date)
      $brmsg("ANSA Assessment Successfully Removed from the Database!",1,"C","Process Complete")
-     $brmsg("The assessment will exit now.",2,"W")
+     $brmsg("The assessment will exit now.",2,"CW")
      return
 	elseif PromptNED = 4
 	 return
 	elseif PromptNED = 5
      $brmsg("ANSA Assessment Currently Being Entered by Another Staff Member!",1,"C","In Progress")
-     $brmsg("The assessment will exit now.",2,"W")
+     $brmsg("The assessment will exit now.",2,"CW")
      return	
 	else
      $clear(c.ansa.compd,c.ansa.type,c.ansa.staff)
@@ -202,7 +202,7 @@ Start ANSA(parmfile,option,client,retcode)
    rc = $dbremovedst(02, $regid, c.ansa.rec,c.ansa.date)
    $clear(c.ansa.date,c.ansa.compd,c.ansa.type,c.ansa.staff)
    $brmsg("ANSA Assessment Successfully Removed from the Database!",1,"C","Process Complete")
-   $brmsg("The assessment will restart now.",2,"W")
+   $brmsg("The assessment will restart now.",2,"CW")
    Page = "0"   
   elseif PromptNED = 2
    rc = $dbread(02, $regid, ansa_dstlist)
@@ -213,13 +213,13 @@ Start ANSA(parmfile,option,client,retcode)
    rc = $dbread(02, $regid, ansa_dstlist)	       
    rc = $dbremovedst(02, $regid, c.ansa.rec,c.ansa.date)
    $brmsg("ANSA Assessment Successfully Removed from the Database!",1,"C","Process Complete")
-   $brmsg("The assessment will exit now.",2,"W")
+   $brmsg("The assessment will exit now.",2,"CW")
    return
   elseif PromptNED = 4
    return
   elseif PromptNED = 5
    $brmsg("ANSA Assessment Currently Being Entered by Another Staff Member!",1,"C","In Progress")
-   $brmsg("The assessment will exit now.",2,"W")
+   $brmsg("The assessment will exit now.",2,"CW")
    return	
   else
    $clear(c.ansa.compd,c.ansa.type,c.ansa.staff)
@@ -1474,7 +1474,7 @@ function Page4() is null
    $row()
     $col("right",,"50%")$text(q_text_restype,"datatag")
     $col()$dropboxdct(c.ansa.restype,AnsaResTypeDCT,,,,"Y")
-          $dropbox(c.ansa.restype,"Other","9",,,"RESTYPE","OTHER","Y")       
+'          $dropbox(c.ansa.restype,"Other","9",,,"RESTYPE","OTHER","Y")       
   $endtable($funcname)
   $block("RESTYPE","OTHER")
    $table("OTHER",,table_nobgcolor)
@@ -2440,6 +2440,8 @@ function Report(mode) is null
  $cancelopt("off", "Back")
  $form($funcname)
   {"lib_UACOMMON"}ClientPageHeader($regid,"Y")
+  $br()$text("{center}ANSA{/center}")
+  $br()  
   if c.ansa.isn dp
    {"lib_UAEVENTS"}report(e.ser, e.ru, e.start, e.dur, e.loc)
   endif   
@@ -2763,11 +2765,14 @@ function Validate0() is i
   if assessment_age > 30
    (void)$arrpush(errors[],date1_errortxt)
   endif
- elseif c.ansa.date > $today
+ endif
+ if c.ansa.date > $today
   (void)$arrpush(errors[],date2_errortxt)
- elseif c.ansa.date < last_date
+ endif
+ if c.ansa.date < last_date
   (void)$arrpush(errors[],date3_errortxt)
- elseif c.ansa.date = last_date
+ endif
+ if c.ansa.date = last_date
   (void)$arrpush(errors[],date4_errortxt)
  endif  
 
