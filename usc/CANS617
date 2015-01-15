@@ -1,5 +1,5 @@
 start CANS617(parmfile,option,client,retcode)
- %version 1.0.030 10/30/2014
+ %version 1.0.031 11/05/2014
  $looplimit = 0
  %include inc_CANS617
  e.ser     is b
@@ -103,7 +103,7 @@ start CANS617(parmfile,option,client,retcode)
   if c.cans.compd !dp and c.cans.type dp
    if c.cans.canstype != "1"
     $brmsg("A CANS 3-5 Assessment is Currently Being Entered!",1,"C","In Progress")
-    $brmsg("The assessment will exit now.",2,"W")
+    $brmsg("The assessment will exit now.",2,"CW")
     return
    endif	
    if c.cans.staff = $operstaffid
@@ -114,7 +114,7 @@ start CANS617(parmfile,option,client,retcode)
      rc = $dbremovedst(02, $regid, c.cans.rec,c.cans.date)
 	 $clear(c.cans.date,c.cans.compd,c.cans.type,c.cans.staff,c.cans.canstype)
      $brmsg("CANS Assessment Successfully Removed from the Database!",1,"C","Process Complete")
-     $brmsg("The assessment will restart now.",2,"W")
+     $brmsg("The assessment will restart now.",2,"CW")
 	 Page = "0"
 	 {"lib_UACOMMON"}RemUMMonitor($regid,$scriptid)	 
 	elseif PromptNED = 2
@@ -126,14 +126,14 @@ start CANS617(parmfile,option,client,retcode)
      rc = $dbread(02, $regid, cans_dstlist)	       
      rc = $dbremovedst(02, $regid, c.cans.rec,c.cans.date)
      $brmsg("CANS Assessment Successfully Removed from the Database!",1,"C","Process Complete")
-     $brmsg("The assessment will exit now.",2,"W")
+     $brmsg("The assessment will exit now.",2,"CW")
 	 {"lib_UACOMMON"}RemUMMonitor($regid,$scriptid)	 
      return
 	elseif PromptNED = 4
 	 return
 	elseif PromptNED = 5
      $brmsg("CANS Assessment Currently Being Entered by Another Staff Member!",1,"C","In Progress")
-     $brmsg("The assessment will exit now.",2,"W")
+     $brmsg("The assessment will exit now.",2,"CW")
      return	
 	else
      $clear(c.cans.compd,c.cans.type,c.cans.staff,c.cans.canstype)
@@ -155,7 +155,7 @@ start CANS617(parmfile,option,client,retcode)
      rc = $dbremovedst(02, $regid, c.cans.rec,c.cans.date)
 	 $clear(c.cans.date,c.cans.compd,c.cans.type,c.cans.staff,c.cans.canstype)
      $brmsg("CANS Assessment Successfully Removed from the Database!",1,"C","Process Complete")
-     $brmsg("The assessment will restart now.",2,"W")
+     $brmsg("The assessment will restart now.",2,"CW")
 	 Page = "0"	 
 	elseif PromptNED = 2
      rc = $dbread(02, $regid, cans_dstlist)
@@ -166,13 +166,13 @@ start CANS617(parmfile,option,client,retcode)
      rc = $dbread(02, $regid, cans_dstlist)	       
      rc = $dbremovedst(02, $regid, c.cans.rec,c.cans.date)
      $brmsg("CANS Assessment Successfully Removed from the Database!",1,"C","Process Complete")
-     $brmsg("The assessment will exit now.",2,"W")
+     $brmsg("The assessment will exit now.",2,"CW")
      return
 	elseif PromptNED = 4
 	 return
 	elseif PromptNED = 5
      $brmsg("CANS Assessment Currently Being Entered by Another Staff Member!",1,"C","In Progress")
-     $brmsg("The assessment will exit now.",2,"W")
+     $brmsg("The assessment will exit now.",2,"CW")
      return	
 	else
      $clear(c.cans.compd,c.cans.type,c.cans.staff,c.cans.canstype)
@@ -187,7 +187,7 @@ start CANS617(parmfile,option,client,retcode)
    rc = $dbremovedst(02, $regid, c.cans.rec,c.cans.date)
    $clear(c.cans.date,c.cans.compd,c.cans.type,c.cans.staff,c.cans.canstype)
    $brmsg("CANS Assessment Successfully Removed from the Database!",1,"C","Process Complete")
-   $brmsg("The assessment will restart now.",2,"W")
+   $brmsg("The assessment will restart now.",2,"CW")
    Page = "0"   
   elseif PromptNED = 2
    rc = $dbread(02, $regid, cans_dstlist)
@@ -198,13 +198,13 @@ start CANS617(parmfile,option,client,retcode)
    rc = $dbread(02, $regid, cans_dstlist)	       
    rc = $dbremovedst(02, $regid, c.cans.rec,c.cans.date)
    $brmsg("CANS Assessment Successfully Removed from the Database!",1,"C","Process Complete")
-   $brmsg("The assessment will exit now.",2,"W")
+   $brmsg("The assessment will exit now.",2,"CW")
    return
   elseif PromptNED = 4
    return
   elseif PromptNED = 5
    $brmsg("CANS Assessment Currently Being Entered by Another Staff Member!",1,"C","In Progress")
-   $brmsg("The assessment will exit now.",2,"W")
+   $brmsg("The assessment will exit now.",2,"CW")
    return	
   else
    $clear(c.cans.compd,c.cans.type,c.cans.staff,c.cans.canstype)
@@ -477,7 +477,8 @@ function Report(mode) is null
  $cancelopt("off", "Back") 
  $form($funcname)
   {"lib_UACOMMON"}ClientPageHeader($regid)
-  
+  $br()$text("{center}CANS{/center}")
+  $br()    
   if c.cans.isn dp
    {"lib_UAEVENTS"}report(e.ser, e.ru, e.start, e.dur, e.loc)
   endif
@@ -2551,12 +2552,15 @@ function Validate0() is i
   if assessment_age > 30
    (void)$arrpush(errors[],date1_errortxt)
   endif
- elseif c.cans.date > $today
+ endif
+ if c.cans.date > $today
   (void)$arrpush(errors[],date2_errortxt)
- elseif c.cans.date < last_date
+ endif
+ if c.cans.date < last_date
   (void)$arrpush(errors[],date3_errortxt)  
- elseif c.cans.date = last_date 
- (void)$arrpush(errors[],date4_errortxt)  
+ endif
+ if c.cans.date = last_date 
+  (void)$arrpush(errors[],date4_errortxt)  
  endif    	
 
  if errors[1] dp	
