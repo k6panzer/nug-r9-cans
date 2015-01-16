@@ -1,5 +1,5 @@
 Start ANSA(parmfile,option,client,retcode)
- %version 1.0.038 11/05/2014
+ %version 1.0.040 01/16/2015
  $looplimit = 0
  %include inc_ANSA
  e.ser     is b

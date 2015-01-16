@@ -1,5 +1,5 @@
 library lib_ANSA()
- %version 1.0.025 10/24/2014
+ %version 1.0.026 01/16/2015
  %define row_color2 "bgcolor='White'"
  %define col_color_multi "bgcolor='LightGrey'"
 on load do:
@@ -96,34 +96,6 @@ on load do:
   do until c.ansa.compd dp or rc > 1
    rc = $dbreadnextdst(02,clientid,c.ansa.rec,c.ansa.type,c.ansa.staff,c.ansa.ver,c.ansa.date,c.ansa.age,c.ansa.aloc,c.ansa.rloc,c.ansa.dloc,c.ansa.compd,c.ansa.alocdate)
   enddo 
-  if rc = 2
-   $setvarname(c.ansa.rec,      "C.UABD")
-   $setvarname(c.ansa.staff,    "C.UABD.STAFF1")
-   $setvarname(c.ansa.date,     "C.UABD.DATE")
-   $setvarname(c.ansa.aloc,     "C.UABD.ALOC")
-   $setvarname(c.ansa.rloc,     "C.UABD.RLOC")
-   $setvarname(c.ansa.compd,    "C.UABD.COMPD")
-   $setvarname(c.ansa.type,     "C.UABD.PUR")
-   $setvarname(c.ansa.alocdate, "C.UABD.DATE1")
-   rc = $dbread(02,clientid,c.ansa.rec,c.ansa.type,c.ansa.staff,c.ansa.date,c.ansa.rloc,c.ansa.compd,c.ansa.alocdate,c.ansa.aloc)
-   do until c.ansa.compd dp or rc > 1
-    rc = $dbreadnextdst(02,clientid,c.ansa.rec,c.ansa.type,c.ansa.staff,c.ansa.date,c.ansa.rloc,c.ansa.compd,c.ansa.alocdate,c.ansa.aloc)
-   enddo
-   if c.ansa.aloc = "6"
-    c.ansa.type = "12"
-	c.ansa.aloc = "108"
-   endif
-   if c.ansa.aloc = "8"
-	c.ansa.aloc = "109"   
-   endif
-   if c.ansa.aloc = "9"
-    c.ansa.type = "12"
-	c.ansa.aloc = "120"   
-   endif
-   if c.ansa.aloc = "108"
-    c.ansa.type = "12"   
-   endif
-  endif
  end Last_Assessment
  
  function EndDate(c.ansa.aloc,c.ansa.alocdate) is d

@@ -1,5 +1,5 @@
 library lib_CANS()
- %version 1.0.004 10/24/2014
+ %version 1.0.005 01/16/2015
  function Allow_Assesment(clientid,assessments[]) is null
   clientid        is x
   c.cans.rec      is h
@@ -87,35 +87,6 @@ library lib_CANS()
   do until c.cans.compd dp or rc > 1
    rc = $dbreadnextdst(02,clientid,c.cans.rec,c.cans.type,c.cans.staff,c.cans.ver,c.cans.date,c.cans.age,c.cans.aloc,c.cans.rloc,c.cans.dloc,c.cans.compd,c.cans.alocdate)
   enddo
-  
-  if rc = 2 then     'check the ua record
-   $setvarname(c.cans.rec,      "C.CABD.REC")
-   $setvarname(c.cans.staff,    "C.CABD.STAFF")
-   $setvarname(c.cans.date,     "C.CABD.ASDT")
-   $setvarname(c.cans.aloc,     "C.CABD.ALOC")
-   $setvarname(c.cans.rloc,     "C.CABD.LOCR")
-   $setvarname(c.cans.compd,    "C.CABD.COMPD")
-   $setvarname(c.cans.type,     "C.CABD.ASS")
-   $setvarname(c.cans.alocdate, "C.CABD.DATE3")
-   rc = $dbread(02,clientid,c.cans.rec,c.cans.type,c.cans.staff,c.cans.date,c.cans.aloc,c.cans.rloc,c.cans.compd,c.cans.alocdate)
-   do until c.cans.compd dp or rc = 2
-    rc = $dbreadnextdst(02,clientid,c.cans.rec,c.cans.type,c.cans.staff,c.cans.date,c.cans.aloc,c.cans.rloc,c.cans.compd,c.cans.alocdate)
-   enddo
-   if c.cans.aloc = "6"
-    c.cans.type = "12"
-    c.cans.aloc = "108"
-   endif
-   if c.cans.aloc = "8"
-    c.cans.aloc = "109"
-   endif
-   if c.cans.aloc = "9"
-    c.cans.type = "12"
-    c.cans.aloc = "110"
-   endif
-   if c.cans.aloc = "108"
-    c.cans.type = "12"
-   endif
-  endif
  end Last_Assessment
  
  function EndDate(c.cans.aloc,c.cans.alocdate,c.cans.extdrev) is d
