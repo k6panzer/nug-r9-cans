@@ -5,6 +5,10 @@ on load do:
 
 function StaffCanDo() is i
  s.trr.certified is x
+ select $custnumber
+   case 641 StaffCanDo = 0, return
+ endselect
+
  (void)$dbread(3,$operstaffid,s.trr.certified)
  if s.trr.certified = "Y" or MISStaff() = "Y" or UMStaff() = "Y"
   StaffCanDo = 0
@@ -68,6 +72,10 @@ function MISStaff(staff[]) is x
                          (void)$arrpush(staff[],"3956")  'Chris Ashley
 			             (void)$arrpush(staff[],"001639")  'John Edwards
            endselect
+   case 641
+      MIS_ru = 940
+      (void)$arrPush(staff[],"1721")   'R
+      (void)$arrPush(staff[],"003")    'P
   endselect
  (void)$dbread(3,$operstaffid,s.ru,s.type)
  if s.ru = MIS_ru and MIS_RU dp and s.type = "AS"
