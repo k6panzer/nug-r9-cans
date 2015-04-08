@@ -128,8 +128,8 @@ endif
 
 'client has been discharged - update the prog record with the discharge date
 if ua-type = type_discharge then
-   'only discharge if the top layer is open
-   if prog-disch !dp then
+   'only discharge if the top layer has a record and it is open
+   if prog-rec dp and prog-disch !dp then
       prog-disch = ua-disch
       retcode = 100 + $dbupdate(cdb, client, prog-rec, prog-disch)
       $dbunlock()
