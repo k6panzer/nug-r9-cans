@@ -73,6 +73,8 @@
 '			as the process creates the XML file(s).  Using $dbupdateuid to make sure that we always get the 
 '			correct layer of the record.
 
+'CWL 0.7 04/10/2015 
+'        Commented out the dbreaduid that was being used to get the effd of the record headers and the setting of the effective dates. I'm not sure but it my have been causing the phantom effd changes
 
 %version 0.5 11/114/2013 TxACE
 
@@ -176,9 +178,9 @@ n							 is i
 'Set script default values:
 email_notify[1] = "whaiter@helenfarabee.org"
 buildOneFile = "N"
-autoFTP = "N"
+autoFTP = "Y"
 markAsBatched = "Y"
-archiveAfter = "N"
+archiveAfter = "Y"
 use80byte = "N"
 
 trr_start_date = 09/01/2013
@@ -212,7 +214,7 @@ ftp_login = "cmbhs-batch-230"
 ftp_pass = "SBjzC(K6"
 'ftp_pass = "Test!!4"
 ftp_local_dir = "/c4/EXPORT2/CMBHS/queue/"
-ftp_remote_dir = "Test/XML"
+ftp_remote_dir = "Production/XML"
 ftp_retry = 5
 ftp_delay = 2
 
@@ -329,7 +331,7 @@ endif
    $clear(xml-option, xml-file)
    'set the file header if you are only making one file
    if buildOneFile = "Y" then
-      xml-file = $fmt($today,"YYYYMMDD_") + $fmt($timenow,"HHMM") + ".xml"
+      xml-file = $fmt($today,"YYYYMMDD_") + $fmt($timenow,"HHMM_") + $ts() + ".xml"
       xml-file = $replace(" ", "_", xml-file)
       xml-option = "fileHeader`<?xml version='1.0'?><Batch>;filefooter`!NONE;"
       arc-dir[1] = arc_dir_default
@@ -404,11 +406,11 @@ if $uc(autoFtp) = "Y" then
       do while ftp-ptr++ < ftp_retry and rc > 0                                        ' Loop while problems sending
          (void)$arrPush(stdout[],$fmt($today,$timenow,"Timestamp: MM/DD/YY HH:MMAP"))  'document the ftp attempt
          (void)$arrPush(stdout[],$fmt(ftp-ptr,"FTP Attempt: LZZ9"))
-         ftp-ts[1] = $ts
+         ftp-ts[1] = $ts()
          
          rc = $sftp(ftp-cmds[], ftp_site, ftp_login, ftp_pass, ftp_local_dir, ftp_remote_dir, ftp-msg[])
          
-         ftp-ts[2] = $ts
+         ftp-ts[2] = $ts()
          ftp-diff = (ftp-ts[2] - ftp-ts[1]) / 100
    
          '* hang out for a bit if we have an error...
@@ -426,7 +428,7 @@ if $uc(autoFtp) = "Y" then
       (void)$arrPush(stdout[],`"Files placed in directory on the remote server: " + ftp_remote_dir`)
       (void)$arrPush(stdout[]," ")
       
-      T = "CANS BATCH FTP "
+      T = "HFC TRR BATCH FTP "
       if rc > 0 then
          T += "FAIL"
          'don't mark or archive on ftp fail
@@ -436,7 +438,7 @@ if $uc(autoFtp) = "Y" then
          T += "SUCCESS"
       endif
    else
-      T = "CANS BATCH FTP FAIL"
+      T = "HFC TRR BATCH FTP FAIL"
       (void)$arrPush(stdout[], "Script not Configured for ftp")
    endif
    (void)$email(EMAIL_NOTIFY[], T, stdout[])
@@ -454,9 +456,7 @@ if $uc(markAsBatched) = "Y" and $maxarray(cansupd[]) > 0
   do while n++ < $maxarray(cansupd[])
   	$parsem(cansupd[n],1,",",cidval,uidval)
   	c.cans.caredt = $today
-  	rc = $dbreaduid($castn(uidval),2,cidval,c.cans.rec)
   	$dblock()
-		c.cans.rec[effd] = c.cans.rec[effd]
   	rc = $dbupdateuid($castn(uidval),2,cidval,c.cans.rec,c.cans.caredt)
   enddo
 
@@ -473,9 +473,7 @@ if $uc(markAsBatched) = "Y" and $maxarray(ansaupd[]) > 0
   do while n++ < $maxarray(ansaupd[])
   	$parsem(ansaupd[n],1,",",cidval,uidval)
   	c.ansa.caredt = $today
-  	rc = $dbreaduid($castn(uidval),2,cidval,c.ansa.rec)
   	$dblock()
-		c.ansa.rec[effd] = c.ansa.rec[effd]	
   	rc = $dbupdateuid($castn(uidval),2,cidval,c.ansa.rec,c.ansa.caredt)
   enddo
 
@@ -546,7 +544,7 @@ $clear(buildxml)
       optionstring += "appendFile`Y;"
       buildxml = appendfile
    else
-      T = dir + $fmt($today,"YYYYMMDD_") + $fmt($timenow,"HHMM") + suffix + ".xml"
+      T = dir + $fmt($today,"YYYYMMDD_") + $fmt($timenow,"HHMM_") + $ts() + suffix + ".xml"
       T = $replace(" ", "_", T)
       optionstring += T + ";"
       if cltlist[] dp then
@@ -573,4 +571,3 @@ endif
 end status
 
  
-
