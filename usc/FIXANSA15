@@ -1,0 +1,56 @@
+start FIXANSA15()
+ $looplimit = 0
+ %include inc_ANSA_DST
+ '$trace("path.on","/c2/PV/SCRIPT/S/LOVEC.trace")
+ logfile is x
+ cid     is x
+ rc      is i
+ rc2     is i
+ rc3     is i
+ datediff is i
+ logfile = "/c0/EXPORT/trace/FIXANSA15"
+(void)$dbstart(02, CID)
+ $dblock()
+ rc = $dbread(2,cid,c.ansa.rec,c.ansa.date)
+ if rc = 4
+  do until rc != 4
+   $dblock()
+   rc = $dbread(2,cid,c.ansa.rec,c.ansa.date)
+   $sleep(10)
+  enddo
+ endif
+ do while rc < 3
+  if c.ansa.rec dp and (c.ansa.rec[effd] != c.ansa.date) and c.ansa.date dp
+  select $uc($seg($mscname,1,5))
+   case "HELEN" $log(`cid + "|" + $today + "|" + c.ansa.rec[effd] + "|" + c.ansa.date + "|ANSA|HFC"`,logfile)
+   case "PECAN" $log(`cid + "|" + $today + "|" + c.ansa.rec[effd] + "|" + c.ansa.date + "|ANSA|PV"`,logfile)
+  endselect 
+   c.ansa.rec[effd] = c.ansa.date
+   rc2 = $dbupdate(2,cid,c.ansa.rec,c.ansa.date)
+   (void)$dbread(2,cid,c.ansa.rec,c.ansa.date)
+  endif
+  do while rc3 < 2 and c.ansa.rec dp
+   if c.ansa.rec dp and (c.ansa.rec[effd] != c.ansa.date) and c.ansa.date dp
+    select $uc($seg($mscname,1,5))
+     case "HELEN" $log(`cid + "|" + $today + "|" + c.ansa.rec[effd] + "|" + c.ansa.date + "|ANSA|HFC"`,logfile)
+     case "PECAN" $log(`cid + "|" + $today + "|" + c.ansa.rec[effd] + "|" + c.ansa.date + "|ANSA|PV"`,logfile)
+    endselect 
+    c.ansa.rec[effd] = c.ansa.date
+    rc2 = $dbupdate(2,cid,c.ansa.rec,c.ansa.date)
+    rc2 = $dbread(2,cid,c.ansa.rec,c.ansa.date)
+   endif
+   $dblock()
+   rc3 = $dbreadnextdst(2,cid,c.ansa.rec,c.ansa.date)
+  enddo  
+  $dblock()
+  rc = $dbreadnext(2,cid,c.ansa.rec,c.ansa.date)
+  if rc = 4
+   do until rc != 4
+    $dblock()
+	rc = $dbread(2,cid,c.ansa.rec,c.ansa.date)
+    $sleep(10)
+   enddo
+  endif
+  rc3 = 0
+ enddo
+end FIXANSA15

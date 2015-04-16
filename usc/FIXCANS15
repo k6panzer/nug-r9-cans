@@ -1,0 +1,55 @@
+start FIXCANS15()
+ $looplimit = 0
+ %include inc_CANS_DST
+ logfile is x
+ cid     is x
+ rc      is i
+ rc2     is i
+ rc3     is i
+ datediff is i
+ logfile = "/c0/EXPORT/trace/FIXCANS15"
+(void)$dbstart(02, CID)
+ $dblock()
+ rc = $dbread(2,cid,c.cans.rec,c.cans.date)
+ if rc = 4
+  do until rc != 4
+   $dblock()
+   rc = $dbread(2,cid,c.cans.rec,c.cans.date)
+   $sleep(10)
+  enddo
+ endif
+ do while rc < 3
+  if c.cans.rec dp and (c.cans.rec[effd] != c.cans.date) and c.cans.date dp
+   select $uc($seg($mscname,1,5))
+    case "HELEN" $log(`cid + "|" + $today + "|" + c.cans.rec[effd] + "|" + c.cans.date + "|CANS|HFC"`,logfile)
+    case "PECAN" $log(`cid + "|" + $today + "|" + c.cans.rec[effd] + "|" + c.cans.date + "|CANS|PV"`,logfile)
+   endselect    
+   c.cans.rec[effd] = c.cans.date
+   rc2 = $dbupdate(2,cid,c.cans.rec,c.cans.date)
+   (void)$dbread(2,cid,c.cans.rec,c.cans.date)
+  endif
+  do while rc3 < 2 and c.cans.rec dp
+   if c.cans.rec dp and (c.cans.rec[effd] != c.cans.date) and c.cans.date dp
+    select $uc($seg($mscname,1,5))
+     case "HELEN" $log(`cid + "|" + $today + "|" + c.cans.rec[effd] + "|" + c.cans.date + "|CANS|HFC"`,logfile)
+     case "PECAN" $log(`cid + "|" + $today + "|" + c.cans.rec[effd] + "|" + c.cans.date + "|CANS|PV"`,logfile)
+    endselect    
+    c.cans.rec[effd] = c.cans.date
+    rc2 = $dbupdate(2,cid,c.cans.rec,c.cans.date)
+    rc2 = $dbread(2,cid,c.cans.rec,c.cans.date)
+   endif
+   $dblock()
+   rc3 = $dbreadnextdst(2,cid,c.cans.rec,c.cans.date)
+  enddo  
+  $dblock()
+  rc = $dbreadnext(2,cid,c.cans.rec,c.cans.date)
+  if rc = 4
+   do until rc != 4
+    $dblock()
+	rc = $dbread(2,cid,c.cans.rec,c.cans.date)
+    $sleep(10)
+   enddo
+  endif
+  rc3 = 0
+ enddo
+end FIXCANS15
