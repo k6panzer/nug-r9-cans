@@ -145,7 +145,7 @@ if prog-clinic = prog-ru then
 endif
 
 'open to a different program - close the current, and add a new
-if prog-ru dp and prog-disch !dp then
+if prog-admit dp and prog-disch !dp then
    dischdst = $dateoffset(ua-date, -1)
    retcode = 200 + $dbupdate(cdb, client, prog-rec, prog-disch)
 
