@@ -1,5 +1,5 @@
 library lib_ANSA()
- %version 1.0.026 01/16/2015
+ %version 1.0.028 06/02/2015
  %define row_color2 "bgcolor='White'"
  %define col_color_multi "bgcolor='LightGrey'"
 on load do:
@@ -32,33 +32,27 @@ on load do:
    case !dp  (void)$arrpush(assessments[],"1")
              (void)$arrpush(assessments[],"11")
    'Initial
-   case "1"  
-     or "I"  if (c.ansa.aloc = "6" or c.ansa.aloc = "9")
-              (void)$arrpush(assessments[],"1")
-              (void)$arrpush(assessments[],"11")
-             elseif c.ansa.aloc = "8"
-			  (void)$arrpush(assessments[],"3")  
-			 else
-	          (void)$arrpush(assessments[],"2")
-              (void)$arrpush(assessments[],"3")
-			  if OnWaitingList() = "Y"
-               (void)$arrpush(assessments[],"11")   			 
-			  endif			  
-			 endif 
+   case "1" if (c.ansa.aloc = "120")
+             (void)$arrpush(assessments[],"1")
+             (void)$arrpush(assessments[],"11")
+			else
+	         (void)$arrpush(assessments[],"2")
+             (void)$arrpush(assessments[],"3")
+'			 if OnWaitingList() = "Y"
+'              (void)$arrpush(assessments[],"11")   			 
+'			 endif			  
+			endif 
    'Update
-   case "2"
-     or "U"  (void)$arrpush(assessments[],"2")
-	         (void)$arrpush(assessments[],"3")
-			 if OnWaitingList() = "Y"
-              (void)$arrpush(assessments[],"11")   			 
-			 endif
+   case "2" (void)$arrpush(assessments[],"2")
+	        (void)$arrpush(assessments[],"3")
+			if OnWaitingList() = "Y"
+             (void)$arrpush(assessments[],"11")   			 
+			endif
    'Discharge
-   case "3"  
-     or "D"  (void)$arrpush(assessments[],"1")
-             (void)$arrpush(assessments[],"11")   
+   case "3" (void)$arrpush(assessments[],"1")
+            (void)$arrpush(assessments[],"11")   
    'Crisis
-   case "11" 
-     or "E"  (void)$arrpush(assessments[],"1")
+   case "11" (void)$arrpush(assessments[],"1")
              (void)$arrpush(assessments[],"11")   
    'Initial Non Admission
    case "12" (void)$arrpush(assessments[],"1")
@@ -1477,13 +1471,13 @@ on load do:
 	 HistoryTest = 1
 	endif 
    endif
-   if HistoryTest = 0
+   if HistoryTest = 0 and c.ansa.aloc dp
     if c.ansa.rloc != "111" and c.ansa.rloc != "112" 
 	 HistoryTest = 1
     endif
    endif	   
-   if HistoryTest = 0
-    if c.ansa.aloc != "111" and c.ansa.aloc != "112" 
+   if HistoryTest = 0 and c.ansa.aloc dp
+    if c.ansa.aloc != "111" and c.ansa.aloc != "112"
 	 HistoryTest = 1
     endif
    endif     
@@ -1922,7 +1916,8 @@ on load do:
 end Page3Rpt
 
  function Page4Rpt(ansagradedct,ansarestypedct,c.ansa.arrest,c.ansa.commdate,c.ansa.emptype,c.ansa.grade,c.ansa.labor,c.ansa.laboroth,c.ansa.minor,c.ansa.resother1,c.ansa.restype,c_ansa_emptype,c_ansa_grade,c_ansa_labor,c_ansa_restype,q_text_arrest,
-                   q_text_commdate,q_text_emptype,q_text_grade,q_text_labor,q_text_laboroth,q_text_minor,q_text_resother1,q_text_restype) is null
+                   q_text_commdate,q_text_emptype,q_text_grade,q_text_labor,q_text_laboroth,q_text_minor,q_text_resother1,q_text_restype,
+				   c.ansa.bipsq1,c.ansa.bipsq2,q_text_bips11,q_text_bips12,a_text_bips11,a_text_bips12,a_text_bips13,q_text_bips2,a_text_bips21,a_text_bips22,a_text_bips23) is null
   ansagradedct     is b
   ansarestypedct   is b
   c.ansa.arrest    is x
@@ -1947,6 +1942,18 @@ end Page3Rpt
   q_text_minor     is x
   q_text_resother1 is x
   q_text_restype   is x
+  c.ansa.bipsq1    is x
+  c.ansa.bipsq2    is x
+  q_text_bips11    is x
+  q_text_bips12    is x
+  a_text_bips11    is x
+  a_text_bips12    is x
+  a_text_bips13    is x
+  q_text_bips2     is x
+  a_text_bips21    is x
+  a_text_bips22    is x
+  a_text_bips23    is x
+  
   c_ansa_grade = $dct(AnsaGradeDCT,c.ansa.grade)
   c_ansa_restype = $dct(AnsaResTypeDCT,c.ansa.restype)
   if c.ansa.emptype = "1"
@@ -2009,7 +2016,26 @@ end Page3Rpt
    $row()
     $col("right")$text(q_text_minor)
     $col()$text(c.ansa.minor)
-  $endtable($funcname)   
+  if $operstaffid = "3737"
+   if c.ansa.bipsq1 dp and c.ansa.bipsq2 dp
+   $row()
+    $col("right")$text(q_text_bips11)
+	$br()$text(q_text_bips12)
+    select c.ansa.bipsq1
+     case "Y" $col()$text(a_text_bips11)
+	 case "N" $col()$text(a_text_bips12)
+	 case "U" $col()$text(a_text_bips13)
+    endselect
+   $row() 
+	$col("right")$text(q_text_bips2)
+    select c.ansa.bipsq2
+     case "LAR"  $col()$text(a_text_bips21)
+	 case "SELF" $col()$text(a_text_bips22)
+	 case "NLAR" $col()$text(a_text_bips23)
+    endselect
+   endif
+  endif  
+  $endtable($funcname)     
  end Page4Rpt
 
  'Life Domain Report 
@@ -2950,7 +2976,7 @@ end Page3Rpt
 
  function ALOCRpt(RptTitle,ReportID,ansaauthleveldct,ansadeviationdct,c.ansa.acomment,c.ansa.aloc,c.ansa.alocdate,c.ansa.alocedate,c.ansa.devjust,c.ansa.devoth,c.ansa.dloc,c.ansa.fairhear,c.ansa.loc_dev,c.ansa.rloc,
                   c.ansa.type,c_ansa_aloc,c_ansa_dloc,c_ansa_fairhear,c_ansa_loc_dev,c_ansa_rloc,chk_mednec,medicalnecessity,q_text_acomment,q_text_aloc,q_text_alocdate,q_text_alocedate,q_text_alocstaff,
-                  q_text_devjust,q_text_devoth,q_text_dloc,q_text_fairhear,q_text_loc_dev,q_text_rloc,sigline,ChangeIrmsTitle) is null
+                  q_text_devjust,q_text_devoth,q_text_dloc,q_text_fairhear,q_text_loc_dev,q_text_rloc,sigline,ChangeIrmsTitle,c.ansa.pincode,c.ansa.pindate,c.ansa.pintime,c.ansa.staff) is null
   RptTitle         is x
   ReportID         is x
   ansaauthleveldct is b
@@ -2986,6 +3012,11 @@ end Page3Rpt
   q_text_rloc      is x
   sigline          is x
   ChangeIrmsTitle  is x
+  c.ansa.pincode   is x
+  c.ansa.pindate   is d
+  c.ansa.pintime   is t
+  c.ansa.staff     is x
+  c_ansa_pintime   is x
 
   sigline = $dct(2071, $oper, "D")
   sigline += " (" + $operstaffid + ")"
@@ -3059,6 +3090,25 @@ end Page3Rpt
      $col()$text(c.ansa.acomment) 
    endif
   $endtable($funcname)
+
+  if c.ansa.pincode = "Y"
+   c_ansa_pintime = $format(c.ansa.pintime,"HH:MM AP")
+   $br()
+   $table($funcname,,"width='100%' cellspacing='0' cellpadding='2' bgcolor='White'  style='border-style: none;'")
+    $row()
+	 $col(,,"34%")$ctag("&nbsp;")
+	 $col("center",,"32%",,,"style='border-bottom:0.1em solid #000000;'")$text("{center}Electronically signed.{/center}","normal")
+	 $col(,,"34%")$ctag("&nbsp;")
+   $endtable($funcname)	  	  	  
+   $table($funcname,,"width='100%' cellspacing='0' cellpadding='2' bgcolor='White'  style='border-style: none;'")	
+	$row()
+	 $col(,,"34%")$ctag("&nbsp;")
+	 $col(,,"16%")$text($dct(9071,c.ansa.staff),"sigdate")$text(", ","sigdate")$text(c.ansa.staff,"sigdate")
+	 $col("right",,"16%")$text($castx(c.ansa.pindate),"sigdate")$ctag("&nbsp;")$text(c_ansa_pintime,"sigdate")
+	 $col(,,"345%",,"1")$ctag("&nbsp;")
+   $endtable($funcname)	  	  
+  endif   
+
   if chk_MedNec = "Y"
    $br(2)$text(MedicalNecessity,"siginfo")
   endif 

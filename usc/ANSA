@@ -1,5 +1,5 @@
 Start ANSA(parmfile,option,client,retcode)
- %version 1.0.040 01/16/2015
+ %version 1.0.043 04/30/2015
  $looplimit = 0
  %include inc_ANSA
  e.ser     is b
@@ -35,6 +35,9 @@ Start ANSA(parmfile,option,client,retcode)
  medicaid_status is x
  LocalCrisisDesc is x
  LocalIneligDesc is x
+ 
+ %global c_ansa_pincode
+ c_ansa_pincode is x
  
  %global DXType, DX, DXCat, DXDate, DXGaf, IDD_Elig
  DXType   is x
@@ -1488,6 +1491,17 @@ function Page4() is null
     $col("right",,"50%")$text(q_text_minor, "datatag")
     $col()$radio(c.ansa.minor,"No","N",,,,,,"Y")$ctag("&nbsp;&nbsp;&nbsp;&nbsp;")$radio(c.ansa.minor,"Yes","Y",,,,,,"Y")   
   $endtable($funcname)
+ if $operstaffid = "3737"
+  $br(2)$text(q_text_bips11, "datatag")$text(q_text_bips12, "datatag")
+  $br()$radio(c.ansa.bipsq1,a_text_bips11,"Y",,,,,,"Y")
+  $br()$radio(c.ansa.bipsq1,a_text_bips12,"N",,,,,,"Y")
+  $br()$radio(c.ansa.bipsq1,a_text_bips13,"U",,,,,,"Y")
+
+  $br(2)$text(q_text_bips2, "datatag")
+  $br()$radio(c.ansa.bipsq2,a_text_bips21,"LAR",,,,,,"Y")
+  $br()$radio(c.ansa.bipsq2,a_text_bips22,"SELF",,,,,,"Y")
+  $br()$radio(c.ansa.bipsq2,a_text_bips23,"NLAR",,,,,,"Y")
+ endif
  $sendform($funcname)
 end Page4
 
@@ -2332,6 +2346,10 @@ function Validate4() is i
  datediff is i
  $clear(errors[])
  
+' if $uc($seg($mscname,1,5)) = "HELEN" and c.ansa.restype = "7" and (c.ansa.type = "1" or c.ansa.type = "11" or c.ansa.type = "12")
+'  (void)$arrpush(errors[],jail_errortxt)  
+' endif 
+ 
  if c.ansa.emptype != "4"
   $clear(c.ansa.labor,c.ansa.laboroth)
  elseif c.ansa.labor != "7"
@@ -2490,16 +2508,25 @@ function Report(mode) is null
    $br(){"lib_ANSA"}CrisisRpt(c.ansa.cr.episds,q_text_cr,q_text_cr_episds)
    $br(){"lib_ANSA"}Page3Rpt(c.ansa.bdss,c.ansa.bnsa,c.ansa.psrs,c.ansa.qids,c.ansa.qidsver,c.ansa.scaledt,dx,dxcat,dxdate,dxgaf,dxtype,q_text_bdss,q_text_bnsa,q_text_nonpp,q_text_psrs,q_text_qids,q_text_qidsver,q_text_scaledt)
    $br(){"lib_ANSA"}Page4Rpt(ansagradedct,ansarestypedct,c.ansa.arrest,c.ansa.commdate,c.ansa.emptype,c.ansa.grade,c.ansa.labor,c.ansa.laboroth,c.ansa.minor,c.ansa.resother1,c.ansa.restype,c_ansa_emptype,c_ansa_grade,c_ansa_labor,c_ansa_restype,
-                             q_text_arrest,q_text_commdate,q_text_emptype,q_text_grade,q_text_labor,q_text_laboroth,q_text_minor,q_text_resother1,q_text_restype)
+                             q_text_arrest,q_text_commdate,q_text_emptype,q_text_grade,q_text_labor,q_text_laboroth,q_text_minor,q_text_resother1,q_text_restype,
+							 c.ansa.bipsq1,c.ansa.bipsq2,q_text_bips11,q_text_bips12,a_text_bips11,a_text_bips12,a_text_bips13,q_text_bips2,a_text_bips21,a_text_bips22,a_text_bips23)
   endif
   if mode = "Report"
    if UM_StaffYN = "Y" and (c.ansa.staff != $operstaffid and c.ansa.staff dp)
     $br()StaffComments()
     $br(){"lib_ANSA"}ALOCRpt(RptTitle,ReportID,ansaauthleveldct,ansadeviationdct,c.ansa.acomment,c.ansa.aloc,c.ansa.alocdate,c.ansa.alocedate,c.ansa.devjust,c.ansa.devoth,c.ansa.dloc,c.ansa.fairhear,c.ansa.loc_dev,c.ansa.rloc,
                              c.ansa.type,c_ansa_aloc,c_ansa_dloc,c_ansa_fairhear,c_ansa_loc_dev,c_ansa_rloc,chk_mednec,medicalnecessity,q_text_acomment,q_text_aloc,q_text_alocdate,q_text_alocedate,q_text_alocstaff,
-                             q_text_devjust,q_text_devoth,q_text_dloc,q_text_fairhear,q_text_loc_dev,q_text_rloc,sigline,ChangeIrmsHeader)
+                             q_text_devjust,q_text_devoth,q_text_dloc,q_text_fairhear,q_text_loc_dev,q_text_rloc,sigline,ChangeIrmsHeader,c.ansa.pincode,c.ansa.pindate,c.ansa.pintime,c.ansa.staff)
    else
     $br()RLOCRpt()
+	$br()
+    if $today > 5/6/2015
+	 $tag("<hr/>")
+	 $br()$ctag("<div align='center'>")
+ 	       $text("Staff Pincode: ","datatag")
+		   $textbox(c_ansa_pincode,,32,32,"Y","normal")
+          $ctag("</div>")
+    endif
    endif
   elseif mode = "Authorize"
    $br()StaffComments()
@@ -2534,15 +2561,6 @@ function SaveData() is i
  SaveData = $dbpoint(02, $regid, c.ansa.rec)	                          
  if c.ansa.compd dp
   c.ansa.snapid = {"l_snapLibSC"}sn_GetSnapID()
- endif
- if c.ansa.devjust dp
-  c.ansa.devR1 = $seg(c.ansa.devjust,1,63)
-  c.ansa.devR2 = $seg(c.ansa.devjust,64,63)
-  c.ansa.devR3 = $seg(c.ansa.devjust,127,63)
-  c.ansa.devR4 = $seg(c.ansa.devjust,190,63)
-  c.ansa.devR5 = $seg(c.ansa.devjust,253,3)
- else
-  $clear(c.ansa.devR1,c.ansa.devR2,c.ansa.devR3,c.ansa.devR4,c.ansa.devR5)
  endif
  if c.ansa.type = "11"
   $clear(c.ansa.intref,c.ansa.intrefoth)
@@ -2597,6 +2615,15 @@ function SaveData() is i
    c.ansa.devoth = $replace(bad_char[bad_char_index],"_",c.ansa.devoth)
   enddo
  endif
+ if c.ansa.devjust dp
+  c.ansa.devR1 = $seg(c.ansa.devjust,1,63)
+  c.ansa.devR2 = $seg(c.ansa.devjust,64,63)
+  c.ansa.devR3 = $seg(c.ansa.devjust,127,63)
+  c.ansa.devR4 = $seg(c.ansa.devjust,190,63)
+  c.ansa.devR5 = $seg(c.ansa.devjust,253,3)
+ else
+  $clear(c.ansa.devR1,c.ansa.devR2,c.ansa.devR3,c.ansa.devR4,c.ansa.devR5)
+ endif 
  if mode = "ADD" 
   if c.ansa.type = "1" or c.ansa.type = "12"
    if c.ansa.isn !dp
@@ -2608,7 +2635,7 @@ function SaveData() is i
   $clear(c.ansa.aloc)
   SaveData = $dbadddst(02, $regid, ansa_dstlist)
  elseif mode = "UPDATE"
-  c.ansa.rec[effd] = c.ansa.date
+'  c.ansa.rec[effd] = c.ansa.date
   if (c.ansa.dloc = c.ansa.rloc) and (c.ansa.dloc = c.ansa.aloc)
    $clear(c.ansa.dloc)
   endif
@@ -2626,6 +2653,9 @@ function SaveData() is i
    c.ansa.caredt = c.ansa.alocdate
    $clear(c.ansa.dloc,c.ansa.devjust,c.ansa.loc_dev)
   endif  
+  if c.ansa.type != "1" and c.ansa.type != "2"
+   $clear(c.ansa.bipsq1,c.ansa.bipsq2)
+  endif
   SaveData = $dbupdate(02, $regid, 
 c.ansa.rec,c.ansa.staff,c.ansa.ver,c.ansa.date,c.ansa.caredt,c.ansa.age,c.ansa.aloc,c.ansa.rloc,c.ansa.dloc,c.ansa.compd,c.ansa.type,
 c.ansa.arrest,c.ansa.grade,c.ansa.restype,c.ansa.resother1,c.ansa.emptype,c.ansa.labor,c.ansa.laboroth,c.ansa.minor,c.ansa.scaledt,
@@ -2657,7 +2687,8 @@ c.ansa.tr.sexabs,c.ansa.tr.phyabs,c.ansa.tr.emoabs,c.ansa.tr.medtrm,c.ansa.tr.na
 c.ansa.sa.severe,c.ansa.sa.durati,c.ansa.sa.stgrec,c.ansa.sa.perinf,c.ansa.sa.envinf,c.ansa.sa.reccom,
 c.ansa.pm.pcpc,c.ansa.pm.chi,c.ansa.pm.mehv,c.ansa.pm.mp,
 c.ansa.vc.career,c.ansa.vc.jtime,c.ansa.vc.jatt,c.ansa.vc.jper,c.ansa.vc.jrel,c.ansa.vc.jskill,
-c.ansa.dn.cog,c.ansa.dn.comm,c.ansa.dn.dev)
+c.ansa.dn.cog,c.ansa.dn.comm,c.ansa.dn.dev,c.ansa.pincode,c.ansa.pindate,c.ansa.pintime,
+c.ansa.bipsq1,c.ansa.bipsq2)
  endif
  if SaveData = 0
   $brmsg("ANSA Assessment Successfully saved to Database!",1,"W","Process Complete")
@@ -3033,6 +3064,7 @@ function ValidateALOC() is i
 end ValidateALOC
 
 function ValidateReport() is i
+ pincode_test is b
  $clear(errors[])
  if c.ansa.type = "2" and c.ansa.rloc = "120" and c.ansa.dloc !dp
   (void)$arrpush(errors[],loc9_1_errortxt) 
@@ -3055,6 +3087,24 @@ function ValidateReport() is i
  if c.ansa.rloc != "100" and c.ansa.type = "11" and c.ansa.dloc != "100"
   (void)$arrpush(errors[],dloc3_errortxt)
  endif
+ 
+ if $today > 5/6/2015
+  pincode_test = {"l_pincode"}ValidatePin($operstaffid,c_ansa_pincode)
+  select pincode_test
+   case 0    c.ansa.pincode = "Y" 
+             c.ansa.pindate = $today
+			 c.ansa.pintime = $timenow
+   case 1002 (void)$arrpush(errors[],Pincode_errtxt1) 
+             $clear(c_ansa_pincode,c.ansa.pincode)
+   case 1004 (void)$arrpush(errors[],Pincode_errtxt2) 
+             $clear(c_ansa_pincode,c.ansa.pincode)
+   case 1005 (void)$arrpush(errors[],Pincode_errtxt1) 
+             $clear(c_ansa_pincode,c.ansa.pincode)			
+   case 1006 (void)$arrpush(errors[],Pincode_errtxt3) 
+             $clear(c_ansa_pincode,c.ansa.pincode)			
+  endselect
+ endif 
+
  if errors[1] dp	
   ValidateReport = 1
  else
@@ -3376,7 +3426,8 @@ function ClearPage2() is null
 end ClearPage2
 
 function ClearPage34() is null
- $clear(c.ansa.scaledt,c.ansa.psrs,c.ansa.bnsa,c.ansa.bdss,c.ansa.qids,c.ansa.qidsver,c.ansa.commdate,c.ansa.arrest,c.ansa.grade,c.ansa.restype,c.ansa.resother1,c.ansa.emptype,c.ansa.labor,c.ansa.laboroth,c.ansa.minor,c.ansa.isn)
+ $clear(c.ansa.scaledt,c.ansa.psrs,c.ansa.bnsa,c.ansa.bdss,c.ansa.qids,c.ansa.qidsver,c.ansa.commdate,c.ansa.arrest,c.ansa.grade,c.ansa.restype,c.ansa.resother1,c.ansa.emptype,c.ansa.labor,c.ansa.laboroth,c.ansa.minor,c.ansa.isn,
+        c.ansa.bipsq1,c.ansa.bipsq2)
 end ClearPage34
 
 function AssessmentStaff() is null

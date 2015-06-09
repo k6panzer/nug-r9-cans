@@ -128,6 +128,9 @@ chk_MedNec is x
 %global c.ansa.comment,c.ansa.acomment
 %global c.ansa.devjust
 %global c.ansa.psrs,c.ansa.bnsa,c.ansa.bdss,c.ansa.qids,c.ansa.qidsver
+%global c.ansa.mcorx,c.ansa.mcotx,c.ansa.mconame,c.ansa.mcoresp,c.ansa.mcoauth1,c.ansa.mcoauth2
+%global c.ansa.pincode,c.ansa.pindate,c.ansa.pintime
+%global c.ansa.bipsq1,c.ansa.bipsq2
 
 rc_ansa_dstlist   is i
 ansa_dstlist      is dstlist
@@ -181,6 +184,17 @@ c.ansa.bnsa       is x
 c.ansa.bdss       is x
 c.ansa.qids       is x
 c.ansa.qidsver    is x
+c.ansa.mcorx      is d
+c.ansa.mcotx      is d
+c.ansa.mconame    is x
+c.ansa.mcoresp    is x
+c.ansa.mcoauth1   is x
+c.ansa.mcoauth2   is x
+c.ansa.pincode    is x
+c.ansa.pindate    is d
+c.ansa.pintime    is t
+c.ansa.bipsq1     is x
+c.ansa.bipsq2     is x
 
 'Risk Behaviors
 %global c.ansa.r.suicid,c.ansa.r.dangot,c.ansa.r.smutil,c.ansa.r.oslfhr,c.ansa.r.exploit,c.ansa.r.gamble,c.ansa.r.sexagr,c.ansa.r.crimbe
@@ -538,6 +552,17 @@ c.ansa.dn.dev     is x
 %define q_text_minor "Resides with a minor under 18?: "
 %define q_text_scaledt "Clinical Ratings Scale Date: "
 
+'BIPS Related
+%define q_text_bips11 "Patient may be eligible for other HHSC Services, please indicate the patient's desire to send some limited assessment information to the HHSC Long Term Services and Support agency. "
+%define q_text_bips12 "The patient may be contacted by other agencies to further screen for eligibility for these services."
+%define a_text_bips11 "Yes, the patient/LAR would like assessment/referral information shared"
+%define a_text_bips12 "No, the patient/LAR does not want assessment information to be shared"
+%define a_text_bips13 "Patient/LAR did not indicate a preference"
+%define q_text_bips2 "Indicate who was present during the assessment process"
+%define a_text_bips21 "Patient (and patient does not have an LAR)"
+%define a_text_bips22 "Legally Authorized Individual (LAR)"
+%define a_text_bips23 "Not the patient or LAR"
+
 'Other Questions
 %define q_text_extdrev "Extended Review Period Requested: "
 %define q_text_tcoommi "TCOOMMI Consumer?"
@@ -655,6 +680,10 @@ errors[] is x
 %define CrisisOverTxt1 "Due to scoring not indicating a crisis recommendation, a deviation to Crisis must be requested for authorization"
 %define CrisisOverTxt2 "Due to scoring not indicating a crisis recommendation, a deviation is required for Crisis Authorization"
 %define CrisisOverTxt3 "If you do not beleive that a Crisis Authorization is correct, authorize the assessment as Ineligible"
+%define Jail_errortxt "Intakes Assessments cannot be completed if the client is currently in a Jail or Correctional Facility. Please contact UM for more information."
+%define Pincode_errtxt1 "Incorrect Pincode, Please retype and try again. After multiple incorrect entries the pincode access must be reset by MIS"
+%define Pincode_errtxt2 "Pincode Locked, Too many incorrect pincode entries. Please Contact MIS to unlock and create new pincode"
+%define Pincode_errtxt3 "Pincode Access Not allowed, Please Contact MIS to setup a pincode"
 
 rc_ansa_dstlist = $dstlist(ansa_dstlist,02,
 c.ansa.rec,c.ansa.staff,c.ansa.ver,c.ansa.date,c.ansa.caredt,c.ansa.age,c.ansa.aloc,c.ansa.rloc,c.ansa.dloc,c.ansa.compd,c.ansa.type,
@@ -670,6 +699,9 @@ c.ansa.commdate,
 c.ansa.comment,c.ansa.acomment,
 c.ansa.devjust,
 c.ansa.psrs,c.ansa.bnsa,c.ansa.bdss,c.ansa.qids,c.ansa.qidsver,
+c.ansa.mcorx,c.ansa.mcotx,c.ansa.mconame,c.ansa.mcoresp,c.ansa.mcoauth1,c.ansa.mcoauth2,
+c.ansa.pincode,c.ansa.pindate,c.ansa.pintime,
+c.ansa.bipsq1,c.ansa.bipsq2,
 c.ansa.r.suicid,c.ansa.r.dangot,c.ansa.r.smutil,c.ansa.r.oslfhr,c.ansa.r.exploit,c.ansa.r.gamble,c.ansa.r.sexagr,c.ansa.r.crimbe,
 c.ansa.b.psychs,c.ansa.b.cog,c.ansa.b.depres,c.ansa.b.anxity,c.ansa.b.mania,c.ansa.b.implsv,c.ansa.b.inter,c.ansa.b.antisoc,c.ansa.b.adjtrm,c.ansa.b.angctr,c.ansa.b.subabs,c.ansa.b.eatdst,
 c.ansa.ld.phymed,c.ansa.ld.family,c.ansa.ld.employ,c.ansa.ld.socfun,c.ansa.ld.recret,c.ansa.ld.indliv,c.ansa.ld.sexdev,c.ansa.ld.living,c.ansa.ld.restab,c.ansa.ld.legal,c.ansa.ld.sleep,c.ansa.ld.slfcre,c.ansa.ld.decisi,c.ansa.ld.invrec,

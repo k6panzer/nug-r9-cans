@@ -1,5 +1,5 @@
 start CANS617(parmfile,option,client,retcode)
- %version 1.0.033 01/16/2015
+ %version 1.0.037 06/02/2015
  $looplimit = 0
  %include inc_CANS617
  e.ser     is b
@@ -27,6 +27,9 @@ start CANS617(parmfile,option,client,retcode)
  c_cans_restype  is x
  sigline         is x
  medicaid_status is x
+ 
+ %global c_cans_pincode
+ c_cans_pincode is x 
 
  %global parmfile,option,client,retcode, rc
  parmfile is x
@@ -560,7 +563,8 @@ function Report(mode) is null
                              q_text_hs_durrec,c.cans.hs.durrec,
                              q_text_hs_timlst,c.cans.hs.timlst)
    {"lib_CANS617"}CrisisRpt(q_text_cr_episds,c.cans.cr.episds)
-   Page4Rpt()
+   {"lib_CANS617"}Page4Rpt(c.cans.type,c.cans.disreas,c.cans.grade,c.cans.restype,c.cans.commdate,c.cans.school3m,c.cans.arrest,c.cans.resother1,c.cans.bipsq1,c.cans.bipsq2,c_cans_grade,c_cans_restype,CansGradeDCT,CansResTypeDCT,q_text_commdate,
+                           q_text_school3m,q_text_grade,q_text_arrest,q_text_restype,q_text_resother1,q_text_bips11,q_text_bips12,q_text_bips2,a_text_bips11,a_text_bips12,a_text_bips13,a_text_bips21,a_text_bips22,a_text_bips23)
   endif
   if mode = "Report"
    if UM_StaffYN = "Y" and (c.cans.staff != $operstaffid and c.cans.staff dp)
@@ -568,6 +572,14 @@ function Report(mode) is null
     $br()ALOCRpt()
    else
     $br()RLOCRpt()
+	$br()
+    if $today > 5/6/2015
+	 $tag("<hr/>")
+	 $br()$ctag("<div align='center'>")
+ 	       $text("Staff Pincode: ","datatag")
+		   $textbox(c_cans_pincode,,32,32,"Y","normal")
+          $ctag("</div>")   	
+    endif
    endif  
   else
    $br(){"lib_CANS617"}StaffComments(q_text_comment,c.cans.comment,c.cans.staff)
@@ -605,15 +617,6 @@ function SaveData() is i
   c.cans.resother2 = $seg(c.cans.resother1,45,56)
  else
   $clear(c.cans.resother1,c.cans.resother2)
- endif
- if c.cans.devjust dp
-  c.cans.devR1 = $seg(c.cans.devjust,1,63)
-  c.cans.devR2 = $seg(c.cans.devjust,64,63)
-  c.cans.devR3 = $seg(c.cans.devjust,127,63)
-  c.cans.devR4 = $seg(c.cans.devjust,190,63)
-  c.cans.devR5 = $seg(c.cans.devjust,253,3)
- else
-  $clear(c.cans.devR1,c.cans.devR2,c.cans.devR3,c.cans.devR4,c.cans.devR5)
  endif
  if c.cans.aloc = "100"
   $clear(c.cans.intref,c.cans.intrefoth)
@@ -668,6 +671,15 @@ function SaveData() is i
    c.cans.devoth = $replace(bad_char[bad_char_index],"_",c.cans.devoth)
   enddo 
  endif  
+ if c.cans.devjust dp
+  c.cans.devR1 = $seg(c.cans.devjust,1,63)
+  c.cans.devR2 = $seg(c.cans.devjust,64,63)
+  c.cans.devR3 = $seg(c.cans.devjust,127,63)
+  c.cans.devR4 = $seg(c.cans.devjust,190,63)
+  c.cans.devR5 = $seg(c.cans.devjust,253,3)
+ else
+  $clear(c.cans.devR1,c.cans.devR2,c.cans.devR3,c.cans.devR4,c.cans.devR5)
+ endif 
  if mode = "ADD"
   if (c.cans.type = "1" or c.cans.type = "12") and c.cans.isn !dp
    c.cans.isn = SaveEvent()
@@ -680,7 +692,7 @@ function SaveData() is i
   $clear(c.cans.aloc)
   SaveData = $dbadddst(02, $regid, cans_dstlist) 
  else
-  c.cans.rec[effd] = c.cans.date
+'  c.cans.rec[effd] = c.cans.date
   if (c.cans.dloc = c.cans.rloc) and (c.cans.dloc = c.cans.aloc)
    $clear(c.cans.dloc)
   endif
@@ -689,6 +701,9 @@ function SaveData() is i
   endif  
   if c.cans.compd !dp and c.cans.aloc = "100"
    $clear(c.cans.aloc)
+  endif
+  if c.cans.type != "1" and c.cans.type != "2"
+   $clear(c.cans.bipsq1,c.cans.bipsq2)
   endif 
   SaveData = $dbupdate(02, $regid, 
 c.cans.rec,c.cans.staff,c.cans.ver,c.cans.date,c.cans.age,c.cans.aloc,c.cans.rloc,c.cans.dloc,c.cans.compd,c.cans.type,
@@ -729,7 +744,9 @@ c.cans.jj.serios,c.cans.jj.histry,c.cans.jj.arrest,c.cans.jj.planin,c.cans.jj.co
 c.cans.fs.serios,c.cans.fs.histry,c.cans.fs.planin,c.cans.fs.useacc,c.cans.fs.inthrm,c.cans.fs.comsaf,c.cans.fs.resacc,c.cans.fs.remrse,c.cans.fs.futfir,
 c.cans.hs.numprr,c.cans.hs.longst,c.cans.hs.durrec,c.cans.hs.timlst,
 c.cans.sr.hissui,c.cans.sr.hfmsui,c.cans.sr.firear,
-c.cans.caredt)  
+c.cans.caredt,
+c.cans.pincode,c.cans.pindate,c.cans.pintime,
+c.cans.bipsq1,c.cans.bipsq2)  
  endif
  if SaveData = 0
   $brmsg("CANS Assessment Successfully saved to Database!",1,"W","Process Complete")
@@ -2870,6 +2887,11 @@ end Validate3
 
 function Validate4() is i
  datediff is i
+
+' if $uc($seg($mscname,1,5)) = "HELEN" and c.cans.restype = "7" and (c.cans.type = "1" or c.cans.type = "11" or c.cans.type = "12")
+'  (void)$arrpush(errors[],jail_errortxt)
+' endif
+
  $clear(errors[])
  if c.cans.commdate !dp
   (void)$arrpush(errors[],commdt1_errortxt)
@@ -3288,43 +3310,19 @@ function Page4() is null
     $endtable("OTHER")
    $endblock("OTHER","OTHER")
   endif
+ if $operstaffid = "3737"
+  $br(2)$text(q_text_bips11, "datatag")$text(q_text_bips12, "datatag")
+  $br()$radio(c.cans.bipsq1,a_text_bips11,"Y",,,,,,"Y")
+  $br()$radio(c.cans.bipsq1,a_text_bips12,"N",,,,,,"Y")
+  $br()$radio(c.cans.bipsq1,a_text_bips13,"U",,,,,,"Y")
+
+  $br(2)$text(q_text_bips2, "datatag")
+  $br()$radio(c.cans.bipsq2,a_text_bips21,"LAR",,,,,,"Y")
+  $br()$radio(c.cans.bipsq2,a_text_bips22,"SELF",,,,,,"Y")
+  $br()$radio(c.cans.bipsq2,a_text_bips23,"NLAR",,,,,,"Y")
+ endif
  $sendform($funcname)
 end Page4
-
-function Page4Rpt() is null
- if c.cans.type = "1" or c.cans.type = "2" or (c.cans.type = "3" and c.cans.disreas = "9") or c.cans.type = "12"
-  c_cans_grade = $dct(CansGradeDCT,c.cans.grade)
-  c_cans_restype = $dct(CansResTypeDCT,c.cans.restype)
-  $table($funcname,,"width='100%' cellspacing='0' cellpadding='2' bgcolor='White'  style='border-style: solid; border-width: 1px'")
-   $row(,col_color_multi)
-    $col("center",,,"2")$text("Community Scales","datatag")
-   $row()
-    $col("right",,"50%")$text(q_text_commdate)
-    $col()$text(c.cans.commdate)
-   $row()
-    $col("right")$text(q_text_school3m)
-    $col()select c.cans.school3m
-           case "0" $text("No")
-	       case "1" $text("Yes")
-	       case "2" $text("NA")
-	      endselect 
-   $row()
-    $col("right")$text(q_text_grade)
-    $col()$text(c_cans_grade)
-   $row()
-    $col("right")$text(q_text_arrest)
-    $col()$text(c.cans.arrest)
-   $row()
-    $col("right")$text(q_text_restype)
-    $col()$text(c_cans_restype)       
-  if c.cans.resother1 dp
-   $row()
-    $col("right")$text(q_text_resother1)
-    $col()$text(c.cans.resother1)
-  endif 
-  $endtable($funcname)   
- endif
-end Page4Rpt
 
 function CanSkipPage1() is x
  CanSkipPage1 = "N"
@@ -3606,6 +3604,8 @@ function ALOC() is null
 end ALOC
 
 function ALOCRpt() is null
+ c_cans_pintime  is x 
+ 
  sigline = $dct(2071, $oper, "D")
  sigline += " (" + $operstaffid + ")" 
  
@@ -3677,6 +3677,25 @@ function ALOCRpt() is null
     $col()$text(c.cans.acomment) 
   endif
  $endtable($funcname)
+ 
+ if c.cans.pincode = "Y"
+  c_cans_pintime = $format(c.cans.pintime,"HH:MM AP")
+  $br()
+  $table($funcname,,"width='100%' cellspacing='0' cellpadding='2' bgcolor='White'  style='border-style: none;'")
+   $row()
+    $col(,,"34%")$ctag("&nbsp;")
+    $col("center",,"32%",,,"style='border-bottom:0.1em solid #000000;'")$text("{center}Electronically signed.{/center}","normal")
+    $col(,,"34%")$ctag("&nbsp;")
+  $endtable($funcname)	  	  	  
+  $table($funcname,,"width='100%' cellspacing='0' cellpadding='2' bgcolor='White'  style='border-style: none;'")	
+   $row()
+    $col(,,"34%")$ctag("&nbsp;")
+    $col(,,"16%")$text($dct(9071,c.cans.staff),"sigdate")$text(", ","sigdate")$text(c.cans.staff,"sigdate")
+    $col("right",,"16%")$text($castx(c.cans.pindate),"sigdate")$ctag("&nbsp;")$text(c_cans_pintime,"sigdate")
+    $col(,,"345%",,"1")$ctag("&nbsp;")
+  $endtable($funcname)	  	  
+ endif   
+ 
  if chk_MedNec = "Y"
   $br(2)$text(MedicalNecessity,"siginfo")
  endif 
@@ -3839,7 +3858,7 @@ function ValidateALOC() is i
   c.cans.loc_dev = "1"
   $clear(c.cans.devjust)       
  endif
- if c.cans.type = "12" and (c.cans.aloc != "108" and c.cans.aloc != "120")
+ if c.cans.type = "12" and (c.cans.aloc != "108" and c.cans.aloc != "110")
   c.cans.type = "1"
  endif
  if c.cans.dloc = "108" or c.cans.dloc = "109" or c.cans.dloc = "110"
@@ -3848,6 +3867,7 @@ function ValidateALOC() is i
 end ValidateALOC
 
 function ValidateReport() is i
+ pincode_test is b
  $clear(errors[])
  if c.cans.type = "2" and c.cans.rloc = "110" and c.cans.dloc !dp
   (void)$arrpush(errors[],loc9_1_errortxt) 
@@ -3856,6 +3876,24 @@ function ValidateReport() is i
   (void)$arrpush(errors[],dloc_errortxt)
   $clear(c.cans.dloc)
  endif 
+ 
+ if $today > 5/6/2015
+  pincode_test = {"l_pincode"}ValidatePin($operstaffid,c_cans_pincode)
+  select pincode_test
+   case 0    c.cans.pincode = "Y" 
+             c.cans.pindate = $today
+			 c.cans.pintime = $timenow
+   case 1002 (void)$arrpush(errors[],Pincode_errtxt1) 
+             $clear(c_cans_pincode,c.cans.pincode)
+   case 1004 (void)$arrpush(errors[],Pincode_errtxt2) 
+             $clear(c_cans_pincode,c.cans.pincode)
+   case 1005 (void)$arrpush(errors[],Pincode_errtxt1) 
+             $clear(c_cans_pincode,c.cans.pincode)			
+   case 1006 (void)$arrpush(errors[],Pincode_errtxt3) 
+             $clear(c_cans_pincode,c.cans.pincode)			
+  endselect
+ endif  
+ 
  if errors[1] dp	
   ValidateReport = 1
  else
@@ -3956,7 +3994,7 @@ function ClearPage3() is null
 end ClearPage3
 
 function ClearPage4() is null
- $clear(c.cans.commdate,c.cans.school3m,c.cans.grade,c.cans.arrest,c.cans.restype,c.cans.resother1)
+ $clear(c.cans.commdate,c.cans.school3m,c.cans.grade,c.cans.arrest,c.cans.restype,c.cans.resother1,c.cans.bipsq1,c.cans.bipsq2)
 end ClearPage4
 
 function AssessmentStaff() is null

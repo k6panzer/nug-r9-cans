@@ -1,5 +1,5 @@
 library lib_CANS()
- %version 1.0.005 01/16/2015
+ %version 1.0.006 06/02/2015
  function Allow_Assesment(clientid,assessments[]) is null
   clientid        is x
   c.cans.rec      is h
@@ -23,33 +23,27 @@ library lib_CANS()
    case !dp  (void)$arrpush(assessments[],"1")
              (void)$arrpush(assessments[],"11")
    'Initial
-   case "1"  
-     or "I"  if (c.cans.aloc = "6" or c.cans.aloc = "9")
-              (void)$arrpush(assessments[],"1")
-              (void)$arrpush(assessments[],"11")
-	         elseif c.cans.aloc = "8"
-   	          (void)$arrpush(assessments[],"3")
-			 else
-			  (void)$arrpush(assessments[],"2")
-              (void)$arrpush(assessments[],"3")
-			  if OnWaitingList() = "Y"
-               (void)$arrpush(assessments[],"11")   			 
-			  endif			  
-			 endif 
+   case "1" if (c.cans.aloc = "110")
+             (void)$arrpush(assessments[],"1")
+             (void)$arrpush(assessments[],"11")
+			else
+			 (void)$arrpush(assessments[],"2")
+             (void)$arrpush(assessments[],"3")
+'			 if OnWaitingList() = "Y"
+'              (void)$arrpush(assessments[],"11")   			 
+'			 endif			  
+			endif 
    'Update
-   case "2"
-     or "U"  (void)$arrpush(assessments[],"2")
-	         (void)$arrpush(assessments[],"3")
-             if OnWaitingList() = "Y"
-              (void)$arrpush(assessments[],"11")
-             endif			 
+   case "2" (void)$arrpush(assessments[],"2")
+	        (void)$arrpush(assessments[],"3")
+            if OnWaitingList() = "Y"
+             (void)$arrpush(assessments[],"11")
+            endif			 
    'Discharge
-   case "3"  
-     or "D"  (void)$arrpush(assessments[],"1")
-             (void)$arrpush(assessments[],"11")   
+   case "3" (void)$arrpush(assessments[],"1")
+            (void)$arrpush(assessments[],"11")   
    'Crisis
-   case "11" 
-     or "E"  (void)$arrpush(assessments[],"1")
+   case "11" (void)$arrpush(assessments[],"1")
              (void)$arrpush(assessments[],"11")   
    'Initial Non Admission
    case "12" (void)$arrpush(assessments[],"1")
