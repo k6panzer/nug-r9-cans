@@ -1,5 +1,5 @@
 Start ANSA(parmfile,option,client,retcode)
- %version 1.0.043 04/30/2015
+ %version 1.0.044 06/12/2015
  $looplimit = 0
  %include inc_ANSA
  e.ser     is b
@@ -132,7 +132,8 @@ Start ANSA(parmfile,option,client,retcode)
      rc = $dbremovedst(02, $regid, c.ansa.rec,c.ansa.date)
 	 $clear(c.ansa.date,c.ansa.compd,c.ansa.type,c.ansa.staff)
      $brmsg("ANSA Assessment Successfully Removed from the Database!",1,"C","Process Complete")
-     $brmsg("The assessment will restart now.",2,"CW")
+     $brmsg("The assessment will restart now.",2,"C")
+	 $brmsg("",3, "W")	 
 	 Page = "0"
      {"lib_UACOMMON"}RemUMMonitor($regid,$scriptid)	 
 	elseif PromptNED = 2
@@ -144,14 +145,16 @@ Start ANSA(parmfile,option,client,retcode)
      rc = $dbread(02, $regid, ansa_dstlist)	       
      rc = $dbremovedst(02, $regid, c.ansa.rec,c.ansa.date)
      $brmsg("ANSA Assessment Successfully Removed from the Database!",1,"C","Process Complete")
-     $brmsg("The assessment will exit now.",2,"CW")
+     $brmsg("The assessment will exit now.",2,"C")
+	 $brmsg("",3, "W")	 	 
 	 {"lib_UACOMMON"}RemUMMonitor($regid,$scriptid)	 
      return
 	elseif PromptNED = 4
 	 return
 	elseif PromptNED = 5
      $brmsg("ANSA Assessment Currently Being Entered by Another Staff Member!",1,"C","In Progress")
-     $brmsg("The assessment will exit now.",2,"CW")
+     $brmsg("The assessment will exit now.",2,"C")
+	 $brmsg("",3, "W")	 	 
      return	
 	else
      $clear(c.ansa.compd,c.ansa.type,c.ansa.staff)
@@ -173,7 +176,8 @@ Start ANSA(parmfile,option,client,retcode)
      rc = $dbremovedst(02, $regid, c.ansa.rec,c.ansa.date)
 	 $clear(c.ansa.date,c.ansa.compd,c.ansa.type,c.ansa.staff)
      $brmsg("ANSA Assessment Successfully Removed from the Database!",1,"C","Process Complete")
-     $brmsg("The assessment will restart now.",2,"CW")
+     $brmsg("The assessment will restart now.",2,"C")
+	 $brmsg("",3, "W")	 	 
 	 Page = "0"	 
 	elseif PromptNED = 2
      rc = $dbread(02, $regid, ansa_dstlist)
@@ -184,13 +188,15 @@ Start ANSA(parmfile,option,client,retcode)
      rc = $dbread(02, $regid, ansa_dstlist)	       
      rc = $dbremovedst(02, $regid, c.ansa.rec,c.ansa.date)
      $brmsg("ANSA Assessment Successfully Removed from the Database!",1,"C","Process Complete")
-     $brmsg("The assessment will exit now.",2,"CW")
+     $brmsg("The assessment will exit now.",2,"C")
+	 $brmsg("",3, "W")	 	 
      return
 	elseif PromptNED = 4
 	 return
 	elseif PromptNED = 5
      $brmsg("ANSA Assessment Currently Being Entered by Another Staff Member!",1,"C","In Progress")
-     $brmsg("The assessment will exit now.",2,"CW")
+     $brmsg("The assessment will exit now.",2,"C")
+	 $brmsg("",3, "W")	 	 
      return	
 	else
      $clear(c.ansa.compd,c.ansa.type,c.ansa.staff)
@@ -205,7 +211,8 @@ Start ANSA(parmfile,option,client,retcode)
    rc = $dbremovedst(02, $regid, c.ansa.rec,c.ansa.date)
    $clear(c.ansa.date,c.ansa.compd,c.ansa.type,c.ansa.staff)
    $brmsg("ANSA Assessment Successfully Removed from the Database!",1,"C","Process Complete")
-   $brmsg("The assessment will restart now.",2,"CW")
+   $brmsg("The assessment will restart now.",2,"C")
+   $brmsg("",3, "W")	    
    Page = "0"   
   elseif PromptNED = 2
    rc = $dbread(02, $regid, ansa_dstlist)
@@ -216,13 +223,15 @@ Start ANSA(parmfile,option,client,retcode)
    rc = $dbread(02, $regid, ansa_dstlist)	       
    rc = $dbremovedst(02, $regid, c.ansa.rec,c.ansa.date)
    $brmsg("ANSA Assessment Successfully Removed from the Database!",1,"C","Process Complete")
-   $brmsg("The assessment will exit now.",2,"CW")
+   $brmsg("The assessment will exit now.",2,"C")
+   $brmsg("",3, "W")	    
    return
   elseif PromptNED = 4
    return
   elseif PromptNED = 5
    $brmsg("ANSA Assessment Currently Being Entered by Another Staff Member!",1,"C","In Progress")
-   $brmsg("The assessment will exit now.",2,"CW")
+   $brmsg("The assessment will exit now.",2,"C")
+   $brmsg("",3, "W")	    
    return	
   else
    $clear(c.ansa.compd,c.ansa.type,c.ansa.staff)
