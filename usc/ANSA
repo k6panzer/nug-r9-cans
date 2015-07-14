@@ -1,5 +1,5 @@
 Start ANSA(parmfile,option,client,retcode)
- %version 1.0.044 06/12/2015
+ %version 1.0.047 07/15/2015
  $looplimit = 0
  %include inc_ANSA
  e.ser     is b
@@ -2529,7 +2529,7 @@ function Report(mode) is null
    else
     $br()RLOCRpt()
 	$br()
-    if $today > 5/6/2015
+    if OptStaffPin = "Y"
 	 $tag("<hr/>")
 	 $br()$ctag("<div align='center'>")
  	       $text("Staff Pincode: ","datatag")
@@ -2988,9 +2988,14 @@ function ValidateALOC() is i
  if c.ansa.alocdate dp
   if c.ansa.alocdate > $today
    (void)$arrpush(errors[],aloc7_errortxt)    
+  else
+   datediff = $today - c.ansa.alocdate
+   if datediff > 30
+    (void)$arrpush(errors[],aloc8_errortxt)    
+   endif
   endif
   if c.ansa.alocdate <= last_alocdate
-   (void)$arrpush(errors[],aloc8_errortxt)    
+   (void)$arrpush(errors[],aloc6_errortxt)    
   endif
   if c.ansa.alocdate < c.ansa.commdate
    (void)$arrpush(errors[],commdt3_errortxt)      
@@ -3097,7 +3102,7 @@ function ValidateReport() is i
   (void)$arrpush(errors[],dloc3_errortxt)
  endif
  
- if $today > 5/6/2015
+ if OptStaffPin = "Y"
   pincode_test = {"l_pincode"}ValidatePin($operstaffid,c_ansa_pincode)
   select pincode_test
    case 0    c.ansa.pincode = "Y" 

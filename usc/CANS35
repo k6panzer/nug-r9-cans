@@ -1,5 +1,5 @@
 start CANS35(parmfile,option,client,retcode)
- %version 1.0.040 06/12/2015
+ %version 1.0.042 07/14/2015
  $looplimit = 0
  %include inc_CANS35
  e.ser     is b
@@ -462,7 +462,7 @@ function Report(mode) is null
 				  else 
 				   $br()RLOCRpt()
 	               $br()
-				   if $today > 5/6/2015
+				   if OptStaffPin = "Y"
                     $tag("<hr/>")
 	                $br()$ctag("<div align='center'>")
  	                      $text("Staff Pincode: ","datatag")
@@ -3273,9 +3273,14 @@ function ValidateALOC() is i
  if c.cans.alocdate dp
   if c.cans.alocdate > $today
    (void)$arrpush(errors[],aloc7_errortxt)    
+  else
+   datediff = $today - c.cans.alocdate
+   if datediff > 30
+    (void)$arrpush(errors[],aloc8_errortxt)       
+   endif
   endif
   if c.cans.alocdate <= last_alocdate
-   (void)$arrpush(errors[],aloc8_errortxt)    
+   (void)$arrpush(errors[],aloc6_errortxt)    
   endif
   if c.cans.alocdate < c.cans.commdate
    (void)$arrpush(errors[],commdt3_errortxt)      
@@ -3363,7 +3368,7 @@ function ValidateReport() is i
   $clear(c.cans.dloc)
  endif 
  
- if $today > 5/6/2015
+ if OptStaffPin = "Y"
   pincode_test = {"l_pincode"}ValidatePin($operstaffid,c_cans_pincode)
   select pincode_test
    case 0    c.cans.pincode = "Y" 

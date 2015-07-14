@@ -1,5 +1,5 @@
 start CANS617(parmfile,option,client,retcode)
- %version 1.0.038 06/12/2015
+ %version 1.0.040 07/16/2015
  $looplimit = 0
  %include inc_CANS617
  e.ser     is b
@@ -37,6 +37,10 @@ start CANS617(parmfile,option,client,retcode)
  client   is x
  retcode  is i
  rc       is i
+ 
+ %global eighteenth_bd
+ c.bd          is d
+ eighteenth_bd is d
 
  if $regid !dp
   if client dp
@@ -76,6 +80,9 @@ start CANS617(parmfile,option,client,retcode)
   {"lib_UACOMMON"}DisplayErrors(errors[])
   return
  endif
+
+ (void)$dbread(2,$regid,c.bd)
+ eighteenth_bd = $dateoffset(c.bd,,,18) 
  
  %global assessments
  assessments[] is x
@@ -498,7 +505,7 @@ function Report(mode) is null
   
   $style("siginfotag")
   $br()ReportHdr()
-  if c.cans.type = "1" or c.cans.type = "2" or (c.cans.type = "3" and c.cans.disreas = "9") or c.cans.type = "12"
+  if c.cans.type = "1" or c.cans.type = "2" or (c.cans.type = "3" and c.cans.disreas = "9") or (c.cans.type = "3" and c.cans.disreas = "16") or c.cans.type = "12"
    OtherQuestionRpt()
   endif 
   {"lib_CANS617"}ChildRiskRpt(q_text_cr_suicid,c.cans.cr.suicid,q_text_cr_smutil,c.cans.cr.smutil,q_text_cr_oslfhr,c.cans.cr.oslfhr,
@@ -538,7 +545,7 @@ function Report(mode) is null
 				           q_text_ad_affreg,c.cans.ad.affreg,q_text_ad_intrus,c.cans.ad.intrus,q_text_ad_attach,c.cans.ad.attach,q_text_ad_dissoc,c.cans.ad.dissoc,q_text_ad_timb4t,c.cans.ad.timb4t,
 				           q_text_sa_severe,c.cans.sa.severe,q_text_sa_durati,c.cans.sa.durati,q_text_sa_stgrec,c.cans.sa.stgrec,q_text_sa_perinf,c.cans.sa.perinf,q_text_sa_parinf,c.cans.sa.parinf,q_text_sa_envinf,c.cans.sa.envinf,
 						   c.cans.type,c.cans.disreas)
-  if c.cans.type = "1" or c.cans.type = "2" or (c.cans.type = "3" and c.cans.disreas = "9") or c.cans.type = "12"
+  if c.cans.type = "1" or c.cans.type = "2" or (c.cans.type = "3" and c.cans.disreas = "9") or (c.cans.type = "3" and c.cans.disreas = "16") or c.cans.type = "12"
    {"lib_CANS617"}LifeDomainRpt(q_text_ld_family,c.cans.ld.family,q_text_ld_livsit,c.cans.ld.livsit,q_text_ld_school,c.cans.ld.school,
                       q_text_ld_socFun,c.cans.ld.socFun,q_text_ld_recret,c.cans.ld.recret,q_text_ld_develp,c.cans.ld.develp,q_text_ld_commun,c.cans.ld.commun,q_text_ld_judgmt,c.cans.ld.judgmt,
                       q_text_ld_jobfun,c.cans.ld.jobfun,q_text_ld_legal,c.cans.ld.legal,q_text_ld_medicl,c.cans.ld.medicl,q_text_ld_physcl,c.cans.ld.physcl,
@@ -583,7 +590,7 @@ function Report(mode) is null
    else
     $br()RLOCRpt()
 	$br()
-    if $today > 5/6/2015
+    if OptStaffPin = "Y"
 	 $tag("<hr/>")
 	 $br()$ctag("<div align='center'>")
  	       $text("Staff Pincode: ","datatag")
@@ -2519,7 +2526,7 @@ function Validate0() is i
   endif 
  elseif c.cans.type = "3"
   $clear(c.cans.intref,c.cans.intrefoth)
-  if c.cans.disreas = "9"
+  if c.cans.disreas = "9" or c.cans.disreas = "16"
    if c.cans.tcoommi !dp
     (void)$arrpush(errors[],oth_tc_errortxt)   
    endif
@@ -2608,7 +2615,7 @@ function Validate1() is i
  last_date     is d
  last_alocdate is d
  $clear(errors[])
- if c.cans.type = "1" or c.cans.type = "2" or (c.cans.type = "3" and c.cans.disreas = "9") or c.cans.type = "12"
+ if c.cans.type = "1" or c.cans.type = "2" or (c.cans.type = "3" and c.cans.disreas = "9") or (c.cans.type = "3" and c.cans.disreas = "16") or c.cans.type = "12"
   if c.cans.ld.family !dp or c.cans.ld.livsit !dp or c.cans.ld.school !dp or c.cans.ld.socFun !dp or c.cans.ld.recret !dp or c.cans.ld.develp !dp or c.cans.ld.commun !dp or c.cans.ld.judgmt !dp or 
   c.cans.ld.jobfun !dp or c.cans.ld.legal  !dp or c.cans.ld.medicl !dp or c.cans.ld.physcl !dp or c.cans.ld.sexdev !dp or c.cans.ld.sleep  !dp or c.cans.ld.indliv !dp
  (void)$arrpush(errors[],ld_errortxt)
@@ -3041,7 +3048,7 @@ function Page1() is null
       $col()
     $endtable("2")	
    endif
-   if c.cans.type = "1" or c.cans.type = "2" or (c.cans.type = "3" and c.cans.disreas = "9") or c.cans.type = "12"
+   if c.cans.type = "1" or c.cans.type = "2" or (c.cans.type = "3" and c.cans.disreas = "9") or (c.cans.type = "3" and c.cans.disreas = "16") or c.cans.type = "12"
     $table("1",,table_nobgcolor)
      $row()
       $col(,,"50%")ChildRisk()
@@ -3291,7 +3298,7 @@ function Page4() is null
  $form($funcname)    
   {"lib_UACOMMON"}ClientPageHeader($regid)
   $br()ReportHdr()
-  if c.cans.type = "1" or c.cans.type = "2" or (c.cans.type = "3" and c.cans.disreas = "9") or c.cans.type = "12"
+  if c.cans.type = "1" or c.cans.type = "2" or (c.cans.type = "3" and c.cans.disreas = "9") or (c.cans.type = "3" and c.cans.disreas = "16") or c.cans.type = "12"
    OtherQuestionRpt()
    $tag("<hr/>")  
    $table($funcname,,table_nobgcolor)
@@ -3408,7 +3415,9 @@ function AssessmentDate() is null
 end AssessmentDate
 
 function AssessmentType() is null
- index is i
+ index         is i
+ days_until_18 is i
+ days_until_18 = eighteenth_bd - $today
  index = 0
  $table($funcname,,table_nobgcolor)
   $row()
@@ -3440,10 +3449,16 @@ function AssessmentType() is null
     $row()
      $col("right",,"50%")$text(q_text_disreas,"datatag")
      $col()$dropboxdct(c.cans.disreas,CansDisReasDCT,,,,"Y")
+'           if days_until_18 < 30
+'		    $dropbox(c.cans.disreas,"Transition to Adult Services","16",,,,,"Y")	 
+'		   endif	
            $dropbox(c.cans.disreas,"Other","7",,,"3","OTHER","Y")	 
     $row()
      $col("right",,"50%")$text(q_text_disref,"datatag")
      $col()$dropboxdct(c.cans.disref,CansDisRefDCT,,,,"Y")
+'	       if days_until_18 < 30
+'	        $dropbox(c.cans.disref,"Transition to Adult Services","14",,,,,"Y")	 		   
+'		   endif	
    $endtable("3")
   $endblock("3","3")
   $block("3","OTHER")
@@ -3478,7 +3493,7 @@ function OtherQuestions() is null
 end OtherQuestions
 
 function OtherQuestionRpt() is null
- if c.cans.type = "1" or c.cans.type = "2" or (c.cans.type = "3" and c.cans.disreas = "9") or c.cans.type = "12"
+ if c.cans.type = "1" or c.cans.type = "2" or (c.cans.type = "3" and c.cans.disreas = "9") or (c.cans.type = "3" and c.cans.disreas = "16") or c.cans.type = "12"
   $br()
   $table($funcname,,"width='100%' cellspacing='0' cellpadding='2' bgcolor='White' style='border-style: solid; border-width: 1px'")
    $row()
@@ -3796,9 +3811,14 @@ function ValidateALOC() is i
  if c.cans.alocdate dp
   if c.cans.alocdate > $today
    (void)$arrpush(errors[],aloc7_errortxt)    
+  else
+   datediff = $today - c.cans.alocdate
+   if datediff > 30
+    (void)$arrpush(errors[],aloc8_errortxt)       
+   endif
   endif
   if c.cans.alocdate <= last_alocdate
-   (void)$arrpush(errors[],aloc8_errortxt)    
+   (void)$arrpush(errors[],aloc6_errortxt)    
   endif
   if c.cans.alocdate < c.cans.commdate
    (void)$arrpush(errors[],commdt3_errortxt)      
@@ -3887,7 +3907,7 @@ function ValidateReport() is i
   $clear(c.cans.dloc)
  endif 
  
- if $today > 5/6/2015
+ if OptStaffPin = "Y"
   pincode_test = {"l_pincode"}ValidatePin($operstaffid,c_cans_pincode)
   select pincode_test
    case 0    c.cans.pincode = "Y" 
