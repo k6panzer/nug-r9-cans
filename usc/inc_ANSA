@@ -1,7 +1,9 @@
 'Include file for the ANSA (Adult Needs And Strengths Assessment)
 
+%define d_StaffPinStart 05/06/2015
+
 %global AnsaTypeDCT,AnsaIntRefDCT,AnsaDisReasDCT,AnsaDisRefDCT,AnsaAuthLevelDCT,AnsaDeviationDCT,AnsaGradeDCT,AnsaResTypeDCT,SkiPSer,AssessmentSer,AssessorSig,AuthSig,LogUsage,LogFile,MaxClinRatingAge
-%global Title,RptTitle,ReportID,ChangeIrmsHeader,CheckStfCred,StaffSelectDCT
+%global Title,RptTitle,ReportID,ChangeIrmsHeader,CheckStfCred,StaffSelectDCT,OptStaffPIN
 
 AnsaTypeDCT      is b
 AnsaIntRefDCT    is b
@@ -24,6 +26,7 @@ ReportID         is x 'IRMS form name
 ChangeIrmsHeader is x 'Y/N Call the changetitle function on the final snapshot? Not a very good var name, I agree
 CheckStfCred     is x 'Y/N Call the Check_UACredentials function?
 StaffSelectDCT   is b 'DCT used by the AssessmentStaff dropbox, used by Denton
+OptStaffPIN      is x 'Y/N (DEFAULT:Y) Capture/verify assessor staff PIN prior to auth request
 
 '*********Datacode Tables, Change These*****************
 AnsaTypeDCT      = 9700
@@ -41,7 +44,8 @@ Title            = "ANSA Report"
 RptTitle         = Title
 ReportID         = "ANSA"
 ChangeIrmsHeader = "Y"
-CheckStfCred 	 = "Y"	
+CheckStfCred 	  = "Y"
+OptStaffPIN      = "Y"
 
 'Various overrides based on the custnumber
 select $custnumber
@@ -57,19 +61,20 @@ select $custnumber
          case "PECAN" SkipSer = "Y"
             LogUsage = "Y"
             LogFile  = "/c0/SQLTRANSFER/PV/t_client_ansa_usage.txt"
-			$clear(StaffSelectDCT)			
+			$clear(StaffSelectDCT)
          endselect
    'GCC
    case 641
-      AnsaDisReasDCT = 9703
-      SkipSer = "Y"
-      ReportID = "GCADLUA"
-      ChangeIrmsHeader = "N"
-      CheckStfCred = "N"
+      AnsaDisReasDCT    = 9703
+      SkipSer           = "Y"
+      ReportID          = "GCADLUA"
+      ChangeIrmsHeader  = "N"
+      CheckStfCred      = "N"
+      OptStaffPIN       = "N"
   	  $clear(StaffSelectDCT)
-'Denton
+   'Denton
    case 365
-     StaffSelectDCT = 7051    	  	  
+     StaffSelectDCT = 7051
  endselect
 '*******************************************************
 if SkipSer !dp

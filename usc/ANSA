@@ -1,5 +1,9 @@
 Start ANSA(parmfile,option,client,retcode)
+<<<<<<< HEAD
  %version 1.0.047 07/15/2015
+=======
+ %version 1.0.045 06/22/15 TxACE
+>>>>>>> origin/master
  $looplimit = 0
  %include inc_ANSA
  e.ser     is b
@@ -2529,6 +2533,7 @@ function Report(mode) is null
    else
     $br()RLOCRpt()
 	$br()
+<<<<<<< HEAD
     if OptStaffPin = "Y"
 	 $tag("<hr/>")
 	 $br()$ctag("<div align='center'>")
@@ -2536,6 +2541,16 @@ function Report(mode) is null
 		   $textbox(c_ansa_pincode,,32,32,"Y","normal")
           $ctag("</div>")
     endif
+=======
+    if $today > d_StaffPinStart and OptStaffPIN = "Y" then
+	    $tag("<hr/>")
+	    $br()
+	    $ctag("<div align='center'>")
+ 	    $text("Staff Pincode: ","datatag")
+		 $textbox(c_ansa_pincode,,32,32,"Y","normal")
+       $ctag("</div>")
+     endif
+>>>>>>> origin/master
    endif
   elseif mode = "Authorize"
    $br()StaffComments()
@@ -3102,7 +3117,11 @@ function ValidateReport() is i
   (void)$arrpush(errors[],dloc3_errortxt)
  endif
  
+<<<<<<< HEAD
  if OptStaffPin = "Y"
+=======
+ if $today > d_StaffPinStart and OptStaffPIN = "Y" then
+>>>>>>> origin/master
   pincode_test = {"l_pincode"}ValidatePin($operstaffid,c_ansa_pincode)
   select pincode_test
    case 0    c.ansa.pincode = "Y" 
