@@ -1,0 +1,86 @@
+'THIS SCRIPT IS USED TO DETERMINE THE DUE DATE FOR UNIFORM ASSESSMENTS.  THE
+'SCRIPT RUNS AUTOMATICALLY ON A CRON AND SENDS AN EMAIL TO THE CASE MANAGER AT
+'28, 14, AND OVERDUE DAYS FOR THE ADULT UA.
+'MODIFIED ON 04/06/2005 TO COMPLETE THE AUTOCLOSE PROCESS WHEN THE UA IS NEAR
+'120 DAYS OLD
+'MODIFIED ON 03/13/2008 TO CHECK FOR SAC 998 THAT HAS BECOME AUTHORIZED
+'MODIFIED ON 08/06/2008 TO INCLUDE THE DIAGNOSIS NOTIFICATION EMAILS (Logic from DXMAIL script)
+'AUTHOR: SCOTT B.
+'DATE: 05/07/2003
+'03/02/2010 lovec skip UAs that are crisis
+'08/08/2013 lovec adapted for RDM to TRR migration
+
+start UABDAUTODISCH()
+'HFC Discharge Staff
+ DischargeStaff is x
+ DischargeStaff = "3479"
+
+'Output file
+ logfile is x
+ additional_days is i
+ if $uc($seg($mscname,1,5)) = "HELEN"
+  logfile = "/c0/EXPORT/LOGS/UABDCLOSED.log"
+  additional_days = 3
+ else
+  logfile = "/c4/EXPORT/LOGS/UABDCLOSED.log" 
+  additional_days = 20
+ endif 
+
+ %include inc_UABD
+
+'PROCESS VARIABLEs
+ rc        is b 'RETURN CODE
+ rc1       is b 'RETURN CODE
+ rc2       is b 'RETURN CODE
+ CID       is x 'CLIENT ID VARIABLE
+ ua_age    is i 'DIFFERENCE IN DATES
+ LapseDate is d 'XXX DAYS FROM TRAG DATE
+ rc = 0
+ rc1 = 0
+ 
+datediff is i 
+ 
+
+'***************************PROCEDURE SECTION***********************************
+'START THE CLIENT DB READ IN SEQUENTIAL ORDER
+ rc = $dbstart(02, CID, "I")
+ do while rc1 < 3
+  datediff = 0
+  rc1 = $dbreadnext(02, CID, uabd_dstlist)
+  if c.uabd.compd dp and c.uabd.pur != "D" and c.uabd.aloc != "6" and c.uabd.aloc != "8" and c.uabd.aloc != "9" and c.uabd.pur != "E" and c.uabd.comt != "TRR REPORTING"
+   ua_age = $today - c.uabd.date
+'Annual Review checked
+   if c.uabd.annual = "Y"
+    LapseDate = c.uabd.date + 365
+'Extended Review checked
+   elseif c.uabd.extd = "Y"
+    LapseDate = c.uabd.date + 180
+'Everything else
+   else
+    LapseDate = c.uabd.date + 90
+   endif
+'Doublecheck SP5?
+   if c.uabd.aloc = "5"
+    LapseDate = c.uabd.date + 90
+   endif
+   LapseDate = LapseDate + additional_days
+   if ((ua_age >= 90 and c.uabd.compd dp and c.uabd.aloc != "9" and c.uabd.aloc != "0" and c.uabd.aloc != "6" and c.uabd.aloc != "8" and c.uabd.extd != "Y" and c.uabd.annual != "Y" and c.uabd.comt != "TRR REPORTING")
+      or
+       (ua_age >= 180 and c.uabd.compd dp and c.uabd.aloc != "9" and c.uabd.aloc != "0" and c.uabd.aloc != "6" and c.uabd.aloc != "8" and c.uabd.extd = "Y" and c.uabd.annual != "Y" and c.uabd.comt != "TRR REPORTING")
+      or
+       (ua_age >= 365 and c.uabd.compd dp and c.uabd.aloc != "9" and c.uabd.aloc != "0" and c.uabd.aloc != "6" and c.uabd.aloc != "8" and c.uabd.annual = "Y")) and (c.uabd.pur = "I" or c.uabd.pur = "U") and c.uabd.comt != "TRR REPORTING"
+  call "AUTODISANSA"(CID,LapseDate,rc2)
+'Write to the logfile
+    LapseDate = LapseDate - additional_days
+	$log(`$castx($today) + "|" + c.uabd.aloc + "|" + CID + "|" + "AUTOCLOSE ADULT|" + LapseDate`,logfile)  
+   else
+	datediff = $today - LapseDate
+    if datediff = 21 or datediff = 14 or datediff = 7 or datediff < 6   and (c.uabd.pur = "I" or c.uabd.pur = "U") and c.uabd.comt != "TRR REPORTING"  
+	 LapseDate = LapseDate - additional_days
+	 call "AUTODISNAG"(CID,LapseDate) 
+    endif
+   endif	  
+  endif
+  $loopcount = 0
+ enddo
+end UABDAUTODISCH

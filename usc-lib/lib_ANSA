@@ -1,0 +1,3293 @@
+library lib_ANSA()
+ %version 1.0.028 06/02/2015
+ %define row_color2 "bgcolor='White'"
+ %define col_color_multi "bgcolor='LightGrey'"
+on load do:
+ %include inc_SCHIZALG
+ %include inc_QIDSALG
+ %include inc_BIPOLARALG
+ %include inc_DX_ANSA
+
+ function Allow_Assesment(clientid,assessments[]) is null
+  clientid        is x
+  c.ansa.rec      is h
+  c.ansa.staff    is x
+  c.ansa.ver      is x
+  c.ansa.date     is d
+  c.ansa.age      is i
+  c.ansa.aloc     is x
+  c.ansa.rloc     is x
+  c.ansa.dloc     is x
+  c.ansa.compd    is d
+  c.ansa.type     is x
+  c.ansa.alocdate is d  
+  rc              is i 
+  assessments[]   is x
+  $clear(assessments[])
+  $allowupdate(assessments[])
+  Last_Assessment(clientid,c.ansa.type,c.ansa.staff,c.ansa.ver,c.ansa.date,c.ansa.age,c.ansa.aloc,c.ansa.rloc,c.ansa.dloc,c.ansa.compd,c.ansa.alocdate)
+
+  select c.ansa.type
+   'no prior assessment
+   case !dp  (void)$arrpush(assessments[],"1")
+             (void)$arrpush(assessments[],"11")
+   'Initial
+   case "1" if (c.ansa.aloc = "120")
+             (void)$arrpush(assessments[],"1")
+             (void)$arrpush(assessments[],"11")
+			else
+	         (void)$arrpush(assessments[],"2")
+             (void)$arrpush(assessments[],"3")
+'			 if OnWaitingList() = "Y"
+'              (void)$arrpush(assessments[],"11")   			 
+'			 endif			  
+			endif 
+   'Update
+   case "2" (void)$arrpush(assessments[],"2")
+	        (void)$arrpush(assessments[],"3")
+			if OnWaitingList() = "Y"
+             (void)$arrpush(assessments[],"11")   			 
+			endif
+   'Discharge
+   case "3" (void)$arrpush(assessments[],"1")
+            (void)$arrpush(assessments[],"11")   
+   'Crisis
+   case "11" (void)$arrpush(assessments[],"1")
+             (void)$arrpush(assessments[],"11")   
+   'Initial Non Admission
+   case "12" (void)$arrpush(assessments[],"1")
+             (void)$arrpush(assessments[],"11")   
+  endselect
+ end Allow_Assesment
+
+ dynamic function Last_Assessment(clientid,c.ansa.type,c.ansa.staff,c.ansa.ver,c.ansa.date,c.ansa.age,c.ansa.aloc,c.ansa.rloc,c.ansa.dloc,c.ansa.compd,c.ansa.alocdate) is null
+  clientid        is x
+  c.ansa.rec      is h
+  c.ansa.staff    is x
+  c.ansa.ver      is x
+  c.ansa.date     is d
+  c.ansa.age      is i
+  c.ansa.aloc     is x
+  c.ansa.rloc     is x
+  c.ansa.dloc     is x
+  c.ansa.compd    is d
+  c.ansa.type     is x
+  c.ansa.alocdate is d  
+  rc              is i 
+
+'have to set these variable names incase the library doesn't get unloaded / reloaded and the names where changed previously
+  $setvarname(c.ANSA.rec,      "C.ANSA.REC")
+  $setvarname(c.ANSA.staff,    "C.ANSA.STAFF")
+  $setvarname(c.ANSA.date,     "C.ANSA.DATE")
+  $setvarname(c.ANSA.aloc,     "C.ANSA.ALOC")
+  $setvarname(c.ANSA.rloc,     "C.ANSA.RLOC")
+  $setvarname(c.ANSA.compd,    "C.ANSA.COMPD")
+  $setvarname(c.ANSA.type,     "C.ANSA.TYPE")
+  $setvarname(c.ANSA.alocdate, "C.ANSA.ALOCDATE")
+
+  $allowupdate(c.ansa.type,c.ansa.staff,c.ansa.ver,c.ansa.date,c.ansa.age,c.ansa.aloc,c.ansa.rloc,c.ansa.dloc,c.ansa.compd,c.ansa.alocdate) 
+  rc = $dbread(02,clientid,c.ansa.rec,c.ansa.type,c.ansa.staff,c.ansa.ver,c.ansa.date,c.ansa.age,c.ansa.aloc,c.ansa.rloc,c.ansa.dloc,c.ansa.compd,c.ansa.alocdate)
+  do until c.ansa.compd dp or rc > 1
+   rc = $dbreadnextdst(02,clientid,c.ansa.rec,c.ansa.type,c.ansa.staff,c.ansa.ver,c.ansa.date,c.ansa.age,c.ansa.aloc,c.ansa.rloc,c.ansa.dloc,c.ansa.compd,c.ansa.alocdate)
+  enddo 
+ end Last_Assessment
+ 
+ function EndDate(c.ansa.aloc,c.ansa.alocdate) is d
+  c.ansa.aloc     is x
+  c.ansa.alocdate is d
+  select c.ansa.aloc
+   case "100" EndDate = c.ansa.alocdate + 7
+   case "106" EndDate = c.ansa.alocdate + 90
+   case "109" EndDate = c.ansa.alocdate + 365
+   case "111" EndDate = c.ansa.alocdate + 365   
+   case "112" EndDate = c.ansa.alocdate + 180   
+   case "113" EndDate = c.ansa.alocdate + 180   
+   case "114" EndDate = c.ansa.alocdate + 180   
+   case "115" EndDate = c.ansa.alocdate + 180
+   case other EndDate = c.ansa.alocdate
+  endselect 
+ end EndDate
+ 
+ function PromptNewEditDel(clientid) is i
+  clientid        is x
+  c.ansa.rec      is h
+  c.ansa.staff    is x
+  c.ansa.ver      is x
+  c.ansa.date     is d
+  c.ansa.age      is i
+  c.ansa.aloc     is x
+  c.ansa.rloc     is x
+  c.ansa.dloc     is x
+  c.ansa.compd    is d
+  c.ansa.type     is x
+  c.ansa.alocdate is d
+  rc              is i
+  choice_btn[]    is x
+  rc = $dbread(02,clientid,c.ansa.rec,c.ansa.type,c.ansa.staff,c.ansa.date,c.ansa.rloc,c.ansa.compd)
+  if c.ansa.staff = $operstaffid and c.ansa.compd !dp
+   do while 1 = 1
+    $clear(choice_btn[])
+    $submitopt("off")
+    $cancelopt("off","Exit")
+    $form($funcname)
+     {"lib_UACOMMON"}ClientPageHeader($regid)
+	 $tag("<center>")
+	  $br(3)$text("There is a current ANSA assessment that has not yet been authorized. How do you wish to proceed?","datatag")
+	  $br(2)$submit(choice_btn[1],"Restart Current")
+	  $br(2) $submit(choice_btn[2],"Edit Existing")
+	  $br(2) $submit(choice_btn[3],"Delete Existing and Exit")
+	  $br(2) $submit(choice_btn[4],"Exit with no changes")
+	 $tag("</center>")
+    $sendform($funcname)
+    select $endbutton
+     case "SUBMIT" 
+	 case "CANCEL" PromptNewEditDel = 4
+	               return
+	 case other PromptNewEditDel = $maxarray(choice_btn[])
+	            return
+    endselect    
+   enddo
+  elseif c.ansa.staff dp and c.ansa.staff != $operstaffid and c.ansa.compd !dp
+   PromptNewEditDel = 5
+  endif
+ end PromptNewEditDel
+ 
+ function SCHIZALG() is null
+  radio_index is i
+  do while 1 = 1
+   $submitopt("off","SUBMIT")
+   $cancelopt("off","BACK")
+   $form($funcname)
+    {"lib_UACOMMON"}ClientPageHeader($regid)
+    $text("{H1}SCORESHEET FOR SCHIZOPHRENIA ALGORITHM{/H1}")  
+    $text(q_text_schz_date,"datatag")
+    $textbox(c.schiz.date,"CAL",10,6,"Y")
+    $tag("<hr/>")
+    $text("4-Item Positive Symptom Rating Scale","datatag")  
+    $table($funcname)
+     $row()
+      $col("center")
+      $col("center")$text("N/A","datatag")
+      radio_index = 0
+	  do while radio_index++ < 7
+       $col("center")$text(radio_index,"datatag")
+	  enddo
+     $row(,"bgcolor='99ccff'")
+      $col()$text(q_text_schz_susp,"datatag")
+      $col("center")$radio(c.schiz.susp,,"NA")
+      radio_index = 0
+	  do while radio_index++ < 7
+	   $col("center")$radio(c.schiz.susp,,$castx(radio_index))
+	  enddo 
+      $col()$link(psrs1_link,"Description","target='.blank'")
+     $row(,"bgcolor='white'")
+      $col()$text(q_text_schz_thou,"datatag")
+      $col("center") $radio(c.schiz.thou,,"NA")
+      radio_index = 0
+	  do while radio_index++ < 7	
+       $col("center") $radio(c.schiz.thou,,$castx(radio_index))
+	  enddo 
+      $col()$link(psrs2_link,"Description","target='.blank'")
+     $row(,"bgcolor='99ccff'")
+      $col()$text(q_text_schz_hall,"datatag")
+      $col("center") $radio(c.schiz.hall,,"NA")
+       radio_index = 0
+	   do while radio_index++ < 7	
+        $col("center") $radio(c.schiz.hall,,$castx(radio_index))
+	   enddo 
+      $col()$link(psrs3_link,"Description","target='.blank'")
+     $row(,"bgcolor='white'")
+      $col("left") $text(q_text_schz_cond,"datatag")
+      $col("center") $radio(c.schiz.cond,,"NA")
+      radio_index = 0
+	  do while radio_index++ < 7	
+       $col("center") $radio(c.schiz.cond,,$castx(radio_index))
+      enddo
+      $col()$link(psrs4_link,"Description","target='.blank'")
+    $endtable($funcname)
+    $br()$text("*NA -- Not able to be assessed","siginfo")
+    $tag("<hr/>")
+    $br()$text("4-Item Negative Symptom Rating Scale","datatag")
+    $table($funcname)  
+     $row()
+      $col("center") 
+	  radio_index = 0
+	  do while radio_index++ < 6
+       $col("center")$text(radio_index,"datatag")     
+	  enddo
+     $row(,"bgcolor='99ccff'")
+      $col()$text(q_text_schz_resp,"datatag")
+	  radio_index = 0
+	  do while radio_index++ < 6	
+       $col("center") $radio(c.schiz.resp,,$castx(radio_index))
+      enddo
+      $col()$link(bnsa1_link,"Description","target='.blank'")  
+     $row(,"bgcolor='white'")
+      $col()$text(q_text_schz_emot,"datatag")
+	  radio_index = 0
+	  do while radio_index++ < 6	
+       $col("center") $radio(c.schiz.emot,,$castx(radio_index))
+      enddo
+      $col()$link(bnsa2_link,"Description","target='.blank'")  
+     $row(,"bgcolor='99ccff'")
+      $col()$text(q_text_schz_socl,"datatag")
+	  radio_index = 0
+	  do while radio_index++ < 6		
+       $col("center") $radio(c.schiz.socl,,$castx(radio_index))
+      enddo
+      $col()$link(bnsa3_link,"Description","target='.blank'")  
+     $row(,"bgcolor='white'")
+      $col()$text(q_text_schz_grhy,"datatag")
+	  radio_index = 0
+	  do while radio_index++ < 6		
+       $col("center")$radio(c.schiz.grhy,,$castx(radio_index))
+	  enddo 
+      $col()$link(bnsa4_link,"Description","target='.blank'")  
+    $endtable($funcname)
+    $tag("<hr/>")
+    $br()
+    $table($funcname)  
+     $row()
+      $col()$text("Source of Information(check all applicable)","datatag")
+      $col()$text("Explain here if validity of assessment is questionable:","datatag")  
+     $row(,"bgcolor='99ccff'")
+      $col()$checkbox(c.schiz.pati,q_text_schz_pati,"Y")
+      $col()$checkbox(c.schiz.drug,q_text_schz_drug,"Y")  
+     $row(,"bgcolor='99ccff'")
+      $col()$checkbox(c.schiz.parn,q_text_schz_parn,"Y")
+      $col()$checkbox(c.schiz.rapp,q_text_schz_rapp,"Y")  
+     $row(,"bgcolor='99ccff'")
+      $col()$checkbox(c.schiz.prof,q_text_schz_prof,"Y")
+      $col()$checkbox(c.schiz.nega,q_text_schz_nega,"Y")  
+     $row(,"bgcolor='99ccff'")
+      $col()$checkbox(c.schiz.char,q_text_schz_char,"Y")
+      $col()$checkbox(c.schiz.unco,q_text_schz_unco,"Y")    
+     $row(,"bgcolor='99ccff'")
+      $col()
+      $col()$checkbox(c.schiz.diso,q_text_schz_diso,"Y")
+     $row(,"bgcolor='99ccff'")
+      $col()
+      $col()$checkbox(c_schiz_othr,q_text_schz_othr,"Y",,,"Oth","Oth")
+     $block("Oth","Oth")       
+      $textbox(c.schiz.othr,,30,45)
+     $endblock("Oth","Oth")  
+     $row()
+      $col()$text(q_text_schz_con1,"datatag")$textbox(c.schiz.conf,,1,1)$text(q_text_schz_con2)  
+     $endtable($funcname)
+     $br()$text(q_text_schz_comm,"datatag")
+     $br()$textblock(c.schiz.comm,10,60,,, 1000)$countbox(c.schiz.comm,"(max chars is 1000)")    
+   $sendform($funcname)
+   if $endbutton = "CANCEL"
+    return
+   elseif c.schiz.date !dp
+    $brmsg("You Must Enter an Assessment Date To Move On.",1,"W","Error")
+   elseif c.schiz.susp !dp or c.schiz.thou !dp or c.schiz.hall !dp or c.schiz.cond !dp or c.schiz.resp !dp or c.schiz.emot !dp or c.schiz.socl !dp or c.schiz.grhy !dp
+    $brmsg("You Must Complete All Sections of the PSRS and BNSA To Move On.", 1,"W","Error")
+   elseif c.schiz.conf !dp
+    $brmsg("You Must Score the Confidence in the Assessment To Move On.",1,"W","Error")
+   elseif c.schiz.pati !dp and c.schiz.parn !dp and c.schiz.prof !dp and c.schiz.char !dp
+    $brmsg("You Must Check at Least One of the Sources of Information To Move On.",1,"W","Error")
+   elseif c_schiz_othr dp and c.schiz.othr !dp
+    $brmsg("You Must Provide a Description if Other is a Questionable Reason.",1,"W","Error")
+   else
+    return
+   endif	
+  enddo
+ end SCHIZALG
+
+ function SCHIZALGRpt(c.ansa.scaledt,c.ansa.psrs,c.ansa.bnsa) is x
+  c.ansa.scaledt is d
+  c.ansa.psrs    is x
+  c.ansa.bnsa    is x
+  rc             is i
+  schizsusp      is i 'Int SUSPICIOUS VARIABLE
+  schizthou      is i 'Int THOUGHT CONTENT VARIABLE
+  schizhall      is i 'Int HALLUCINATIONS VARIABLE
+  schizcond      is i 'Int CONCEPTUAL VARIABLE
+  schizpsrs      is i 'Int PSRS TOTAL
+  schizresp      is i 'Int TIME TO RESPOND VARIABLE
+  schizemot      is i 'Int EMOTION VARIABLE
+  schizsocl      is i 'Int SOCIAL DRIVE VARIABLE
+  schizgrhy      is i 'Int GROOMING/HYGIENE VARIABLE
+  schizbnsa      is i 'Int BNSA TOTAL
+  
+  if c.schiz.susp = "NA"
+   schizsusp = 1
+  else
+   schizsusp = c.schiz.susp
+  endif
+  if c.schiz.thou = "NA"
+   schizthou = 1
+  else
+   schizthou = c.schiz.thou
+  endif
+  if c.schiz.hall = "NA"
+   schizhall = 1
+  else
+   schizhall = c.schiz.hall
+  endif
+  if c.schiz.cond = "NA"
+   schizcond = 1
+  else
+   schizcond = c.schiz.cond
+  endif
+ 'Calculate the PSRS score
+  schizpsrs = schizsusp + schizthou + schizhall + schizcond
+  c.schiz.psrs = schizpsrs
+ 'Calculate the BNSA score
+  schizresp = c.schiz.resp
+  schizemot = c.schiz.emot
+  schizsocl = c.schiz.socl
+  schizgrhy = c.schiz.grhy
+  schizbnsa = schizresp + schizemot + schizsocl + schizgrhy
+  c.schiz.bnsa = schizbnsa
+
+  $submitopt("off","")
+  $cancelopt("off","BACK")
+  $form($funcname)
+   $tag("<CENTER>")
+    $text("SCHIZOPHRENIA ASSESSMENT","H5")
+   $tag("</CENTER>")
+   $tag("<hr/>")
+   {"lib_UACOMMON"}ClientPageHeader($regid)
+   $br()$text(q_text_schz_date,"H6")$text(c.schiz.date)
+   $tag("<hr/>")
+   $tag("<CENTER>")
+    $text("4-ITEM POSITIVE SYMPTOM RATING SCALE","H6")
+   $tag("</CENTER>")
+   $br()
+   $table("t1",,"width='100%'")
+    $row()
+    $col(,,"40%")$text(q_text_schz_susp,"H6")
+    $col(,,"60%")$text(c.schiz.susp)$text($dct(SchizScoreDCT, c.schiz.susp,"D"))
+   $row()
+    $col()$text(q_text_schz_thou,"H6")
+    $col()$text(c.schiz.thou)$text($dct(SchizScoreDCT, c.schiz.thou,"D"))
+   $row()
+    $col()$text(q_text_schz_hall,"H6")
+    $col()$text(c.schiz.hall)$text($dct(SchizScoreDCT, c.schiz.hall,"D"))
+   $row()
+    $col()$text(q_text_schz_cond,"H6")
+    $col()$text(c.schiz.cond)$text($dct(SchizScoreDCT, c.schiz.cond,"D"))
+   $row()
+    $col()$text(q_text_schz_psrs,"H6")
+    $col()$text(c.schiz.psrs)
+   $endtable($funcname)
+   $br()
+   $tag("<CENTER>")
+    $text("4-ITEM NEGATIVE SYMPTOM RATING SCALE","H6")
+   $tag("</CENTER>")
+   $br()
+   $table($funcname,,"width='100%'")
+    $row()
+     $col(,,"40%")$text(q_text_schz_resp,"H6")
+     $col(,,"60%")$text(c.schiz.resp)$text($dct(SchizScoreDCT, c.schiz.resp,"D"))
+    $row()
+     $col()$text(q_text_schz_emot,"H6")
+     $col()$text(c.schiz.emot)$text($dct(SchizScoreDCT, c.schiz.emot,"D"))
+    $row()
+     $col()$text(q_text_schz_socl,"H6")
+     $col()$text(c.schiz.socl)$text($dct(SchizScoreDCT, c.schiz.socl,"D"))
+    $row()
+     $col()$text(q_text_schz_grhy,"H6")
+     $col()$text(c.schiz.grhy)$text($dct(SchizScoreDCT, c.schiz.grhy,"D"))
+    $row()
+     $col()$text(q_text_schz_bnsa,"H6")
+     $col()$text(c.schiz.bnsa)
+   $endtable($funcname)
+   $br()$text("Sources of Information","H6")
+   if c.schiz.pati = "Y"
+    $br()$text(q_text_schz_pati)
+   endif
+   if c.schiz.parn = "Y"
+    $br()$text(q_text_schz_parn)
+   endif
+   if c.schiz.prof = "Y"
+    $br()$text(q_text_schz_prof)
+   endif
+   if c.schiz.char = "Y"
+    $br()$text(q_text_schz_char)
+   endif
+   $br()$text("Validity of Assessment Questionable Reasons","H6")
+   if c.schiz.drug = "Y"
+    $br()$text(q_text_schz_drug)
+   endif
+   if c.schiz.rapp = "Y"
+    $br()$text(q_text_schz_rapp)
+   endif
+   if c.schiz.nega = "Y"
+   $br()$text(q_text_schz_nega)
+   endif
+   if c.schiz.unco = "Y"
+    $br()$text(q_text_schz_unco)
+   endif
+   if c.schiz.diso = "Y"
+    $br()$text(q_text_schz_diso)
+   endif
+   if c_schiz_othr = "Y"
+    $br()$text(q_text_schz_othr,"H6")$text(c.schiz.othr)
+   endif
+   $br()$text(q_text_schz_con1,"H6")$text(c.schiz.conf)
+   $br(2)$text(q_text_schz_comm,"H6")$text(c.schiz.comm)
+   $tag("<hr/>")
+   $br(3)
+   {"l_snapLibSC"}sn_CreateReport(SchizRptTitle,,,SchizReportID)
+  $sendform($funcname)
+  if $endbutton != "CANCEL" and $endbutton != "SUBMIT"
+   $dblock()
+   rc = $dbpoint(2,$regid,schiz_dstlist)
+   c.schiz.rec[effd] = c.schiz.date			   
+   c.schiz.staf = $operstaffid
+   if c_schiz_othr != "Y"
+    $clear(c.schiz.othr)
+   endif 
+   rc = $dbadddst(2,$regid,schiz_dstlist)
+   if rc = 0
+    $brmsg("Data Successfully Added to Database!", 1,"W","Process Complete")
+    SCHIZALGRpt = "Y" 
+    c.ansa.scaledt = c.schiz.date
+	c.ansa.psrs = c.schiz.psrs
+    c.ansa.bnsa = c.schiz.bnsa
+	$allowupdate(c.ansa.scaledt,c.ansa.psrs,c.ansa.bnsa)
+    return
+   else
+    $brmsg("There Was A Problem Saving The Data! Please Retry.", 1,"W","ERROR")
+	$brmsg($errmsg,1,"W","Error")
+   endif
+  else
+   SCHIZALGRpt = "N" 
+  endif
+ end SCHIZALGRpt
+
+ function QIDSALG() is null
+  radio_index is i
+  do while 1 = 1
+   $submitopt("off", "SUBMIT")
+   $cancelopt("off", "BACK")
+   $form($funcname)
+    {"lib_UACOMMON"}ClientPageHeader($regid)
+    $text("{H1}SCORESHEET FOR DEPRESSION ALGORITHM -- ANSWER ALL SECTIONS{/H1}")
+    $text(q_text_qids_date, "datatag")$textbox(c.qids.date,"CAL",10,6,"Y")  
+    $table($funcname)
+     $row()
+      $col("right")$text("Self-Report","datatag")
+      $col()$text("Clinician Report","datatag")
+     $row()
+      $col("right")$radio(c.qids.vers,, "1")
+      $col() $radio(c.qids.vers,, "2")
+    $endtable($funcname)
+    $tag("<hr/>")
+    $text("Quick Inventory of Depressive Symptomatology","datatag")  
+    $table($funcname)
+     $row()
+      $col("center")
+      radio_index = -1
+      do while radio_index++ < 3
+       $col("center")$text(radio_index,"datatag")
+      enddo 
+     $row(, "bgcolor='99ccff'")
+      $col()$text("Section 1: Falling Asleep","datatag")
+      radio_index = -1
+      do while radio_index++ < 3	
+       $col("center")$radio(c.qids.fall,,$castx(radio_index))
+	  enddo 
+      $col("center")$link(qids_link1,"Description","target='_blank'")            
+     $row(,"bgcolor='white'")
+      $col()$text(q_text_qids_slep,"datatag")
+      radio_index = -1
+      do while radio_index++ < 3	   
+       $col("center")$radio(c.qids.slep,,$castx(radio_index))
+	  enddo 
+      $col("center")$link(qids_link2,"Description","target='_blank'")
+     $row(,"bgcolor='99ccff'")
+      $col()$text("Section 3: Waking Up Too Early","datatag")
+      radio_index = -1
+      do while radio_index++ < 3	   
+       $col("center")$radio(c.qids.wake,,$castx(radio_index))
+	  enddo 
+      $col("center")$link(qids_link3,"Description","target='_blank'")
+     $row(,"bgcolor='white'")
+      $col() $text(q_text_qids_much,"datatag")
+      radio_index = -1
+      do while radio_index++ < 3	   	
+       $col("center")$radio(c.qids.much,,$castx(radio_index))
+      enddo
+      $col("center")$link(qids_link4,"Description","target='_blank'")
+     $row(,"bgcolor='99ccff'")
+      $col()$text(q_text_qids_sad,"datatag")
+      radio_index = -1
+      do while radio_index++ < 3	   		
+       $col("center")$radio(c.qids.sad,,$castx(radio_index))
+	  enddo 
+      $col("center") $link(qids_link5,"Description","target='_blank'")
+     $row(,"bgcolor='white'")
+      $col()$text(q_text_qids_appd,"datatag")
+      radio_index = -1
+      do while radio_index++ < 3	   			
+       $col("center")$radio(c.qids.appd,,$castx(radio_index))
+      enddo
+      $col("center")$link(qids_link6,"Description","target='_blank'")
+     $row(,"bgcolor='99ccff'")
+      $col()$text(q_text_qids_appi,"datatag")
+      radio_index = -1
+      do while radio_index++ < 3	   				
+       $col("center")$radio(c.qids.appi,,$castx(radio_index))
+      enddo
+      $col("center")$link(qids_link7,"Description","target='_blank'")
+     $row(,"bgcolor='white'")
+      $col()$text(q_text_qids_weid,"datatag")
+      radio_index = -1
+      do while radio_index++ < 3	   				
+       $col("center")$radio(c.qids.weid,,$castx(radio_index))
+      enddo
+      $col("center")$link(qids_link8,"Description","target='_blank'")
+     $row(,"bgcolor='99ccff'")
+      $col()$text(q_text_qids_weii,"datatag")
+      radio_index = -1
+      do while radio_index++ < 3	   					
+       $col("center")$radio(c.qids.weii,,$castx(radio_index))
+      enddo
+      $col("center")$link(qids_link9,"Description","target='_blank'")
+     $row(,"bgcolor='white'")
+      $col()$text(q_text_qids_conc,"datatag")
+      radio_index = -1
+      do while radio_index++ < 3	   					
+       $col("center")$radio(c.qids.conc,,$castx(radio_index))
+      enddo
+      $col("center")$link(qids_link10,"Description","target='_blank'")
+     $row(,"bgcolor='99ccff'")
+      $col()$text(q_text_qids_self,"datatag")
+      radio_index = -1
+      do while radio_index++ < 3	   					
+       $col("center")$radio(c.qids.self,,$castx(radio_index))
+      enddo
+      $col("center")$link(qids_link11,"Description","target='_blank'")  
+     $row(,"bgcolor='white'")
+      $col()$text(q_text_qids_deat,"datatag")
+      radio_index = -1
+      do while radio_index++ < 3	   					
+       $col("center")$radio(c.qids.deat,,$castx(radio_index))
+      enddo
+      $col("center")$link(qids_link12,"Description","target='_blank'")  
+     $row(,"bgcolor='99ccff'")
+      $col()$text(q_text_qids_intr,"datatag")
+      radio_index = -1
+      do while radio_index++ < 3	   						
+       $col("center")$radio(c.qids.intr,,$castx(radio_index))
+      enddo
+      $col("center")$link(qids_link13,"Description","target='_blank'")  
+     $row(,"bgcolor='white'")
+      $col()$text(q_text_qids_enrg,"datatag")
+      radio_index = -1
+      do while radio_index++ < 3	   							
+       $col("center")$radio(c.qids.enrg,,$castx(radio_index))
+      enddo
+      $col("center")$link(qids_link14,"Description","target='_blank'")  
+     $row(,"bgcolor='99ccff'")
+      $col()$text(q_text_qids_slow,"datatag")
+      radio_index = -1
+      do while radio_index++ < 3	   							
+       $col("center")$radio(c.qids.slow,,$castx(radio_index))
+      enddo
+      $col("center")$link(qids_link15,"Description","target='_blank'")  
+     $row(,"bgcolor='white'")
+      $col()$text(q_text_qids_rest,"datatag")
+      radio_index = -1
+      do while radio_index++ < 3	   							
+       $col("center")$radio(c.qids.rest,,$castx(radio_index))
+      enddo
+      $col("center")$link(qids_link16,"Description","target='_blank'")  
+    $endtable($funcname)  
+    $tag("<hr/>")
+    $text("Additional Comments:","datatag")
+    $br()$textblock(c.qids.comm,10,60,,,1000)$countbox(c.qids.comm,"(max chars is 1000)") 
+   $sendform($funcname)
+   if $endbutton = "CANCEL"
+     return
+   elseif c.qids.date !dp
+    $brmsg("You Must Enter a Date and Staff Completing the Assessment to Move On.",1,"W","Error")
+   elseif c.qids.vers !dp
+    $brmsg("You must indicate if this is a Clinician or Self Report To Move On.",1,"W","Error")
+   elseif c.qids.fall !dp or c.qids.slep !dp or c.qids.wake !dp or c.qids.much !dp or c.qids.sad !dp or c.qids.appd !dp or c.qids.appi !dp or
+    c.qids.weid !dp or c.qids.weii !dp or c.qids.conc !dp or c.qids.self !dp or c.qids.deat !dp or c.qids.intr !dp or c.qids.enrg !dp or
+    c.qids.slow !dp or c.qids.rest !dp
+    $brmsg("You Must Complete All Sections of the QIDS To Move On.",1,"W","Error")
+   else 
+    return
+   endif
+  enddo 	
+ end QIDSALG
+
+ function QIDSALGRpt(c.ansa.scaledt,c.ansa.qids,c.ansa.qidsver) is x
+  c.ansa.scaledt is d
+  c.ansa.qids    is x
+  c.ansa.qidsver is x
+  rc             is i  
+  qidsfall       is n
+  qidsslep       is n
+  qidswake       is n
+  qidsmuch       is n
+  qidssad        is n
+  qidsappd       is n
+  qidsappi       is n
+  qidsweid       is n
+  qidsweii       is n
+  qidsconc       is n
+  qidsself       is n
+  qidsdeat       is n
+  qidsintr       is n
+  qidsenrg       is n
+  qidsslow       is n
+  qidsrest       is n
+  qidstotl       is n
+  var1           is n
+  var2           is n
+  var3           is n
+
+  'Calculate the PSRS score
+  qidsfall = c.qids.fall
+  qidsslep = c.qids.slep
+  qidswake = c.qids.wake
+  qidsmuch = c.qids.much
+  qidssad = c.qids.sad
+  qidsappd = c.qids.appd
+  qidsappi = c.qids.appi
+  qidsweid = c.qids.weid
+  qidsweii = c.qids.weii
+  qidsconc = c.qids.conc
+  qidsself = c.qids.self
+  qidsdeat = c.qids.deat
+  qidsintr = c.qids.intr
+  qidsenrg = c.qids.enrg
+  qidsslow = c.qids.slow
+  qidsrest = c.qids.rest
+ 'Variable to contain highest score of 1 - 4
+  var1 = $max(qidsfall,qidsslep,qidswake,qidsmuch)
+
+ 'Variable to contain highest score of 6 - 9
+  var2 = $max(qidsappd,qidsappi,qidsweid,qidsweii)
+ 'Variable to contain highest score of 15 or 16
+  var3 = $max(qidsslow,qidsrest)
+ 'Formula to calculate QIDS Total
+  qidstotl = var1 + qidssad + var2 + qidsconc + qidsself + qidsdeat + qidsintr + qidsenrg + var3
+  c.qids.totl = qidstotl
+
+  $submitopt("off","")
+  $cancelopt("off","BACK")
+  $form($funcname)
+   $tag("<CENTER>")
+    $br()$text("DEPRESSION ASSESSMENT","H5")
+   $tag("</CENTER>")
+   $tag("<hr/>")
+   {"lib_UACOMMON"}ClientPageHeader($regid)
+   $br()$text(q_text_qids_date,"H6")$text(c.qids.date)
+   $tag("<hr/>")
+   $tag("<CENTER>")
+    $text("Quick Inventory of Depressive Symptomatology ","H6")
+   $tag("</CENTER>")
+   $br()
+   $table($funcname)
+    $row()
+     $col(,,"50%")$text(q_text_qids_fall,"H6")
+     $col()$text(c.qids.fall)$text($dct(QidsFallDCT,c.qids.fall,"D"))
+    $row()
+     $col()$text(q_text_qids_slep,"H6")
+     $col()$text(c.qids.slep)$text($dct(QidsSlepDCT,c.qids.slep,"D"))
+    $row()
+     $col()$text(q_text_qids_wake,"H6")
+     $col()$text(c.qids.wake)$text($dct(QidsWakeDCT,c.qids.wake,"D"))
+    $row()
+     $col()$text(q_text_qids_much,"H6")
+     $col()$text(c.qids.much)$text($dct(QidsMuchDCT,c.qids.much,"D"))
+    $row()
+     $col()$text(q_text_qids_sad,"H6")
+     $col()$text(c.qids.sad)$text($dct(QidsSadDCT,c.qids.sad,"D"))
+    $row()
+     $col()$text(q_text_qids_appd,"H6")
+     $col()$text(c.qids.appd)$text($dct(QidsAppdDCT,c.qids.appd,"D"))
+    $row()
+     $col()$text(q_text_qids_appi,"H6")
+     $col()$text(c.qids.appi)$text($dct(QidsAppiDCT,c.qids.appi,"D"))
+    $row()
+     $col()$text(q_text_qids_weid,"H6")
+     $col()$text(c.qids.weid)$text($dct(QidsWeidDCT,c.qids.weid,"D"))
+    $row()
+     $col()$text(q_text_qids_weii,"H6")
+     $col()$text(c.qids.weii)$text($dct(QidsWeiiDCT,c.qids.weii,"D"))
+    $row()
+     $col()$text(q_text_qids_conc,"H6")
+     $col()$text(c.qids.conc)$text($dct(QidsConcDCT,c.qids.conc,"D"))
+    $row()
+     $col()$text(q_text_qids_self,"H6")
+     $col()$text(c.qids.self)$text($dct(QidsSelfDCT,c.qids.self,"D"))
+    $row()
+     $col()$text(q_text_qids_deat,"H6")
+     $col()$text(c.qids.deat)$text($dct(QidsDeatDCT,c.qids.deat,"D"))
+    $row()
+     $col()$text(q_text_qids_intr,"H6")
+     $col()$text(c.qids.intr)$text($dct(QidsIntrDCT,c.qids.intr,"D"))
+    $row()
+     $col()$text(q_text_qids_enrg,"H6")
+     $col()$text(c.qids.enrg)$text($dct(QidsEnrgDCT,c.qids.enrg,"D"))
+    $row()
+     $col()$text(q_text_qids_slow,"H6")
+     $col()$text(c.qids.slow)$text($dct(QidsSlowDCT,c.qids.slow,"D"))
+    $row()
+     $col()$text(q_text_qids_rest,"H6")
+     $col()$text(c.qids.rest)$text($dct(QidsRestDCT,c.qids.rest,"D"))
+    $row()
+     $col()$text(q_text_qids_totl,"H6")
+     $col()$text(c.qids.totl)
+    $row()
+     $col()$text(q_text_qids_vers,"H6")
+     $col()$text(c.qids.vers)$text($dct(QidsVersDCT,c.qids.vers,"D"))
+   $endtable($funcname)
+   $br()$text("Additional Comments:","H6")$text(c.qids.comm)
+   $tag("<hr/>")
+   {"l_snapLibSC"}sn_CreateReport(QIDSRptTitle,,,QIDSReportID)
+  $sendform($funcname)
+  if $endbutton != "CANCEL" and $endbutton != "SUBMIT"
+   $dblock()
+   rc = $dbpoint(2,$regid,qids_dstlist)
+   c.qids.rec[effd] = c.qids.date
+   c.qids.staf = $operstaffid  
+   rc = $dbadddst(2,$regid,qids_dstlist)
+   if rc = 0
+    $brmsg("Data Successfully Added to Database!",1,"W","Process Complete")
+     QIDSALGRpt = "Y"
+	 c.ansa.scaledt = c.qids.date
+	 c.ansa.qids = c.qids.totl
+	 c.ansa.qidsver = c.qids.vers
+	 $allowupdate(c.ansa.scaledt,c.ansa.qids,c.ansa.qidsver)
+	 return
+   else
+    $brmsg("There Was A Problem Saving The Data! Contact MIS Now.",1,"W","ERROR")
+   endif
+  else
+   QIDSALGRpt = "N"
+  endif
+ end QIDSALGRpt
+
+ function BipolarAlg() is null
+  radio_index is i
+  do while 1 = 1 
+   $submitopt("off", "SUBMIT")
+   $cancelopt("off", "BACK")
+   $form($funcname)
+    $text("{H1}SCORESHEET FOR BIPOLAR ALGORITHM -- ANSWER ALL SECTIONS{/H1}")
+    {"lib_UACOMMON"}ClientPageHeader($regid)
+    $text(q_text_bdss_date, "datatag")$textbox(c.bdss.date,"CAL",10,6,"Y")
+    $tag("<hr/>")
+    $text("Brief Bipolar Disorder Symptom Scale","datatag")  
+    $table($funcname)
+     $row()
+      $col("center")$text("")
+      $col("center")$text("NA","datatag")
+	  radio_index = 0
+	  do while radio_index++ < 7
+       $col("center")$text(radio_index,"datatag")
+	  enddo  
+     $row(,"bgcolor='99ccff'")
+      $col()$text(q_text_bdss_host,"datatag")
+      $col("center")$radio(c.bdss.host,,"NA")
+	  radio_index = 0
+	  do while radio_index++ < 8
+       $col("center")$radio(c.bdss.host,,$castx(radio_index))
+	  enddo 
+      $col()$link(bdss_link1,"Description","target='_blank'")            
+     $row(,"bgcolor='white'")
+      $col()$text(q_text_bdss_mood,"datatag")
+      $col("center")$radio(c.bdss.mood,,"NA")
+	  radio_index = 0
+	  do while radio_index++ < 7
+       $col("center")$radio(c.bdss.mood,,$castx(radio_index))
+	  enddo 
+      $col()$link(bdss_link2,"Description","target='_blank'")
+     $row(,"bgcolor='99ccff'")
+      $col() $text(q_text_bdss_gran,"datatag")
+      $col("center")$radio(c.bdss.gran,,"NA")
+      radio_index = 0
+	  do while radio_index++ < 7
+	   $col("center")$radio(c.bdss.gran,,$castx(radio_index))
+      enddo
+      $col()$link(bdss_link3,"Description","target='_blank'")
+     $row(,"bgcolor='white'")
+      $col()$text(q_text_bdss_depr,"datatag")
+      $col("center")$radio(c.bdss.depr,,"NA")
+      radio_index = 0
+	  do while radio_index++ < 7
+	   $col("center")$radio(c.bdss.depr,,$castx(radio_index))
+      enddo
+      $col()$link(bdss_link4,"Description","target='_blank'")
+     $row(,"bgcolor='99ccff'")
+      $col()$text(q_text_bdss_anxi,"datatag")
+      $col("center")$radio(c.bdss.anxi,,"NA")
+      radio_index = 0
+	  do while radio_index++ < 7
+	   $col("center")$radio(c.bdss.anxi,,$castx(radio_index))
+	  enddo 
+      $col()$link(bdss_link5,"Description","target='_blank'")
+     $row(,"bgcolor='white'")
+      $col()$text(q_text_bdss_thou, "datatag")
+      $col("center")$radio(c.bdss.thou,,"NA")
+	  radio_index = 0
+	  do while radio_index++ < 7
+       $col("center")$radio(c.bdss.thou,,$castx(radio_index))
+      enddo
+      $col()$link(bdss_link6,"Description","target='_blank'")
+     $row(,"bgcolor='99ccff'")
+      $col()$text(q_text_bdss_exci,"datatag")
+      $col("center")$radio(c.bdss.exci,,"NA")
+	  radio_index = 0
+	  do while radio_index++ < 7
+       $col("center")$radio(c.bdss.exci,,$castx(radio_index))
+	  enddo 
+      $col()$link(bdss_link7,"Description","target='_blank'")
+     $row(,"bgcolor='white'")
+      $col()$text(q_text_bdss_moto,"datatag")
+      $col("center")$radio(c.bdss.moto,,"NA")
+	  radio_index = 0
+	  do while radio_index++ < 7
+       $col("center")$radio(c.bdss.moto,,$castx(radio_index))
+      enddo
+      $col()$link(bdss_link8,"Description","target='_blank'")
+     $row(,"bgcolor='99ccff'")
+      $col()$text(q_text_bdss_emot,"datatag")
+      $col("center")$radio(c.bdss.emot,,"NA")
+      radio_index = 0
+	  do while radio_index++ < 7
+	   $col("center")$radio(c.bdss.emot,,$castx(radio_index))
+	  enddo
+      $col()$link(bdss_link9,"Description","target='_blank'")
+     $row(,"bgcolor='white'")
+      $col()$text(q_text_bdss_blun,"datatag")
+      $col("center")$radio(c.bdss.blun,,"NA")
+      radio_index = 0
+	  do while radio_index++ < 7	 
+	   $col("center") $radio(c.bdss.blun,,$castx(radio_index))
+      enddo
+      $col()$link(bdss_link10,"Description","target='_blank'") 
+    $endtable($funcname)
+    $br()$text("*NA -- Not able to be assessed","siginfo")
+    $tag("<hr/>")
+    $br()
+    $table($funcname)  
+     $row()
+      $col()$text("Source of Information(check all applicable)", "datatag")
+      $col()$text("Explain here if validity of assessment is questionable:", "datatag")
+     $row(,"bgcolor='99ccff'")
+      $col()$checkbox(c.bdss.pati,q_text_bdss_pati,"Y",,,,"normal")
+      $col()$checkbox(c.bdss.drug,q_text_bdss_drug,"Y")
+     $row(,"bgcolor='99ccff'")
+      $col()$checkbox(c.bdss.parn,q_text_bdss_parn,"Y",,,,"normal")
+      $col()$checkbox(c.bdss.rapp,q_text_bdss_rapp,"Y")
+     $row(,"bgcolor='99ccff'")
+      $col()$checkbox(c.bdss.prof,q_text_bdss_prof,"Y",,,,"normal")
+      $col()$checkbox(c.bdss.nega,q_text_bdss_nega,"Y")
+     $row(,"bgcolor='99ccff'")
+      $col()$checkbox(c.bdss.char,q_text_bdss_char,"Y",,,,"normal")
+      $col()$checkbox(c.bdss.unco,q_text_bdss_unco,"Y")
+     $row(,"bgcolor='99ccff'")
+      $col()
+      $col()$checkbox(c.bdss.diso,q_text_bdss_diso,"Y")
+     $row(,"bgcolor='99ccff'")
+      $col()
+      $col()$checkbox(c_bdss_othr,"Other","Y",,,"Oth","Oth")
+     $block("Oth","Oth")       
+      $textbox(c.bdss.othr,,30,45)
+     $endblock("Oth","Oth")
+     $row()
+      $col()$text(q_text_bdss_con1)$textbox(c.bdss.conf,,1,1)$text(q_text_bdss_con2)
+    $endtable($funcname)
+    $br()
+    $text(q_text_bdss_comm, "datatag")
+    $br()$textblock(c.bdss.comm,10,60,,, 1000)$countbox(c.bdss.comm, "(max chars is 1000)") 
+   $sendform($funcname)
+   if $endbutton = "CANCEL"
+    return
+   elseif c.bdss.date !dp
+    $brmsg("You Must Enter a Date for the Assessment to Move On.",1,"W","Error")
+   elseif c.bdss.host !dp or c.bdss.mood !dp or c.bdss.gran !dp or c.bdss.depr !dp or c.bdss.anxi !dp or c.bdss.thou !dp or c.bdss.exci !dp or c.bdss.moto !dp or c.bdss.emot !dp or c.bdss.blun !dp
+    $brmsg("You Must Complete All Sections of the BDSS To Move On.", 1, "W", "Error")
+   elseif c.bdss.pati !dp and c.bdss.parn !dp and c.bdss.prof !dp and c.bdss.char !dp
+    $brmsg("You Must Check at Least One of the Sources of Information To Move On.",1,"W","Error")
+   elseif c_bdss_othr dp and c.bdss.othr !dp
+    $brmsg("You Must Provide a Description if Other is a Questionable Reason.",1,"W","Error")
+   elseif c.bdss.conf !dp
+    $brmsg("You Must Score the Confidence in the Assessment To Move On.",1,"W","Error")
+   else 
+    return
+   endif	
+  enddo
+ end BipolarAlg
+
+ function BipolarAlgRpt(c.ansa.scaledt,c.ansa.bdss) is x
+  c.ansa.scaledt is d
+  c.ansa.bdss    is x
+  rc             is i
+  bdsshost       is n    'NUMERIC HOSTILITY VARIABLE
+  bdssmood       is n    'NUMERIC ELEVATED MOOD VARIABLE
+  bdssgran       is n    'NUMERIC GRANDIOSITY VARIABLE
+  bdssdepr       is n    'NUMERIC DEPRESSION VARIABLE
+  bdssanxi       is n    'NUMERIC ANXIETY VARIABLE
+  bdssthou       is n    'NUMERIC THOUGHT CONTENT VARIABLE
+  bdssexci       is n    'NUMERIC EXCITEMENT VARIABLE
+  bdssmoto       is n    'NUMERIC MOTOR HYPERACTIVE VARIABLE
+  bdssemot       is n    'NUMERIC EMOTIONAL WITHDRAW VARIABLE
+  bdssblun       is n    'NUMERIC BLUNTED AFFECT VARIABLE
+  'Calculate the PSRS score
+  if c.bdss.host = "NA"
+    bdsshost = 1
+  else
+    bdsshost = c.bdss.host
+  endif
+  if c.bdss.mood = "NA"
+    bdssmood = 1
+  else
+    bdssmood = c.bdss.mood
+  endif
+  if c.bdss.gran = "NA"
+    bdssgran = 1
+  else
+    bdssgran = c.bdss.gran
+  endif
+  if c.bdss.depr = "NA"
+    bdssdepr = 1
+  else
+    bdssdepr = c.bdss.depr
+  endif
+  if c.bdss.anxi = "NA"
+    bdssanxi = 1
+  else
+    bdssanxi = c.bdss.anxi
+  endif
+  if c.bdss.thou = "NA"
+    bdssthou = 1
+  else
+    bdssthou = c.bdss.thou
+  endif
+  if c.bdss.exci = "NA"
+    bdssexci = 1
+  else
+    bdssexci = c.bdss.exci
+  endif
+  if c.bdss.moto = "NA"
+    bdssmoto = 1
+  else
+    bdssmoto = c.bdss.moto
+  endif
+  if c.bdss.emot = "NA"
+    bdssemot = 1
+  else
+    bdssemot = c.bdss.emot
+  endif
+  if c.bdss.blun = "NA"
+    bdssblun = 1
+  else
+    bdssblun = c.bdss.blun
+  endif
+  c.bdss.score = bdsshost + bdssmood + bdssgran + bdssdepr + bdssanxi + bdssthou + bdssexci + bdssmoto + bdssemot + bdssblun
+
+  $submitopt("off", "")
+  $cancelopt("off", "BACK")
+  $form($funcname)
+   $tag("<CENTER>")
+    $text("BIPOLAR ASSESSMENT", "H5")
+   $tag("</CENTER>")
+   $tag("<hr/>")
+   $br(){"lib_UACOMMON"}ClientPageHeader($regid,"Y")
+   $br()$text(q_text_bdss_date,"H6")$text(c.bdss.date)
+   $tag("<hr/>")
+   $tag("<CENTER>")
+    $text("Brief Bipolar Disorder Symptom Scale ", "H6")
+   $tag("</CENTER>")
+   $br()
+   $table($funcname,,"width='100%'")
+    $row()
+     $col(,,"40%")$text(q_text_bdss_host,"H6")
+     $col(,,"60%")$text(c.bdss.host)$text($dct(BDSSScoreDCT,c.bdss.host,"D"))
+    $row()
+     $col()$text(q_text_bdss_mood,"H6")
+     $col()$text(c.bdss.mood)$text($dct(BDSSScoreDCT,c.bdss.mood,"D"))
+    $row()
+     $col()$text(q_text_bdss_gran,"H6")
+     $col()$text(c.bdss.gran)$text($dct(BDSSScoreDCT,c.bdss.gran,"D"))
+    $row()
+     $col()$text(q_text_bdss_depr,"H6")
+     $col()$text(c.bdss.depr)$text($dct(BDSSScoreDCT,c.bdss.depr,"D"))
+    $row()
+     $col()$text(q_text_bdss_anxi,"H6")
+     $col()$text(c.bdss.anxi)$text($dct(BDSSScoreDCT,c.bdss.anxi,"D"))
+    $row()
+     $col()$text(q_text_bdss_thou,"H6")
+     $col()$text(c.bdss.thou)$text($dct(BDSSScoreDCT,c.bdss.thou,"D"))
+    $row()
+     $col()$text(q_text_bdss_exci,"H6")
+     $col()$text(c.bdss.exci)$text($dct(BDSSScoreDCT,c.bdss.exci,"D"))
+    $row()
+     $col()$text(q_text_bdss_moto,"H6")
+     $col()$text(c.bdss.moto)$text($dct(BDSSScoreDCT,c.bdss.moto,"D"))
+    $row()
+     $col()$text(q_text_bdss_emot,"H6")
+     $col()$text(c.bdss.emot)$text($dct(BDSSScoreDCT,c.bdss.emot,"D"))
+    $row()
+     $col()$text(q_text_bdss_blun,"H6")
+     $col()$text(c.bdss.blun)$text($dct(BDSSScoreDCT,c.bdss.blun,"D"))
+    $row()
+     $col()$text(q_text_bdss_scor,"H6")
+     $col()$text(c.bdss.score)
+   $endtable($funcname)
+   $br()$text("Source Of Information", "H6")
+   if c.bdss.pati = "Y"
+    $br()$text(q_text_bdss_pati)
+   endif
+   if c.bdss.parn = "Y"
+    $br()$text(q_text_bdss_parn)
+   endif
+   if c.bdss.prof = "Y"
+    $br()$text(q_text_bdss_prof)
+   endif
+   if c.bdss.char = "Y"
+    $br()$text(q_text_bdss_char)
+   endif
+   $br()$text("Validity Of Assessment Questionable Reasons", "H6")
+   if c.bdss.drug = "Y"
+    $br()$text(q_text_bdss_drug)
+   endif
+   if c.bdss.rapp = "Y"
+    $br()$text(q_text_bdss_rapp)
+   endif
+   if c.bdss.nega = "Y"
+    $br()$text(q_text_bdss_nega)
+   endif
+   if c.bdss.unco = "Y"
+    $br()$text(q_text_bdss_unco)
+   endif
+   if c.bdss.diso = "Y"
+    $br()$text(q_text_bdss_diso)
+   endif
+   if c_bdss_othr = "Y"
+    $br()$text(q_text_bdss_othr)$text(c.bdss.othr)
+   endif
+   $br()$text(q_text_bdss_con1, "H6")$text(c.bdss.conf)
+   $br(2)$text(q_text_bdss_comm, "H6")$text(c.bdss.comm)
+   $tag("<hr/>")
+   {"l_snapLibSC"}sn_CreateReport(BDSSRptTitle,,,BDSSReportID)
+  $sendform($funcname)
+  ''***************************************SAVE DATA ROUTINE************************************
+  if $endbutton != "CANCEL" and $endbutton != "SUBMIT"
+   $dblock()
+   rc = $dbpoint(2,$regid,bdss_dstlist)
+   c.bdss.rec[effd] =  c.bdss.date
+   c.bdss.staf = $operstaffid   
+   rc = $dbadddst(2,$regid,bdss_dstlist)
+   if rc = 0
+    $brmsg("Data Successfully Added to Database!", 1, "W", "Process Complete")
+    BipolarAlgRpt = "Y"
+    c.ansa.scaledt = c.bdss.date
+	c.ansa.bdss = c.bdss.score
+	$allowupdate(c.ansa.scaledt,c.ansa.bdss)
+    return
+   else
+    $brmsg(`"There Was A Problem Saving The Data! Contact MIS Now. RC=" + rc`, 1, "W", "ERROR")
+   endif
+  else
+   BipolarAlgRpt = "N"
+  endif
+ end BipolarAlgRpt  
+ 
+ function RLOC(c.ansa.b.depres,c.ansa.b.subabs,c.ansa.cr.episds,c.ansa.b.cog,c.ansa.hs.num180,c.ansa.hs.numg30,c.ansa.hs.numl30,c.ansa.ld.employ,c.ansa.ld.family,c.ansa.ld.living,c.ansa.ld.restab,c.ansa.ld.slfcre,
+               c.ansa.qids,c.ansa.r.crimbe,c.ansa.r.dangot,c.ansa.r.suicid,c.ansa.sr.hist,c.ansa.sr.idea,c.ansa.sr.intent,c.ansa.sr.plan,c.ansa.st.natsup,c.ansa.type,DXcat,DXgaf,DXtype) is x 
+  c.ansa.b.depres    is x 
+  c.ansa.b.subabs    is x 
+  c.ansa.cr.episds   is x 
+  c.ansa.b.cog       is x 
+  c.ansa.hs.num180   is x 
+  c.ansa.hs.numg30   is x 
+  c.ansa.hs.numl30   is x 
+  c.ansa.ld.employ   is x 
+  c.ansa.ld.family   is x 
+  c.ansa.ld.living   is x 
+  c.ansa.ld.restab   is x 
+  c.ansa.ld.slfcre   is x 
+  c.ansa.qids        is x 
+  c.ansa.r.crimbe    is x 
+  c.ansa.r.dangot    is x 
+  c.ansa.r.suicid    is x 
+  c.ansa.sr.hist     is x 
+  c.ansa.sr.idea     is x 
+  c.ansa.sr.intent   is x 
+  c.ansa.sr.plan     is x 
+  c.ansa.st.natsup   is x 
+  c.ansa.type        is x 
+  DXcat              is x 
+  DXgaf              is x 
+  DXtype             is x
+  datediff           is i
+  last_ansa_type     is x
+  last_ansa_alocdt   is d  
+
+  crisis          is x
+  basic_medManage is x
+  basic_skills    is x
+  basic           is x
+  intensive       is x
+  act             is x
+  ineligible      is x  
+
+  crisis          = "100"
+  basic_MedManage = "111"
+  basic_skills    = "112"
+  basic           = "113"
+  intensive       = "114"
+  act             = "115"
+  Ineligible      = "120"   
+  
+'Crisis
+  if c.ansa.type = "1" or c.ansa.type = "11"
+   if c.ansa.r.suicid = "3" or (c.ansa.r.suicid = "2" and (c.ansa.sr.idea = "3" or $num(c.ansa.sr.intent) > 1 or $num(c.ansa.sr.plan) > 1 or $num(c.ansa.sr.hist) > 1)) or 
+   c.ansa.r.dangot = "3" or c.ansa.ld.slfcre = "3" or c.ansa.b.cog = "3" or c.ansa.b.subabs = "3"
+	c.ansa.type = "11"
+	$allowupdate(c.ansa.type)
+	RLOC = crisis
+	return
+   endif
+  endif
+  
+'Crisis Override handling
+  if c.ansa.type = "11"
+   RLOC = Ineligible
+   return
+  endif  
+  
+'Non-priority population
+  if DXType = "O" or DXType !dp
+   RLOC = Ineligible
+   return
+  endif  
+
+'Business rule R-30.4, if client is MDD and discharged within last 90 days then GAF is not considered. It's not quite clear if it's 90 days between assessment date and last assessment date or
+'90 days between today and last assessment_date. It's also not clear if it matters with/without psychotic features,both
+  if c.ansa.type = "1" and DXType = "D"
+   Last_Assessment($regid,last_ansa_type,,,,,,,,,last_ansa_alocdt)
+   if last_ansa_type = "3"
+    datediff = last_ansa_alocdt - $today
+    if datediff <= 90
+     DXGaf = 0   
+    endif
+   else
+    $clear(last_ansa_type,last_ansa_alocdt)
+   endif
+  endif  
+'Still, GAF is only used for Intakes.
+  if c.ansa.type != "1" and c.ansa.type != "12"
+   DXGaf = 0
+  endif
+
+'Target Population
+  if DXType = "S" or DXType = "B" or (DXType = "D" and DXGaf <= 50)
+
+'4/115/ACT
+  if $today >= 6/12/2014
+   if (DXType = "S" or DXType = "B" or DXCat = "MDD - With Psychotic Features")
+    if ($num(c.ansa.hs.num180) > 1 or c.ansa.hs.numl30 = "3" or $num(c.ansa.hs.numg30) > 0) or (c.ansa.cr.episds = "3" and (c.ansa.hs.num180 = "1" or c.ansa.hs.numl30 = "2"))   
+	 RLOC = act
+	 return
+    endif
+   endif 
+  else
+   if ($num(c.ansa.hs.num180) > 1 or c.ansa.hs.numl30 = "3" or $num(c.ansa.hs.numg30) > 0) or (c.ansa.cr.episds = "3" and (c.ansa.hs.num180 = "1" or c.ansa.hs.numl30 = "2"))   
+    RLOC = act
+    return
+   endif   
+  endif 
+
+'3/114/Intensive
+   if $num(c.ansa.r.suicid) < 3 and $num(c.ansa.r.dangot) < 3 and 
+   ($num(c.ansa.hs.num180)  < 2 or $num(c.ansa.hs.numl30) < 3 or c.ansa.hs.numg30 = "0") and 
+   ($num(c.ansa.ld.living) > 0 or (c.ansa.ld.slfcre = "1" or c.ansa.ld.slfcre = "2")) and 
+   $num(c.ansa.ld.family) > 1 and c.ansa.st.natsup > 1 and 
+   (($num(c.ansa.ld.employ) = 2 or $num(c.ansa.ld.employ) = 3) or $num(c.ansa.ld.restab) > 1 or c.ansa.b.subabs = "2" or $num(c.ansa.r.crimbe) > 1 or c.ansa.cr.episds = "3")
+    if DXType = "D"
+     if c.ansa.b.depres = "3" and $num(c.ansa.qids) > 15
+	  RLOC = Intensive
+	  return
+	 endif
+	else
+	 RLOC = Intensive
+	 return
+	endif 
+   endif
+
+'2/113/Basic   
+   if (c.ansa.r.suicid = "0" or ((c.ansa.r.suicid = "1" or c.ansa.r.suicid = "2") and $num(c.ansa.sr.idea) < 3 and $num(c.ansa.sr.intent) < 2 and $num(c.ansa.sr.hist) < 2 and $num(c.ansa.sr.plan) < 2)) and
+    $num(c.ansa.r.dangot) < 3 and 
+    $num(c.ansa.b.depres) > 0 and
+    ($num(c.ansa.ld.living) > 0 or (c.ansa.ld.slfcre = "1" or c.ansa.ld.slfcre = "2")) and 
+    ($num(c.ansa.qids) > 5 and $num(c.ansa.qids) < 16)
+    select DXCat
+     case "MDD - With Psychotic Features" if ($num(c.ansa.ld.employ) < 2 or c.ansa.ld.employ = "9") and
+	                                      $num(c.ansa.ld.restab) < 2 and 
+	                                      $num(c.ansa.b.subabs) < 2 and
+										  $num(c.ansa.r.crimbe) < 2
+                                           RLOC = Basic
+										   return
+	                                      endif
+     case "MDD - Without Psychotic Features" if  $num(c.ansa.b.subabs) < 3
+	                                          RLOC = Basic
+											  return
+											 endif
+
+    endselect
+   endif
+
+'1-M/111/Basic-Med Management
+   if $num(c.ansa.r.suicid) < 2 and $num(c.ansa.r.dangot) < 2 and $num(c.ansa.b.depres) < 2 and c.ansa.hs.num180 = "0" and c.ansa.hs.numl30 = "0" and $num(c.ansa.ld.living) < 2 and ($num(c.ansa.ld.employ) < 2 or c.ansa.ld.employ = "9") and      
+   $num(c.ansa.ld.restab) < 2 and  $num(c.ansa.b.subabs) < 2 and $num(c.ansa.r.crimbe) < 2 and c.ansa.cr.episds = "0"
+    if DXType = "D"
+	 if $num(c.ansa.qids) < 11
+	  if $today >= 9/1/2014
+	   if c.ansa.type = "2"
+	    if HistoryTest() = 0
+	     RLOC = basic_MedManage
+	     return
+	    endif
+	   endif
+	  else
+	   if Current1M() = 0
+	    RLOC = basic_MedManage
+	    return		
+	   endif	
+	  endif
+	 endif
+	elseif DXType = "S" or DXType = "B"
+	 if $today >= 9/1/2014
+	  if c.ansa.type = "2"
+	   if HistoryTest() = 0
+	    RLOC = basic_MedManage
+	    return
+	   endif
+	  endif
+	 else
+	  if Current1M() = 0
+	   RLOC = basic_MedManage
+	   return		
+	  endif	
+	 endif	
+	endif
+   endif    
+  endif 
+  
+'1-S/112/Basic-Skills Training 
+'For update assessments (and all other types of assessments)  GAF is not considered in Level of Care recommendations. 
+  if DXType = "S" or DXType = "B" or (DXType = "D" and DXGaf <= 50)
+   RLOC = basic_skills
+   return
+  endif
+  
+  RLOC = Ineligible
+ end RLOC   
+
+ function HistoryTest() is i
+  rc               is i
+  assessment_age   is i
+  ansa_dstlist     is dstlist
+  c.ansa.rec       is h
+  c.ansa.ac.culstr is x      
+  c.ansa.ac.identy is x      
+  c.ansa.ac.langua is x      
+  c.ansa.ac.ritual is x      
+  c.ansa.aloc      is x      
+  c.ansa.b.adjtrm  is x      
+  c.ansa.b.angctr  is x      
+  c.ansa.b.antisoc is x      
+  c.ansa.b.anxity  is x      
+  c.ansa.b.cog     is x      
+  c.ansa.b.depres  is x      
+  c.ansa.b.eatdst  is x      
+  c.ansa.b.implsv  is x      
+  c.ansa.b.inter   is x      
+  c.ansa.b.mania   is x      
+  c.ansa.b.psychs  is x      
+  c.ansa.b.subabs  is x      
+  c.ansa.cr.episds is x      
+  c.ansa.d.csctrl  is x      
+  c.ansa.d.frusman is x      
+  c.ansa.d.gainang is x      
+  c.ansa.d.host    is x      
+  c.ansa.d.potent  is x      
+  c.ansa.d.pthink  is x      
+  c.ansa.d.respon  is x      
+  c.ansa.d.tinv    is x      
+  c.ansa.d.vthink  is x      
+  c.ansa.date      is d      
+  c.ansa.dn.cog    is x      
+  c.ansa.dn.comm   is x      
+  c.ansa.dn.dev    is x      
+  c.ansa.fc.famst  is x      
+  c.ansa.fc.invcre is x      
+  c.ansa.fc.know   is x      
+  c.ansa.fc.na     is x      
+  c.ansa.fc.phlth  is x      
+  c.ansa.fc.safe   is x      
+  c.ansa.fc.sfres  is x      
+  c.ansa.hs.num180 is x      
+  c.ansa.hs.numg30 is x      
+  c.ansa.hs.numl30 is x      
+  c.ansa.ld.decisi is x      
+  c.ansa.ld.employ is x      
+  c.ansa.ld.family is x      
+  c.ansa.ld.indliv is x      
+  c.ansa.ld.invrec is x      
+  c.ansa.ld.legal  is x      
+  c.ansa.ld.living is x      
+  c.ansa.ld.phymed is x      
+  c.ansa.ld.recret is x      
+  c.ansa.ld.restab is x      
+  c.ansa.ld.sexdev is x      
+  c.ansa.ld.sleep  is x      
+  c.ansa.ld.slfcre is x      
+  c.ansa.ld.socfun is x      
+  c.ansa.ld.trans  is x      
+  c.ansa.r.crimbe  is x      
+  c.ansa.r.dangot  is x      
+  c.ansa.r.exploit is x      
+  c.ansa.r.gamble  is x      
+  c.ansa.r.oslfhr  is x      
+  c.ansa.r.sexagr  is x      
+  c.ansa.r.smutil  is x      
+  c.ansa.r.suicid  is x      
+  c.ansa.rloc      is x      
+  c.ansa.sr.ffsui  is x      
+  c.ansa.sr.hist   is x      
+  c.ansa.sr.idea   is x      
+  c.ansa.sr.intent is x      
+  c.ansa.sr.plan   is x      
+  c.ansa.st.comcon is x      
+  c.ansa.st.edu    is x      
+  c.ansa.st.fam    is x      
+  c.ansa.st.jobhi  is x      
+  c.ansa.st.natsup is x      
+  c.ansa.st.opti   is x      
+  c.ansa.st.relig  is x      
+  c.ansa.st.resil  is x      
+  c.ansa.st.resour is x      
+  c.ansa.st.soccon is x      
+  c.ansa.st.tal    is x      
+  c.ansa.st.vol    is x      
+  c.ansa.vc.career is x
+  c.ansa.vc.jtime  is x      
+  c.ansa.vc.jatt   is x      
+  c.ansa.vc.jper   is x      
+  c.ansa.vc.jrel   is x      
+  c.ansa.vc.jskill is x   
+  
+  
+  
+  HistoryTest = 0
+  rc = $dstlist(ansa_dstlist,02,
+                c.ansa.rec,
+                c.ansa.ac.culstr,c.ansa.ac.identy,c.ansa.ac.langua,c.ansa.ac.ritual,
+                c.ansa.aloc,
+                c.ansa.b.adjtrm,c.ansa.b.angctr,c.ansa.b.antisoc,c.ansa.b.anxity,c.ansa.b.cog,c.ansa.b.depres,c.ansa.b.eatdst,c.ansa.b.implsv,c.ansa.b.inter,c.ansa.b.mania,c.ansa.b.psychs,c.ansa.b.subabs,
+                c.ansa.cr.episds,
+                c.ansa.d.csctrl,c.ansa.d.frusman,c.ansa.d.gainang,c.ansa.d.host,c.ansa.d.potent,c.ansa.d.pthink,c.ansa.d.respon,c.ansa.d.tinv,c.ansa.d.vthink,
+                c.ansa.date,
+                c.ansa.dn.cog,c.ansa.dn.comm,c.ansa.dn.dev,
+                c.ansa.fc.famst,c.ansa.fc.invcre,c.ansa.fc.know,c.ansa.fc.na,c.ansa.fc.phlth,c.ansa.fc.safe,c.ansa.fc.sfres,
+                c.ansa.hs.num180,c.ansa.hs.numg30,c.ansa.hs.numl30,
+                c.ansa.ld.decisi,c.ansa.ld.employ,c.ansa.ld.family,c.ansa.ld.indliv,c.ansa.ld.invrec,c.ansa.ld.legal,c.ansa.ld.living,c.ansa.ld.phymed,c.ansa.ld.recret,c.ansa.ld.restab,c.ansa.ld.sexdev,c.ansa.ld.sleep,c.ansa.ld.slfcre,c.ansa.ld.socfun,
+				c.ansa.ld.trans,
+                c.ansa.r.crimbe,c.ansa.r.dangot,c.ansa.r.exploit,c.ansa.r.gamble,c.ansa.r.oslfhr,c.ansa.r.sexagr,c.ansa.r.smutil,c.ansa.r.suicid,
+                c.ansa.rloc,
+                c.ansa.sr.ffsui,c.ansa.sr.hist,c.ansa.sr.idea,c.ansa.sr.intent,c.ansa.sr.plan,
+                c.ansa.st.comcon,c.ansa.st.edu,c.ansa.st.fam,c.ansa.st.jobhi,c.ansa.st.natsup,c.ansa.st.opti,c.ansa.st.relig,c.ansa.st.resil,c.ansa.st.resour,c.ansa.st.soccon,c.ansa.st.tal,c.ansa.st.vol,
+                c.ansa.vc.career,c.ansa.vc.jatt,c.ansa.vc.jper,c.ansa.vc.jrel,c.ansa.vc.jskill)    
+  rc = $dbread(02,$regid,ansa_dstlist)
+  if c.ansa.rec !dp
+   HistoryTest = 1
+  else
+   if $num(c.ansa.r.suicid) > 1 or $num(c.ansa.r.dangot) > 1 or $num(c.ansa.r.smutil) > 1 or $num(c.ansa.r.oslfhr)  > 1 or $num(c.ansa.r.exploit) > 1 or $num(c.ansa.r.gamble) > 1 or $num(c.ansa.r.sexagr) > 1 or $num(c.ansa.r.crimbe) > 1
+    HistoryTest = 1
+   endif
+   if HistoryTest = 0
+    if $num(c.ansa.r.suicid) = 1 and ($num(c.ansa.sr.idea) > 1 or $num(c.ansa.sr.intent) > 1 or $num(c.ansa.sr.plan) > 1 or $num(c.ansa.sr.hist) > 1 or $num(c.ansa.sr.ffsui ) > 1)
+	 HistoryTest = 1
+	endif
+   endif   	
+   if HistoryTest = 0
+    if $num(c.ansa.r.dangot) = 1 and 
+	($num(c.ansa.d.frusman) > 1 or $num(c.ansa.d.host) > 1 or $num(c.ansa.d.pthink) > 1 or $num(c.ansa.d.gainang) > 1 or $num(c.ansa.d.vthink) > 1 or $num(c.ansa.d.potent) > 1 or $num(c.ansa.d.respon) > 1 or $num(c.ansa.d.csctrl) > 1 or 
+	$num(c.ansa.d.tinv) > 1)	
+	 HistoryTest = 1
+	endif
+   endif
+   if HistoryTest = 0
+    if $num(c.ansa.b.psychs) > 1 or $num(c.ansa.b.cog) > 1 or $num(c.ansa.b.depres) > 1 or $num(c.ansa.b.anxity) > 1 or $num(c.ansa.b.mania) > 1 or
+    $num(c.ansa.b.implsv) > 1 or $num(c.ansa.b.inter) > 1 or $num(c.ansa.b.antisoc) > 1 or $num(c.ansa.b.adjtrm) > 1 or $num(c.ansa.b.angctr) > 1 or $num(c.ansa.b.subabs) > 1 or $num(c.ansa.b.eatdst) > 1
+     HistoryTest = 1
+    endif
+   endif
+   if HistoryTest = 0
+    if $num(c.ansa.ld.phymed) > 1 or $num(c.ansa.ld.family) > 1 or ($num(c.ansa.ld.employ) > 1 and $num(c.ansa.ld.employ) < 9)or $num(c.ansa.ld.socfun) > 1 or $num(c.ansa.ld.recret) > 1 or $num(c.ansa.ld.indliv) > 1 or $num(c.ansa.ld.sexdev) > 1 or 
+	$num(c.ansa.ld.living) > 1 or $num(c.ansa.ld.restab) > 1 or $num(c.ansa.ld.legal) > 1 or $num(c.ansa.ld.sleep) > 1 or $num(c.ansa.ld.slfcre) > 1 or $num(c.ansa.ld.decisi) > 1 or $num(c.ansa.ld.invrec) > 1 or $num(c.ansa.ld.trans ) > 1
+     HistoryTest = 1
+    endif  
+   endif
+   if HistoryTest = 0
+    if $num(c.ansa.ld.employ) = 1 and ($num(c.ansa.vc.career) > 1 or $num(c.ansa.vc.jtime) > 1 or 
+	($num(c.ansa.vc.jatt) > 1 and $num(c.ansa.vc.jatt) < 9) or ($num(c.ansa.vc.jper) > 1 and $num(c.ansa.vc.jper) < 9) or ($num(c.ansa.vc.jrel) > 1 and $num(c.ansa.vc.jrel) < 9) or $num(c.ansa.vc.jskill) > 1)
+	 HistoryTest = 1
+    endif
+   endif
+   if HistoryTest = 0
+    if $num(c.ansa.ld.indliv) = 1 and ($num(c.ansa.dn.cog) > 1 or $num(c.ansa.dn.comm) > 1 or  $num(c.ansa.dn.dev) > 1)	
+	 HistoryTest = 1
+	endif 
+   endif   
+   if HistoryTest = 0
+    if $num(c.ansa.fc.na) !dp and ($num(c.ansa.fc.phlth) > 1 or $num(c.ansa.fc.invcre) > 1 or $num(c.ansa.fc.know) > 1 or $num(c.ansa.fc.sfres) > 1 or $num(c.ansa.fc.famst) > 1 or $num(c.ansa.fc.safe) > 1)
+     HistoryTest = 1
+    endif
+   endif
+   if HistoryTest = 0
+    if $num(c.ansa.st.fam   ) > 1 or $num(c.ansa.st.soccon) > 1 or $num(c.ansa.st.opti  ) > 1 or $num(c.ansa.st.tal   ) > 1 or ($num(c.ansa.st.edu) > 1 and $num(c.ansa.st.edu) < 9) or $num(c.ansa.st.vol   ) > 1 or $num(c.ansa.st.jobhi ) > 1 or 
+	$num(c.ansa.st.relig ) > 1 or $num(c.ansa.st.comcon) > 1 or $num(c.ansa.st.natsup) > 1 or $num(c.ansa.st.resil ) > 1 or $num(c.ansa.st.resour) > 1
+     HistoryTest = 1
+    endif 
+   endif   
+   if HistoryTest = 0
+    if $num(c.ansa.ac.langua) > 1 or $num(c.ansa.ac.identy) > 1 or $num(c.ansa.ac.ritual) > 1 or $num(c.ansa.ac.culstr) > 1
+     HistoryTest = 1
+    endif
+   endif
+   if HistoryTest = 0
+    if $num(c.ansa.hs.num180) > 1 or $num(c.ansa.hs.numl30) > 1 or $num(c.ansa.hs.numg30) > 1 
+	 HistoryTest = 1
+	endif
+   endif
+   if HistoryTest = 0
+    if $num(c.ansa.cr.episds) > 0
+	 HistoryTest = 1
+	endif 
+   endif
+   if HistoryTest = 0 and c.ansa.aloc dp
+    if c.ansa.rloc != "111" and c.ansa.rloc != "112" 
+	 HistoryTest = 1
+    endif
+   endif	   
+   if HistoryTest = 0 and c.ansa.aloc dp
+    if c.ansa.aloc != "111" and c.ansa.aloc != "112"
+	 HistoryTest = 1
+    endif
+   endif     
+  endif
+  if HistoryTest = 0
+   rc = $dbreadnextdst(02,$regid,ansa_dstlist)  
+   if c.ansa.rec dp
+    assessment_age = $today - c.ansa.date
+   else
+    assessment_age = 366
+    HistoryTest = 1
+   endif 
+   do while rc < 2 and assessment_age < 365 and HistoryTest = 0
+    if $num(c.ansa.r.suicid) > 1 or $num(c.ansa.r.dangot) > 1 or $num(c.ansa.r.smutil) > 1 or $num(c.ansa.r.oslfhr)  > 1 or $num(c.ansa.r.exploit) > 1 or $num(c.ansa.r.gamble) > 1 or $num(c.ansa.r.sexagr) > 1 or $num(c.ansa.r.crimbe) > 1
+     HistoryTest = 1
+    endif
+    if HistoryTest = 0
+     if $num(c.ansa.r.suicid) = 1 and ($num(c.ansa.sr.idea) > 1 or $num(c.ansa.sr.intent) > 1 or $num(c.ansa.sr.plan) > 1 or $num(c.ansa.sr.hist) > 1 or $num(c.ansa.sr.ffsui ) > 1)
+	  HistoryTest = 1
+	 endif
+    endif   	
+    if HistoryTest = 0
+     if $num(c.ansa.r.dangot) = 1 and 
+	 ($num(c.ansa.d.frusman) > 1 or $num(c.ansa.d.host) > 1 or $num(c.ansa.d.pthink) > 1 or $num(c.ansa.d.gainang) > 1 or $num(c.ansa.d.vthink) > 1 or $num(c.ansa.d.potent) > 1 or $num(c.ansa.d.respon) > 1 or $num(c.ansa.d.csctrl) > 1 or 
+	 $num(c.ansa.d.tinv) > 1)	
+	  HistoryTest = 1
+	 endif
+    endif
+    if HistoryTest = 0
+     if $num(c.ansa.b.psychs) > 1 or $num(c.ansa.b.cog) > 1 or $num(c.ansa.b.depres) > 1 or $num(c.ansa.b.anxity) > 1 or $num(c.ansa.b.mania) > 1 or
+     $num(c.ansa.b.implsv) > 1 or $num(c.ansa.b.inter) > 1 or $num(c.ansa.b.antisoc) > 1 or $num(c.ansa.b.adjtrm) > 1 or $num(c.ansa.b.angctr) > 1 or $num(c.ansa.b.subabs) > 1 or $num(c.ansa.b.eatdst) > 1
+      HistoryTest = 1
+     endif
+    endif
+    if HistoryTest = 0
+     if $num(c.ansa.ld.phymed) > 1 or $num(c.ansa.ld.family) > 1 or ($num(c.ansa.ld.employ) > 1 and $num(c.ansa.ld.employ) < 9)or $num(c.ansa.ld.socfun) > 1 or $num(c.ansa.ld.recret) > 1 or $num(c.ansa.ld.indliv) > 1 or $num(c.ansa.ld.sexdev) > 1 or 
+	 $num(c.ansa.ld.living) > 1 or $num(c.ansa.ld.restab) > 1 or $num(c.ansa.ld.legal) > 1 or $num(c.ansa.ld.sleep) > 1 or $num(c.ansa.ld.slfcre) > 1 or $num(c.ansa.ld.decisi) > 1 or $num(c.ansa.ld.invrec) > 1 or $num(c.ansa.ld.trans ) > 1
+      HistoryTest = 1
+     endif  
+    endif
+    if HistoryTest = 0
+     if $num(c.ansa.ld.employ) = 1 and ($num(c.ansa.vc.career) > 1 or $num(c.ansa.vc.jtime) > 1 or 
+	 ($num(c.ansa.vc.jatt) > 1 and $num(c.ansa.vc.jatt) < 9) or ($num(c.ansa.vc.jper) > 1 and $num(c.ansa.vc.jper) < 9) or ($num(c.ansa.vc.jrel) > 1 and $num(c.ansa.vc.jrel) < 9) or $num(c.ansa.vc.jskill) > 1)
+	  HistoryTest = 1
+     endif
+    endif
+    if HistoryTest = 0
+     if $num(c.ansa.ld.indliv) = 1 and ($num(c.ansa.dn.cog) > 1 or $num(c.ansa.dn.comm) > 1 or  $num(c.ansa.dn.dev) > 1)	
+	  HistoryTest = 1
+	 endif 
+    endif   
+    if HistoryTest = 0
+     if $num(c.ansa.fc.na) !dp and ($num(c.ansa.fc.phlth) > 1 or $num(c.ansa.fc.invcre) > 1 or $num(c.ansa.fc.know) > 1 or $num(c.ansa.fc.sfres) > 1 or $num(c.ansa.fc.famst) > 1 or $num(c.ansa.fc.safe) > 1)
+      HistoryTest = 1
+     endif
+    endif
+    if HistoryTest = 0
+     if $num(c.ansa.st.fam   ) > 1 or $num(c.ansa.st.soccon) > 1 or $num(c.ansa.st.opti  ) > 1 or $num(c.ansa.st.tal   ) > 1 or ($num(c.ansa.st.edu) > 1 and $num(c.ansa.st.edu) < 9) or $num(c.ansa.st.vol   ) > 1 or $num(c.ansa.st.jobhi ) > 1 or 
+	 $num(c.ansa.st.relig ) > 1 or $num(c.ansa.st.comcon) > 1 or $num(c.ansa.st.natsup) > 1 or $num(c.ansa.st.resil ) > 1 or $num(c.ansa.st.resour) > 1
+      HistoryTest = 1
+     endif 
+    endif   
+    if HistoryTest = 0
+     if $num(c.ansa.ac.langua) > 1 or $num(c.ansa.ac.identy) > 1 or $num(c.ansa.ac.ritual) > 1 or $num(c.ansa.ac.culstr) > 1
+      HistoryTest = 1
+     endif
+    endif
+    if HistoryTest = 0
+     if $num(c.ansa.hs.num180) > 1 or $num(c.ansa.hs.numl30) > 1 or $num(c.ansa.hs.numg30) > 1 
+	  HistoryTest = 1
+	 endif
+    endif
+    if HistoryTest = 0
+     if $num(c.ansa.cr.episds) > 0
+	  HistoryTest = 1
+	 endif 
+    endif
+    if HistoryTest = 0
+     if c.ansa.rloc != "111" and c.ansa.rloc != "112" 
+	  HistoryTest = 1
+     endif
+    endif	   
+    if HistoryTest = 0
+     if c.ansa.aloc != "111" and c.ansa.aloc != "112" 
+	  HistoryTest = 1
+     endif
+    endif   
+    if HistoryTest = 0
+     rc = $dbreadnextdst(02,$regid,ansa_dstlist)
+	 if rc < 2
+	  assessment_age = $today - c.ansa.date	  
+	 endif 
+    endif	
+   enddo 
+   if HistoryTest = 0 and assessment_age < 365
+    HistoryTest = 1
+   endif
+   if HistoryTest = 0 and assessment_age > 365
+    if $num(c.ansa.r.suicid) > 1 or $num(c.ansa.r.dangot) > 1 or $num(c.ansa.r.smutil) > 1 or $num(c.ansa.r.oslfhr)  > 1 or $num(c.ansa.r.exploit) > 1 or $num(c.ansa.r.gamble) > 1 or $num(c.ansa.r.sexagr) > 1 or $num(c.ansa.r.crimbe) > 1
+     HistoryTest = 1
+    endif
+    if HistoryTest = 0
+     if $num(c.ansa.r.suicid) = 1 and ($num(c.ansa.sr.idea) > 1 or $num(c.ansa.sr.intent) > 1 or $num(c.ansa.sr.plan) > 1 or $num(c.ansa.sr.hist) > 1 or $num(c.ansa.sr.ffsui ) > 1)
+	  HistoryTest = 1
+	 endif
+    endif   	
+    if HistoryTest = 0
+     if $num(c.ansa.r.dangot) = 1 and 
+	 ($num(c.ansa.d.frusman) > 1 or $num(c.ansa.d.host) > 1 or $num(c.ansa.d.pthink) > 1 or $num(c.ansa.d.gainang) > 1 or $num(c.ansa.d.vthink) > 1 or $num(c.ansa.d.potent) > 1 or $num(c.ansa.d.respon) > 1 or $num(c.ansa.d.csctrl) > 1 or 
+	 $num(c.ansa.d.tinv) > 1)	
+	  HistoryTest = 1
+	 endif
+    endif
+    if HistoryTest = 0
+     if $num(c.ansa.b.psychs) > 1 or $num(c.ansa.b.cog) > 1 or $num(c.ansa.b.depres) > 1 or $num(c.ansa.b.anxity) > 1 or $num(c.ansa.b.mania) > 1 or
+     $num(c.ansa.b.implsv) > 1 or $num(c.ansa.b.inter) > 1 or $num(c.ansa.b.antisoc) > 1 or $num(c.ansa.b.adjtrm) > 1 or $num(c.ansa.b.angctr) > 1 or $num(c.ansa.b.subabs) > 1 or $num(c.ansa.b.eatdst) > 1
+      HistoryTest = 1
+     endif
+    endif
+    if HistoryTest = 0
+     if $num(c.ansa.ld.phymed) > 1 or $num(c.ansa.ld.family) > 1 or ($num(c.ansa.ld.employ) > 1 and $num(c.ansa.ld.employ) < 9)or $num(c.ansa.ld.socfun) > 1 or $num(c.ansa.ld.recret) > 1 or $num(c.ansa.ld.indliv) > 1 or $num(c.ansa.ld.sexdev) > 1 or 
+	 $num(c.ansa.ld.living) > 1 or $num(c.ansa.ld.restab) > 1 or $num(c.ansa.ld.legal) > 1 or $num(c.ansa.ld.sleep) > 1 or $num(c.ansa.ld.slfcre) > 1 or $num(c.ansa.ld.decisi) > 1 or $num(c.ansa.ld.invrec) > 1 or $num(c.ansa.ld.trans ) > 1
+      HistoryTest = 1
+     endif  
+    endif
+    if HistoryTest = 0
+     if $num(c.ansa.ld.employ) = 1 and ($num(c.ansa.vc.career) > 1 or $num(c.ansa.vc.jtime) > 1 or 
+	 ($num(c.ansa.vc.jatt) > 1 and $num(c.ansa.vc.jatt) < 9) or ($num(c.ansa.vc.jper) > 1 and $num(c.ansa.vc.jper) < 9) or ($num(c.ansa.vc.jrel) > 1 and $num(c.ansa.vc.jrel) < 9) or $num(c.ansa.vc.jskill) > 1)
+	  HistoryTest = 1
+     endif
+    endif
+    if HistoryTest = 0
+     if $num(c.ansa.ld.indliv) = 1 and ($num(c.ansa.dn.cog) > 1 or $num(c.ansa.dn.comm) > 1 or  $num(c.ansa.dn.dev) > 1)	
+	  HistoryTest = 1
+	 endif 
+    endif   
+    if HistoryTest = 0
+     if $num(c.ansa.fc.na) !dp and ($num(c.ansa.fc.phlth) > 1 or $num(c.ansa.fc.invcre) > 1 or $num(c.ansa.fc.know) > 1 or $num(c.ansa.fc.sfres) > 1 or $num(c.ansa.fc.famst) > 1 or $num(c.ansa.fc.safe) > 1)
+      HistoryTest = 1
+     endif
+    endif
+    if HistoryTest = 0
+     if $num(c.ansa.st.fam   ) > 1 or $num(c.ansa.st.soccon) > 1 or $num(c.ansa.st.opti  ) > 1 or $num(c.ansa.st.tal   ) > 1 or ($num(c.ansa.st.edu) > 1 and $num(c.ansa.st.edu) < 9) or $num(c.ansa.st.vol   ) > 1 or $num(c.ansa.st.jobhi ) > 1 or 
+	 $num(c.ansa.st.relig ) > 1 or $num(c.ansa.st.comcon) > 1 or $num(c.ansa.st.natsup) > 1 or $num(c.ansa.st.resil ) > 1 or $num(c.ansa.st.resour) > 1
+      HistoryTest = 1
+     endif 
+    endif   
+    if HistoryTest = 0
+     if $num(c.ansa.ac.langua) > 1 or $num(c.ansa.ac.identy) > 1 or $num(c.ansa.ac.ritual) > 1 or $num(c.ansa.ac.culstr) > 1
+      HistoryTest = 1
+     endif
+    endif
+    if HistoryTest = 0
+     if $num(c.ansa.hs.num180) > 1 or $num(c.ansa.hs.numl30) > 1 or $num(c.ansa.hs.numg30) > 1 
+	  HistoryTest = 1
+	 endif
+    endif
+    if HistoryTest = 0
+     if $num(c.ansa.cr.episds) > 0
+	  HistoryTest = 1
+	 endif 
+    endif
+    if HistoryTest = 0
+     if c.ansa.rloc != "111" and c.ansa.rloc != "112" 
+	  HistoryTest = 1
+     endif
+    endif	   
+    if HistoryTest = 0
+     if c.ansa.aloc != "111" and c.ansa.aloc != "112" 
+	  HistoryTest = 1
+     endif
+    endif     
+   endif
+  endif
+ end HistoryTest
+ 
+ function Current1M() is i
+  c.ansa.rec   is h
+  c.ansa.aloc  is x
+  c.ansa.compd is d
+  (void)$dbread(2,$regid,c.ansa.rec,c.ansa.aloc,c.ansa.compd)
+  if c.ansa.compd !dp
+   (void)$dbreadnextdst(2,$regid,c.ansa.rec,c.ansa.aloc)  
+  endif 
+  if c.ansa.aloc = "111"
+   Current1M = 0
+  else
+   Current1M = 1
+  endif
+ end Current1M
+ 
+ function DXScaleRequired(DXType,c.ansa.date,MaxClinRatingAge) is x
+  DXType           is x
+  c.ansa.date      is d
+  MaxClinRatingAge is i
+  ScaleAge         is i
+  rc               is i
+  select DXType
+   case "S" rc = $dbread(02,$regid,c.schiz.rec,c.schiz.date)
+            if c.schiz.date dp
+             ScaleAge = c.ansa.date - c.schiz.date
+			 if ScaleAge < MaxClinRatingAge
+			  DXScaleRequired = "N"
+			 else
+		      DXScaleRequired = "Y"
+			 endif
+		    else
+		     DXScaleRequired = "Y"
+		    endif
+		    $clear(c.schiz.date)	
+   case "D" rc = $dbread(02,$regid,c.qids.rec,c.qids.date)
+            if c.qids.date dp
+             ScaleAge = c.ansa.date - c.qids.date
+			 if ScaleAge < MaxClinRatingAge
+			  DXScaleRequired = "N"
+			 else
+		      DXScaleRequired = "Y"
+			 endif
+		    else
+		     DXScaleRequired = "Y"
+		    endif
+		    $clear(c.qids.date)	  
+   case "B" rc = $dbread(02,$regid,c.bdss.rec,c.bdss.date)
+            if c.bdss.date dp
+             ScaleAge = c.ansa.date - c.bdss.date
+			 if ScaleAge < MaxClinRatingAge
+			  DXScaleRequired = "N"
+			 else
+		      DXScaleRequired = "Y"
+			 endif
+		    else
+		     DXScaleRequired = "Y"
+		    endif
+		    $clear(c.bdss.date)	  
+   case other DXScaleRequired = "N"
+  endselect
+ end DXScaleRequired
+
+ function GetSchizScore(c.ansa.scaledt,c.ansa.psrs,c.ansa.bnsa) is null
+  c.ansa.scaledt is d
+  c.ansa.psrs    is x
+  c.ansa.bnsa    is x
+  rc             is i
+  rc = $dbread(2,$regid,schiz_dstlist)
+  c.ansa.scaledt = c.schiz.date
+  c.ansa.psrs = c.schiz.psrs
+  c.ansa.bnsa = c.schiz.bnsa
+  $allowupdate(c.ansa.scaledt,c.ansa.psrs,c.ansa.bnsa)
+ end GetSchizScore
+
+ function GetQIDSScore(c.ansa.scaledt,c.ansa.qids,c.ansa.qidsver) is null
+  c.ansa.scaledt is d
+  c.ansa.qids    is x
+  c.ansa.qidsver is x
+  rc             is i
+  rc = $dbread(2,$regid,qids_dstlist)
+  c.ansa.scaledt = c.qids.date
+  c.ansa.qids = c.qids.totl
+  c.ansa.qidsver = c.qids.vers 
+  $allowupdate(c.ansa.scaledt,c.ansa.qids,c.ansa.qidsver)
+ end GetQIDSScore
+
+ function GetBipolarScore(c.ansa.scaledt,c.ansa.bdss) is null
+  c.ansa.scaledt is d
+  c.ansa.bdss    is x
+  rc             is i
+  rc = $dbread(2,$regid,bdss_dstlist)
+  c.ansa.scaledt = c.bdss.date
+  c.ansa.bdss = c.bdss.score
+  $allowupdate(c.ansa.scaledt,c.ansa.bdss)
+ end GetBipolarScore	
+
+ function NonPPPage() is null
+  $submitopt("off", "CONTINUE")
+  $cancelopt("off", "BACK")
+  $form($funcname)
+   $br()$text("This person does not appear to be a member of the DSHS Texas Resilience and Recovery (TR&R) Target Population but is a member of the DSHS Priority Population.")  
+   $br()$text("If this person is currently a Medicaid recipient and there is medical necessity for TR&R Medicaid services, this person must be overridden into an appropriate level of care.")
+   $br()$text("If this person is not a Medicaid recipient, the person's need for services should be carefully evaluated.  If the person has a high level of need or a low level of functional ")
+        $text("ability you may clinically override this person into an appropriate level of care.  Otherwise this person may be placed on a waiting list for services if there is currently insufficient capacity to serve this person.")
+  $sendform($funcname)
+ end NonPPPage
+
+ function RiskScoring(table_wbgcolor) is null
+  table_wbgcolor is x
+  $table($funcname,,`table_wbgcolor`)  
+   $row()
+    $col(,,"50%")$text("0 = no evidence","hdrdata")
+    $col()$text("1 = history, watch/prevent","hdrdata")
+   $row()
+    $col()$text("2 = recent, act","hdrdata")
+    $col()$text("3 = acute, act immediately","hdrdata")
+   $row()
+    $col("center",,,"2") $tag("<hr/>")
+  $endtable($funcname)
+ end RiskScoring
+
+ function Page2Scoring(table_wbgcolor) is null
+  table_wbgcolor is x
+  $fieldset("Rating/Scoring Key",,"datatag")
+   $table($funcname,,`table_wbgcolor`)  
+    $row()
+     $col(,,"50%")$text("0 = no evidence of problems","hdrdata")
+    $row()
+     $col()$text("1 = history, mild, watch - prevent","hdrdata")
+    $row()
+     $col()$text("2 = moderate, act","hdrdata")
+    $row() 
+     $col()$text("3 = severe/acute, act immediately","hdrdata")
+    $row()
+     $col("center",,"100%","2") $tag("<hr/>")
+   $endtable($funcname)
+  $endfieldset()
+ end Page2Scoring
+
+ function CBScoring(table_wbgcolor) is null
+  table_wbgcolor is x
+  $table($funcname,,`table_wbgcolor`)
+   $row()
+    $col()$text("0 = no evidence","hdrdata")
+          $br()$text("1 = history or sub-threshold, watch/prevent","hdrdata")
+          $br()$text("2 = causing problems, consistent with diagnosable disorder","hdrdata")
+          $br()$text("3 = causing severe/dangerous problems","hdrdata")
+   $row()
+    $col("center",,,"2") $tag("<hr/>")
+  $endtable($funcname)
+ end CBScoring
+
+ function LDScoring(table_wbgcolor) is null
+  table_wbgcolor is x
+  $table($funcname,,`table_wbgcolor`)
+   $row()
+    $col(,,"50%")$text("0 = no evidence of problems","hdrdata")
+    $col()$text("1 = history, mild","hdrdata")
+   $row()
+   $col()$text("2 = moderate","hdrdata")
+    $col()$text("3 = severe","hdrdata")
+   $row()
+    $col("center",,,"2") $tag("<hr/>")
+  $endtable($funcname)
+ end LDScoring
+
+ function CareGiverScoring(table_wbgcolor) is null
+  table_wbgcolor is x
+  $table($funcname,,`table_wbgcolor`)  
+   $row()
+    $col(,,"50%")$text("0 = no evidence","hdrdata")
+    $col()$text("1 = minimal needs","hdrdata")
+   $row()
+    $col()$text("2 = moderate needs","hdrdata")
+    $col()$text("3 = severe needs","hdrdata")
+   $row()
+     $col("center",,,"2") $tag("<hr/>")
+  $endtable($funcname)
+ end CareGiverScoring
+
+ function PHScoring(table_wbgcolor) is null
+  table_wbgcolor is x
+  $table($funcname,,`table_wbgcolor`)  
+   $row()
+    $col()$text("NA = Not Applicable","hdrdata")
+    $col()$text("0 = No","hdrdata")
+    $col()$text("1 = Yes","hdrdata")
+   $row()
+    $col("center",,,"3")$tag("<hr/>")
+  $endtable($funcname)
+ end PHScoring
+ 
+ function Page3Rpt(c.ansa.bdss,c.ansa.bnsa,c.ansa.psrs,c.ansa.qids,c.ansa.qidsver,c.ansa.scaledt,dx,dxcat,dxdate,dxgaf,dxtype,q_text_bdss,q_text_bnsa,q_text_nonpp,q_text_psrs,q_text_qids,q_text_qidsver,q_text_scaledt) is null
+  c.ansa.bdss     is x
+  c.ansa.bnsa     is x
+  c.ansa.psrs     is x
+  c.ansa.qids     is x
+  c.ansa.qidsver  is x
+  c.ansa.scaledt  is d
+  dx              is x
+  dxcat           is x
+  dxdate          is d
+  dxgaf           is x
+  dxtype          is x
+  q_text_bdss     is x
+  q_text_bnsa     is x
+  q_text_nonpp    is x
+  q_text_psrs     is x
+  q_text_qids     is x
+  q_text_qidsver  is x
+  q_text_scaledt  is x 
+  $table($funcname,,"width='100%' cellspacing='0' cellpadding='2' bgcolor='White'  style='border-style: solid; border-width: 1px'")
+   $row(,col_color_multi)
+    $col("center",,,"2")$text("Diagnostic Specific Scales","datatag")
+   $row()
+    $col(,,"50%")$text("Diagnosis Date:")
+	$col()$text(DXDate)
+   $row()
+    $col()$text("Diagnosis:")
+	$col()$text(DX)
+   $row()
+    $col()$text("Diagnostic Category: ")
+	$col()$text(DXCat)
+   $row()
+    $col()$text("Current GAF Score: ")
+	$col()$text(DXGaf)	
+  if DXTYPE = "D"
+   $row()
+    $col()$text(q_text_scaledt)
+    $col()$text(c.ansa.scaledt)
+   $row()
+    $col()$text(q_text_qids)
+    $col()$text(c.ansa.qids)
+   $row()
+    $col()$text(q_text_qidsver)
+    $col()$text(c.ansa.qidsver)
+  elseif DXTYPE = "B"
+   $row()
+    $col()$text(q_text_scaledt)
+    $col()$text(c.ansa.scaledt)
+   $row()
+    $col()$text(q_text_bdss)
+    $col()$text(c.ansa.bdss)
+  elseif DXType = "S"
+   $row()
+    $col()$text(q_text_scaledt)
+    $col()$text(c.ansa.scaledt)
+   $row()
+    $col()$text(q_text_psrs)
+    $col()$text(c.ansa.psrs)
+   $row()
+    $col()$text(q_text_bnsa)
+    $col()$text(c.ansa.bnsa)
+   elseif DXType =  "O"
+    $row()
+     $col()$text(q_text_nonpp)
+     $col()
+  endif
+ $endtable($funcname)
+end Page3Rpt
+
+ function Page4Rpt(ansagradedct,ansarestypedct,c.ansa.arrest,c.ansa.commdate,c.ansa.emptype,c.ansa.grade,c.ansa.labor,c.ansa.laboroth,c.ansa.minor,c.ansa.resother1,c.ansa.restype,c_ansa_emptype,c_ansa_grade,c_ansa_labor,c_ansa_restype,q_text_arrest,
+                   q_text_commdate,q_text_emptype,q_text_grade,q_text_labor,q_text_laboroth,q_text_minor,q_text_resother1,q_text_restype,
+				   c.ansa.bipsq1,c.ansa.bipsq2,q_text_bips11,q_text_bips12,a_text_bips11,a_text_bips12,a_text_bips13,q_text_bips2,a_text_bips21,a_text_bips22,a_text_bips23) is null
+  ansagradedct     is b
+  ansarestypedct   is b
+  c.ansa.arrest    is x
+  c.ansa.commdate  is d
+  c.ansa.emptype   is x
+  c.ansa.grade     is x
+  c.ansa.labor     is x
+  c.ansa.laboroth  is x
+  c.ansa.minor     is x
+  c.ansa.resother1 is x
+  c.ansa.restype   is x
+  c_ansa_emptype   is x
+  c_ansa_grade     is x
+  c_ansa_labor     is x
+  c_ansa_restype   is x
+  q_text_arrest    is x
+  q_text_commdate  is x
+  q_text_emptype   is x
+  q_text_grade     is x
+  q_text_labor     is x
+  q_text_laboroth  is x
+  q_text_minor     is x
+  q_text_resother1 is x
+  q_text_restype   is x
+  c.ansa.bipsq1    is x
+  c.ansa.bipsq2    is x
+  q_text_bips11    is x
+  q_text_bips12    is x
+  a_text_bips11    is x
+  a_text_bips12    is x
+  a_text_bips13    is x
+  q_text_bips2     is x
+  a_text_bips21    is x
+  a_text_bips22    is x
+  a_text_bips23    is x
+  
+  c_ansa_grade = $dct(AnsaGradeDCT,c.ansa.grade)
+  c_ansa_restype = $dct(AnsaResTypeDCT,c.ansa.restype)
+  if c.ansa.emptype = "1"
+   c_ansa_emptype = "Independent/Competitive/Supported/Self-employment"
+  elseif c.ansa.emptype = "2"
+   c_ansa_emptype = "Transitional/Sheltered Employment"
+  elseif c.ansa.emptype = "3"
+   c_ansa_emptype = "Unemployed but wants or needs to work"
+  elseif c.ansa.emptype = "4"
+   c_ansa_emptype = "Not In The Labor Force"
+  endif
+  if c.ansa.labor =  "1"
+   c_ansa_labor = "Receiving SSI/SSDI and can't work"
+  elseif c.ansa.labor = "2"
+   c_ansa_labor = "Receiving SSI/SSDI and worries that work will effect benefit"
+  elseif c.ansa.labor = "3"
+   c_ansa_labor = "Does not want or need work"
+  elseif c.ansa.labor = "4"
+   c_ansa_labor = "Unable to find or keep a job"
+  elseif c.ansa.labor = "5"
+   c_ansa_labor = "Stay-at-home parent, homemaker, or full-time student"
+  elseif c.ansa.labor = "6"
+   c_ansa_labor = "Over 65 or retired"
+  elseif c.ansa.labor = "7"
+   c_ansa_labor = "Other"
+  endif
+  $table($funcname,,"width='100%' cellspacing='0' cellpadding='2' bgcolor='White'  style='border-style: solid; border-width: 1px'")
+   $row(,col_color_multi)
+    $col("center",,,"2")$text("Community Scales","datatag")
+   $row()
+    $col("right",,"50%")$text(q_text_commdate)
+    $col()$text(c.ansa.commdate)
+   $row()
+    $col("right")$text(q_text_grade)
+    $col()$text(c_ansa_grade)
+   $row()
+    $col("right")$text(q_text_arrest)
+    $col()$text(c.ansa.arrest)
+   $row()
+    $col("right")$text(q_text_emptype)
+    $col()$text(c_ansa_emptype)
+   if c.ansa.emptype = "4"
+    $row()
+     $col("right")$text(q_text_labor)
+     $col()$text(c_ansa_labor)
+    if c.ansa.labor = "7"
+     $row()
+      $col("right")$text(q_text_laboroth)
+      $col()$text(c.ansa.laboroth)
+    endif  
+   endif	
+   $row()
+    $col("right")$text(q_text_restype)
+    $col()$text(c_ansa_restype)       
+   if c.ansa.resother1 dp
+    $row()
+     $col("right")$text(q_text_resother1)
+     $col()$text(c.ansa.resother1)
+   endif 
+   $row()
+    $col("right")$text(q_text_minor)
+    $col()$text(c.ansa.minor)
+  if $operstaffid = "3737"
+   if c.ansa.bipsq1 dp and c.ansa.bipsq2 dp
+   $row()
+    $col("right")$text(q_text_bips11)
+	$br()$text(q_text_bips12)
+    select c.ansa.bipsq1
+     case "Y" $col()$text(a_text_bips11)
+	 case "N" $col()$text(a_text_bips12)
+	 case "U" $col()$text(a_text_bips13)
+    endselect
+   $row() 
+	$col("right")$text(q_text_bips2)
+    select c.ansa.bipsq2
+     case "LAR"  $col()$text(a_text_bips21)
+	 case "SELF" $col()$text(a_text_bips22)
+	 case "NLAR" $col()$text(a_text_bips23)
+    endselect
+   endif
+  endif  
+  $endtable($funcname)     
+ end Page4Rpt
+
+ 'Life Domain Report 
+ function LifeDomainRpt(c.ansa.disreas,q_text_nonpp,ansagradedct,c.ansa.grade,c_ansa_restype,ansarestypedct,c.ansa.restype,c.ansa.emptype,c_ansa_emptype,c_ansa_labor,c.ansa.labor,q_text_commdate,c.ansa.commdate,q_text_grade,c_ansa_grade,
+                        q_text_arrest,c.ansa.arrest,q_text_emptype,q_text_labor,q_text_laboroth,c.ansa.laboroth,q_text_restype,c.ansa.resother1,q_text_resother1,q_text_minor,c.ansa.minor,q_text_ld,c.ansa.type,q_text_ld_slfcre,c.ansa.ld.sLFCRE,
+                        q_text_ld_phymed,c.ansa.ld.phymed,q_text_ld_family,c.ansa.ld.family,q_text_ld_employ,c.ansa.ld.employ,q_text_ld_socfun,c.ansa.ld.socfun,q_text_ld_recret,c.ansa.ld.recret,q_text_ld_indliv,c.ansa.ld.indliv,q_text_ld_SEXDEV,
+                        c.ansa.ld.sexdev,q_text_ld_living,c.ansa.ld.living,q_text_ld_restab,c.ansa.ld.restab,q_text_ld_legal,c.ansa.ld.legal,q_text_ld_sleep,c.ansa.ld.sleep,q_text_ld_decisi,c.ansa.ld.decisi,q_text_ld_invrec,             
+                        c.ansa.ld.invrec,q_text_ld_trans,c.ansa.ld.trans,
+						c.ansa.pm.chi,c.ansa.pm.mehv,c.ansa.pm.mp,c.ansa.pm.pcpc,q_text_pm,q_text_pm_chi,q_text_pm_mehv,q_text_pm_mp,q_text_pm_pcpc,
+                        c.ansa.vc.career,c.ansa.vc.jatt,c.ansa.vc.jper,c.ansa.vc.jrel,c.ansa.vc.jskill,c.ansa.vc.jtime,q_text_vc,q_text_vc_career,q_text_vc_jatt,q_text_vc_jper,q_text_vc_jrel,q_text_vc_jskill,q_text_vc_jtime,
+						c.ansa.dn.cog,c.ansa.dn.comm,c.ansa.dn.dev,q_text_dn,q_text_dn_cog,q_text_dn_comm,q_text_dn_dev) is null
+  c.ansa.disreas is x
+  q_text_nonpp   is x
+  ansagradedct   is b
+  c.ansa.grade   is x
+  c_ansa_restype is x
+  ansarestypedct is b
+  c.ansa.restype is x
+  c.ansa.emptype is x
+  c_ansa_emptype is x
+  c_ansa_labor   is x
+  c.ansa.labor   is x
+  q_text_commdate is x
+  c.ansa.commdate is d
+  q_text_grade    is x
+  c_ansa_grade    is x
+  q_text_arrest   is x
+  c.ansa.arrest   is x
+  q_text_emptype  is x
+  q_text_labor    is x
+  q_text_laboroth is x
+  c.ansa.laboroth is x
+  q_text_restype  is x
+  c.ansa.resother1 is x
+  q_text_resother1 is x
+  q_text_minor     is x
+  c.ansa.minor     is x
+  q_text_ld        is x
+  c.ansa.type      is x
+  q_text_ld_slfcre is x
+  c.ansa.ld.slfcre is x
+  q_text_ld_phymed is x
+  c.ansa.ld.phymed is x
+  q_text_ld_family is x
+  c.ansa.ld.family is x
+  q_text_ld_employ is x
+  c.ansa.ld.employ is x
+  q_text_ld_socfun is x
+  c.ansa.ld.socfun is x
+  q_text_ld_recret is x
+  c.ansa.ld.recret is x
+  q_text_ld_indliv is x
+  c.ansa.ld.indliv is x
+  q_text_ld_sexdev is x
+  c.ansa.ld.sexdev is x
+  q_text_ld_living is x
+  c.ansa.ld.living is x
+  q_text_ld_restab is x
+  c.ansa.ld.restab is x
+  q_text_ld_legal  is x
+  c.ansa.ld.legal  is x
+  q_text_ld_sleep  is x
+  c.ansa.ld.sleep  is x
+  q_text_ld_decisi is x
+  c.ansa.ld.decisi is x
+  q_text_ld_invrec is x
+  c.ansa.ld.invrec is x
+  q_text_ld_trans  is x
+  c.ansa.ld.trans  is x
+  c.ansa.pm.chi    is x
+  c.ansa.pm.mehv   is x
+  c.ansa.pm.mp     is x 
+  c.ansa.pm.pcpc   is x
+  q_text_pm        is x
+  q_text_pm_chi    is x
+  q_text_pm_mehv   is x
+  q_text_pm_mp     is x
+  q_text_pm_pcpc   is x
+  c.ansa.vc.career is x
+  c.ansa.vc.jatt   is x
+  c.ansa.vc.jper   is x
+  c.ansa.vc.jrel   is x
+  c.ansa.vc.jskill is x
+  c.ansa.vc.jtime  is x
+  q_text_vc        is x
+  q_text_vc_career is x
+  q_text_vc_jatt   is x
+  q_text_vc_jper   is x
+  q_text_vc_jrel   is x
+  q_text_vc_jskill is x
+  q_text_vc_jtime  is x
+  c.ansa.dn.cog    is x
+  c.ansa.dn.comm   is x
+  c.ansa.dn.dev    is x
+  q_text_dn        is x
+  q_text_dn_cog    is x
+  q_text_dn_comm   is x
+  q_text_dn_dev    is x      
+  $table($funcname,,"width='100%' cellspacing='0' cellpadding='2' bgcolor='White' style='border-style: solid; border-width: 1px'")
+   $row(,col_color_multi)
+    $col("center",,,"3"  )$text(q_text_ld,"datatag")
+   if c.ansa.type = "11"
+    $row()
+     $col(,,"40%")$text(q_text_ld_slfcre)
+     $col("center",,"10%")$text(c.ansa.ld.slfcre)
+     $col(,,"50%")
+   endif
+   if c.ansa.type = "1" or c.ansa.type = "2" or (c.ansa.type = "3" and c.ansa.disreas = "14") or c.ansa.type = "12"
+    $row(,row_color2)
+     $col(,,"40%")$text(q_text_ld_phymed)
+     $col("center",,"10%")$text(c.ansa.ld.phymed)
+     $col(,,"50%")if $num(c.ansa.ld.phymed) > 1
+                   PhyMedRpt(c.ansa.pm.chi,c.ansa.pm.mehv,c.ansa.pm.mp,c.ansa.pm.pcpc,q_text_pm,q_text_pm_chi,q_text_pm_mehv,q_text_pm_mp,q_text_pm_pcpc)
+				  endif
+    $row()
+     $col()$text(q_text_ld_family)
+     $col("center")$text(c.ansa.ld.family)
+     $col()
+    $row()
+     $col()$text(q_text_ld_employ)
+     $col("center")$text(c.ansa.ld.employ)
+     $col()if $num(c.ansa.ld.employ) > 0 and c.ansa.ld.employ != "9"
+            VocationalRpt(c.ansa.vc.career,c.ansa.vc.jatt,c.ansa.vc.jper,c.ansa.vc.jrel,c.ansa.vc.jskill,c.ansa.vc.jtime,q_text_vc,q_text_vc_career,q_text_vc_jatt,q_text_vc_jper,q_text_vc_jrel,q_text_vc_jskill,q_text_vc_jtime)
+		   endif
+    $row()
+     $col(,,"40%")$text(q_text_ld_socFun)
+     $col("center",,"10%")$text(c.ansa.ld.socFun)
+     $col(,,"50%")
+    $row()
+     $col()$text(q_text_ld_recret)
+     $col("center")$text(c.ansa.ld.recret)
+     $col()
+    $row()
+     $col()$text(q_text_ld_indliv)
+     $col("center")$text(c.ansa.ld.indliv)
+     $col()if $num(c.ansa.ld.indliv) > 0
+		    DevelopmentalRpt(c.ansa.dn.cog,c.ansa.dn.comm,c.ansa.dn.dev,q_text_dn,q_text_dn_cog,q_text_dn_comm,q_text_dn_dev)
+		   endif
+    $row()
+     $col()$text(q_text_ld_sexdev)
+     $col("center")$text(c.ansa.ld.sexdev)
+     $col()
+    $row()
+     $col()$text(q_text_ld_living)
+     $col("center")$text(c.ansa.ld.living)
+     $col()
+    $row()
+     $col()$text(q_text_ld_restab)
+     $col("center")$text(c.ansa.ld.restab)
+     $col()
+    $row()
+     $col()$text(q_text_ld_legal) 
+     $col("center")$text(c.ansa.ld.legal)
+     $col()
+    $row()
+     $col()$text(q_text_ld_sleep)
+     $col("center")$text(c.ansa.ld.sleep)
+     $col()
+    $row()
+     $col()$text(q_text_ld_slfcre)
+     $col("center")$text(c.ansa.ld.slfcre)
+     $col()
+    $row()
+     $col()$text(q_text_ld_decisi)
+     $col("center")$text(c.ansa.ld.decisi)
+     $col()
+    $row()
+     $col()$text(q_text_ld_invrec) 
+     $col("center")$text(c.ansa.ld.invrec)
+     $col()
+    $row()
+     $col()$text(q_text_ld_trans)
+     $col("center")$text(c.ansa.ld.trans)
+     $col()
+   endif 
+  $endtable($funcname) 
+ end LifeDomainRpt
+
+ 'Physical/Medical Reprt
+ function PhyMedRpt(c.ansa.pm.chi,c.ansa.pm.mehv,c.ansa.pm.mp,c.ansa.pm.pcpc,q_text_pm,q_text_pm_chi,q_text_pm_mehv,q_text_pm_mp,q_text_pm_pcpc) is null
+  c.ansa.pm.chi  is x
+  c.ansa.pm.mehv is x
+  c.ansa.pm.mp   is x 
+  c.ansa.pm.pcpc is x
+  q_text_pm      is x
+  q_text_pm_chi  is x
+  q_text_pm_mehv is x
+  q_text_pm_mp   is x
+  q_text_pm_pcpc is x   
+  $table($funcname,,"width='100%' cellspacing='0' cellpadding='2' bgcolor='White'  style='border-style: solid; border-width: 1px'")
+   $row(,col_color_multi)
+    $col("center",,,"2"  )$text(q_text_pm, "datatag")
+   $row(,row_color2)
+    $col(,,"50%")$text(q_text_pm_pcpc)
+    $col("center")  $text(c.ansa.pm.pcpc)
+   $row(,row_color2)
+    $col(,,"50%")$text(q_text_pm_chi)
+    $col("center")  $text(c.ansa.pm.chi)
+   $row(,row_color2)
+    $col(,,"50%")$text(q_text_pm_mehv)
+    $col("center")  $text(c.ansa.pm.mehv)
+   $row(,row_color2)
+    $col(,,"50%")$text(q_text_pm_mp)
+    $col("center")  $text(c.ansa.pm.mp)
+  $endtable($funcname)   
+ end PhyMedRpt
+
+ 'Vocational/Careet Report
+ function VocationalRpt(c.ansa.vc.career,c.ansa.vc.jatt,c.ansa.vc.jper,c.ansa.vc.jrel,c.ansa.vc.jskill,c.ansa.vc.jtime,q_text_vc,q_text_vc_career,q_text_vc_jatt,q_text_vc_jper,q_text_vc_jrel,q_text_vc_jskill,q_text_vc_jtime) is null
+  c.ansa.vc.career is x
+  c.ansa.vc.jatt   is x
+  c.ansa.vc.jper   is x
+  c.ansa.vc.jrel   is x
+  c.ansa.vc.jskill is x
+  c.ansa.vc.jtime  is x
+  q_text_vc        is x
+  q_text_vc_career is x
+  q_text_vc_jatt   is x
+  q_text_vc_jper   is x
+  q_text_vc_jrel   is x
+  q_text_vc_jskill is x
+  q_text_vc_jtime  is x
+  $table($funcname,,"width='100%' cellspacing='0' cellpadding='2' bgcolor='White'  style='border-style: solid; border-width: 1px'")
+   $row(,col_color_multi)
+    $col("center",,,"2"  )$text(q_text_vc, "datatag")
+   $row(,row_color2)
+    $col(,,"50%")$text(q_text_vc_career)
+    $col("center")  $text(c.ansa.vc.career)
+   $row(,row_color2)
+    $col(,,"50%")$text(q_text_vc_jtime)
+    $col("center")  $text(c.ansa.vc.jtime)
+   $row(,row_color2)
+    $col(,,"50%")$text(q_text_vc_jatt)
+    $col("center")  $text(c.ansa.vc.jatt)
+   $row(,row_color2)
+    $col(,,"50%")$text(q_text_vc_jper)
+    $col("center")  $text(c.ansa.vc.jper)
+   $row(,row_color2)
+    $col(,,"50%")$text(q_text_vc_jrel)
+    $col("center")  $text(c.ansa.vc.jrel)
+   $row(,row_color2)
+    $col(,,"50%")$text(q_text_vc_jskill)
+    $col("center")  $text(c.ansa.vc.jskill)
+  $endtable($funcname)
+ end VocationalRpt
+
+ 'Development Report
+ function DevelopmentalRpt(c.ansa.dn.cog,c.ansa.dn.comm,c.ansa.dn.dev,q_text_dn,q_text_dn_cog,q_text_dn_comm,q_text_dn_dev) is null
+  c.ansa.dn.cog  is x
+  c.ansa.dn.comm is x
+  c.ansa.dn.dev  is x
+  q_text_dn      is x
+  q_text_dn_cog  is x
+  q_text_dn_comm is x
+  q_text_dn_dev  is x
+  $table($funcname,,"width='100%' cellspacing='0' cellpadding='2' bgcolor='White'  style='border-style: solid; border-width: 1px'")
+   $row(,col_color_multi)
+    $col("center",,,"2"  )$text(q_text_dn, "datatag")
+   $row(,row_color2)
+    $col(,,"50%")$text(q_text_dn_cog)
+    $col("center")$text(c.ansa.dn.cog)
+   $row()
+    $col()$text(q_text_dn_comm) 
+    $col("center")$text(c.ansa.dn.comm)
+   $row()
+    $col()$text(q_text_dn_dev)
+    $col("center")$text(c.ansa.dn.dev)
+  $endtable($funcname)
+ end DevelopmentalRpt
+
+ 'Risk Report
+ function RiskRpt(c.ansa.disreas,c.ansa.r.crimbe,c.ansa.r.dangot,c.ansa.r.exploit,c.ansa.r.gamble,c.ansa.r.oslfhr,c.ansa.r.sexagr,c.ansa.r.smutil,c.ansa.r.suicid,c.ansa.type,q_text_r,q_text_r_crimbe,q_text_r_dangot,q_text_r_exploit,q_text_r_gamble,
+                  q_text_r_oslfhr,q_text_r_sexagr,q_text_r_smutil,q_text_r_suicid,
+				  c.ansa.sr.ffsui,c.ansa.sr.hist,c.ansa.sr.idea,c.ansa.sr.intent,c.ansa.sr.plan,q_text_sr,q_text_sr_ffsui,q_text_sr_hist,q_text_sr_idea,q_text_sr_intent,q_text_sr_plan,
+				  c.ansa.d.csctrl,c.ansa.d.frusman,c.ansa.d.gainang,c.ansa.d.host,c.ansa.d.potent,c.ansa.d.pthink,c.ansa.d.respon,c.ansa.d.tinv,c.ansa.d.vthink,q_text_d,q_text_d_csctrl,q_text_d_frusman,q_text_d_gainang,q_text_d_host,
+                  q_text_d_potent,q_text_d_pthink,q_text_d_respon,q_text_d_tinv,q_text_d_vthink,
+				  c.ansa.sb.agedif,c.ansa.sb.phyfrc,c.ansa.sb.planin,c.ansa.sb.relton,c.ansa.sb.resacc,c.ansa.sb.typsex,q_text_sb,q_text_sb_agedif,q_text_sb_phyfrc,q_text_sb_planin,q_text_sb_relton,q_text_sb_resacc,q_text_sb_typsex,
+				  c.ansa.cb.arrest,c.ansa.cb.comsf,c.ansa.cb.einf,c.ansa.cb.finf,c.ansa.cb.hist,c.ansa.cb.legcom,c.ansa.cb.peer,c.ansa.cb.plan,c.ansa.cb.seri,q_text_cb,q_text_cb_arrest,q_text_cb_comsf,q_text_cb_einf,q_text_cb_finf,
+                  q_text_cb_hist,q_text_cb_legcom,q_text_cb_peer,q_text_cb_plan,q_text_cb_seri) is null
+  c.ansa.disreas   is x
+  c.ansa.r.crimbe  is x
+  c.ansa.r.dangot  is x
+  c.ansa.r.exploit is x
+  c.ansa.r.gamble  is x
+  c.ansa.r.oslfhr  is x
+  c.ansa.r.sexagr  is x
+  c.ansa.r.smutil  is x
+  c.ansa.r.suicid  is x
+  c.ansa.type      is x
+  q_text_r         is x
+  q_text_r_crimbe  is x
+  q_text_r_dangot  is x
+  q_text_r_exploit is x
+  q_text_r_gamble  is x
+  q_text_r_oslfhr  is x
+  q_text_r_sexagr  is x
+  q_text_r_smutil  is x
+  q_text_r_suicid  is x
+  c.ansa.sr.ffsui  is x
+  c.ansa.sr.hist   is x
+  c.ansa.sr.idea   is x
+  c.ansa.sr.intent is x
+  c.ansa.sr.plan   is x
+  q_text_sr        is x
+  q_text_sr_ffsui  is x
+  q_text_sr_hist   is x
+  q_text_sr_idea   is x
+  q_text_sr_intent is x
+  q_text_sr_plan   is x
+  c.ansa.d.csctrl  is x
+  c.ansa.d.frusman is x
+  c.ansa.d.gainang is x
+  c.ansa.d.host    is x
+  c.ansa.d.potent  is x
+  c.ansa.d.pthink  is x
+  c.ansa.d.respon  is x
+  c.ansa.d.tinv    is x
+  c.ansa.d.vthink  is x
+  q_text_d         is x
+  q_text_d_csctrl  is x
+  q_text_d_frusman is x
+  q_text_d_gainang is x
+  q_text_d_host    is x
+  q_text_d_potent  is x
+  q_text_d_pthink  is x
+  q_text_d_respon  is x
+  q_text_d_tinv    is x
+  q_text_d_vthink  is x
+  c.ansa.sb.agedif is x
+  c.ansa.sb.phyfrc is x
+  c.ansa.sb.planin is x
+  c.ansa.sb.relton is x
+  c.ansa.sb.resacc is x
+  c.ansa.sb.typsex is x
+  q_text_sb        is x
+  q_text_sb_agedif is x
+  q_text_sb_phyfrc is x
+  q_text_sb_planin is x
+  q_text_sb_relton is x
+  q_text_sb_resacc is x
+  q_text_sb_typsex is x
+  c.ansa.cb.arrest is x
+  c.ansa.cb.comsf  is x
+  c.ansa.cb.einf   is x
+  c.ansa.cb.finf   is x
+  c.ansa.cb.hist   is x
+  c.ansa.cb.legcom is x
+  c.ansa.cb.peer   is x
+  c.ansa.cb.plan   is x
+  c.ansa.cb.seri   is x
+  q_text_cb        is x
+  q_text_cb_arrest is x
+  q_text_cb_comsf  is x
+  q_text_cb_einf   is x
+  q_text_cb_finf   is x
+  q_text_cb_hist   is x
+  q_text_cb_legcom is x
+  q_text_cb_peer   is x
+  q_text_cb_plan   is x
+  q_text_cb_seri   is x        
+  $table($funcname,,"width='100%' cellspacing='0' cellpadding='2' bgcolor='White' style='border-style: solid; border-width: 1px'")
+   $row(,col_color_multi)
+    $col("center",,,"3"  )$text(q_text_r,"datatag")
+   $row(,row_color2)
+    $col(,,"40%")$text(q_text_r_suicid)
+    $col("center",,"10%")$text(c.ansa.r.suicid)
+    $col(,,"50%") if $num(c.ansa.r.suicid) > 0
+                   SuicideRiskRpt(c.ansa.sr.ffsui,c.ansa.sr.hist,c.ansa.sr.idea,c.ansa.sr.intent,c.ansa.sr.plan,q_text_sr,q_text_sr_ffsui,q_text_sr_hist,q_text_sr_idea,q_text_sr_intent,q_text_sr_plan)
+                  endif
+   $row()
+    $col()$text(q_text_r_dangot)
+    $col("center")$text(c.ansa.r.dangot)
+    $col() if $num(c.ansa.r.dangot) > 0
+            DangerRpt(c.ansa.d.csctrl,c.ansa.d.frusman,c.ansa.d.gainang,c.ansa.d.host,c.ansa.d.potent,c.ansa.d.pthink,c.ansa.d.respon,c.ansa.d.tinv,c.ansa.d.vthink,q_text_d,q_text_d_csctrl,q_text_d_frusman,q_text_d_gainang,q_text_d_host,
+                      q_text_d_potent,q_text_d_pthink,q_text_d_respon,q_text_d_tinv,q_text_d_vthink)
+           endif
+   if (c.ansa.type = "1" or c.ansa.type = "2" or (c.ansa.type = "3" and c.ansa.disreas = "14") or c.ansa.type = "12")
+    $row()
+     $col()$text(q_text_r_smutil)
+     $col("center")$text(c.ansa.r.smutil)
+     $col()
+    $row() 
+     $col()$text(q_text_r_oslfhr)
+     $col("center")$text(c.ansa.r.oslfhr)
+     $col()
+    $row() 
+     $col()$text(q_text_r_exploit)
+     $col("center")$text(c.ansa.r.exploit)
+     $col()
+    $row() 
+     $col()$text(q_text_r_gamble)
+     $col("center")$text(c.ansa.r.gamble)
+     $col()
+    $row() 
+     $col()$text(q_text_r_sexagr)
+     $col("center")$text(c.ansa.r.sexagr)
+     $col()if $num(c.ansa.r.sexagr) > 1
+            SexAgrRpt(c.ansa.sb.agedif,c.ansa.sb.phyfrc,c.ansa.sb.planin,c.ansa.sb.relton,c.ansa.sb.resacc,c.ansa.sb.typsex,q_text_sb,q_text_sb_agedif,q_text_sb_phyfrc,q_text_sb_planin,q_text_sb_relton,q_text_sb_resacc,q_text_sb_typsex)
+		   endif
+    $row() 
+     $col()$text(q_text_r_crimbe)
+     $col("center")$text(c.ansa.r.crimbe)
+     $col()if $num(c.ansa.r.crimbe) > 1
+	        CriminalRpt(c.ansa.cb.arrest,c.ansa.cb.comsf,c.ansa.cb.einf,c.ansa.cb.finf,c.ansa.cb.hist,c.ansa.cb.legcom,c.ansa.cb.peer,c.ansa.cb.plan,c.ansa.cb.seri,q_text_cb,q_text_cb_arrest,q_text_cb_comsf,q_text_cb_einf,q_text_cb_finf,
+                        q_text_cb_hist,q_text_cb_legcom,q_text_cb_peer,q_text_cb_plan,q_text_cb_seri)
+           endif             
+   endif		  
+  $endtable($funcname)
+ end RiskRpt
+
+ 'Risk Report
+ function SuicideRiskRpt(c.ansa.sr.ffsui,c.ansa.sr.hist,c.ansa.sr.idea,c.ansa.sr.intent,c.ansa.sr.plan,q_text_sr,q_text_sr_ffsui,q_text_sr_hist,q_text_sr_idea,q_text_sr_intent,q_text_sr_plan) is null
+  c.ansa.sr.ffsui  is x
+  c.ansa.sr.hist   is x
+  c.ansa.sr.idea   is x
+  c.ansa.sr.intent is x
+  c.ansa.sr.plan   is x
+  q_text_sr        is x
+  q_text_sr_ffsui  is x
+  q_text_sr_hist   is x
+  q_text_sr_idea   is x
+  q_text_sr_intent is x
+  q_text_sr_plan   is x
+  $table($funcname,,"width='100%' cellspacing='0' cellpadding='2' bgcolor='White' style='border-style: solid; border-width: 1px'")
+   $row(,col_color_multi)
+    $col("center",,,"2"  )$text(q_text_sr,"datatag")
+   $row(,row_color2)
+    $col(,,"50%"  )$text(q_text_sr_idea)
+    $col("center")$text(c.ansa.sr.idea)
+   $row()
+    $col()$text(q_text_sr_intent)
+    $col("center")$text(c.ansa.sr.intent)
+   $row()
+    $col()$text(q_text_sr_plan)
+    $col("center")$text(c.ansa.sr.plan)
+   $row()
+    $col()$text(q_text_sr_hist)
+    $col("center")$text(c.ansa.sr.hist)   
+   $row()
+    $col()$text(q_text_sr_ffsui)
+    $col("center")$text(c.ansa.sr.ffsui)       
+  $endtable($funcname)
+ end SuicideRiskRpt
+
+ 'Dangerousness Report
+ function DangerRpt(c.ansa.d.csctrl,c.ansa.d.frusman,c.ansa.d.gainang,c.ansa.d.host,c.ansa.d.potent,c.ansa.d.pthink,c.ansa.d.respon,c.ansa.d.tinv,c.ansa.d.vthink,q_text_d,q_text_d_csctrl,q_text_d_frusman,q_text_d_gainang,q_text_d_host,
+                    q_text_d_potent,q_text_d_pthink,q_text_d_respon,q_text_d_tinv,q_text_d_vthink) is null
+  c.ansa.d.csctrl  is x
+  c.ansa.d.frusman is x
+  c.ansa.d.gainang is x
+  c.ansa.d.host    is x
+  c.ansa.d.potent  is x
+  c.ansa.d.pthink  is x
+  c.ansa.d.respon  is x
+  c.ansa.d.tinv    is x
+  c.ansa.d.vthink  is x
+  q_text_d         is x
+  q_text_d_csctrl  is x
+  q_text_d_frusman is x
+  q_text_d_gainang is x
+  q_text_d_host    is x
+  q_text_d_potent  is x
+  q_text_d_pthink  is x
+  q_text_d_respon  is x
+  q_text_d_tinv    is x
+  q_text_d_vthink  is x
+  $table($funcname,,"width='100%' cellspacing='0' cellpadding='2' bgcolor='White'  style='border-style: solid; border-width: 1px'")
+   $row(,col_color_multi)
+    $col("center",,,"2"  )$text(q_text_d, "datatag")
+   $row(,row_color2)
+    $col(,,"50%"  )$text(q_text_d_frusman)
+    $col("center")$text(c.ansa.d.frusman)  
+   $row(,row_color2)
+    $col(,,"50%"  )$text(q_text_d_host)
+    $col("center")$text(c.ansa.d.host)  
+   $row(,row_color2)
+    $col(,,"50%"  )$text(q_text_d_pthink)
+    $col("center")$text(c.ansa.d.pthink)  
+   $row(,row_color2)
+    $col(,,"50%"  )$text(q_text_d_gainang)
+    $col("center")$text(c.ansa.d.gainang)  
+   $row(,row_color2)
+    $col(,,"50%"  )$text(q_text_d_vthink)
+    $col("center")$text(c.ansa.d.vthink)  
+   $row(,row_color2)
+    $col(,,"50%"  )$text(q_text_d_potent)
+    $col("center")$text(c.ansa.d.potent)  
+   $row(,row_color2)
+    $col(,,"50%"  )$text(q_text_d_respon)
+    $col("center")$text(c.ansa.d.respon)  
+   $row(,row_color2)
+    $col(,,"50%"  )$text(q_text_d_csctrl)
+    $col("center")$text(c.ansa.d.csctrl)     
+   $row(,row_color2)
+    $col(,,"50%"  )$text(q_text_d_tinv)
+    $col("center")$text(c.ansa.d.tinv)  
+  $endtable($funcname) 
+ end DangerRpt 
+
+ 'Sexually Agressive Module Report                                                                                                   
+ function SexAgrRpt(c.ansa.sb.agedif,c.ansa.sb.phyfrc,c.ansa.sb.planin,c.ansa.sb.relton,c.ansa.sb.resacc,c.ansa.sb.typsex,q_text_sb,q_text_sb_agedif,q_text_sb_phyfrc,q_text_sb_planin,q_text_sb_relton,q_text_sb_resacc,q_text_sb_typsex) is null
+  c.ansa.sb.agedif is x
+  c.ansa.sb.phyfrc is x
+  c.ansa.sb.planin is x
+  c.ansa.sb.relton is x
+  c.ansa.sb.resacc is x
+  c.ansa.sb.typsex is x
+  q_text_sb        is x
+  q_text_sb_agedif is x
+  q_text_sb_phyfrc is x
+  q_text_sb_planin is x
+  q_text_sb_relton is x
+  q_text_sb_resacc is x
+  q_text_sb_typsex is x
+  $table($funcname,,"width='100%' cellspacing='0' cellpadding='2' bgcolor='White'  style='border-style: solid; border-width: 1px'")
+   $row(,col_color_multi)
+    $col("center",,,"2"  )$text(q_text_sb, "datatag")
+   $row(,row_color2)
+    $col(,,"50%")$text(q_text_sb_relton)
+    $col("center")$text(c.ansa.sb.relton)
+   $row()                                       
+    $col()$text(q_text_sb_phyfrc) 
+    $col("center")$text(c.ansa.sb.phyfrc)
+   $row()                                       
+    $col()$text(q_text_sb_planin)
+    $col("center")$text(c.ansa.sb.planin)
+   $row()                                       
+    $col()$text(q_text_sb_agedif)
+    $col("center")$text(c.ansa.sb.agedif)
+   $row()                                       
+    $col()$text(q_text_sb_typsex)
+    $col("center")$text(c.ansa.sb.typsex)
+   $row() 
+    $col()$text(q_text_sb_resacc)
+    $col("center")$text(c.ansa.sb.resacc)
+  $endtable($funcname)
+ end SexAgrRpt
+
+ 'Criminal Behavior Module Report
+ function CriminalRpt(c.ansa.cb.arrest,c.ansa.cb.comsf,c.ansa.cb.einf,c.ansa.cb.finf,c.ansa.cb.hist,c.ansa.cb.legcom,c.ansa.cb.peer,c.ansa.cb.plan,c.ansa.cb.seri,q_text_cb,q_text_cb_arrest,q_text_cb_comsf,q_text_cb_einf,q_text_cb_finf,
+                      q_text_cb_hist,q_text_cb_legcom,q_text_cb_peer,q_text_cb_plan,q_text_cb_seri) is null
+  c.ansa.cb.arrest is x
+  c.ansa.cb.comsf  is x
+  c.ansa.cb.einf   is x
+  c.ansa.cb.finf   is x
+  c.ansa.cb.hist   is x
+  c.ansa.cb.legcom is x
+  c.ansa.cb.peer   is x
+  c.ansa.cb.plan   is x
+  c.ansa.cb.seri   is x
+  q_text_cb        is x
+  q_text_cb_arrest is x
+  q_text_cb_comsf  is x
+  q_text_cb_einf   is x
+  q_text_cb_finf   is x
+  q_text_cb_hist   is x
+  q_text_cb_legcom is x
+  q_text_cb_peer   is x
+  q_text_cb_plan   is x
+  q_text_cb_seri   is x
+  $table($funcname,,"width='100%' cellspacing='0' cellpadding='2' bgcolor='White'  style='border-style: solid; border-width: 1px'")
+   $row(,col_color_multi)
+    $col("center",,,"2"  )$text(q_text_cb, "datatag")
+   $row(,row_color2)
+    $col(,,"50%")$text(q_text_cb_seri)
+    $col("center")$text(c.ansa.cb.seri)
+   $row()                                       
+    $col()$text(q_text_cb_hist) 
+    $col("center")$text(c.ansa.cb.hist)
+   $row()                                       
+    $col()$text(q_text_cb_arrest)
+    $col("center")$text(c.ansa.cb.arrest)
+   $row()                                       
+    $col()$text(q_text_cb_plan)
+    $col("center")$text(c.ansa.cb.plan)
+   $row()                                       
+    $col()$text(q_text_cb_comsf)
+    $col("center")$text(c.ansa.cb.comsf)
+   $row() 
+    $col()$text(q_text_cb_legcom)
+    $col("center")$text(c.ansa.cb.legcom)
+   $row() 
+    $col()$text(q_text_cb_peer)
+    $col("center")$text(c.ansa.cb.peer)
+   $row() 
+    $col()$text(q_text_cb_finf)
+    $col("center")$text(c.ansa.cb.finf)
+   $row() 
+    $col()$text(q_text_cb_einf)
+    $col("center")$text(c.ansa.cb.einf)   
+  $endtable($funcname)
+ end CriminalRpt
+
+ 'Trauma Module Report
+ function TraumaRpt(c.ansa.tr.affreg,c.ansa.tr.attach,c.ansa.tr.dissoc,c.ansa.tr.emoabs,c.ansa.tr.intrus,c.ansa.tr.medtrm,c.ansa.tr.natdis,c.ansa.tr.phyabs,c.ansa.tr.sexabs,c.ansa.tr.teraff,c.ansa.tr.waraff,c.ansa.tr.wcrime,
+                    c.ansa.tr.wtocom,c.ansa.tr.wtofam,q_text_tr,q_text_tr_affreg,q_text_tr_attach,q_text_tr_dissoc,q_text_tr_emoabs,q_text_tr_intrus,q_text_tr_medtrm,q_text_tr_natdis,q_text_tr_phyabs,q_text_tr_sexabs,
+                    q_text_tr_teraff,q_text_tr_waraff,q_text_tr_wcrime,q_text_tr_wtocom,q_text_tr_wtofam) is null
+  c.ansa.tr.affreg is x
+  c.ansa.tr.attach is x
+  c.ansa.tr.dissoc is x
+  c.ansa.tr.emoabs is x
+  c.ansa.tr.intrus is x
+  c.ansa.tr.medtrm is x
+  c.ansa.tr.natdis is x
+  c.ansa.tr.phyabs is x
+  c.ansa.tr.sexabs is x
+  c.ansa.tr.teraff is x
+  c.ansa.tr.waraff is x
+  c.ansa.tr.wcrime is x
+  c.ansa.tr.wtocom is x
+  c.ansa.tr.wtofam is x
+  q_text_tr        is x
+  q_text_tr_affreg is x
+  q_text_tr_attach is x
+  q_text_tr_dissoc is x
+  q_text_tr_emoabs is x
+  q_text_tr_intrus is x
+  q_text_tr_medtrm is x
+  q_text_tr_natdis is x
+  q_text_tr_phyabs is x
+  q_text_tr_sexabs is x
+  q_text_tr_teraff is x
+  q_text_tr_waraff is x
+  q_text_tr_wcrime is x
+  q_text_tr_wtocom is x
+  q_text_tr_wtofam is x
+  $table($funcname,,"width='100%' cellspacing='0' cellpadding='2' bgcolor='White'  style='border-style: solid; border-width: 1px'")
+   $row(,col_color_multi)
+    $col("center",,,"2"  )$text(q_text_tr, "datatag")
+   $row(,row_color2)
+    $col(,,"50%")$text(q_text_tr_sexabs)
+    $col("center")$text(c.ansa.tr.sexabs)
+   $row()                                       
+    $col()$text(q_text_tr_phyabs)
+    $col("center")$text(c.ansa.tr.phyabs)
+   $row()                                       
+    $col()$text(q_text_tr_emoabs) 
+    $col("center")$text(c.ansa.tr.emoabs)
+   $row()                                       
+    $col()$text(q_text_tr_medtrm)
+    $col("center")$text(c.ansa.tr.medtrm)
+   $row()                                       
+    $col()$text(q_text_tr_natdis)
+    $col("center")$text(c.ansa.tr.natdis)
+   $row()                                       
+    $col()$text(q_text_tr_wtofam) 
+    $col("center")$text(c.ansa.tr.wtofam)
+   $row()                                       
+    $col()$text(q_text_tr_wtocom)
+    $col("center")$text(c.ansa.tr.wtocom)
+   $row()                                       
+    $col()$text(q_text_tr_wcrime)
+    $col("center")$text(c.ansa.tr.wcrime)
+   $row()                                       
+    $col()$text(q_text_tr_waraff) 
+    $col("center")$text(c.ansa.tr.waraff)
+   $row()                                       
+    $col()$text(q_text_tr_teraff)
+    $col("center")$text(c.ansa.tr.teraff)
+   $row()                                       
+    $col()$text(q_text_tr_affreg)
+    $col("center")$text(c.ansa.tr.affreg)
+   $row()                                       
+    $col()$text(q_text_tr_intrus)
+    $col("center")$text(c.ansa.tr.intrus)
+   $row()                                       
+    $col()$text(q_text_tr_attach)
+    $col("center")$text(c.ansa.tr.attach)
+   $row()                                       
+    $col()$text(q_text_tr_dissoc)
+    $col("center")$text(c.ansa.tr.dissoc)
+  $endtable($funcname)
+ end TraumaRpt
+
+'Substance Abuse Module Report
+ function SubAbsRpt(c.ansa.sa.durati,c.ansa.sa.envinf,c.ansa.sa.perinf,c.ansa.sa.reccom,c.ansa.sa.severe,c.ansa.sa.stgrec,q_text_sa,q_text_sa_durati,q_text_sa_envinf,q_text_sa_perinf,q_text_sa_reccom,q_text_sa_severe,q_text_sa_stgrec) is null
+  c.ansa.sa.durati is x
+  c.ansa.sa.envinf is x
+  c.ansa.sa.perinf is x
+  c.ansa.sa.reccom is x
+  c.ansa.sa.severe is x
+  c.ansa.sa.stgrec is x
+  q_text_sa        is x
+  q_text_sa_durati is x
+  q_text_sa_envinf is x
+  q_text_sa_perinf is x
+  q_text_sa_reccom is x
+  q_text_sa_severe is x
+  q_text_sa_stgrec is x
+  $table($funcname,,"width='100%' cellspacing='0' cellpadding='2' bgcolor='White'  style='border-style: solid; border-width: 1px'")
+   $row(,col_color_multi)
+    $col("center",,,"2"  )$text(q_text_sa, "datatag")
+   $row(,row_color2)
+    $col(,,"50%")$text(q_text_sa_severe)
+    $col("center")  $text(c.ansa.sa.severe)
+   $row()                                       
+    $col()$text(q_text_sa_durati) 
+    $col("center")$text(c.ansa.sa.durati)
+   $row()                                       
+    $col()$text(q_text_sa_stgrec)
+    $col("center")$text(c.ansa.sa.stgrec)
+   $row()                                       
+    $col()$text(q_text_sa_perinf) 
+    $col("center")$text(c.ansa.sa.perinf)
+   $row()                                       
+    $col()$text(q_text_sa_envinf) 
+    $col("center")$text(c.ansa.sa.envinf)
+   $row()                                       
+    $col()$text(q_text_sa_reccom) 
+    $col("center")$text(c.ansa.sa.reccom)
+  $endtable($funcname)
+ end SubAbsRpt
+
+ 'Family/Caregiver strengths & needs Report
+ function CareGiveRpt(c.ansa.fc.famst,c.ansa.fc.invcre,c.ansa.fc.know,c.ansa.fc.na,c.ansa.fc.phlth,c.ansa.fc.safe,c.ansa.fc.sfres,q_text_fc,q_text_fc_famst,q_text_fc_invcre,q_text_fc_know,q_text_fc_na,q_text_fc_phlth,q_text_fc_safe,
+                      q_text_fc_sfres) is null
+  c.ansa.fc.famst  is x
+  c.ansa.fc.invcre is x
+  c.ansa.fc.know   is x
+  c.ansa.fc.na     is x
+  c.ansa.fc.phlth  is x
+  c.ansa.fc.safe   is x
+  c.ansa.fc.sfres  is x
+  q_text_fc        is x
+  q_text_fc_famst  is x
+  q_text_fc_invcre is x
+  q_text_fc_know   is x
+  q_text_fc_na     is x
+  q_text_fc_phlth  is x
+  q_text_fc_safe   is x
+  q_text_fc_sfres  is x
+  $table($funcname,,"width='100%' cellspacing='0' cellpadding='2' bgcolor='White' style='border-style: solid; border-width: 1px'")
+   $row(,col_color_multi)
+    $col("center",,,"3")$text(q_text_fc,"datatag")
+    if c.ansa.fc.na = "9"
+     $row()
+      $col("center",,,"3")$text(q_text_fc_na)
+    else
+     $row(,row_color2)
+      $col(,,"40%")$text(q_text_fc_phlth)
+      $col("center",,"10%")$text(c.ansa.fc.phlth)
+      $col(,,"50%")
+     $row()
+      $col()$text(q_text_fc_invcre)
+      $col("center")$text(c.ansa.fc.invcre)
+      $col()
+     $row()
+      $col()$text(q_text_fc_know)
+      $col("center")$text(c.ansa.fc.know)
+      $col()
+     $row()
+      $col()$text(q_text_fc_sfres)
+      $col("center")$text(c.ansa.fc.sfres)
+      $col()
+     $row()
+      $col()$text(q_text_fc_famst)
+      $col("center")$text(c.ansa.fc.famst)
+      $col()
+     $row()
+      $col()$text(q_text_fc_safe)
+      $col("center")$text(c.ansa.fc.safe)
+      $col()	 
+    endif
+  $endtable($funcname)                                  
+ end CareGiveRpt 
+
+ 'Family/Caregiver strengths & needs Report
+ function StrengthsRpt(c.ansa.st.comcon,c.ansa.st.edu,c.ansa.st.fam,c.ansa.st.jobhi,c.ansa.st.natsup,c.ansa.st.opti,c.ansa.st.relig,c.ansa.st.resil,c.ansa.st.resour,c.ansa.st.soccon,c.ansa.st.tal,c.ansa.st.vol,
+                       q_text_st,q_text_st_comcon,q_text_st_edu,q_text_st_fam,q_text_st_jobhi,q_text_st_natsup,q_text_st_opti,q_text_st_relig,q_text_st_resil,q_text_st_resour,q_text_st_soccon,q_text_st_tal,q_text_st_vol) is null
+  c.ansa.st.comcon is x
+  c.ansa.st.edu    is x
+  c.ansa.st.fam    is x
+  c.ansa.st.jobhi  is x
+  c.ansa.st.natsup is x
+  c.ansa.st.opti   is x
+  c.ansa.st.relig  is x
+  c.ansa.st.resil  is x
+  c.ansa.st.resour is x
+  c.ansa.st.soccon is x
+  c.ansa.st.tal    is x
+  c.ansa.st.vol    is x
+  q_text_st        is x
+  q_text_st_comcon is x
+  q_text_st_edu    is x
+  q_text_st_fam    is x
+  q_text_st_jobhi  is x
+  q_text_st_natsup is x
+  q_text_st_opti   is x
+  q_text_st_relig  is x
+  q_text_st_resil  is x
+  q_text_st_resour is x
+  q_text_st_soccon is x
+  q_text_st_tal    is x
+  q_text_st_vol    is x
+  $table($funcname,,"width='100%' cellspacing='0' cellpadding='2' bgcolor='White' style='border-style: solid; border-width: 1px'")
+   $row(,col_color_multi)
+    $col("center",,,"3"  )$text(q_text_st,"datatag")
+   $row(,row_color2)
+    $col(,,"40%")$text(q_text_st_fam)
+    $col("center",,"10%")$text(c.ansa.st.fam)
+    $col(,,"50%")
+   $row()
+    $col()$text(q_text_st_soccon)
+    $col("center")$text(c.ansa.st.soccon)
+    $col()	    
+   $row()
+    $col()$text(q_text_st_opti)
+    $col("center")$text(c.ansa.st.opti)
+    $col()
+   $row()
+    $col()$text(q_text_st_tal)
+    $col("center")$text(c.ansa.st.tal)
+    $col()   
+   $row()
+    $col()$text(q_text_st_edu)
+    $col("center")$text(c.ansa.st.edu)
+    $col()  
+   $row()
+    $col()$text(q_text_st_vol)
+    $col("center")$text(c.ansa.st.vol)
+    $col()   
+   $row()
+    $col()$text(q_text_st_jobhi)
+    $col("center")$text(c.ansa.st.jobhi)
+    $col()      
+   $row()
+    $col()$text(q_text_st_relig)
+    $col("center")$text(c.ansa.st.relig)
+    $col()      
+   $row()
+    $col()$text(q_text_st_comcon)
+    $col("center")$text(c.ansa.st.comcon)
+    $col()      
+   $row()
+    $col()$text(q_text_st_natsup)
+    $col("center")$text(c.ansa.st.natsup)
+    $col()      
+   $row()
+    $col()$text(q_text_st_resil)
+    $col("center")$text(c.ansa.st.resil)
+    $col()      
+   $row()
+    $col()$text(q_text_st_resour)
+    $col("center")$text(c.ansa.st.resour)
+    $col()      
+  $endtable($funcname)
+ end StrengthsRpt
+
+ 'Acculturation Report
+ function AcculturationRpt(c.ansa.ac.culstr,c.ansa.ac.identy,c.ansa.ac.langua,c.ansa.ac.ritual,q_text_ac,q_text_ac_culstr,q_text_ac_identy,q_text_ac_langua,q_text_ac_ritual) is null
+  c.ansa.ac.culstr is x
+  c.ansa.ac.identy is x
+  c.ansa.ac.langua is x
+  c.ansa.ac.ritual is x
+  q_text_ac        is x
+  q_text_ac_culstr is x
+  q_text_ac_identy is x
+  q_text_ac_langua is x
+  q_text_ac_ritual is x
+  $table($funcname,,"width='100%' cellspacing='0' cellpadding='2' bgcolor='White' style='border-style: solid; border-width: 1px'")
+   $row(,col_color_multi)
+    $col("center",,,"3"  )$text(q_text_ac,"datatag")
+   $row(,row_color2)
+    $col(,,"40%")$text(q_text_ac_langua)
+    $col("center",,"10%")$text(c.ansa.ac.langua)
+    $col(,,"50%")                               
+   $row()                                      
+    $col()$text(q_text_ac_identy)
+    $col("center")$text(c.ansa.ac.identy)
+    $col()                                      
+   $row()                                      
+    $col()$text(q_text_ac_ritual)
+    $col("center")$text(c.ansa.ac.ritual)
+    $col()                                      
+   $row()                                      
+    $col()$text(q_text_ac_culstr)
+    $col("center")$text(c.ansa.ac.culstr)
+    $col(,,"50%")                               
+  $endtable($funcname)
+ end AcculturationRpt
+
+ 'Psychiatric Hospitalization Report
+ function PsyHospRpt(c.ansa.hs.num180,c.ansa.hs.numg30,c.ansa.hs.numl30,q_text_hs,q_text_hs_num180,q_text_hs_numg30,q_text_hs_numl30) is null
+  c.ansa.hs.num180 is x
+  c.ansa.hs.numg30 is x
+  c.ansa.hs.numl30 is x
+  q_text_hs        is x
+  q_text_hs_num180 is x
+  q_text_hs_numg30 is x
+  q_text_hs_numl30 is x
+  $table("PsyHospRpt",,"width='100%' cellspacing='0' cellpadding='2' bgcolor='White' style='border-style: solid; border-width: 1px'")
+   $row(,col_color_multi)
+    $col("center",,,"3"  )$text(q_text_hs,"datatag")
+   $row(,row_color2)
+    $col(,,"40%")$text(q_text_hs_num180 )
+    $col("center",,"10%")$text(c.ansa.hs.num180)
+    $col(,,"50%")
+   $row(,row_color2)
+    $col()$text(q_text_hs_numl30)
+    $col("center")$text(c.ansa.hs.numl30)
+    $col()
+   $row(,row_color2)
+    $col(,,"40%")$text(q_text_hs_numg30)
+    $col("center")$text(c.ansa.hs.numg30)
+    $col()
+  $endtable("PsyHospRpt")
+ end PsyHospRpt
+
+ 'Crisis History Report
+ function CrisisRpt(c.ansa.cr.episds,q_text_cr,q_text_cr_episds) is null
+  c.ansa.cr.episds is x
+  q_text_cr        is x
+  q_text_cr_episds is x
+  $table($funcname,,"width='100%' cellspacing='0' cellpadding='2' bgcolor='White' style='border-style: solid; border-width: 1px'")
+   $row(,col_color_multi)
+    $col("center",,,"3"  )$text(q_text_cr,"datatag")
+   $row(,row_color2)
+    $col(,,"40%")$text(q_text_cr_episds )
+    $col("center",,"10%")$text(c.ansa.cr.episds )
+    $col(,,"50%")                               
+  $endtable($funcname)
+ end CrisisRpt
+
+ function OtherQuestionRpt(c.ansa.disreas,c.ansa.tcoommi,c.ansa.type,q_text_tcoommi) is null
+  c.ansa.disreas is x
+  c.ansa.tcoommi is x
+  c.ansa.type    is x
+  q_text_tcoommi is x
+  if c.ansa.type = "1" or c.ansa.type = "2" or (c.ansa.type = "3" and c.ansa.disreas = "14") or c.ansa.type = "12"
+   $br()
+   $table($funcname,,"width='100%' cellspacing='0' cellpadding='2' bgcolor='White' style='border-style: solid; border-width: 1px'")
+    $row()
+     $col("right",,"50%")$text(q_text_tcoommi)
+     $col()$text(c.ansa.tcoommi)
+   $endtable($funcname)
+  endif
+ end OtherQuestionRpt
+
+ function ALOCRpt(RptTitle,ReportID,ansaauthleveldct,ansadeviationdct,c.ansa.acomment,c.ansa.aloc,c.ansa.alocdate,c.ansa.alocedate,c.ansa.devjust,c.ansa.devoth,c.ansa.dloc,c.ansa.fairhear,c.ansa.loc_dev,c.ansa.rloc,
+                  c.ansa.type,c_ansa_aloc,c_ansa_dloc,c_ansa_fairhear,c_ansa_loc_dev,c_ansa_rloc,chk_mednec,medicalnecessity,q_text_acomment,q_text_aloc,q_text_alocdate,q_text_alocedate,q_text_alocstaff,
+                  q_text_devjust,q_text_devoth,q_text_dloc,q_text_fairhear,q_text_loc_dev,q_text_rloc,sigline,ChangeIrmsTitle,c.ansa.pincode,c.ansa.pindate,c.ansa.pintime,c.ansa.staff) is null
+  RptTitle         is x
+  ReportID         is x
+  ansaauthleveldct is b
+  ansadeviationdct is b
+  c.ansa.acomment  is x
+  c.ansa.aloc      is x
+  c.ansa.alocdate  is d
+  c.ansa.alocedate is d
+  c.ansa.devjust   is x
+  c.ansa.devoth    is x
+  c.ansa.dloc      is x
+  c.ansa.fairhear  is x
+  c.ansa.loc_dev   is x
+  c.ansa.rloc      is x
+  c.ansa.type      is x
+  c_ansa_aloc      is x
+  c_ansa_dloc      is x
+  c_ansa_fairhear  is x
+  c_ansa_loc_dev   is x
+  c_ansa_rloc      is x
+  chk_mednec       is x
+  medicalnecessity is x
+  q_text_acomment  is x
+  q_text_aloc      is x
+  q_text_alocdate  is x
+  q_text_alocedate is x
+  q_text_alocstaff is x
+  q_text_devjust   is x
+  q_text_devoth    is x
+  q_text_dloc      is x
+  q_text_fairhear  is x
+  q_text_loc_dev   is x
+  q_text_rloc      is x
+  sigline          is x
+  ChangeIrmsTitle  is x
+  c.ansa.pincode   is x
+  c.ansa.pindate   is d
+  c.ansa.pintime   is t
+  c.ansa.staff     is x
+  c_ansa_pintime   is x
+
+  sigline = $dct(2071, $oper, "D")
+  sigline += " (" + $operstaffid + ")"
+  
+  c_Ansa_rloc     = $dct(AnsaAuthLevelDCT,c.ansa.rloc)
+  c_Ansa_dloc     = $dct(AnsaAuthLevelDCT,c.ansa.dloc)
+  c_Ansa_aloc     = $dct(AnsaAuthLevelDCT,c.ansa.aloc)
+  c_Ansa_loc_dev  = $dct(AnsaDeviationDCT,c.ansa.loc_dev)
+  c_Ansa_fairhear = $dct(29,c.ansa.fairhear)
+  
+
+  $table($funcname,,"width='100%' cellspacing='0' cellpadding='2' bgcolor='White'  style='border-style: solid; border-width: 1px'")
+   $row(,col_color_multi)
+    if c.ansa.type = "1" or c.ansa.type = "2" or c.ansa.type = "12"
+     $col("center",,,"2")$text("Authorized Level Of Care","datatag")
+    elseif c.ansa.type = "3"
+     $col("center",,,"2")$text("Discharge","datatag")
+    elseif c.ansa.type = "11"
+     $col("center",,,"2")$text("Authorized Level Of Care: Crisis","datatag")
+    endif
+   $row()
+    $col("right",,"50%")$text(q_text_alocstaff,"datatag")
+    $col()$text(sigline)
+   $row()
+    $col("right",,"50%")$text(q_text_alocdate,"datatag")
+    $col()$text(c.ansa.alocdate)
+   if c.ansa.type != "3"
+    $row()
+     $col("right",,"50%")$text(q_text_alocedate,"datatag")
+     $col()$text(c.ansa.alocedate)
+     $row()
+   endif
+   if c.ansa.type = "1" or c.ansa.type = "2" or c.ansa.type = "11" or c.ansa.type = "12"
+    $row()
+     $col("right",,"50%")$text(q_text_rloc,"datatag")
+     $col()$text(c_Ansa_rloc)
+   endif
+   if c.ansa.dloc dp
+    $row()
+     $col("right",,"50%")$text(q_text_dloc,"datatag")
+     $col()$text(c_Ansa_dloc)              
+   endif	
+   if c.ansa.type = "1" or c.ansa.type = "2" or c.ansa.type = "11" or c.ansa.type = "12"
+    $row()
+     $col("right",,"50%")$text(q_text_aloc,"datatag")
+     $col()$text(c_Ansa_aloc) 
+   endif
+   if c.ansa.loc_dev dp
+    $row()
+     $col("right",,"50%")$text(q_text_loc_dev,"datatag")
+     $col()$text(c_Ansa_loc_dev)
+   endif  
+   if c.ansa.devoth dp
+    $row()
+     $col("right",,"50%")$text(q_text_devoth,"datatag")
+     $col()$text(c.ansa.devoth)
+   endif
+   if c.ansa.devjust dp
+    $row()
+     $col("right",,"50%")$text(q_text_devjust,"datatag")
+     $col()$text(c.ansa.devjust)
+   endif  
+   if c.ansa.fairhear dp
+    $row()
+     $col("right",,"50%")$text(q_text_fairhear,"datatag")
+     $col()$text(c_Ansa_fairhear)
+   endif 
+   if c.ansa.acomment dp
+    $row()
+     $col("right",,"50%")$text(q_text_acomment,"datatag")
+     $col()$text(c.ansa.acomment) 
+   endif
+  $endtable($funcname)
+
+  if c.ansa.pincode = "Y"
+   c_ansa_pintime = $format(c.ansa.pintime,"HH:MM AP")
+   $br()
+   $table($funcname,,"width='100%' cellspacing='0' cellpadding='2' bgcolor='White'  style='border-style: none;'")
+    $row()
+	 $col(,,"34%")$ctag("&nbsp;")
+	 $col("center",,"32%",,,"style='border-bottom:0.1em solid #000000;'")$text("{center}Electronically signed.{/center}","normal")
+	 $col(,,"34%")$ctag("&nbsp;")
+   $endtable($funcname)	  	  	  
+   $table($funcname,,"width='100%' cellspacing='0' cellpadding='2' bgcolor='White'  style='border-style: none;'")	
+	$row()
+	 $col(,,"34%")$ctag("&nbsp;")
+	 $col(,,"16%")$text($dct(9071,c.ansa.staff),"sigdate")$text(", ","sigdate")$text(c.ansa.staff,"sigdate")
+	 $col("right",,"16%")$text($castx(c.ansa.pindate),"sigdate")$ctag("&nbsp;")$text(c_ansa_pintime,"sigdate")
+	 $col(,,"345%",,"1")$ctag("&nbsp;")
+   $endtable($funcname)	  	  
+  endif   
+
+  if chk_MedNec = "Y"
+   $br(2)$text(MedicalNecessity,"siginfo")
+  endif 
+  $br()
+  if ChangeIrmsTitle = "Y"
+   {"lib_UACOMMON"}ChangeTitle($scriptid)
+  endif 
+  {"l_snapLibSC"}sn_CreateReport(RptTitle,,,ReportID)
+ end ALOCRpt
+  
+ 'Behavioral Health Needs Report
+ function BehavioralRpt(c.ansa.b.adjtrm,c.ansa.b.angctr,c.ansa.b.antisoc,c.ansa.b.anxity,c.ansa.b.cog,c.ansa.b.depres,c.ansa.b.eatdst,c.ansa.b.implsv,c.ansa.b.inter,c.ansa.b.mania,
+                        c.ansa.b.psychs,c.ansa.b.subabs,c.ansa.disreas,c.ansa.type,q_text_b,q_text_b_adjtrm,q_text_b_angctr,q_text_b_antisoc,q_text_b_anxity,q_text_b_cog,q_text_b_depres,q_text_b_eatdst,q_text_b_implsv,q_text_b_inter,q_text_b_mania,
+                        q_text_b_psychs,q_text_b_subabs,c.ansa.tr.affreg,c.ansa.tr.attach,c.ansa.tr.dissoc,c.ansa.tr.emoabs,c.ansa.tr.intrus,c.ansa.tr.medtrm,c.ansa.tr.natdis,c.ansa.tr.phyabs,c.ansa.tr.sexabs,
+						c.ansa.tr.teraff,c.ansa.tr.waraff,c.ansa.tr.wcrime,c.ansa.tr.wtocom,c.ansa.tr.wtofam,q_text_tr,q_text_tr_affreg,q_text_tr_attach,q_text_tr_dissoc,q_text_tr_emoabs,q_text_tr_intrus,q_text_tr_medtrm,
+						q_text_tr_natdis,q_text_tr_phyabs,q_text_tr_sexabs,q_text_tr_teraff,q_text_tr_waraff,q_text_tr_wcrime,q_text_tr_wtocom,q_text_tr_wtofam,
+                        c.ansa.sa.durati,c.ansa.sa.envinf,c.ansa.sa.perinf,c.ansa.sa.reccom,c.ansa.sa.severe,c.ansa.sa.stgrec,q_text_sa,q_text_sa_durati,q_text_sa_envinf,
+						q_text_sa_perinf,q_text_sa_reccom,q_text_sa_severe,q_text_sa_stgrec) is null
+  c.ansa.b.adjtrm  is x
+  c.ansa.b.angctr  is x
+  c.ansa.b.antisoc is x
+  c.ansa.b.anxity  is x
+  c.ansa.b.cog     is x
+  c.ansa.b.depres  is x
+  c.ansa.b.eatdst  is x
+  c.ansa.b.implsv  is x
+  c.ansa.b.inter   is x
+  c.ansa.b.mania   is x
+  c.ansa.b.psychs  is x
+  c.ansa.b.subabs  is x
+  c.ansa.disreas   is x
+  c.ansa.type      is x
+  q_text_b         is x
+  q_text_b_adjtrm  is x
+  q_text_b_angctr  is x
+  q_text_b_antisoc is x
+  q_text_b_anxity  is x
+  q_text_b_cog     is x
+  q_text_b_depres  is x
+  q_text_b_eatdst  is x
+  q_text_b_implsv  is x
+  q_text_b_inter   is x
+  q_text_b_mania   is x
+  q_text_b_psychs  is x
+  q_text_b_subabs  is x
+  c.ansa.tr.affreg is x
+  c.ansa.tr.attach is x
+  c.ansa.tr.dissoc is x
+  c.ansa.tr.emoabs is x
+  c.ansa.tr.intrus is x
+  c.ansa.tr.medtrm is x
+  c.ansa.tr.natdis is x
+  c.ansa.tr.phyabs is x
+  c.ansa.tr.sexabs is x
+  c.ansa.tr.teraff is x
+  c.ansa.tr.waraff is x
+  c.ansa.tr.wcrime is x
+  c.ansa.tr.wtocom is x
+  c.ansa.tr.wtofam is x
+  q_text_tr        is x
+  q_text_tr_affreg is x
+  q_text_tr_attach is x
+  q_text_tr_dissoc is x
+  q_text_tr_emoabs is x
+  q_text_tr_intrus is x
+  q_text_tr_medtrm is x
+  q_text_tr_natdis is x
+  q_text_tr_phyabs is x
+  q_text_tr_sexabs is x
+  q_text_tr_teraff is x
+  q_text_tr_waraff is x
+  q_text_tr_wcrime is x
+  q_text_tr_wtocom is x
+  q_text_tr_wtofam is x
+  c.ansa.sa.durati is x
+  c.ansa.sa.envinf is x
+  c.ansa.sa.perinf is x
+  c.ansa.sa.reccom is x
+  c.ansa.sa.severe is x
+  c.ansa.sa.stgrec is x
+  q_text_sa        is x
+  q_text_sa_durati is x
+  q_text_sa_envinf is x
+  q_text_sa_perinf is x
+  q_text_sa_reccom is x
+  q_text_sa_severe is x
+  q_text_sa_stgrec is x     
+  $table($funcname,,"width='100%' cellspacing='0' cellpadding='2' bgcolor='White' style='border-style: solid; border-width: 1px'")
+   $row(,col_color_multi)
+    $col("center",,,"3"  )$text(q_text_b,"datatag")
+   if c.ansa.type = "11"
+    $row(,row_color2)
+     $col(,,"40%")$text(q_text_b_cog)
+     $col("center",,"10%")$text(c.ansa.b.cog)
+     $col(,,"50%")
+    $row(,row_color2)
+     $col()$text(q_text_b_subabs)
+     $col("center")$text(c.ansa.b.subabs)
+     $col()if $num(c.ansa.b.subabs) > 1
+            SubAbsRpt(c.ansa.sa.durati,c.ansa.sa.envinf,c.ansa.sa.perinf,c.ansa.sa.reccom,c.ansa.sa.severe,c.ansa.sa.stgrec,q_text_sa,q_text_sa_durati,q_text_sa_envinf,q_text_sa_perinf,q_text_sa_reccom,q_text_sa_severe,q_text_sa_stgrec)
+		   endif  
+   endif
+   if c.ansa.type = "1" or c.ansa.type = "2" or (c.ansa.type = "3" and c.ansa.disreas = "14") or c.ansa.type = "12"
+    $row(,row_color2)
+     $col(,,"40%")$text(q_text_b_psychs)
+     $col("center",,"10%")$text(c.ansa.b.psychs)
+     $col(,,"50%")
+    $row()
+     $col()$text(q_text_b_cog)
+     $col("center")$text(c.ansa.b.cog)
+     $col()
+    $row()
+     $col()$text(q_text_b_depres)
+     $col("center")$text(c.ansa.b.depres)
+     $col()
+    $row()
+     $col()$text(q_text_b_anxity)
+     $col("center")$text(c.ansa.b.anxity)
+     $col()
+    $row()
+     $col()$text(q_text_b_mania)
+     $col("center")$text(c.ansa.b.mania)
+     $col()
+    $row()
+     $col()$text(q_text_b_implsv)
+     $col("center")$text(c.ansa.b.implsv)
+     $col()
+    $row()
+     $col()$text(q_text_b_inter)
+     $col("center")$text(c.ansa.b.inter)
+     $col()
+    $row()
+     $col()$text(q_text_b_antisoc)
+     $col("center")$text(c.ansa.b.antisoc)
+     $col()
+    $row()
+     $col()$text(q_text_b_adjtrm)
+     $col("center")$text(c.ansa.b.adjtrm)
+     $col()if $num(c.ansa.b.adjtrm) > 1
+            TraumaRpt(c.ansa.tr.affreg,c.ansa.tr.attach,c.ansa.tr.dissoc,c.ansa.tr.emoabs,c.ansa.tr.intrus,c.ansa.tr.medtrm,c.ansa.tr.natdis,c.ansa.tr.phyabs,c.ansa.tr.sexabs,
+			          c.ansa.tr.teraff,c.ansa.tr.waraff,c.ansa.tr.wcrime,c.ansa.tr.wtocom,c.ansa.tr.wtofam,q_text_tr,q_text_tr_affreg,q_text_tr_attach,q_text_tr_dissoc,q_text_tr_emoabs,q_text_tr_intrus,q_text_tr_medtrm,
+					  q_text_tr_natdis,q_text_tr_phyabs,q_text_tr_sexabs,q_text_tr_teraff,q_text_tr_waraff,q_text_tr_wcrime,q_text_tr_wtocom,q_text_tr_wtofam)
+
+		   endif
+    $row()
+     $col()$text(q_text_b_angctr)
+     $col("center")$text(c.ansa.b.angctr)
+     $col()
+    $row()
+     $col()$text(q_text_b_subabs)
+     $col("center")$text(c.ansa.b.subabs)
+     $col()if $num(c.ansa.b.subabs) > 1
+            SubAbsRpt(c.ansa.sa.durati,c.ansa.sa.envinf,c.ansa.sa.perinf,c.ansa.sa.reccom,c.ansa.sa.severe,c.ansa.sa.stgrec,q_text_sa,q_text_sa_durati,q_text_sa_envinf,q_text_sa_perinf,q_text_sa_reccom,q_text_sa_severe,q_text_sa_stgrec)
+		   endif
+    $row()
+     $col()$text(q_text_b_eatdst)
+     $col("center")$text(c.ansa.b.eatdst)
+     $col()
+   endif	
+  $endtable($funcname)
+ end BehavioralRpt
+ 
+ function OnWaitingList() is x
+  c.ansa.rec   is h
+  c.ansa.type  is x
+  c.ansa.aloc  is x
+  rc           is i  
+  rc = $dbread(02,$regid,c.ansa.rec,c.ansa.type,c.ansa.aloc)
+  if c.ansa.rec !dp
+   OnWaitingList = "N"
+  endif
+  if c.ansa.type = "1" and c.ansa.aloc = "109"
+   OnWaitingList = "Y"
+  else
+   do while rc < 2 and c.ansa.type != "3"
+    rc = $dbreadnextdst(02,$regid,c.ansa.rec,c.ansa.type,c.ansa.aloc)
+    if c.ansa.type = "1" and c.ansa.aloc = "109"
+     OnWaitingList = "Y"
+    endif
+   enddo
+  endif
+ end OnWaitingList

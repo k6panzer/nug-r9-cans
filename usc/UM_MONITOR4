@@ -1,0 +1,71 @@
+start UM_MONITOR4()
+ %version 1.0.003 12/16/2013
+ ansa_sl    is x
+ cans35_sl  is x
+ cans617_sl is x
+ fs_script  is x
+
+ ansa_sl    = "ANSAP"
+ cans35_sl  = "CANS35P"
+ cans617_sl = "CANS617P"
+ fs_script = "TRR_FSCHECK"
+' $clear(fs_script)
+
+ $looplimit = 0
+ rc               is i
+ CID              is x 
+ c.ansa.rec       is h
+ c.ansa.compd     is d
+ c.ansa.alocstaff is x
+ c.cans.rec       is h
+ c.cans.compd     is d
+ c.cans.canstype  is x
+ c.cans.alocstaff is x
+
+ rc = $dbstart(02, CID, "I")
+ do while rc < 3
+  rc = $dbreadnext(02,CID,c.ansa.rec, c.ansa.compd,c.ansa.alocstaff,c.cans.rec,c.cans.compd,c.cans.canstype,c.cans.alocstaff)
+  if rc = 4
+   do until rc != 4
+    $dblock()
+    rc = $dbreadnext(02,CID,c.ansa.rec, c.ansa.compd,c.ansa.alocstaff,c.cans.rec,c.cans.compd,c.cans.canstype,c.cans.alocstaff)
+	if rc = 3
+	 return
+	endif
+    $sleep(10)
+   enddo  
+  endif
+  if c.cans.rec dp
+   if c.cans.compd !dp
+    select c.cans.canstype
+     case "1" {"lib_UACOMMON"}AddUMMonitor(CID,"CANS617")
+	 case "2" {"lib_UACOMMON"}AddUMMonitor(CID,"CANS35")
+    endselect   
+   else
+    select c.cans.canstype
+     case "1" {"lib_UACOMMON"}RemUMMonitor(CID,"CANS617")
+	 case "2" {"lib_UACOMMON"}RemUMMonitor(CID,"CANS35")
+    endselect
+	if c.cans.alocstaff = "MIGRATION"
+     select c.cans.canstype
+      case "1" {"lib_UACOMMON"}RemBatch(CID,"CANS617")
+	  case "2" {"lib_UACOMMON"}RemBatch(CID,"CANS35")
+     endselect	
+	endif
+   endif	
+  endif
+  if c.ansa.rec dp
+   if c.ansa.compd !dp
+   {"lib_UACOMMON"}AddUMMonitor(CID,"ANSA")
+   else
+    {"lib_UACOMMON"}RemUMMonitor(CID,"ANSA")
+   endif   
+   if c.ansa.alocstaff = "MIGRATION"
+    {"lib_UACOMMON"}RemBatch(CID,"ANSA")
+   endif
+  endif
+ enddo
+ if fs_script dp
+  call fs_script()  
+ endif 
+end UM_MONITOR4

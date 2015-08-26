@@ -1,0 +1,748 @@
+start UM_MONITOR3()
+ %version 1.0.006 11/12/2013
+ %global bgcolor, row_color, formtimeout
+ %global assessment_date, assessment_ID, assessment_name, assessment, assessment_type, assessment_rloc, assessment_dloc, assessment_adate, assessment_pfile, assessment_opt, view_btn, assessment_staff,assessment_sname,medicaid_status
+ %global assessment_email,assessment_rcode,assessment_dcode,assessment_auth,assessment_color, full_refresh_btn, RefreshScript, LPHA, delete_btn, EnableDelete
+ %global ansa_sl, cans35_sl, cans617_sl
+ %global pending, cans35_count, cans617_count, ansa_count
+ %global UM_StaffYN,MISStaffYN
+ %global load_medicaid, lib_UAMEDICAID
+ %global Email_Assessor,StaffEmailDST,email_subject,email_body
+ %global RestrictedStaff
+ %global old_assessment,crisis_color,override_color
+ %global CreateGR_FS
+ bgcolor           is x
+ row_color         is x
+ formtimeout       is i
+ ansa_sl           is x
+ cans35_sl         is x
+ cans617_sl        is x
+ UM_StaffYN        is x
+ MISStaffYN        is x
+ load_medicaid     is i 'determined if the medicaid library exists and is loadable
+ lib_UAMEDICAID    is i 'Medicaid library
+ Email_Assessor    is x 'Y/N
+ Email_subject     is x 'Generated when it appears the assessment was just authorized
+ Email_body        is x 'Defined below
+ RestrictedStaff[] is x 'List of QMHP users, if needed
+ StaffEmailDST     is v 'DST with staff email address
+ RefreshScript     is x 'Script that manages the saved lists, UM_MONITOR4?, leave blank to disable
+ EnableDelete      is x
+ CreateGR_FS       is x
+'*****************************Change these******************************************************************
+ %define table_wbgcolor "width='100%' cellspacing='0' cellpadding='0' bgcolor='" + bgcolor + "'"
+ %define table_nobgcolor "width='100%' cellspacing='0' cellpadding='0'"
+ %define row_odd "bgcolor='White'"
+ %define row_even "bgcolor='CornSilk'"
+ %define row_color3 "bgcolor='PaleGreen'"
+ %define old_assessment "bgcolor='LightSalmon'" 
+ %define crisis_color "bgcolor='Crimson'" 
+ %define override_color "bgcolor='YellowGreen'" 
+ %define col_color_multi "bgcolor='LightGrey'" 
+'How often to refresh the main form in seconds
+ formtimeout = 60
+'Pending saved List
+ ansa_sl    = "ANSAP"
+ cans35_sl  = "CANS35P"
+ cans617_sl = "CANS617P"
+ Email_Assessor = "Y"
+ if Email_Assessor = "Y"
+  $setvartype(StaffEmailDST, "X")
+  $setvarname(StaffEmailDST, "S.EMAIL") 
+  email_body = "The authorization has been completed for the above referenced client. You may now print, save, and sign the report. DO NOT REPLY TO THIS EMAIL."
+ endif
+ (void)$arrpush(RestrictedStaff[],"4284")
+ RefreshScript = "UM_MONITOR4"
+ EnableDelete = "Y"
+ CreateGR_FS = "N"
+'*********************************************************************************************************** 
+ UM_StaffYN = {"lib_UACOMMON"}UMStaff()
+ MISStaffYN = {"lib_UACOMMON"}MISStaff()
+ load_medicaid = $regloadlib(lib_UAMEDICAID,"lib_UAMEDICAID")
+ $looplimit = 0
+ assessments[]      is x
+ view_btn[]         is x
+ file-list[]        is x
+ file-name[]        is x
+ assessment_date[]  is d
+ assessment_ID[]    is x
+ assessment_name[]  is x
+ assessment[]       is x
+ assessment_type[]  is x
+ assessment_rloc[]  is x
+ assessment_dloc[]  is x
+ assessment_adate[] is d
+ assessment_pfile[] is x
+ assessment_opt[]   is x
+ assessment_staff[] is x
+ assessment_sname[] is x
+ medicaid_status[]  is x
+ assessment_email[] is x
+ assessment_rcode[] is x
+ assessment_dcode[] is x
+ assessment_auth[]  is x
+ assessment_color[] is x
+ full_refresh_btn   is x
+ LPHA               is x
+ delete_btn[]       is x
+
+ pending       is i
+ cans35_count  is i
+ cans617_count is i
+ ansa_count    is i
+ index         is i
+ rc            is i
+ 
+ if UM_StaffYN = "Y"
+  LPHA = UM_StaffYN
+  if $find($operstaffid,RestrictedStaff[],1,"F") > 0 
+   LPHA = "N"
+  endif
+ endif
+
+ do while 1 = 1
+  $clear($regid)
+  GetSavedLists()
+  ViewLists()
+  select $endbutton
+   case "SUBMIT"
+   case "CANCEL" return
+   case other if $maxarray(view_btn[]) > 0
+               index = $maxarray(view_btn[])
+               select assessment[index]
+                case "ANSA" if ConfirmANSA(assessment_id[index]) = 1
+                             (void)$arrremove(file-name[index],1,assessment_date[],assessment_ID[],assessment_name[],assessment[],assessment_type[],assessment_rloc[],assessment_dloc[],assessment_adate[],assessment_staff[], assessment_sname[],
+							                                     medicaid_status[],assessment_email[],assessment_rcode[],assessment_dcode[],assessment_auth[],assessment_color[])
+                                  $brmsg("This assessment has already been authorized before the screen refreshed.",1,"W","Assessment Already Authorized")
+                            else
+							 $regid = assessment_id[index]
+                             call assessment[index](,,assessment_id[index])
+							 if ConfirmANSA(assessment_id[index]) = 1                  
+				              if Email_Assessor = "Y" and assessment_email[index] dp
+                               email_subject = "Case #: " + assessment_id[index] + " / Name: " + assessment_name[index] + " / Authorization Complete" 
+                               (void)$email(assessment_email[index],email_subject,email_body)
+                              endif
+							 endif
+							 $clear($regid)
+                            endif
+                case "CANS35" if ConfirmCANS(assessment_id[index]) = 1
+                               (void)$arrremove(file-name[index],1,assessment_date[],assessment_ID[],assessment_name[],assessment[],assessment_type[],assessment_rloc[],assessment_dloc[],assessment_adate[],assessment_staff[], assessment_sname[],
+							                                     medicaid_status[],assessment_email[],assessment_rcode[],assessment_dcode[],assessment_auth[],assessment_color[])
+                               $brmsg("This assessment has already been authorized before the screen refreshed.",1,"W","Assessment Already Authorized")
+                              else
+							   $regid = assessment_id[index] 
+                               call assessment[index](,,assessment_id[index])
+							   if ConfirmCANS(assessment_id[index]) = 1                  
+				                if Email_Assessor = "Y" and assessment_email[index] dp
+                                 email_subject = "Case #: " + assessment_id[index] + " / Name: " + assessment_name[index] + " / Authorization Complete" 
+                                 (void)$email(assessment_email[index],email_subject,email_body)
+                                endif
+							   endif
+							   $clear($regid)
+                              endif
+                case "CANS617" if ConfirmCANS(assessment_id[index]) = 1
+                                (void)$arrremove(file-name[index],1,assessment_date[],assessment_ID[],assessment_name[],assessment[],assessment_type[],assessment_rloc[],assessment_dloc[],assessment_adate[],assessment_staff[], assessment_sname[],
+							                                     medicaid_status[],assessment_email[],assessment_rcode[],assessment_dcode[],assessment_auth[],assessment_color[])
+                                $brmsg("This assessment has already been authorized before the screen refreshed.",1,"W","Assessment Already Authorized")
+                               else 
+                                $regid = assessment_id[index]
+								call assessment[index](,,assessment_id[index])
+							    if ConfirmCANS(assessment_id[index]) = 1                  
+				                 if Email_Assessor = "Y" and assessment_email[index] dp
+                                  email_subject = "Case #: " + assessment_id[index] + " / Name: " + assessment_name[index] + " / Authorization Complete" 
+                                  (void)$email(assessment_email[index],email_subject,email_body)
+                                 endif
+							    endif
+								$clear($regid)
+                               endif
+               endselect          
+               $clear(view_btn[])
+              elseif $maxarray(delete_btn[]) > 0
+               index = $maxarray(delete_btn[])
+               DeleteAssessment(index)
+			   $clear(delete_btn[])
+			  elseif full_refresh_btn = "Y"
+			   $brmsg("Please Wait, Building Saved Lists. ", 1, "C", "Searching")
+			   call RefreshScript()
+			   $brmsgclose()
+			  endif
+  endselect
+ enddo
+end UM_MONITOR3
+
+function ViewLists() is null
+ $clear(view_btn[],delete_btn[])
+ index      is i
+ prev_index is i
+ col_span   is i
+ index      = 0
+ prev_index = 0
+ col_span   = 6
+ $submitopt("off", "Refresh")
+ $cancelopt("off", "Exit")
+ $form($funcname)
+  $setformtimeout(formtimeout)
+  $br()
+  $table($funcname)
+   $row()
+    $col(,,"10%")$text("Pending: ","datatag")
+    $col(,,"10%")$text(pending,"error")
+    $col("right",,"80%")$text($scriptid)$text(": ")$text($scriptver)
+   if ansa_count > 0
+    $row()
+     $col()$text("ANSA: ","datatag")
+     $col()$text(ansa_count,"error")
+     $col("right")if LPHA = "Y"
+	               $text("Mode: LPHA/LPC")
+				  elseif LPHA = "N" 
+	               $text("Mode: QMHP")
+				  else 				  
+				   $text("Mode: Staff")
+				  endif 
+   endif
+   if cans35_count > 0
+    $row()
+     $col()$text("CANS 3-5: ","datatag")
+     $col()$text(cans35_count,"error")
+     $col()
+   endif
+   if cans617_count > 0
+    $row()
+     $col()$text("CANS 6-17: ","datatag")
+     $col()$text(cans617_count,"error")
+     $col()
+   endif
+   if UM_StaffYN = "Y" and RefreshScript dp
+    $row()
+     $col()$text("Trigger Full Refresh: ","datatag")
+     $col()$submit(full_refresh_btn,"Scan Now")
+     $col()   
+   endif
+  $endtable($funcname)
+  $br()
+  $table($funcname)
+   $row()
+    $col()$text("Date","datatag") 
+    $col()$text("ID","datatag")
+    $col()$text("Name","datatag")
+    $col()$text("Assessment","datatag")
+    if $maxarray(assessment[]) > 0
+     $col()$text("Type","datatag")
+	 col_span++
+    endif 
+    if $maxarray(assessment_rloc[]) > 0
+     $col()$text("RLOC","datatag")
+	 col_span++	 
+    endif 
+    if $maxarray(assessment_dloc[]) > 0
+     $col()$text("DLOC","datatag")
+	 col_span++	 
+    endif 
+    if $maxarray(assessment_adate[]) > 0
+     $col()$text("Authorize By Date","datatag")
+     col_span++	
+   endif 
+   $col()$text("Staff","datatag")
+   $col()$text("Staff Name","datatag")
+   if $maxarray(medicaid_status[]) > 0
+    $col()$text("Medicaid Status","datatag")   
+	col_span++	
+   endif
+   if MISStaffYN = "Y" and EnableDelete = "Y"
+    $col()$text("Delete","datatag")   
+    col_span++
+   endif	
+   $row()
+    $col()$tag("<hr/>")  
+    $col()$tag("<hr/>")  
+    $col()$tag("<hr/>")  
+    $col()$tag("<hr/>")  
+    if $maxarray(assessment_type[]) > 0
+     $col()$tag("<hr/>")  
+    endif
+    if $maxarray(assessment_rloc[]) > 0
+     $col()$tag("<hr/>")
+    endif
+    if $maxarray(assessment_dloc[]) > 0
+     $col()$tag("<hr/>")
+    endif
+    if $maxarray(assessment_adate[]) > 0
+     $col()$tag("<hr/>")
+    endif 
+    $col()$tag("<hr/>")  
+    $col()$tag("<hr/>")  
+    if $maxarray(medicaid_status[]) > 0
+     $col()$tag("<hr/>")  	
+	endif
+	if MISStaffYN = "Y"
+	 $col()$tag("<hr/>")    
+	endif  
+   if pending = 0
+    $row(,row_even)
+	 $col("center",,"100%",$castx(col_span),"1")$text("No Pending Assessments or Manual Scan in Progress, Please wait","error")   
+   endif
+   do while index++ < pending
+    if assessment_auth[prev_index] = "Y" and assessment_auth[index] = "N"
+	 $row(,"bgcolor='Black'")
+	  $col(,,"100%",$castx(col_span),"1")$ctag("&nbsp;")
+	endif          
+	if assessment_color[index] dp
+	 row_color = assessment_color[index]
+	else
+     if $mod(index,2) = 0
+      row_color = row_odd
+     else
+      row_color = row_even
+     endif		
+	endif
+    $row(,row_color)           
+    if assessment_auth[index] = "Y" or LPHA = "Y"
+     $bstyle("link","link")
+     $col()$submit(view_btn[index],`assessment_date[index]`)
+    else
+     $col()$text(assessment_date[index])
+    endif
+    $col()$text(assessment_id[index]) 
+    $col()$text(assessment_name[index]) 
+    $col()$text(assessment[index])
+    if $maxarray(assessment_type[]) > 0
+     $col()$text(assessment_type[index])
+    endif
+    if $maxarray(assessment_rloc[]) > 0
+     $col()$text(assessment_rloc[index])
+    endif
+    if $maxarray(assessment_dloc[]) > 0
+     $col()$text(assessment_dloc[index])
+    endif
+    if $maxarray(assessment_adate[]) > 0
+     $col()$text(assessment_adate[index])   
+    endif 
+    $col()$text(assessment_staff[index])     
+    $col()$text(assessment_sname[index])      
+    if $maxarray(medicaid_status[]) > 0
+     if medicaid_status[index] = "No Medicaid"
+	  $col()$text(medicaid_status[index])
+     else
+	  $col()$text(medicaid_status[index],"error")
+     endif
+    endif
+    if MISStaffYN = "Y" and EnableDelete = "Y"
+	 $bstyle("buttondown","button")
+	 $col()$submit(delete_btn[index],assessment_id[index])
+	endif
+	prev_index = index
+   enddo 
+  $endtable($funcname)
+ $sendform($funcname)
+end ViewLists
+
+function GetSavedLists() is null
+ rc             is i
+ index          is i
+ index2         is i
+ ansa_list[]    is x
+ cans35_list[]  is x
+ cans617_list[] is x
+ last_type      is x
+ last_date      is d
+ last_aloc      is x 
+ 
+ s.fn  is x
+ s.ln  is x
+ c.fn  is x
+ c.ln  is x
+'Ansa
+ c.ansa.rec   is h
+ c.ansa.date  is d
+ c.ansa.type  is x
+ c.ansa.rloc  is x
+ c.ansa.dloc  is x
+ c.ansa.staff is x
+ c.ansa.compd is d
+'CANS35/CANS617
+ c.cans.rec   is h
+ c.cans.date  is d
+ c.cans.type  is x
+ c.cans.rloc  is x
+ c.cans.dloc  is x
+ c.cans.staff is x
+ c.cans.compd is d
+ 
+ $clear(assessment_adate[],assessment_date[],assessment_ID[],assessment_name[],assessment[],assessment_type[],assessment_rloc[],assessment_dloc[],assessment_staff[],assessment_sname[],
+        medicaid_status[],assessment_email[],assessment_rcode[],assessment_dcode[],assessment_auth[],assessment_color[])
+ rc = $getlist(ansa_list[],2,ansa_sl)
+ index = 0
+ index2 = 0
+ do while index++ < $maxarray(ansa_list[])
+  rc = $dbread(2,ansa_list[index],c.fn,c.ln,c.ansa.rec,c.ansa.date,c.ansa.type,c.ansa.rloc,c.ansa.dloc,c.ansa.staff,c.ansa.compd)
+  if c.ansa.compd dp or c.ansa.rec !dp
+   {"lib_UACOMMON"}RemUMMonitor(ansa_list[index],"ANSA")
+   (void)$arrremove(ansa_list[index])
+   index--  
+  else  
+   rc = $dbread(3,c.ansa.staff,s.fn,s.ln)
+   assessment[++index2]       = "ANSA"
+   assessment_date[index2]  = c.ansa.date
+   assessment_ID[index2]    = ansa_list[index]
+   assessment_name[index2]  = c.fn + " " + c.ln
+   assessment_type[index2]  = $dct(9700,c.ansa.type)
+   assessment_rloc[index2]  = $dct(9712,c.ansa.rloc)
+   assessment_rcode[index2] = c.ansa.rloc
+   assessment_dloc[index2]  = $dct(9705,c.ansa.dloc)
+   assessment_dcode[index2] = c.ansa.dloc
+   assessment_adate[index2] = c.ansa.date + 14
+   assessment_staff[index2] = c.ansa.staff
+   assessment_sname[index2] = s.fn + " " + s.ln
+   if load_medicaid = 0
+    {lib_UAMEDICAID}check_medicaid(assessment_id[index2],medicaid_status[index2])
+   endif
+   if Email_Assessor = "Y"
+    (void)$dbread(3,c.ansa.staff,StaffEmailDST)
+	assessment_email[index2] = StaffEmailDST
+   endif
+   if UM_StaffYN = "Y"
+    select c.ansa.type
+	 case "1" assessment_auth[index2] = "N"
+	 case "2" assessment_auth[index2] = "N"
+	          if c.ansa.dloc !dp
+	            $clear(last_type,last_date,last_aloc)
+                {"lib_UACOMMON"}ClientLastUA(assessment_id[index],,last_date,last_type,,last_aloc)
+                if (last_aloc = c.ansa.rloc) or ((last_aloc = "111" or last_aloc = "112") and (c.ansa.rloc = "112" or c.ansa.rloc = "111"))
+                 assessment_auth[index2] = "Y"
+	            endif
+               endif			  
+	 case "3"  assessment_auth[index2] = "Y"	 
+	 case "11" assessment_auth[index2] = "N"
+	 case "12" assessment_auth[index2] = "N"	 
+	endselect
+	if c.ansa.staff = $operstaffid
+	 assessment_auth[index2] = "N"	 
+	endif
+    if c.ansa.rloc = "100"
+     assessment_color[index2] = crisis_color	
+    elseif c.ansa.dloc dp
+     assessment_color[index2] = override_color
+    elseif assessment_adate[index2] <= $today
+    assessment_color[index2] = old_assessment
+    endif		   		
+   else	
+    assessment_auth[index2] = "N"
+   endif
+  endif
+ enddo 
+
+ rc = $getlist(cans35_list[],2,cans35_sl)
+ index = 0
+ do while index++ < $maxarray(cans35_list[])
+  rc = $dbread(2,cans35_list[index],c.fn,c.ln,c.cans.rec,c.cans.date,c.cans.type,c.cans.rloc,c.cans.dloc,c.cans.staff, c.cans.compd)
+  if c.cans.compd dp or c.cans.rec !dp
+   {"lib_UACOMMON"}RemUMMonitor(cans35_list[index],"CANS35")
+   (void)$arrremove(cans35_list[index])
+   index--  
+  else
+   rc = $dbread(3,c.cans.staff,s.fn,s.ln)
+   assessment[++index2]       = "CANS35"
+   assessment_date[index2]  = c.cans.date
+   assessment_ID[index2]    = cans35_list[index]
+   assessment_name[index2]  = c.fn + " " + c.ln
+   assessment_type[index2]  = $dct(9700,c.cans.type)
+   assessment_rloc[index2]  = $dct(9705,c.cans.rloc)
+   assessment_rcode[index2] = c.cans.rloc
+   assessment_dloc[index2]  = $dct(9705,c.cans.dloc)
+   assessment_dcode[index2] = c.cans.dloc
+   assessment_adate[index2] = c.cans.date + 14
+   assessment_staff[index2] = c.cans.staff
+   assessment_sname[index2] = s.fn + " " + s.ln
+   if load_medicaid = 0
+    {lib_UAMEDICAID}check_medicaid(assessment_id[index2],medicaid_status[index2])
+   endif	
+   if Email_Assessor = "Y"
+    (void)$dbread(3,c.cans.staff,StaffEmailDST)
+	assessment_email[index2] = StaffEmailDST
+   endif
+   if UM_StaffYN = "Y"
+    select c.cans.type
+	 case "1" assessment_auth[index2] = "N"
+	 case "2" assessment_auth[index2] = "N"
+	          if c.cans.dloc !dp
+	            $clear(last_type,last_date,last_aloc)
+                {"lib_UACOMMON"}ClientLastUA(assessment_id[index],,last_date,last_type,,last_aloc)
+                if last_aloc = c.cans.rloc
+                 assessment_auth[index2] = "Y"
+	            endif
+               endif			  
+	 case "3"  assessment_auth[index2] = "Y"	 
+	 case "11" assessment_auth[index2] = "N"
+	 case "12" assessment_auth[index2] = "N"	 
+	endselect
+	if c.cans.staff = $operstaffid
+	 assessment_auth[index2] = "N"	 
+	endif	
+    if c.cans.rloc = "100"
+     assessment_color[index2] = crisis_color	
+    elseif c.cans.dloc dp
+     assessment_color[index2] = override_color
+    elseif assessment_adate[index2] <= $today
+     assessment_color[index2] = old_assessment
+    endif				 	
+   else	
+    assessment_auth[index2] = "N"
+   endif 
+  endif
+ enddo  
+
+ rc = $getlist(cans617_list[],2,cans617_sl)
+ index = 0
+ do while index++ < $maxarray(cans617_list[])
+  rc = $dbread(2,cans617_list[index],c.fn,c.ln,c.cans.rec,c.cans.date,c.cans.type,c.cans.rloc,c.cans.dloc,c.cans.staff,c.cans.compd)
+  if c.cans.compd dp or c.cans.rec !dp
+   {"lib_UACOMMON"}RemUMMonitor(cans617_list[index],"CANS617")
+   (void)$arrremove(cans617_list[index])
+   index--  
+  else
+   rc = $dbread(3,c.cans.staff,s.fn,s.ln)
+   assessment[++index2]     = "CANS617"
+   assessment_date[index2]  = c.cans.date
+   assessment_ID[index2]    = cans617_list[index]
+   assessment_name[index2]  = c.fn + " " + c.ln
+   assessment_type[index2]  = $dct(9700,c.cans.type)
+   assessment_rloc[index2]  = $dct(9705,c.cans.rloc)
+   assessment_rcode[index2] = c.cans.rloc
+   assessment_dloc[index2]  = $dct(9705,c.cans.dloc)
+   assessment_dcode[index2] = c.cans.dloc
+   assessment_adate[index2] = c.cans.date + 14
+   assessment_staff[index2] = c.cans.staff
+   assessment_sname[index2] = s.fn + " " + s.ln
+   if load_medicaid = 0
+    {lib_UAMEDICAID}check_medicaid(assessment_id[index2],medicaid_status[index2])
+   endif	
+   if Email_Assessor = "Y"
+    (void)$dbread(3,c.cans.staff,StaffEmailDST)
+	assessment_email[index2] = StaffEmailDST
+   endif	   
+   if UM_StaffYN = "Y"
+    select c.cans.type
+	 case "1" assessment_auth[index2] = "N"
+	 case "2" assessment_auth[index2] = "N"
+	          if c.cans.dloc !dp
+	            $clear(last_type,last_date,last_aloc)
+                {"lib_UACOMMON"}ClientLastUA(assessment_id[index],,last_date,last_type,,last_aloc)
+                if last_aloc = c.cans.rloc
+                 assessment_auth[index2] = "Y"
+	           endif
+              endif			  
+	 case "3"  assessment_auth[index2] = "Y"	 
+	 case "11" assessment_auth[index2] = "N"
+	 case "12" assessment_auth[index2] = "N"	 
+	endselect
+	if c.cans.staff = $operstaffid
+	 assessment_auth[index2] = "N"	 
+	endif		   
+    if c.cans.rloc = "100"
+     assessment_color[index2] = crisis_color	
+    elseif c.cans.dloc dp
+     assessment_color[index2] = override_color
+    elseif assessment_adate[index2] <= $today
+     assessment_color[index2] = old_assessment
+    endif				 	
+   else	
+    assessment_auth[index2] = "N"
+   endif 
+  endif
+ enddo
+
+  rc = $sort(assessment_auth[],"D",assessment_adate[],"A",assessment_date[],"A",assessment_ID[],assessment_name[],assessment[],assessment_type[],assessment_rloc[],assessment_dloc[],assessment_staff[],assessment_sname[],medicaid_status[],
+             assessment_email[],assessment_rcode[],assessment_dcode[],assessment_color[])
+ ansa_count    = $maxarray(ansa_list[])
+ cans35_count  = $maxarray(cans35_list[])
+ cans617_count = $maxarray(cans617_list[])
+ pending = cans35_count + cans617_count + ansa_count
+end GetSavedLists
+
+function ConfirmANSA(cid) is i
+ cid             is x
+ c.ansa.rec      is h
+ c.ansa.compd    is d
+ c.ansa.date     is d
+ c.ansa.alocdate is d
+ c.ansa.aloc     is x
+ c.ansa.type     is x
+ contract        is x
+ crisis_flag     is x
+ (void)$dbread(2,cid,c.ansa.rec,c.ansa.compd,c.ansa.date,c.ansa.alocdate,c.ansa.aloc,c.ansa.type)
+ if c.ansa.compd dp
+  ConfirmAnsa = 1
+  crisis_flag = "N"  
+  if CreateGR_FS = "Y" and (c.ansa.aloc != "108" and c.ansa.aloc != "109" and c.ansa.aloc != "120") and (c.ansa.type != "3" and c.ansa.type != "12")
+   if c.ansa.aloc = "100"
+    crisis_flag = "Y"
+   endif
+   {"lib_FUNDSOURCE"}FSCheck($regid, "15", c.ansa.alocdate, c.ansa.date, crisis_flag)
+  endif 
+ else
+  ConfirmAnsa = 0
+ endif
+end ConfirmAnsa
+
+function ConfirmCANS(cid) is i
+ cid             is x
+ c.cans.rec      is h
+ c.cans.compd    is d
+ c.cans.date     is d
+ c.cans.alocdate is d
+ c.cans.aloc     is x
+ c.cans.type     is x 
+ contract        is x
+ crisis_flag     is x
+ (void)$dbread(2,cid,c.cans.rec,c.cans.compd,c.cans.date,c.cans.alocdate,c.cans.aloc,c.cans.type)
+ if c.cans.compd dp
+  ConfirmCans = 1
+  crisis_flag = "N"
+  if CreateGR_FS = "Y" and (c.cans.aloc != "108" and c.cans.aloc != "109" and c.cans.aloc != "110") and (c.cans.type != "3" and c.cans.type != "12")
+   if c.cans.aloc = "100"
+    crisis_flag = "Y"
+   endif
+   {"lib_FUNDSOURCE"}FSCheck($regid, "15", c.cans.alocdate, c.cans.date, crisis_flag)
+  endif
+ else
+  ConfirmCANS = 0
+ endif
+end ConfirmCANS
+
+dynamic function DeleteAssessment(index) is i
+ index       is i
+ rc          is i
+ yes_btn     is x
+ no_btn      is x
+ c.ansa.rec  is h
+ c.ansa.date is d
+ c.cans.rec  is h
+ c.cans.date is d
+ staffid     is x
+ $clear(rc,yes_btn,no_btn,c.ansa.rec,c.ansa.date,c.cans.rec,c.cans.date)
+ $submitopt("off","Delete")
+ $cancelopt("off","Exit")
+ $form($funcname)
+  $br(5)$text("{center}Are you Sure you want to delete this assessment?{/center}","Error")
+  $br()
+  $bstyle("link","link")
+  $table($funcname)
+   $row()
+    $col()$text("Date","datatag") 
+    $col()$text("ID","datatag")
+    $col()$text("Name","datatag")
+    $col()$text("Assessment","datatag")
+    if $maxarray(assessment[]) > 0
+     $col()$text("Type","datatag")
+    endif 
+    if $maxarray(assessment_rloc[]) > 0
+     $col()$text("RLOC","datatag")
+    endif 
+    if $maxarray(assessment_dloc[]) > 0
+     $col()$text("DLOC","datatag")
+    endif 
+    if $maxarray(assessment_adate[]) > 0
+     $col()$text("Authorize By Date","datatag")
+   endif 
+   $col()$text("Staff","datatag")
+   $col()$text("Staff Name","datatag")
+   if $maxarray(medicaid_status[]) > 0
+    $col()$text("Medicaid Status","datatag")   
+   endif
+   $row()
+    $col()$tag("<hr/>")  
+    $col()$tag("<hr/>")  
+    $col()$tag("<hr/>")  
+    $col()$tag("<hr/>")  
+    if $maxarray(assessment_type[]) > 0
+     $col()$tag("<hr/>")  
+    endif
+    if $maxarray(assessment_rloc[]) > 0
+     $col()$tag("<hr/>")
+    endif
+    if $maxarray(assessment_dloc[]) > 0
+     $col()$tag("<hr/>")
+    endif
+    if $maxarray(assessment_adate[]) > 0
+     $col()$tag("<hr/>")
+    endif 
+    $col()$tag("<hr/>")  
+    $col()$tag("<hr/>")  
+    if $maxarray(medicaid_status[]) > 0
+     $col()$tag("<hr/>")  	
+	endif
+	if assessment_color[index] dp
+	 row_color = assessment_color[index]
+	else
+     if $mod(index,2) = 0
+      row_color = row_odd
+     else
+      row_color = row_even
+     endif		
+	endif
+    $row(,row_color)           
+    if assessment_auth[index] = "Y" or LPHA = "Y"
+     $col()$submit(view_btn[index],`assessment_date[index]`)
+    else
+     $col()$text(assessment_date[index])
+    endif
+    $col()$text(assessment_id[index]) 
+    $col()$text(assessment_name[index]) 
+    $col()$text(assessment[index])
+    if $maxarray(assessment_type[]) > 0
+     $col()$text(assessment_type[index])
+    endif
+    if $maxarray(assessment_rloc[]) > 0
+     $col()$text(assessment_rloc[index])
+    endif
+    if $maxarray(assessment_dloc[]) > 0
+     $col()$text(assessment_dloc[index])
+    endif
+    if $maxarray(assessment_adate[]) > 0
+     $col()$text(assessment_adate[index])   
+    endif 
+    $col()$text(assessment_staff[index])     
+    $col()$text(assessment_sname[index])      
+    if $maxarray(medicaid_status[]) > 0
+     if medicaid_status[index] = "No Medicaid"
+	  $col()$text(medicaid_status[index])
+     else
+	  $col()$text(medicaid_status[index],"error")
+     endif
+    endif
+  $endtable($funcname)
+  $tag("<center>")
+  $br(5)$text("Please Type Your Staff ID to Confirm the Deletion: ","error")$textbox(staffid,"DB``03",10,,"Y")$editmsg(Staffid)
+   $br(2)$submit(yes_btn,"Delete")$ctag("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;")$submit(no_btn,"No")
+  $tag("</center>")	
+ $sendform($funcname)
+ if ($endbutton = "SUBMIT" or yes_btn = "Y")
+  if $operstaffid = staffid
+   rc = 0
+   select assessment[index]
+    case "ANSA"     $dblock()
+                    rc = $dbread(2,assessment_id[index],c.ansa.rec,c.ansa.date)
+				    rc = $dbremovedst(2,assessment_id[index],c.ansa.rec,c.ansa.date)
+    case "CANS35"   $dblock()
+                    rc = $dbread(2,assessment_id[index],c.cans.rec,c.cans.date)
+				    rc = $dbremovedst(2,assessment_id[index],c.cans.rec,c.cans.date)
+    case "CANS617"  $dblock()
+                    rc = $dbread(2,assessment_id[index],c.cans.rec,c.cans.date)
+				    rc = $dbremovedst(2,assessment_id[index],c.cans.rec,c.cans.date)
+   endselect  
+   if rc = 0
+    $brmsg("Assessment Delete",1,"W","Deleted")
+   else
+    $brmsginit(6,80)
+    $brmsg(`"Error Removing Data,  RC=" + rc`,1,"C","Error Deleting")
+    $brmsg(`"$regid = " + $regid`,2,"C")
+    $brmsg(`"$DBRC = " + $dbrc`,3,"C")
+    $brmsg(`"$DBSTAT = " + $dbstat`,4,"C")
+    $brmsg(`"$ERRMSG = " + $errmsg`,5,"C")
+    $brmsg("Press OK to Continue", 6,"WC")
+   endif  
+  else
+   $brmsg("Staff ID Does Not Match",1,"W","Could Not Confirm") 
+  endif 
+ endif 
+end DeleteAssessment

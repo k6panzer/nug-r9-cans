@@ -1,0 +1,100 @@
+'%global uabd_dstlist
+rc_uabd_dstlist         is i
+uabd_dstlist       is dstlist
+c.uabd             is h   'UABD RECORD HEADER                                     
+c.uabd.pur         is x   'UABD ASSESSMENT PURPOSE                                
+c.uabd.act         is x   'UABD ACTION                                            
+c.uabd.harm        is x   'UABD RISK OF HARM                                      
+c.uabd.supp        is x   'UABD SUPPORT NEEDS                                     
+c.uabd.hosp        is x   'UABD PSY RELATED HOSPITALIZE                           
+c.uabd.impair      is x   'UABD FUNCTIONAL IMPAIRMENT                             
+c.uabd.emp         is x   'UABD EMPLOYMENT PROBLEMS                               
+c.uabd.hous        is x   'UABD HOUSING INSTABILITY                               
+c.uabd.copsd       is x   'UABD CO-OCCURING SUBSTANCE USE                         
+c.uabd.crim        is x   'UABD CRIMINAL JUSTICE INVOLVE                          
+c.uabd.med         is x   'UABD RESPONSE TO MED TRTMT                             
+c.uabd.rloc        is x   'UABD REC TRAG LEVEL OF CARE                            
+c.uabd.aloc        is x   'UABD AUTHORIZED LEVEL OF CARE                          
+c.uabd.resour      is x   'UABD RESOURCE LIMITATIONS                              
+c.uabd.choice      is x   'UABD CONSUMER CHOICE                                   
+c.uabd.need        is x   'UABD CONSUMER NEED                                     
+c.uabd.care        is x   'UABD CONTINUITY OF CARE                                
+c.uabd.date1       is d   'UABD SECTION 1/2 ASMT DATE                             
+c.uabd.other       is x   'UABD OTHER REASON FOR DEVIATE                          
+c.uabd.filler      is x   'UABD FILLER DST                                        
+c.uabd.stf         is x   'UABD ENTRY STAFF                                       
+c.uabd.disch       is x   'UABD REASON FOR DISCHARGE                              
+c.uabd.psrs        is x   'UABD TOTAL POS SYM RATING SCL                          
+c.uabd.bnsa        is x   'UABD TOTAL BRIEF NEG SYMP ASMT                         
+c.uabd.bdss        is x   'UABD TOT BIPOLAR DIS SYMP RTNG                         
+c.uabd.qids        is x   'UABD TOT QUICK INV DEP SYMP                            
+c.uabd.qidsvs      is x   'UABD QIDS VERSION                                      
+c.uabd.funct       is x   'UABD MULTNOMAH FUNC SCALE                              
+c.uabd.adjust      is x   'UABD MULTNOMAH ADJUST TO LIVNG                         
+c.uabd.social      is x   'UABD MULTNOMAH SOCIAL COMPTNCE                         
+c.uabd.commun      is x   'UABD MULTNOMAH COMMUNITY/COMPL                         
+c.uabd.total       is x   'UABD TOTAL MCAS SUBSCALES                              
+c.uabd.restype     is x   'UABD RESIDENCE TYPE                                    
+c.uabd.emptype     is x   'UABD PAID EMPLOYMENT TYPE                              
+c.uabd.labor       is x   'UABD WHY NOT IN WORKFORCE                              
+c.uabd.34date      is d   'UABD SECTION 3.4 ASMT DATE                             
+c.uabd.caredt      is d   'UABD SENT TO CARE DATE                                 
+c.uabd.staff1      is x   'UABD STAFF SECTION 1&2                                 
+c.uabd.staff3      is x   'UABD STAFF SECTION 3&4                                 
+c.uabd.diag        is x   'UABD CURRENT DIAGNOSIS                                 
+c.uabd.gaf         is x   'UABD CURRENT GAF SCORE                                 
+c.uabd.date        is d   'UABD TRAG DIMENSIONS DATE                              
+c.uabd.mcasd       is d   'UABD COMMUNITY DATA DATE                               
+c.uabd.comm        is x   'RECOMMENDED SP COMMENT                                 
+c.uabd.comt        is x   'UABD LEVEL OF CARE COMMENTS                            
+c.uabd.mcass       is x   'UABD COMMUNITY DATA STAFF                              
+c.uabd.staff2      is x   'UABD TRAG A-LOC STAFF                                  
+c.uabd.stat        is x   'UABD COMPLETION STATUS                                 
+c.uabd.compd       is d   'UABD COMPLETION DATE                                   
+c.uabd.disdt       is d   'UABD DISCHARGE DATE                                    
+c.uabd.timad       is d   'UABD TIMA DATE                                         
+c.uabd.timas       is x   'UABD TIMA STAFF                                        
+c.uabd.extd        is x   'UABD EXTENDED REVIEW REQUESTED                         
+c.uabd.ser         is b   'UABD EVENT SERVICE CODE                                
+c.uabd.time        is t   'UABD EVENT START TIME                                  
+c.uabd.dur         is t   'UABD EVENT DURATION                                    
+c.uabd.ru          is b   'UABD EVENT RU                                          
+c.uabd.loc         is x   'UABD EVENT LOCATION CODE                               
+c.uabd.proj        is b   'UABD EVENT PROJECT CODE                                
+c.uabd.tcoomi      is x   'UABD TCOOMMI?                                          
+c.uabd.request     is x   'UABD OVERRIDE REQUEST                                  
+c.uabd.addonstg    is x   'UABD STG ASR ADD ON                                    
+c.uabd.addonse     is x   'UABD SE ASR ADD ON                                     
+c.uabd.mednec      is x   'UABD MEDICAL NECESSITY DONE                            
+c.uabd.dischref    is x   'DISCHARGE REFERRAL                                     
+c.uabd.forc        is x   'ADULT UA FORCE BATCH                                   
+c.uabd.excld       is x   'ADULT UA BATCH EXCLUDE                                 
+c.uabd.alocd       is d   'UABD ALOC ACTUAL DATE                                  
+c.uabd.isn         is x   'UABD ISN REFERENCE                                     
+c.uabd.autodis     is x   'UABD AUTO DISCHARGE FLAG                               
+c.uabd.autocomp    is x   'UA AUTOCOMPLETED                                       
+c.uabd.addonsti    is x   'UABD SKILLS TRNG INDIVI                                
+c.uabd.lpha        is x   'LPHA AUTHORIZATION REQUIRED                            
+c.uabd.underride   is x   'UABD UNDERRIDDEN
+c.uabd.email       is x   'UA EMAIL                                               
+c.uabd.r65ios      is x   'Rider 65 Intensive Ongoing Services
+c.uabd.days        is i   'Days since last UA
+c.uabd.days.auth   is i   'Days since Authorization
+c.uabd.sp5b_hlth   is x   'SP5B Criteria, client in need of significant healthcare coordination
+c.uabd.sp5b_eng    is x   'SP5B Criteria, client present significant engagement issues
+c.uabd.sp5_hosp    is x   'SP5 A&B Criteria, Has client been hospitalized recently
+c.uabd.annual      is x   'Like extended review but for 365 days
+c.uabd.prob	  	   is x   'New DST to flag MIS Problematic UA's
+c.uabd.minor       is x
+c.uabd.arrest30    is x
+c.uabd.grade       is x
+c.uabd.addoncbt    is x
+
+rc_uabd_dstlist = $dstlist(uabd_dstlist,02,
+c.uabd,c.uabd.pur,c.uabd.act,c.uabd.harm,c.uabd.supp,c.uabd.hosp,c.uabd.impair,c.uabd.emp,c.uabd.hous,c.uabd.copsd,c.uabd.crim,c.uabd.med,c.uabd.rloc,
+c.uabd.aloc,c.uabd.resour,c.uabd.choice,c.uabd.need,c.uabd.care,c.uabd.date1,c.uabd.other,c.uabd.filler,c.uabd.stf,c.uabd.disch,c.uabd.psrs,c.uabd.bnsa,c.uabd.bdss,
+c.uabd.qids,c.uabd.qidsvs,c.uabd.funct,c.uabd.adjust,c.uabd.social,c.uabd.commun,c.uabd.total,c.uabd.restype,c.uabd.emptype,c.uabd.labor,c.uabd.34date,c.uabd.caredt,c.uabd.staff1,
+c.uabd.staff3,c.uabd.diag,c.uabd.gaf,c.uabd.date,c.uabd.mcasd,c.uabd.comm,c.uabd.comt,c.uabd.mcass,c.uabd.staff2,c.uabd.stat,c.uabd.compd,c.uabd.disdt,c.uabd.timad,c.uabd.timas,
+c.uabd.extd,c.uabd.ser,c.uabd.time,c.uabd.dur,c.uabd.ru,c.uabd.loc,c.uabd.proj,c.uabd.tcoomi,c.uabd.request,c.uabd.addonstg,c.uabd.addonse,c.uabd.mednec,c.uabd.dischref,c.uabd.forc,c.uabd.excld,c.uabd.alocd,c.uabd.isn,
+c.uabd.autodis,c.uabd.autocomp,c.uabd.addonsti,c.uabd.lpha,c.uabd.underride,c.uabd.email,c.uabd.r65ios,c.uabd.days,c.uabd.days.auth,c.uabd.sp5b_hlth,c.uabd.sp5b_eng,c.uabd.sp5_hosp,c.uabd.annual,c.uabd.prob,c.uabd.minor,
+c.uabd.arrest30,c.uabd.grade, c.uabd.addoncbt)

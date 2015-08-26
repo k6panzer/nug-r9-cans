@@ -1,0 +1,578 @@
+'HFC 
+'Diagnosis Record
+'#54
+
+%global DX_DCT,DX_DCT2,DX_DCT3,DX_DCT4,DX_DCT5,DX_DCT6
+DX_DCT  is b
+DX_DCT2 is b
+DX_DCT3 is b
+DX_DCT4 is b
+DX_DCT5 is b
+DX_DCT6 is b
+
+'*********Datacode Tables, Change These*****************
+DX_DCT = 400    
+DX_DCT2 = DX_DCT
+DX_DCT3 = DX_DCT
+DX_DCT4 = DX_DCT
+DX_DCT5 = DX_DCT
+DX_DCT6 = DX_DCT
+'*******************************************************
+
+%global dx_dstlist
+%global c.dsmiiir,c.diag,c.dx.when,c.dx4,c.dxaxi2,c.dxaxi3,c.dxaxi4,c.dxaxi5,c.dxaxi6,c.dxaxii1,c.dxaxii2,c.dxaxii3,c.dxaxii4,c.dxaxii5,c.dxaxii6,
+%global c.dxaxiii1,c.dxaxiii2,c.dxaxiii3,c.dxaxiii4,c.dxaxiii5,c.dxaxiii6,c.dxaxiv,c.dxaxvp,c.dxaxvc,c.cabl,c.pabl,c.dxdate,c.dxiiidte,c.prdxaxis,c.dxreason,c.dx.comment,
+%global c.dx.isn,c.dxaxiv-a,c.who.diag,c.dx.stat,c.dxflag,c.a1l1,c.dx.ax3,c.dx.ax4.a,c.dx.ser,c.dx.time,c.dx.dur,c.dx.ru,c.dx.loc,c.dx.proj,c.dx.serv,c.dx.fill,c.dx.comme,c.dx.by,
+%global c.dx.ax4.c,c.dx.ax4.d,c.paamd,c.saamd,c.taamd,c.genetic,c.c.anomal,c.sen.imp,c.precept,c.conv.dis,c.psy.impa,c.motor.dy,c.aamd.dat,c.iq.score,
+%global c.iq.date,c.iq.type,c.sq.score,c.sq.date,c.sq.type,c.dx.prese,c.dx.ax4.b,c.dx.ax4.e,c.dx.ax4.f,c.dx.ax4.g,c.dx.ax4.h,c.dx.sys,c.dx.ax4.i,c.dx.ax4.j,c.dx.needed
+
+rc_dx_dstlist   is i
+dx_dstlist      is dstlist
+c.dsmiiir       is h   'DSM-IIIR DIAGNOSIS RECORD      
+c.diag          is x   'AXIS I LEVEL 1                 
+c.dx.when       is x   'WHEN? (A=ADM,E=EST,D=DISCH)    
+c.dx4           is x   'DSM-IV AXIS I & II CODES       
+c.dxaxi2        is x   'AXIS I LEVEL 2                 
+c.dxaxi3        is x   'AXIS I LEVEL 3                 
+c.dxaxi4        is x   'AXIS I LEVEL 4                 
+c.dxaxi5        is x   'AXIS I LEVEL 5                 
+c.dxaxi6        is x   'AXIS I LEVEL 6                 
+c.dxaxii1       is x   'AXIS II LEVEL 1                
+c.dxaxii2       is x   'AXIS II LEVEL 2                
+c.dxaxii3       is x   'AXIS II LEVEL 3                
+c.dxaxii4       is x   'AXIS II LEVEL 4                
+c.dxaxii5       is x   'AXIS II LEVEL 5                
+c.dxaxii6       is x   'AXIS II LEVEL 6                
+c.dxaxiii1      is x   'AXIS III LEVEL 1               
+c.dxaxiii2      is x   'AXIS III LEVEL 2               
+c.dxaxiii3      is x   'AXIS III LEVEL 3               
+c.dxaxiii4      is x   'AXIS III LEVEL 4               
+c.dxaxiii5      is x   'AXIS III LEVEL 5               
+c.dxaxiii6      is x   'AXIS III LEVEL 6               
+c.dxaxiv        is x   'AXIS IV                        
+c.dxaxvp        is x   'AXIS V-PAST GLOBAL ASSESSMENT  
+c.dxaxvc        is x   'AXIS V-CURRENT GLOBAL ASSESS.  
+c.cabl          is x   'CURRENT ABL                    
+c.pabl          is x   'POTENTIAL ABL                  
+c.dxdate        is d   'DIAGNOSIS DATE                 
+c.dxiiidte      is d   'AXIS III DIAGNOSIS DATE        
+c.prdxaxis      is x   'PRINCIPAL DIAGNOSIS AXIS       
+c.dxreason      is x   'REASON FOR DIAGNOSIS           
+c.dx.comment    is x   'DIAGNOSIS COMMENTS             
+c.dx.isn        is x   'DIAGNOSIS ISN REFERENCE        
+c.dxaxiv-a      is x   'AXIS IV (01/01/95 VERSION)     
+c.who.diag      is x   'WHO DIAGNOSED CLIENT(?)        
+c.dx.stat       is x   'DIAGNOSIS STATUS               
+c.dxflag        is d   'DIAGNOSIS FLAG DATE            
+c.a1l1          is x   'AXIS I LEVEL I                 
+c.dx.ax3        is x   'AXIS III                       
+c.dx.ax4.a      is x   'AXIS IV A                      
+c.dx.ser        is b   'DIAGNOSIS SERVICE CODE         
+c.dx.time       is t   'DIAGNOSIS START TIME           
+c.dx.dur        is t   'DIAGNOSIS DURATION             
+c.dx.ru         is b   'DIAGNOSIS RU                   
+c.dx.loc        is x   'DIAGNOSIS LOCATION CODE        
+c.dx.proj       is b   'DIAGNOSIS PROJECT CODE         
+c.dx.serv       is x   'DX SERVICE WITH COUNSELING     
+c.dx.fill       is x   'CLIENT DSM-IV FILLER           
+c.dx.comme      is x   'DIAGNOSIS COMMENTS             
+c.dx.by         is x   'DIAGNOSIS MADE BY              
+c.dx.ax4.c      is x   'DSM-IV AXIS IV LEVEL C         
+c.dx.ax4.d      is x   'DSM-IV AXIS IV LEVEL D         
+c.paamd         is x   'PRIMARY AAMD                   
+c.saamd         is x   'SECONDARY AAMD                 
+c.taamd         is x   'TERTIARY AAMD                  
+c.genetic       is x   'GENETIC                        
+c.c.anomal      is x   'CRANIAL ANOMALY                
+c.sen.imp       is x   'SENSORY IMPARIAMENT            
+c.precept       is x   'PRECEPTION                     
+c.conv.dis      is x   'CONVULSIVE DISORDER            
+c.psy.impa      is x   'PSYCH IMPARMENT                
+c.motor.dy      is x   'MOTOR DYSFUCTION               
+c.aamd.dat      is d   'AAMD DATE                      
+c.iq.score      is x   'IQ SCORE                       
+c.iq.date       is d   'IQ TEST DATE                   
+c.iq.type       is x   'IQ SCORE TYPE                  
+c.sq.score      is x   'SQ SCORE                       
+c.sq.date       is d   'SQ TEST DATE                   
+c.sq.type       is x   'SQ TEST TYPE                   
+c.dx.prese      is x   'PRESENTING ISSUE               
+c.dx.ax4.b      is x   'DSM-IV AXIS IV LEVEL B         
+c.dx.ax4.e      is x   'DSM-IV AXIS IV LEVEL E         
+c.dx.ax4.f      is x   'DSM-IV AXIS IV LEVEL F         
+c.dx.ax4.g      is x   'DSM-IV AXIS IV LEVEL G         
+c.dx.ax4.h      is x   'DSM-IV AXIS IV LEVEL H         
+c.dx.sys        is x   'DIAGNOSIS SYSTEM               
+c.dx.ax4.i      is x   'DSM-IV AXIS IV LEVEL I         
+c.dx.ax4.j      is x   'DSM-IV, AXIS IV LEVEL J        
+c.dx.needed     is x   'NEW DIAGNOSIS NEEDED FLAG
+
+rc_dx_dstlist = $dstlist(dx_dstlist,02,
+c.dsmiiir,c.diag,c.dx.when,c.dx4,c.dxaxi2,c.dxaxi3,c.dxaxi4,c.dxaxi5,c.dxaxi6,c.dxaxii1,c.dxaxii2,c.dxaxii3,c.dxaxii4,c.dxaxii5,c.dxaxii6,
+c.dxaxiii1,c.dxaxiii2,c.dxaxiii3,c.dxaxiii4,c.dxaxiii5,c.dxaxiii6,c.dxaxiv,c.dxaxvp,c.dxaxvc,c.cabl,c.pabl,c.dxdate,c.dxiiidte,c.prdxaxis,c.dxreason,c.dx.comment,
+c.dx.isn,c.dxaxiv-a,c.who.diag,c.dx.stat,c.dxflag,c.a1l1,c.dx.ax3,c.dx.ax4.a,c.dx.ser,c.dx.time,c.dx.dur,c.dx.ru,c.dx.loc,c.dx.proj,c.dx.serv,c.dx.fill,c.dx.comme,c.dx.by,
+c.dx.ax4.c,c.dx.ax4.d,c.paamd,c.saamd,c.taamd,c.genetic,c.c.anomal,c.sen.imp,c.precept,c.conv.dis,c.psy.impa,c.motor.dy,c.aamd.dat,c.iq.score,
+c.iq.date,c.iq.type,c.sq.score,c.sq.date,c.sq.type,c.dx.prese,c.dx.ax4.b,c.dx.ax4.e,c.dx.ax4.f,c.dx.ax4.g,c.dx.ax4.h,c.dx.sys,c.dx.ax4.i,c.dx.ax4.j,c.dx.needed)
+
+ function GETDX(DXType,DX,DXCat,DXDate,DXGaf,PP,IDD_Elig) is null
+  DXType   is x
+  DX       is x
+  DXCat    is x
+  DXDate   is d
+  DXGaf    is i
+  PP       is x
+  IDD_Elig is x
+  rc       is b 
+
+  rc = $dbread(02, $regid, dx_dstlist)  
+  dxtype = $dct(dx_dct, c.diag, "1")
+  DX     = c.diag
+  DXGaf  = c.dxaxvc
+  DXDate = c.dxdate
+ 
+  if dxtype = "O" and C.DXAXI2 dp
+   dxtype = $dct(dx_dct, C.DXAXI2, "1")
+   if dxtype = "S" or dxtype = "B" or dxtype = "D"
+ 	DX = C.DXAXI2
+   endif
+  endif
+  if dxtype = "O" and C.DXAXI3 dp
+   dxtype = $dct(dx_dct, C.DXAXI3, "1")
+   if dxtype = "S" or dxtype = "B" or dxtype = "D"
+    DX = C.DXAXI3
+   endif
+  endif
+  if dxtype = "O" and C.DXAXI4 dp
+   dxtype = $dct(dx_dct, C.DXAXI4, "1")
+   if dxtype = "S" or dxtype = "B" or dxtype = "D"
+    DX = C.DXAXI4
+   endif
+  endif
+  if dxtype = "O" and C.DXAXI5 dp
+   dxtype = $dct(dx_dct, C.DXAXI5, "1")
+   if dxtype = "S" or dxtype = "B" or dxtype = "D"
+    DX = C.DXAXI5
+   endif
+  endif
+  if dxtype = "O" and C.DXAXI6 dp
+   dxtype = $dct(dx_dct, C.DXAXI6, "1")
+   if dxtype = "S" or dxtype = "B" or dxtype = "D"
+    DX = C.DXAXI6
+   endif
+  endif
+  select DXType
+   case "B" dxcat = "Bipolar"
+   case "S" dxcat = "Schizophrenia"
+   case "D" select DX
+             case "29624" dxcat = "MDD - With Psychotic Features"
+			 case "29634" dxcat = "MDD - With Psychotic Features"
+             case "296.24" dxcat = "MDD - With Psychotic Features"
+			 case "296.34" dxcat = "MDD - With Psychotic Features"
+			 case other    dxcat = "MDD - Without Psychotic Features"
+			endselect 
+   case "O" dxcat = "Other"
+   case !dp dxcat = "Other"
+            DXType = "O"
+  endselect
+
+  PP = "N"  
+  if DXType = "O"
+   if PriorityPop(c.diag) = "Y"
+    PP = "Y"
+   elseif PriorityPop(C.DXAXI2) = "Y" 
+    PP = "Y"   
+   elseif PriorityPop(C.DXAXI3) = "Y" 
+    PP = "Y"
+   elseif PriorityPop(C.DXAXI4) = "Y" 
+    PP = "Y"
+   elseif PriorityPop(C.DXAXI5) = "Y" 
+    PP = "Y"
+   elseif PriorityPop(C.DXAXI6) = "Y"	
+    PP = "Y"
+   endif
+  endif
+  
+  IDD_Elig = "N"
+  if IDD_Eligible(c.diag) = "Y"
+   IDD_Elig = "Y"
+  elseif IDD_Eligible(C.DXAXI2) = "Y"
+   IDD_Elig = "Y"  
+  elseif IDD_Eligible(C.DXAXI3) = "Y"
+   IDD_Elig = "Y"
+  elseif IDD_Eligible(C.DXAXI4) = "Y"
+   IDD_Elig = "Y"
+  elseif IDD_Eligible(C.DXAXI5) = "Y"
+   IDD_Elig = "Y"
+  elseif IDD_Eligible(C.DXAXI6) = "Y"
+   IDD_Elig = "Y"
+  elseif IDD_Eligible(c.dxaxii1) = "Y"
+   IDD_Elig = "Y"
+  elseif IDD_Eligible(c.dxaxii2) = "Y"
+   IDD_Elig = "Y"
+  elseif IDD_Eligible(c.dxaxii3) = "Y"
+   IDD_Elig = "Y"
+  elseif IDD_Eligible(c.dxaxii4) = "Y"
+   IDD_Elig = "Y"
+  elseif IDD_Eligible(c.dxaxii5) = "Y"
+   IDD_Elig = "Y"
+  elseif IDD_Eligible(c.dxaxii6) = "Y"
+   IDD_Elig = "Y"
+  endif   
+    
+  $allowupdate(dxtype, DX, dxcat, DXGAF, DXDate, PP, IDD_Elig)
+ end GETDX
+
+ function CurrentDX(client,compare_date) is x
+  client       is x
+  compare_date is d
+  dx_age       is i
+
+  CurrentDX = "Y"
+  if compare_date !dp
+   compare_date = $today
+  endif
+  (void)$dbread(02,client,dx_dstlist)
+  (void)$datediff(c.dxdate,compare_date,dx_age)
+  if c.diag !dp or dx_age > 0
+   CurrentDX = "N"
+  endif
+ end CurrentDX
+
+ function PriorityPop(DX) is x
+ DX           is x
+ PopDXCodes[] is x
+ index is i
+ index = 1
+ if PopDXCodes[1] !dp
+  PopDXCodes[index++] = "293"
+  PopDXCodes[index++] = "293.0"
+  PopDXCodes[index++] = "293.81"
+  PopDXCodes[index++] = "293.82"
+  PopDXCodes[index++] = "293.83"
+  PopDXCodes[index++] = "293.84"
+  PopDXCodes[index++] = "293.89"
+  PopDXCodes[index++] = "293.9"
+  PopDXCodes[index++] = "2930"
+  PopDXCodes[index++] = "29381"
+  PopDXCodes[index++] = "29382"
+  PopDXCodes[index++] = "29383"
+  PopDXCodes[index++] = "29384"
+  PopDXCodes[index++] = "29389"
+  PopDXCodes[index++] = "2939"
+  PopDXCodes[index++] = "294.0"
+  PopDXCodes[index++] = "294.8"
+  PopDXCodes[index++] = "294.9"
+  PopDXCodes[index++] = "2940"
+  PopDXCodes[index++] = "2948"
+  PopDXCodes[index++] = "2949"
+  PopDXCodes[index++] = "296.90"
+  PopDXCodes[index++] = "29690"
+  PopDXCodes[index++] = "297.1"
+  PopDXCodes[index++] = "297.3"
+  PopDXCodes[index++] = "2971"
+  PopDXCodes[index++] = "2973"
+  PopDXCodes[index++] = "298.8"
+  PopDXCodes[index++] = "298.9"
+  PopDXCodes[index++] = "2988"
+  PopDXCodes[index++] = "2989"
+  PopDXCodes[index++] = "300.00"
+  PopDXCodes[index++] = "300.01"
+  PopDXCodes[index++] = "300.02"
+  PopDXCodes[index++] = "300.11"
+  PopDXCodes[index++] = "300.12"
+  PopDXCodes[index++] = "300.13"
+  PopDXCodes[index++] = "300.14"
+  PopDXCodes[index++] = "300.15"
+  PopDXCodes[index++] = "300.16"
+  PopDXCodes[index++] = "300.19"
+  PopDXCodes[index++] = "300.21"
+  PopDXCodes[index++] = "300.22"
+  PopDXCodes[index++] = "300.23"
+  PopDXCodes[index++] = "300.29"
+  PopDXCodes[index++] = "300.3"
+  PopDXCodes[index++] = "300.4"
+  PopDXCodes[index++] = "300.6"
+  PopDXCodes[index++] = "300.7"
+  PopDXCodes[index++] = "300.81"
+  PopDXCodes[index++] = "300.82"
+  PopDXCodes[index++] = "300.9"
+  PopDXCodes[index++] = "30000"
+  PopDXCodes[index++] = "30001"
+  PopDXCodes[index++] = "30002"
+  PopDXCodes[index++] = "30011"
+  PopDXCodes[index++] = "30012"
+  PopDXCodes[index++] = "30013"
+  PopDXCodes[index++] = "30014"
+  PopDXCodes[index++] = "30015"
+  PopDXCodes[index++] = "30016"
+  PopDXCodes[index++] = "30019"
+  PopDXCodes[index++] = "30021"
+  PopDXCodes[index++] = "30022"
+  PopDXCodes[index++] = "30023"
+  PopDXCodes[index++] = "30029"
+  PopDXCodes[index++] = "3003"
+  PopDXCodes[index++] = "3004"
+  PopDXCodes[index++] = "3006"
+  PopDXCodes[index++] = "3007"
+  PopDXCodes[index++] = "30081"
+  PopDXCodes[index++] = "30082"
+  PopDXCodes[index++] = "3009"
+  PopDXCodes[index++] = "301.13"
+  PopDXCodes[index++] = "30113"
+  PopDXCodes[index++] = "302.2"
+  PopDXCodes[index++] = "302.3"
+  PopDXCodes[index++] = "302.4"
+  PopDXCodes[index++] = "302.6"
+  PopDXCodes[index++] = "302.70"
+  PopDXCodes[index++] = "302.71"
+  PopDXCodes[index++] = "302.72"
+  PopDXCodes[index++] = "302.73"
+  PopDXCodes[index++] = "302.74"
+  PopDXCodes[index++] = "302.75"
+  PopDXCodes[index++] = "302.76"
+  PopDXCodes[index++] = "302.79"
+  PopDXCodes[index++] = "302.81"
+  PopDXCodes[index++] = "302.82"
+  PopDXCodes[index++] = "302.83"
+  PopDXCodes[index++] = "302.84"
+  PopDXCodes[index++] = "302.85"
+  PopDXCodes[index++] = "302.89"
+  PopDXCodes[index++] = "302.9"
+  PopDXCodes[index++] = "3022"
+  PopDXCodes[index++] = "3023"
+  PopDXCodes[index++] = "3024"
+  PopDXCodes[index++] = "3026"
+  PopDXCodes[index++] = "30270"
+  PopDXCodes[index++] = "30271"
+  PopDXCodes[index++] = "30272"
+  PopDXCodes[index++] = "30273"
+  PopDXCodes[index++] = "30274"
+  PopDXCodes[index++] = "30275"
+  PopDXCodes[index++] = "30276"
+  PopDXCodes[index++] = "30279"
+  PopDXCodes[index++] = "30281"
+  PopDXCodes[index++] = "30282"
+  PopDXCodes[index++] = "30283"
+  PopDXCodes[index++] = "30284"
+  PopDXCodes[index++] = "30285"
+  PopDXCodes[index++] = "30289"
+  PopDXCodes[index++] = "3029"
+  PopDXCodes[index++] = "306.51"
+  PopDXCodes[index++] = "30651"
+  PopDXCodes[index++] = "307.0"
+  PopDXCodes[index++] = "307.1"
+  PopDXCodes[index++] = "307.20"
+  PopDXCodes[index++] = "307.21"
+  PopDXCodes[index++] = "307.22"
+  PopDXCodes[index++] = "307.23"
+  PopDXCodes[index++] = "307.3"
+  PopDXCodes[index++] = "307.42"
+  PopDXCodes[index++] = "307.44"
+  PopDXCodes[index++] = "307.46"
+  PopDXCodes[index++] = "307.47"
+  PopDXCodes[index++] = "307.50"
+  PopDXCodes[index++] = "307.51"
+  PopDXCodes[index++] = "307.52"
+  PopDXCodes[index++] = "307.53"
+  PopDXCodes[index++] = "307.59"
+  PopDXCodes[index++] = "307.6"
+  PopDXCodes[index++] = "307.7"
+  PopDXCodes[index++] = "307.80"
+  PopDXCodes[index++] = "307.89"
+  PopDXCodes[index++] = "307.9"
+  PopDXCodes[index++] = "3070"
+  PopDXCodes[index++] = "3071"
+  PopDXCodes[index++] = "30720"
+  PopDXCodes[index++] = "30721"
+  PopDXCodes[index++] = "30722"
+  PopDXCodes[index++] = "30723"
+  PopDXCodes[index++] = "3073"
+  PopDXCodes[index++] = "30742"
+  PopDXCodes[index++] = "30744"
+  PopDXCodes[index++] = "30746"
+  PopDXCodes[index++] = "30747"
+  PopDXCodes[index++] = "30750"
+  PopDXCodes[index++] = "30751"
+  PopDXCodes[index++] = "30752"
+  PopDXCodes[index++] = "30753"
+  PopDXCodes[index++] = "30759"
+  PopDXCodes[index++] = "3076"
+  PopDXCodes[index++] = "3077"
+  PopDXCodes[index++] = "30780"
+  PopDXCodes[index++] = "30789"
+  PopDXCodes[index++] = "3079"
+  PopDXCodes[index++] = "308.3"
+  PopDXCodes[index++] = "3083"
+  PopDXCodes[index++] = "3090"
+  PopDXCodes[index++] = "309.0"
+  PopDXCodes[index++] = "309.21"
+  PopDXCodes[index++] = "309.24"
+  PopDXCodes[index++] = "309.28"
+  PopDXCodes[index++] = "309.3"
+  PopDXCodes[index++] = "309.4"
+  PopDXCodes[index++] = "309.81"
+  PopDXCodes[index++] = "309.9"
+  PopDXCodes[index++] = "3090"
+  PopDXCodes[index++] = "30921"
+  PopDXCodes[index++] = "30924"
+  PopDXCodes[index++] = "30928"
+  PopDXCodes[index++] = "3093"
+  PopDXCodes[index++] = "3094"
+  PopDXCodes[index++] = "30981"
+  PopDXCodes[index++] = "3099"
+  PopDXCodes[index++] = "310.1"
+  PopDXCodes[index++] = "3101"
+  PopDXCodes[index++] = "311"
+  PopDXCodes[index++] = "312.30"
+  PopDXCodes[index++] = "312.31"
+  PopDXCodes[index++] = "312.32"
+  PopDXCodes[index++] = "312.33"
+  PopDXCodes[index++] = "312.34"
+  PopDXCodes[index++] = "312.39"
+  PopDXCodes[index++] = "312.8"
+  PopDXCodes[index++] = "312.81"
+  PopDXCodes[index++] = "312.82"
+  PopDXCodes[index++] = "312.89"
+  PopDXCodes[index++] = "312.9"
+  PopDXCodes[index++] = "31230"
+  PopDXCodes[index++] = "31231"
+  PopDXCodes[index++] = "31232"
+  PopDXCodes[index++] = "31233"
+  PopDXCodes[index++] = "31234"
+  PopDXCodes[index++] = "31239"
+  PopDXCodes[index++] = "3128"
+  PopDXCodes[index++] = "31281"
+  PopDXCodes[index++] = "31282"
+  PopDXCodes[index++] = "31289"
+  PopDXCodes[index++] = "3129"
+  PopDXCodes[index++] = "313.23"
+  PopDXCodes[index++] = "313.81"
+  PopDXCodes[index++] = "313.82"
+  PopDXCodes[index++] = "313.89"
+  PopDXCodes[index++] = "313.9"
+  PopDXCodes[index++] = "31323"
+  PopDXCodes[index++] = "31381"
+  PopDXCodes[index++] = "31382"
+  PopDXCodes[index++] = "31389"
+  PopDXCodes[index++] = "3139"
+  PopDXCodes[index++] = "314.00"
+  PopDXCodes[index++] = "314.01"
+  PopDXCodes[index++] = "314.9"
+  PopDXCodes[index++] = "31400"
+  PopDXCodes[index++] = "31401"
+  PopDXCodes[index++] = "3149"
+  PopDXCodes[index++] = "315.00"
+  PopDXCodes[index++] = "315.1"
+  PopDXCodes[index++] = "315.2"
+  PopDXCodes[index++] = "315.31"
+  PopDXCodes[index++] = "315.32"
+  PopDXCodes[index++] = "315.39"
+  PopDXCodes[index++] = "315.4"
+  PopDXCodes[index++] = "315.9"
+  PopDXCodes[index++] = "31500"
+  PopDXCodes[index++] = "3151"
+  PopDXCodes[index++] = "3152"
+  PopDXCodes[index++] = "31531"
+  PopDXCodes[index++] = "31532"
+  PopDXCodes[index++] = "31539"
+  PopDXCodes[index++] = "3154"
+  PopDXCodes[index++] = "3159"
+  PopDXCodes[index++] = "316"
+  PopDXCodes[index++] = "327.02"
+  PopDXCodes[index++] = "327.15"
+  PopDXCodes[index++] = "327.31"
+  PopDXCodes[index++] = "32702"
+  PopDXCodes[index++] = "32715"
+  PopDXCodes[index++] = "32731"
+  PopDXCodes[index++] = "332.1"
+  PopDXCodes[index++] = "3321"
+  PopDXCodes[index++] = "333.1"
+  PopDXCodes[index++] = "333.7"
+  PopDXCodes[index++] = "333.82"
+  PopDXCodes[index++] = "333.9"
+  PopDXCodes[index++] = "333.92"
+  PopDXCodes[index++] = "333.99"
+  PopDXCodes[index++] = "3331"
+  PopDXCodes[index++] = "3337"
+  PopDXCodes[index++] = "33382"
+  PopDXCodes[index++] = "33390"
+  PopDXCodes[index++] = "33392"
+  PopDXCodes[index++] = "33399"
+  PopDXCodes[index++] = "347"
+  PopDXCodes[index++] = "607.84"
+  PopDXCodes[index++] = "60784"
+  PopDXCodes[index++] = "608.89"
+  PopDXCodes[index++] = "60889"
+  PopDXCodes[index++] = "625.0"
+  PopDXCodes[index++] = "625.8"
+  PopDXCodes[index++] = "6250"
+  PopDXCodes[index++] = "6258"
+  PopDXCodes[index++] = "780.09"
+  PopDXCodes[index++] = "780.59"
+  PopDXCodes[index++] = "780.9"
+  PopDXCodes[index++] = "78009"
+  PopDXCodes[index++] = "78059"
+  PopDXCodes[index++] = "7809"
+  PopDXCodes[index++] = "787.6"
+  PopDXCodes[index++] = "78760"
+  PopDXCodes[index++] = "995.2"
+  PopDXCodes[index++] = "995.5"
+  PopDXCodes[index++] = "995.52"
+  PopDXCodes[index++] = "995.53"
+  PopDXCodes[index++] = "995.54"
+  PopDXCodes[index++] = "995.81"
+  PopDXCodes[index++] = "995.83"
+  PopDXCodes[index++] = "9952"
+  PopDXCodes[index++] = "9955"
+  PopDXCodes[index++] = "99552"
+  PopDXCodes[index++] = "99553"
+  PopDXCodes[index++] = "99554"
+  PopDXCodes[index++] = "99581"
+  PopDXCodes[index++] = "99583"
+ endif 
+ 
+ PriorityPop = "N"
+ if $find(DX,PopDXCodes[],1,"F") > 1
+  PriorityPop = "Y"
+ endif 
+end PriorityPop
+
+'Business Rule R-40
+function IDD_Eligible(DX) is x
+ DX           is x
+ IDDDXCodes[] is x
+ index is i
+ index = 1
+ if IDDDXCodes[1] !dp
+  IDDDXCodes[index++] = "317"
+  IDDDXCodes[index++] = "318.0"
+  IDDDXCodes[index++] = "3180"
+  IDDDXCodes[index++] = "318.1" 
+  IDDDXCodes[index++] = "3181" 
+  IDDDXCodes[index++] = "318.2" 
+  IDDDXCodes[index++] = "3182" 
+  IDDDXCodes[index++] = "319" 
+  IDDDXCodes[index++] = "F70" 
+  IDDDXCodes[index++] = "F71" 
+  IDDDXCodes[index++] = "F72" 
+  IDDDXCodes[index++] = "F73" 
+  IDDDXCodes[index++] = "F79" 
+  IDDDXCodes[index++] = "299.00" 
+  IDDDXCodes[index++] = "29900" 
+  IDDDXCodes[index++] = "299.10" 
+  IDDDXCodes[index++] = "29910" 
+  IDDDXCodes[index++] = "299.80" 
+  IDDDXCodes[index++] = "29980" 
+  IDDDXCodes[index++] = "F840" 
+  IDDDXCodes[index++] = "F842"  
+  IDDDXCodes[index++] = "F843"  
+  IDDDXCodes[index++] = "F845"  
+  IDDDXCodes[index++] = "F848"  
+  IDDDXCodes[index++] = "F849"   
+ endif
+ 
+ IDD_Eligible = "N"
+ if $find(DX,IDDDXCodes[],1,"F") > 1
+  IDD_Eligible = "Y"
+ endif 
+end IDD_Eligible

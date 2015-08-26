@@ -1,0 +1,58 @@
+start TRRAUTODISCH()
+ %version 1.0.001 01/23/2014
+ $looplimit = 0
+ %include inc_ANSA_DST
+ %include inc_CANS_DST
+ client        is x
+ NewUID 	   is n
+ trr_type      is x
+ discharge_dt  is d 
+ rc 		   is i
+ 
+ if $bui = "Y"
+  do while 1 = 1
+   if $regid !dp
+    if client dp
+     $regid = client
+    else
+     $regid = {"lib_UACOMMON"}GetClientID()
+     if $regid !dp
+      return
+     endif
+    endif
+   elseif ($regid dp and client dp) and client != $regid
+    $regid = {"lib_UACOMMON"}GetClientID()
+    if $regid !dp
+     return
+    endif
+   endif
+
+   $submitopt("off", "Continue")
+   $cancelopt("off", "Back")  
+   $form($scriptid)
+    {"lib_UACOMMON"}ClientPageHeader($regid,"Y")
+    $tag("<center>")
+     $br(2)$text("Assessment Type: ")$radio(trr_type,"ANSA","ANSA")$ctag("&nbsp;&nbsp;&nbsp;")$radio(trr_type,"CANS","CANS")
+     $br(2)$text("Discharge Date: ")$textbox(discharge_dt,"CAL",10,6,"Y","normal")
+    $tag("</center>")	
+   $sendform($scriptid) 
+   if $endbutton = "SUBMIT"
+    select trr_type
+     case "ANSA" call "AUTODISANSA"($regid,discharge_dt,rc)
+ 	 case "CANS" call "AUTODISCANS"($regid,discharge_dt,rc)
+    endselect	
+    if rc = 0
+     $brmsg(`trr_type + " Assessment Successfully saved to Database!"`,1,"W","Process Complete")
+    elseif rc = 4
+     $brmsg("Client is currently locked by another process, please wait a moment and retry",1,"W","Please Retry")
+    else
+     $brmsg(`"Error Saving Data,  RC=" + rc`,1,"W","Error Saving")
+    endif
+    $clear($regid,trr_type,discharge_dt)
+   else
+    $clear($regid,trr_type,discharge_dt)
+    return   
+   endif 
+  enddo
+ endif    
+end TRRAUTODISCH

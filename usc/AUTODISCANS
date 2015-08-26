@@ -1,0 +1,40 @@
+start AUTODISCANS(target,discharge_dt,rc)
+ %include inc_CANS617
+ NewUID 	  is n
+ target 	  is x
+ discharge_dt is d 
+ rc 		  is i
+
+ if target dp and discharge_dt dp
+  (void)$dbread(2,target,c.cans.rec,c.cans.type)
+  if c.cans.type != "3"
+   $clear(c.cans.rec,c.cans.type)
+   $dblock()
+   c.cans.age = {"lib_UACOMMON"}ClientAge(target)    
+   rc = $dbpoint(2,target,c.cans.rec)
+   NewUID = c.cans.rec[uid]
+   c.cans.rec[effd] = discharge_dt
+   c.cans.date  = discharge_dt
+   c.cans.compd = discharge_dt
+   c.cans.alocdate = discharge_dt
+   c.cans.alocedate = discharge_dt
+   c.cans.disdt = discharge_dt
+   c.cans.comment = "AUTODISCHARGE"
+   c.cans.acomment = "AUTODISCHARGE"
+   c.cans.disreas = "6"
+   c.cans.disref = "5"
+   c.cans.type = "3"
+   if c.cans.age <= 5
+    c.cans.canstype = "2" 
+    c.cans.ver = "CANS35"
+   else
+    c.cans.canstype = "1"
+    c.cans.ver = "CANS617"
+   endif
+   rc = $dbadddst(2,target,cans_dstlist) 
+   {"lib_UACOMMON"}AddBatch(target,c.cans.ver)
+  else
+   rc = 99
+  endif 
+ endif 
+end AUTODISCANS

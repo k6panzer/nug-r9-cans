@@ -1,0 +1,52 @@
+start AUTODISNAG(target,discharge_dt,rc)
+ target        is x
+ discharge_dt  is d
+ rc            is i
+ c.fn          is x
+ c.ln          is x
+ c.cm          is x
+ c.2cm         is x
+ s.email       is x
+ s.type        is x
+ email_1       is x
+ email_subject is x
+ email_body[]  is x
+ 
+ if target dp and discharge_dt dp
+  if $uc($seg($mscname,1,5)) = "HELEN"
+   (void)$dbread(2,target,c.fn,c.ln,c.cm,c.2cm)
+   if c.cm dp
+    (void)$dbread(3,c.cm,s.email,s.type)
+    if s.type = "AS"
+	 email_1 = s.email
+	else
+	 email_1 = "RizanM@helenfarabee.org"
+	endif 
+   else
+	email_1 = "RizanM@helenfarabee.org"   
+   endif
+  else
+   (void)$dbread(2,target,c.cm)
+   if c.cm dp
+    (void)$dbread(3,c.cm,s.email,s.type)
+    if s.type = "AS"
+	 email_1 = s.email
+	else
+	 email_1 = "dgilmore@pecanvalley.org"	 
+	endif 
+   else
+    email_1 = "dgilmore@pecanvalley.org"	 
+   endif
+  endif 
+  if email_1 dp
+   email_subject = "CANS/ANSA Assessment Required: " + c.fn + " " + c.ln + "  (" + target + ")"
+   email_body[1] = "CANS/ANSA Assessment Required: " + c.fn + " " + c.ln + "  (" + target + ")"
+   email_body[2] = "Please complete an update or discharge assessment for the above mentioned client by:   " + discharge_dt 
+   email_body[3] = "If an update is not completed by " + discharge_dt + " then an auto-discharge will be automatically completed."
+  endif
+  if email_1 dp
+   (void)$email(email_1,email_subject,email_body[])
+  endif
+ endif 
+end AUTODISNAG
+

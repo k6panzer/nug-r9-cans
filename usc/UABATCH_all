@@ -1,0 +1,22 @@
+start UABATCH_all() 
+
+BatchStart is d
+BatchEnd   is d
+slANSA	   is x
+slCANS617  is x
+slCANS35   is x
+
+BatchStart = 09/01/2013
+BatchEnd   = $today - 3
+
+slANSA	   = "ANSAB"
+slCANS617  = "CANS617B
+slCANS35   = "CANS35B"
+
+call "xmlBATCH_wrap"(,,"ANSAB",,BatchStart,BatchEnd)
+call "xmlBATCH_wrap"(,,"CANS617B",,BatchStart,BatchEnd)
+call "xmlBATCH_wrap"(,,"CANS35B",,BatchStart,BatchEnd)
+
+end UABATCH_all
+
+

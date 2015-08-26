@@ -1,0 +1,624 @@
+library lib_UACOMMON()
+ %version 1.0.012 01/16/2015
+on load do:
+ %include inc_DX_ANSA
+
+function StaffCanDo() is i
+ s.trr.certified is x
+ select $custnumber
+   case 641 StaffCanDo = 0, return
+ endselect
+
+ (void)$dbread(3,$operstaffid,s.trr.certified)
+ if s.trr.certified = "Y" or MISStaff() = "Y" or UMStaff() = "Y"
+  StaffCanDo = 0
+ else
+  StaffCanDo = 1
+  $brmsg("You are not authorized to use this function!", 1, "W", "ERROR")
+ endif
+end StaffCanDo
+
+function UMSTAFF(staff[]) is x
+ staff[]    is x
+ code[]     is x
+ desc[]     is x
+ act-code[] is x
+ a1[]       is x
+ a2[]       is x
+ a3[]       is x
+ $clear(staff[])
+ select $custnumber
+  case 256 select $uc($seg($mscname,1,5))
+            case "HELEN" (void)$arrpush(staff[],"3479")   'Andy Martin
+                         (void)$arrpush(staff[],"1951")   'Paula Staats Maloney
+                         (void)$arrpush(staff[],"3908")   'Irma Escobedo
+                         (void)$arrpush(staff[],"2481")   'Gianna Harris
+                         (void)$arrpush(staff[],"1529")   'Judy Michael (For displaying authorized UA's only)
+                         (void)$arrpush(staff[],"3971")   'Claudia Urista (For displaying authorized UA's only)
+			             (void)$dctloada(110,code[], desc[], act-code[], a1[], a2[], a3[])
+	        case "PECAN" (void)$arrpush(staff[],"3242")   'Ralph Whaite
+                         (void)$arrpush(staff[],"3737")   'Chris Love
+                         (void)$arrpush(staff[],"001407") 'Donna Gilmore
+                         (void)$arrpush(staff[],"001601") 'Diana Thompson
+                         (void)$arrpush(staff[],"001523") 'Jan Walker
+                         (void)$arrpush(staff[],"001705") 'Britni Warren
+			             (void)$dctloada(8998,code[], desc[], act-code[], a1[], a2[], a3[])
+           endselect
+  case 641 (void)$dctloada(190,code[], desc[], act-code[], a1[], a2[], a3[])  
+ endselect 
+ if ($find($operstaffid, staff[],1,"F") > 0) or ($find($operstaffid, code[],1,"F") > 0)
+  UMSTAFF = "Y"
+ else
+  UMSTAFF = "N"
+ endif 
+end UMSTAFF
+
+function MISStaff(staff[]) is x
+ staff[] is x
+ s.ru    is b
+ s.type  is x
+ MIS_ru  is b
+ $clear(staff[])
+ select $custnumber
+  case 256 select $uc($seg($mscname,1,5))
+            case "HELEN" MIS_ru = 106
+			             (void)$arrpush(staff[],"3243")  'Ralph Whaite
+                         (void)$arrpush(staff[],"1343")  'Scott Reeves
+                         (void)$arrpush(staff[],"3737")  'Chris Love
+                         (void)$arrpush(staff[],"3956")  'Chris Ashley
+			case "PECAN" (void)$arrpush(staff[],"3243")  'Ralph Whaite
+                         (void)$arrpush(staff[],"1343")  'Scott Reeves
+                         (void)$arrpush(staff[],"3737")  'Chris Love
+                         (void)$arrpush(staff[],"3956")  'Chris Ashley
+			             (void)$arrpush(staff[],"001639")  'John Edwards
+           endselect
+   case 641
+      MIS_ru = 940
+      (void)$arrPush(staff[],"1721")   'R
+      (void)$arrPush(staff[],"003")    'P
+  endselect
+ (void)$dbread(3,$operstaffid,s.ru,s.type)
+ if s.ru = MIS_ru and MIS_RU dp and s.type = "AS"
+  (void)$arrinsert(staff[],$operstaffid)
+  MISStaff = "Y"
+ elseif $find($operstaffid, staff[],1,"F") > 0
+  MISStaff = "Y"
+ else
+  MISStaff = "N"
+ endif  
+end MISStaff
+
+dynamic function ConfirmExit() is x
+ yes_btn  is x
+ no_btn   is x
+ $submitopt("off", "YES")
+ $cancelopt("off", "NO")
+ $form("confirm")
+  $bstyle("buttondown","button")
+  $text("{H1 align='CENTER'}ARE YOU SURE{/H1}")
+  $text("{CENTER}If you cancel now, {u}{b}{font color=red}NONE OF THE DATA{/font}{/b}{/u} will be saved!{/CENTER}",,"font-family:times new roman; font-size:14pt; color:black; font-weight:bold;")
+  $text("{CENTER}Do you wish to cancel and return to Main Menu?{/CENTER}",,"font-family:times new roman; font-size:14pt; color:darkblue; font-weight:bold;")
+  $br(2)
+  $tag("<center>")
+   $submit(yes_btn,"YES")$ctag("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;")$submit(no_btn,"NO")
+  $tag("</center>")
+  $sendform("confirm")
+ if $endbutton = "SUBMIT" or yes_btn = "Y" then
+  ConfirmExit = "Y"
+ endif
+end ConfirmExit
+
+function ClientPageHeader(CID) is null
+ CID  is x
+ c.fn is x
+ c.mn is x
+ c.ln is x
+ sp is x
+ sp = " "
+ 
+ if $regid dp and cid !dp
+  CID = $regid
+ endif
+ (void)$dbread(02, CID, c.fn, c.mn, c.ln)
+
+
+ $table("PageHeader",,"width='100%'")
+  $row()
+   $col("right",,"33%","1","1")$text(`"Consumer ID" + sp + sp + sp + sp`,"hdrtag")$text(CID,"hdrdate")$col(,,"25%","1","1")
+   $col(,,"42%","1","1")$text(`"Consumer Name" + sp + sp + sp + sp`,"hdrtag") $text(`c.ln + ", " + c.fn`,"hdrdate")
+   if c.mn dp
+    $text(`sp + $seg(c.mn,1,1) + "."`,"hdrdate")
+   endif
+ $endtable("PageHeader")
+ $tag("<hr/>")
+end ClientPageHeader
+
+dynamic function ClientAge(regid, date) is i
+ regid is x
+ date  is d
+ c.bd  is d
+ age   is n
+ if date !dp
+  date = $today
+ endif
+ if $dbread(2,regid,c.bd) = 0
+  age = (date - c.bd) / 365.25
+  age = $round(age, 0.001)
+  if $month(date) = $month(c.bd) and $day(date) = $day(c.bd)
+   age = $round(age, 0.01)
+  endif
+  ClientAge = age
+ else
+  ClientAge = 0
+ endif
+end ClientAge
+
+function GetEvent(c.cans.isn,$$isn.sac,$$isn.ru,$$isn.tm,$$isn.sdur,$$isn.loc) is i
+ c.cans.isn is x
+ $$isn.sac  is b
+ $$isn.ru   is b
+ $$isn.tm   is t
+ $$isn.sdur is t
+ $$isn.loc  is x
+ rc is i
+ if c.cans.isn dp
+  GetEvent = $dbread(9,c.cans.isn,$$isn.ru,$$isn.loc,$$isn.sdur,$$isn.tm, $$isn.sac)
+ endif 
+ $allowupdate($$isn.sac,$$isn.ru,$$isn.tm,$$isn.sdur,$$isn.loc)
+end GetEvent
+
+function GetClientID() is x
+ id_length is i 
+ id_length = 6
+ select $custnumber
+  case 256 select $uc($seg($mscname,1,5))
+            case "HELEN" id_length = 6
+	        case "PECAN" id_length = 10
+           endselect
+  case 641 id_length = 10
+ endselect 
+ c.id is x
+ $clear(c.id) 
+ $submitopt("off", "NEXT")
+ $cancelopt("off", "CANCEL")
+ $form()
+  $text("{H1}Enter Client ID{/H1}")
+  $table("t1",,"width='100%'")
+   $row()$col("right",,"50%") $text("ENTER CLIENT ID: ","datatag")  
+         $col() $textbox(c.id,"DB``02",id_length,4,"Y") $editmsg(c.id)
+  $endtable("t1")
+ $sendform()
+ if $endbutton = "SUBMIT"
+  GetClientID = c.id
+ endif
+end GetClientID
+
+function AddUMMonitor(CID[],scriptid) is null
+ CID[]          is x
+ scriptid       is x
+ index          is i
+ ansa_sl        is x
+ cans35_sl      is x
+ cans617_sl     is x
+ get_list       is i
+ create_list    is i
+ add_to_list    is i
+ sort_list      is i
+ entries        is i 
+ list_name      is x
+ list_desc      is x
+ current_list[] is x 
+'Saved Lists names
+ ansa_sl    = "ANSAP"
+ cans35_sl  = "CANS35P"
+ cans617_sl = "CANS617P"
+ $clear(list_name)
+ select scriptid
+  case "ANSA"        list_name = ansa_sl
+  case "CANS35"      list_name = cans35_sl
+  case "CANS617"     list_name = cans617_sl
+ endselect
+ if list_name dp
+  get_list = $getlist(current_list[],2,list_name,entries,list_desc)
+  if get_list = 1
+   list_desc = "Pending: " + scriptid
+   create_list = $putlist(cid[],2,list_name,list_desc,"C",,"UM")			   
+  else
+   index = 0
+   do while index++ < $maxarray(cid[])
+    if $find(cid[index],current_list[],,"F") = 0
+     add_to_list = $putlist(cid[],2,list_name,list_desc,"A",,"UM")			   
+    endif
+   enddo
+  endif
+  sort_list = $sortlist(2,list_name,"I",,"Y")
+ endif
+end AddUMMonitor
+
+function RemUMMonitor(CID[],scriptid) is null
+ CID[]          is x
+ scriptid       is x
+ index          is i
+ ansa_sl        is x
+ cans35_sl      is x
+ cans617_sl     is x
+ get_list       is i
+ replace_list   is i
+ remove_index   is i
+ sort_list      is i
+ entries        is i 
+ list_name      is x
+ list_desc      is x
+ current_list[] is x 
+'Saved lists names
+ ansa_sl    = "ANSAP"
+ cans35_sl  = "CANS35P"
+ cans617_sl = "CANS617P"
+ $clear(list_name)
+ select scriptid
+  case "ANSA"        list_name = ansa_sl
+  case "CANS35"      list_name = cans35_sl
+  case "CANS617"     list_name = cans617_sl
+ endselect
+ if list_name dp
+  get_list = $getlist(current_list[],2,list_name,entries,list_desc)
+  if get_list = 0
+   index = 0
+   do while index++ < $maxarray(cid[])
+    remove_index = $find(cid[index],current_list[],,"F")
+	if remove_index > 0
+	 (void)$arrremove(current_list[remove_index])
+	endif
+   enddo
+   replace_list = $putlist(current_list[],2,list_name,list_desc,"R",,"UM")   
+  endif
+  sort_list = $sortlist(2,list_name,"I",,"Y")
+ endif
+end RemUMMonitor
+
+function AddBATCH(CID[],scriptid) is null
+ CID[]          is x
+ scriptid       is x
+ index          is i
+ ansa_sl        is x
+ cans35_sl      is x
+ cans617_sl     is x
+ get_list       is i
+ create_list    is i
+ add_to_list    is i
+ sort_list      is i
+ entries        is i
+ add_index      is i
+ list_name      is x
+ list_desc      is x
+ current_list[] is x 
+'Saved lists to batch from
+ ansa_sl    = "ANSAB"
+ cans35_sl  = "CANS35B"
+ cans617_sl = "CANS617B"
+ $clear(list_name)
+ select scriptid
+  case "ANSA"        list_name = ansa_sl
+  case "CANS35"      list_name = cans35_sl
+  case "CANS617"     list_name = cans617_sl
+ endselect
+ if list_name dp
+  get_list = $getlist(current_list[],2,list_name,entries,list_desc)
+  if get_list = 1
+   list_desc = "Pending: " + scriptid
+   create_list = $putlist(cid[],2,list_name,list_desc,"C",,"UM")			   
+  else
+   index = 0
+   do while index++ < $maxarray(cid[])
+    if $find(cid[index],current_list[],,"F") = 0
+     add_to_list = $putlist(cid[index],2,list_name,list_desc,"A",,"UM")			   
+    endif
+   enddo
+  endif
+  sort_list = $sortlist(2,list_name,"I",,"Y")
+ endif  
+end AddBATCH
+
+function RemBatch(CID[],scriptid) is null
+ CID[]          is x
+ scriptid       is x
+ index          is i
+ ansa_sl        is x
+ cans35_sl      is x
+ cans617_sl     is x
+ get_list       is i
+ replace_list   is i
+ remove_index   is i
+ sort_list      is i
+ entries        is i 
+ list_name      is x
+ list_desc      is x
+ current_list[] is x 
+'Saved lists to batch from
+ ansa_sl    = "ANSAB"
+ cans35_sl  = "CANS35B"
+ cans617_sl = "CANS617B"
+ $clear(list_name)
+ select scriptid
+  case "ANSA"        list_name = ansa_sl
+  case "CANS35"      list_name = cans35_sl
+  case "CANS617"     list_name = cans617_sl
+ endselect
+ if list_name dp
+  get_list = $getlist(current_list[],2,list_name,entries,list_desc)
+  if get_list = 0
+   index = 0
+   do while index++ < $maxarray(cid[])
+    remove_index = $find(cid[index],current_list[],,"F")
+	if remove_index > 0
+	 (void)$arrremove(current_list[remove_index])
+	endif
+   enddo
+   replace_list = $putlist(current_list[],2,list_name,list_desc,"R",,"UM")   
+  endif
+  sort_list = $sortlist(2,list_name,"I",,"Y")
+ endif
+end RemBatch
+
+function UpdateSavedList(cid[],list_name,action) is null
+ cid[]          is x
+ list_name      is x
+ action         is x
+ index          is i
+ get_list       is i
+ replace_list   is i
+ remove_index   is i
+ sort_list      is i
+ entries        is i 
+ list_desc      is x
+ current_list[] is x
+ create_list    is i
+ add_to_list    is i 
+ action = $uc(action)
+ if (action = "ADD" or action = "A") and list_name dp
+  get_list = $getlist(current_list[],2,list_name,entries,list_desc)
+  if get_list = 1
+   list_desc = "Pending: " + list_name
+   create_list = $putlist(cid[],2,list_name,list_desc,"C",,"UM")			   
+  else
+   index = 0
+   do while index++ < $maxarray(cid[])
+    if $find(cid[index],current_list[],,"F") = 0
+     add_to_list = $putlist(cid[index],2,list_name,list_desc,"A",,"UM")			   
+    endif
+   enddo
+  endif
+  sort_list = $sortlist(2,list_name,"I",,"Y") 
+ elseif (action = "REMOVE" or action = "DELETE" or action = "R" or action = "D") and list_name dp
+  get_list = $getlist(current_list[],2,list_name,entries,list_desc)
+  if get_list = 0
+   index = 0
+   do while index++ < $maxarray(cid[])
+    remove_index = $find(cid[index],current_list[],,"F")
+    if remove_index > 0
+     (void)$arrremove(current_list[remove_index])
+    endif
+   enddo
+   replace_list = $putlist(current_list[],2,list_name,list_desc,"R",,"UM")   
+  endif
+  sort_list = $sortlist(2,list_name,"I",,"Y")
+ endif  
+end UpdateSavedList
+
+'old function, needed for medical records
+function changetitle(scriptid) is null
+ scriptid    is x
+ center_name is x
+ newtitle    is x
+ XTemp       is x 
+ c.fn        is x
+ c.ln        is x
+' center_name = "Helen Farabee Centers"
+ if center_name !dp
+  center_name = $mscname
+ endif 
+ (void)$dbread(2,$regid,c.fn,c.ln)
+ select scriptid
+  case "ANSA"    newtitle = center_name + " ID:" + $regid + "Name:" + c.ln + ", " + c.fn + "Form: ANSA"
+  case "CANS35"  newtitle = center_name + " ID:" + $regid + "Name:" + c.ln + ", " + c.fn + "Form: CANS 3-5"
+  case "CANS617" newtitle = center_name + " ID:" + $regid + "Name:" + c.ln + ", " + c.fn + "Form: CANS 6-17"
+  case other newtitle = center_name + " ID:" + $regid + "Name:" + c.ln + ", " + c.fn + "Form: " + scriptid
+ endselect 
+ $ctag("<script language='Javascript'>")
+ XTemp = "    document.title=" + x"22" + newtitle + x"22" + ";"
+ $ctag(XTemp)
+ $ctag("</script>")
+end changetitle
+
+function DisplayMultiSnap(snapshots[]) is null
+ snapshots[] is x
+ index      is i
+ index = 0
+ $submitopt("off", "Exit")
+ $cancelopt("off", "")
+ $form($funcname)
+ do while index++ < $maxarray(snapshots[])
+  {"l_snapLibSC"}sn_viewSnap(snapshots[index])
+  $tag("<STYLE TYPE='text/css'>P.breakhere{page-break-before:always}</STYLE>")
+  $tag("<p class='breakhere'>")$tag("</p>")
+ enddo
+  %include c_pbutton
+ $sendform($funcname)
+end DisplayMultiSnap
+
+function StaffAssign(staff[]) is x
+ a_staff      is x
+ staff[]      is x
+' staff[1] = "1312" 'Cagan Cummings
+' staff[1] = "3737" 'Cagan Cummings
+ STAFFASSIGN = "N"
+ if $maxarray(staff[]) > 0
+  if ($find($operstaffid, staff[], 1,"F") > 0)
+   STAFFASSIGN = "Y"
+  endif 
+ endif 
+end StaffAssign
+
+function DisplayErrors(errors[],HeaderYN) is null
+ errors[] is x
+ index    is i
+ HeaderYN is x
+ $submitopt("off", "")
+ $cancelopt("off", "BACK")
+ $form("errors")
+  if $uc(HeaderYN) != "N"
+   {"lib_UACOMMON"}ClientPageHeader($regid,"Y")
+  endif 
+  $text("{H1}Errors Were Found{/H1}")
+  $br()
+  $tag("<CENTER>")
+   index = 0
+   do while index++ <= $maxarray(errors[])
+    $br()$text(errors[index] , "error")
+   enddo
+  $tag("</CENTER>")
+ $sendform("errors")
+end DisplayErrors
+
+dynamic function ClientLastUA(Client,date, ua_date, ua_type, ua_locr, ua_loca, ua_due, client_age,ua_discharge, ua_rdmtrr, a_add_stg, a_add_sti, a_add_se, c_addfca, c_addgca, loca, loca_desc,trr_loca) is null
+ Client       is x
+ date         is d
+ ua_date      is d
+ ua_type      is x
+ ua_locr      is x
+ ua_loca      is x
+ ua_due       is d
+ ua_discharge is d
+ ua_rdmtrr    is x   'This var will hold a "R" if the UA is RDM or a "T" if the UA is TRR.  
+ a_add_stg    is x
+ a_add_sti    is x
+ a_add_se     is x
+ c_addfca     is x
+ c_addgca     is x
+ loca         is x
+ loca_desc    is x
+ trr_loca     is x
+ client_age   is i
+              
+ c.ansa.rec       is h
+ c.ansa.type      is x
+ c.ansa.aloc      is x
+ c.ansa.rloc      is x
+ c.ansa.date  	  is d
+ c.ansa.disdt 	  is d
+ c.ansa.alocedate is d
+ c.ansa.compd     is d
+ 
+ c.cans.rec   	  is h
+ c.cans.type  	  is x
+ c.cans.aloc  	  is x
+ c.cans.rloc  	  is x
+ c.cans.date  	  is d
+ c.cans.disdt 	  is d
+ c.cans.alocedate is d
+ c.cans.compd     is d 
+ 
+ $clear(ua_date, ua_type, ua_locr, ua_loca, ua_due, client_age,a_add_stg, a_add_sti, a_add_se, c_addfca, c_addgca,loca,loca_desc,trr_loca)
+ $allowupdate(ua_date, ua_type, ua_locr, ua_loca, ua_due, ua_discharge, client_age, ua_rdmtrr, a_add_stg, a_add_sti, a_add_se, c_addfca, c_addgca,loca,loca_desc,trr_loca)
+
+ if date !dp
+  date = $today
+ endif
+ client_age = ClientAge(Client,date)
+
+ if client_age >= 18
+'CALCULATE DUE DATE FOR ANSA  
+  (void)$dbread(02, client, c.ansa.rec, c.ansa.type, c.ansa.aloc, c.ansa.rloc, c.ansa.date, c.ansa.disdt, c.ansa.alocedate, c.ansa.compd)
+  if c.ansa.rec dp and c.ansa.compd !dp or c.ansa.date > date
+   (void)$dbreadnextdst(02, client, c.ansa.rec, c.ansa.type, c.ansa.aloc, c.ansa.rloc, c.ansa.date, c.ansa.disdt, c.ansa.alocedate, c.ansa.compd)
+  endif
+  if c.ansa.rec dp and c.ansa.compd dp
+   ua_due = c.ansa.alocedate
+   if c.ansa.disdt dp
+    ua_discharge = c.ansa.disdt
+   else
+    ua_date = c.ansa.date
+    ua_type = c.ansa.type
+    ua_due  = c.ansa.alocedate
+    ua_locr = c.ansa.rloc
+    ua_loca = c.ansa.aloc
+    loca = c.ansa.aloc
+	loca_desc = $dct(9712,c.ansa.aloc,"D")
+	trr_loca = c.ansa.aloc	 
+    ua_rdmtrr = "T"
+    if trr_loca = "111" or trr_loca = "113" or trr_loca = "106"
+	 a_add_stg = "Y"
+     a_add_sti = "Y"
+     a_add_se = "Y"
+    endif	
+   endif
+  endif
+ elseif client_age < 18
+'CALCULATE DUE DATE FOR CHILD CANS
+  (void)$dbread(02, client, c.cans.rec, c.cans.type, c.cans.aloc, c.cans.rloc, c.cans.date, c.cans.disdt, c.cans.alocedate, c.cans.compd)
+  if c.cans.rec dp and c.cans.compd !dp or c.cans.date > date
+   (void)$dbreadnextdst(02, client, c.cans.rec, c.cans.type, c.cans.aloc, c.cans.rloc, c.cans.date, c.cans.disdt, c.cans.alocedate, c.cans.compd)  
+  endif
+  if c.cans.rec dp and c.cans.compd dp
+   ua_due = c.cans.alocedate
+   if c.cans.disdt dp
+    ua_discharge = c.cans.disdt
+   else
+    ua_date = c.cans.date
+    ua_type = c.cans.type
+    ua_due  = c.cans.alocedate
+    ua_locr = $dct(9705,c.cans.rloc,"1")
+	ua_locr = c.cans.rloc
+    ua_loca = c.cans.aloc
+    loca = c.cans.aloc
+	loca_desc = $dct(9705,c.cans.aloc,"D")
+	trr_loca = c.cans.aloc
+    ua_rdmtrr = "T"
+	if ua_loca = "102" or ua_loca = "103" or ua_loca = "104" or ua_loca = "YC" or ua_loca = "106"
+     c_addfca = "Y"
+     c_addgca = "Y"
+	endif    
+   endif  
+  endif
+ endif
+end ClientLastUA
+
+function isNumeric(s,IgnoreDash) is x
+ s          is x
+ i          is i
+ x          is x
+ IgnoreDash is x
+ s = $trim(s)
+ if s !dp
+  isNumeric = "N"
+  return
+ endif
+ x = $tran(s," ()-+.0123456789","")
+ if x dp
+  isNumeric = "N"
+  return
+ endif
+ i = $find(".",s)
+ if i > 0
+  i = $find(".",s,++i)
+  if i > 0
+   isNumeric = "N"
+   return
+  endif
+ endif
+ if IgnoreDash !dp or $uc(IgnoreDash) = "N"
+  i = $find("-",s)
+  if i > 0
+   if i != 1
+    isNumeric = "N"
+    return
+   endif
+   i = $find("-",s,++i)
+   if i > 0
+    isNumeric = "N"
+    return
+   endif
+  endif
+ endif
+ isNumeric = "Y"
+end isNumeric

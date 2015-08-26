@@ -1,0 +1,331 @@
+start authhist()
+%version 1.3.000 09/06/2013
+
+'				09/01/2013 Original Script from Rob Beckham
+'^			RHW 09/05/2013  Corrected missing do while statement (do while $maxarray(id[]) > clientstep++)
+'^			RHW 09/05/2013	Changed all DCT lookups for LOCR display to 9705 (CANS) and 9712 (ANSA)
+'+			RHW 09/06/2013  Added Script name and version to top of display
+'+			RHW 09/06/2013  Added functionality to optionally restrict viewing all assessments to UM staff only.
+'												This feature can be toggled off by setting the restrict variable to "N".  
+'+			RHW 09/06/2013  Added functionality to bring in the two additional list for children (CANS617B & CANS35B).
+'												Your center may need to adjust these saved list names to match the list ID's in use at your center.
+
+'			ROB 10/02/2013	Added c.ansa.caredt and c.cans.caredt to table to indicated date Auth was batched.
+'						Added Count of Auth Types to the top of screen
+'						Added Blue Styling to Authorizations under 18  i.e. CANS Auths
+
+'Dependencies:  lib_UACOMMON.UMSTAFF to determine if the staff running the process is a UMStaff person
+'								lib_UACOMMON.ClientAge to get the age of the client								
+
+$looplimit = 0
+
+
+'Demographic DSTs
+c.fn						is x
+c.ln						is x
+s.fn						is x
+s.ln						is x
+rc						is x
+rc1						is i
+
+'ANSA DSTs
+c.ansa.rec				is h 
+c.ansa.type				is x
+c.ansa.compd				is d
+c.ansa.rloc				is x
+c.ansa.dloc				is x
+c.ansa.aloc				is x
+c.ansa.alocdate			is d
+c.ansa.staff				is x
+c.ansa.caredt				is d
+
+'CANS DSTs
+c.cans.rec				is h
+c.cans.type				is x
+c.cans.compd				is d
+c.cans.rloc				is x
+c.cans.dloc				is x
+c.cans.aloc				is x
+c.cans.alocdate			is d
+c.cans.staff				is x
+c.cans.caredt				is d
+
+
+'The Arrays
+
+TheFN[]					is x
+TheLN[]					is x
+TheAge[]					is x
+
+TheType[]					is x
+TheADate[]				is d
+
+TheRloc[]					is x
+TheDloc[]					is x
+TheAloc[]					is x
+
+TheAlocDt[]				is d
+TheSFN[]					is x
+TheSLN[]					is x
+TheCareDt[]				is d
+
+id[]						is x 		' An array used to hold save list ids
+id2[]					is x
+id3[]					is x
+child[]					is x
+
+'Some Vars
+
+listid[]					is x                            
+listid[1] = "ANSAB"
+listid[2] = "CANS35B"
+listid[3] = "CANS617B"
+
+clientstep				is i
+age						is n
+authage					is n
+ansa_count				is i
+cans35_count				is i
+cans617_count				is i
+Authorized				is i
+
+
+restrict					is x
+restrict = "Y"							'Set this to "Y" to restric displaying all complete assesments to UM staff only.  
+									'Otherwise, the operator will only see assesments he/she completed.
+
+'UMSTAFF = "Y"
+
+
+%define row_odd "bgcolor='White'"
+%define row_even "bgcolor='CornSilk'"
+%define crisis_color "bgcolor='Crimson'"
+%define cans35_color "bgcolor='#C1D5F8'"
+%define cans617_color "bgcolor='#A2BFF4'"
+
+$setstyle(".cans", "font-family:arial", "font-size:11pt", "color:Blue", "font-weight:regular")
+$setstyle(".ansa", "font-family:arial", "font-size:10pt", "color:black", "font-weight:regular")
+
+Begin:
+$clear(id[],TheFN[],TheLN[],TheAge[],TheType[],TheADate[],TheRloc[],TheAloc[],
+                TheAlocDt[],TheSFN[],TheSLN[],TheCareDt[],child[],age,clientstep)
+
+' Grab the Save List
+rc = $getlist(id[], 2, listid[1])
+ansa_count = $maxarray(id[])
+rc = $getlist(id2[], 2, listid[2])
+cans35_count = $maxarray(id2[])
+rc = $getlist(id3[], 2, listid[3])
+cans617_count = $maxarray(id3[])
+rc1 = $arraymerge(id[],id2[],id3[])
+Authorized = $maxarray(id[])
+(void)$sortu(id[])
+
+
+
+if rc > 0 then
+   $brmsg("An error has occured while trying to access the Saved List.",,"W")
+   return
+endif
+
+if rc1 > 0 then
+   $brmsg("Unable to Merge Lists.",,"W")
+   return
+endif
+
+$br(10)
+
+'Loop through clients from the saved list
+clientstep = 0
+do while $maxarray(id[]) > clientstep++
+    rc = $dbread(2,id[clientstep],c.ln,c.fn,
+        c.ansa.rec,c.ansa.rloc,c.ansa.dloc,c.ansa.aloc,c.ansa.type,c.ansa.compd,c.ansa.alocdate,c.ansa.staff,c.ansa.caredt,
+        c.cans.rec,c.cans.rloc,c.cans.dloc,c.cans.aloc,c.cans.type,c.cans.compd,c.cans.alocdate,c.cans.staff,c.cans.caredt)
+
+        if c.ansa.alocdate !dp and c.cans.alocdate !dp
+                (void)$arrremove(id[clientstep--])
+                goto Skip
+        endif
+        
+'        if UMSTAFF = "N" and c.ansa.staff != operstaffid and c.cans.staff != operstaffid
+				if {"lib_UACOMMON"}UMStaff($operstaffid) = "N" and c.ansa.staff != $operstaffid and c.cans.staff != $operstaffid and
+					 restrict = "Y"
+                (void)$arrremove(id[clientstep--])
+                goto Skip
+        endif
+
+                'Calculate Age
+                age = {"lib_UACOMMON"}ClientAge(id[clientstep], $today)
+                if age < 18
+                        child[clientstep] = "Y"
+                endif
+
+
+'Load the Array
+                        TheFN[clientstep]               = c.fn
+                        TheLN[clientstep]               = c.ln
+                        TheAge[clientstep]              = age
+
+                        if child[clientstep] = "Y"
+
+                                        authage = $today - c.cans.alocdate
+                                        rc = $dbread(3,c.cans.staff,s.fn,s.ln)
+
+                                        TheADate[clientstep]		= c.cans.compd
+                                        TheType[clientstep]			= c.cans.type
+
+                                        TheRloc[clientstep]			= c.cans.rloc
+                                        TheDloc[clientstep]			= c.cans.dloc
+                                        TheAloc[clientstep]			= c.cans.aloc
+                                        TheAlocDt[clientstep]		= c.cans.alocdate
+                                        TheSFN[clientstep]			= s.fn
+                                        TheSLN[clientstep]			= s.ln
+                                        TheCareDt[clientstep]		= c.cans.caredt
+
+                        else
+                                        authage = $today - c.ansa.alocdate
+                                        rc = $dbread(3,c.ansa.staff,s.fn,s.ln)
+
+                                        TheADate[clientstep]		= c.ansa.compd
+                                        TheType[clientstep]			= c.ansa.type
+
+                                        TheRloc[clientstep]			= c.ansa.rloc
+                                        TheDloc[clientstep]			= c.ansa.dloc
+                                        TheAloc[clientstep]			= c.ansa.aloc
+                                        TheAlocDt[clientstep]		= c.ansa.alocdate
+                                        TheSFN[clientstep]			= s.fn
+                                        TheSLN[clientstep]			= s.ln
+                                        TheCareDt[clientstep]		= c.ansa.caredt
+                                        
+                        endif
+Skip:
+enddo
+
+
+'---------------
+
+' Build the BUI Form and table to display the array data.
+
+$submitopt("off","Refresh")
+$cancelopt("off", "Done")
+
+$form("F1")
+
+$setformtimeout(60) ' Adjust for Form Refresh
+
+$tag("<CENTER>")
+$text("Recent TRR Authorizations","H1") $br(1)
+$text(`"Version:  " + $scriptver + " (" + $scriptid + ")"`)
+$tag("</CENTER>")
+
+$table("T1")
+
+$row()
+	$col(,,"10%")$text("Authorized: ","datatag")
+	$col(,,"10%")$text(Authorized,"error")
+	$col(,,"80%")
+
+if ansa_count > 0
+$row()
+	$col()$text("ANSA: ","datatag")
+	$col()$text(ansa_count,"error")
+	$col()
+endif
+
+if cans35_count > 0
+$row()
+	$col()$text("CANS 3-5: ","datatag")
+	$col()$text(cans35_count,"error")
+	$col()
+endif
+
+if cans617_count > 0
+$row()
+	$col()$text("CANS 6-17: ","datatag")
+	$col()$text(cans617_count,"error")
+	$col()
+endif
+
+$endtable("T1")
+
+$br(2)
+
+$table("T2")
+' Grid Header
+$row(, "align='center'")
+                $col("center","center") $text("Assessment Date","datatag")
+                $col("center","center") $text("ID","datatag")
+                $col("center","center") $text("Name","datatag")
+                $col("center","center") $text("Age","datatag")
+                $col("center","center") $text("Type","datatag")
+
+                $col("center","center") $text("RLOC","datatag")
+                $col("center","center") $text("DLOC","datatag")
+                $col("center","center") $text("ALOC","datatag")
+
+                $col("center","center") $text("Auth Date","datatag")
+                $col("center","center") $text("Batch Date","datatag")
+                $col("center","center") $text("Assessment Staff","datatag")
+ 
+' Lines under the Header
+$row()  $col()$tag("<hr/>")     $col()$tag("<hr/>")     $col()$tag("<hr/>")     $col()$tag("<hr/>") $col()$tag("<hr/>")
+        $col()$tag("<hr/>")     $col()$tag("<hr/>")     $col()$tag("<hr/>")     $col()$tag("<hr/>") $col()$tag("<hr/>") $col()$tag("<hr/>")
+
+
+' Build Data Rows
+clientstep = 0
+do while ++clientstep <= $maxarray(id[])
+
+        'Row Coloring
+        if $mod(clientstep,2) = 0
+                $row(,row_odd)
+        else
+                $row(,row_even)
+        endif
+
+        if $dct(9700,TheType[clientstep],"D") = "Crisis"
+                $row(,crisis_color)
+        endif
+        
+
+                $col("center") $text(TheADate[clientstep])
+                $col("center") $text(id[clientstep])
+                
+			 if child[clientstep] = "Y"
+				$col("center") $text(`TheFN[clientstep] + " " + TheLN[clientstep]`,"cans")	
+                	$col("center") $text(TheAge[clientstep],"cans")
+                else
+				$col("center") $text(`TheFN[clientstep] + " " + TheLN[clientstep]`,"ansa")	
+                	$col("center") $text(TheAge[clientstep],"ansa")
+                endif
+
+				
+				
+                $col("center") $text($dct(9700,TheType[clientstep],"D"))
+
+                if child[clientstep] = "Y"
+					$col("center") $text(`TheRloc[clientstep] + "--" + $dct(9705,TheRloc[clientstep],"D")`)
+					$col("center") $text(`TheDloc[clientstep] + "--" + $dct(9705,TheDloc[clientstep],"D")`)
+					$col("center") $text(`TheAloc[clientstep] + "--" + $dct(9705,TheAloc[clientstep],"D")`)
+                else
+					$col("center") $text(`TheRloc[clientstep] + "--" + $dct(9712,TheRloc[clientstep],"D")`)
+					$col("center") $text(`TheDloc[clientstep] + "--" + $dct(9712,TheDloc[clientstep],"D")`)
+					$col("center") $text(`TheAloc[clientstep] + "--" + $dct(9712,TheAloc[clientstep],"D")`)
+                endif
+					$col("center") $text(TheAlocDt[clientstep])
+					$col("center") $text(TheCareDt[clientstep])
+					$col("center") $text(`TheSFN[clientstep] + " " + TheSLN[clientstep]`)
+                enddo
+$endtable("T2")
+
+
+$sendform("F1")
+$endform("F1")
+
+if $endbutton = "TIME"
+        goto Begin
+elseif $endbutton = "SUBMIT" then
+        goto Begin
+endif
+
+end authhist
