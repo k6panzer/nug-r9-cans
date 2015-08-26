@@ -105,6 +105,7 @@ chk_MedNec is x
 %global c.cans.comment,c.cans.acomment
 %global c.cans.canstype
 %global c.cans.devjust
+%global c.cans.bipsq1,c.cans.bipsq2
 
 rc_cans_dstlist   is i
 cans_dstlist      is dstlist
@@ -153,6 +154,8 @@ c.cans.commdate   is d 'Community section date
 c.cans.comment    is dbtext-l 'CANS UA Staff Comment
 c.cans.acomment   is dbtext-l 'Cans ALOC Staff Comment
 c.cans.devjust    is dbtext-l 'Cans Deviation Justification
+c.cans.bipsq1     is x
+c.cans.bipsq2     is x
 
 
 c.cans.canstype is X
@@ -460,6 +463,17 @@ c.cans.rg.emot     is x      'CANS REGULATORY FUNCTIONING EMOTIONAL CONTROL
 %define q_text_acomment "Authorization Staff Comment: "
 %define q_text_devjust "Justification for Deviation: "
 
+'BIPS Related
+%define q_text_bips11 "Patient may be eligible for other HHSC Services, please indicate the patient's desire to send some limited assessment information to the HHSC Long Term Services and Support agency. "
+%define q_text_bips12 "The patient may be contacted by other agencies to further screen for eligibility for these services."
+%define a_text_bips11 "Yes, the patient/LAR would like assessment/referral information shared"
+%define a_text_bips12 "No, the patient/LAR does not want assessment information to be shared"
+%define a_text_bips13 "Patient/LAR did not indicate a preference"
+%define q_text_bips2 "Indicate who was present during the assessment process"
+%define a_text_bips21 "Patient (and patient does not have an LAR)"
+%define a_text_bips22 "Legally Authorized Individual (LAR)"
+%define a_text_bips23 "Not the patient or LAR"
+
 %global errors[]
 errors[] is x  'array for capturing errors by section
 %define ld_errortxt "All items in Life Domain are Required"
@@ -549,6 +563,7 @@ c.cans.commdate,
 c.cans.comment,c.cans.acomment,
 c.cans.devjust,
 c.cans.canstype,
+c.cans.bipsq1,c.cans.bipsq2,
 'c.cans.resv6,c.cans.resv7,c.cans.resv8,c.cans.resv9,
 c.cans.ld.family,c.cans.ld.livsit,c.cans.ld.preday,c.cans.ld.socFun,c.cans.ld.recret,c.cans.ld.develp,c.cans.ld.motor,c.cans.ld.commun,c.cans.ld.medicl,c.cans.ld.physcl,c.cans.ld.sleep ,c.cans.ld.relper, 
 c.cans.cs.family,c.cans.cs.extfam,c.cans.cs.intper,c.cans.cs.adapt,c.cans.cs.persis,c.cans.cs.curios,

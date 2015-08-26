@@ -674,6 +674,9 @@ function SaveData() is i
   enddo 
  endif  
  if mode = "ADD"
+  if c.cans.type != "1" and c.cans.type != "2" then
+    $clear(c.cans.bipsq1,c.cans.bipsq2)
+  endif
   if (c.cans.type = "1" or c.cans.type = "12") and c.cans.isn !dp
    c.cans.isn = SaveEvent()
   elseif c.cans.type = "3" and c.cans.disreas != "9"
@@ -734,6 +737,7 @@ c.cans.jj.serios,c.cans.jj.histry,c.cans.jj.arrest,c.cans.jj.planin,c.cans.jj.co
 c.cans.fs.serios,c.cans.fs.histry,c.cans.fs.planin,c.cans.fs.useacc,c.cans.fs.inthrm,c.cans.fs.comsaf,c.cans.fs.resacc,c.cans.fs.remrse,c.cans.fs.futfir,
 c.cans.hs.numprr,c.cans.hs.longst,c.cans.hs.durrec,c.cans.hs.timlst,
 c.cans.sr.hissui,c.cans.sr.hfmsui,c.cans.sr.firear,
+c.cans.bipsq1,c.cans.bipsq2,
 c.cans.caredt)  
  endif
  if SaveData = 0
@@ -3300,6 +3304,16 @@ function Page4() is null
       $col()$textbox(c.cans.resother1,,100,110,"Y")
     $endtable("OTHER")
    $endblock("OTHER","OTHER")
+
+  $br(2)$text(q_text_bips11, "datatag")$text(q_text_bips12, "datatag")
+  $br()$radio(c.cans.bipsq1,a_text_bips11,"Y",,,,,,"Y")
+  $br()$radio(c.cans.bipsq1,a_text_bips12,"N",,,,,,"Y")
+  $br()$radio(c.cans.bipsq1,a_text_bips13,"U",,,,,,"Y")
+
+  $br(2)$text(q_text_bips2, "datatag")
+  $br()$radio(c.cans.bipsq2,a_text_bips21,"LAR",,,,,,"Y")
+  $br()$radio(c.cans.bipsq2,a_text_bips22,"SELF",,,,,,"Y")
+  $br()$radio(c.cans.bipsq2,a_text_bips23,"NLAR",,,,,,"Y")
   endif
  $sendform($funcname)
 end Page4
@@ -3335,6 +3349,23 @@ function Page4Rpt() is null
     $col("right")$text(q_text_resother1)
     $col()$text(c.cans.resother1)
   endif 
+   $row()
+    $col("right")$text(q_text_bips11)
+     $br()$text(q_text_bips12)
+    $col()
+     select c.cans.bipsq1
+      case "Y" $text(a_text_bips11)
+      case "N" $text(a_text_bips12)
+      case "U" $text(a_text_bips13)
+     endselect
+   $row()
+    $col("right")$text(q_text_bips2)
+    $col()
+     select c.cans.bipsq2
+      case "LAR"  $text(a_text_bips21)
+      case "SELF" $text(a_text_bips22)
+      case "NLAR" $text(a_text_bips23)
+     endselect
   $endtable($funcname)   
  endif
 end Page4Rpt
@@ -4007,7 +4038,8 @@ function ClearPage3() is null
 end ClearPage3
 
 function ClearPage4() is null
- $clear(c.cans.commdate,c.cans.school3m,c.cans.grade,c.cans.arrest,c.cans.restype,c.cans.resother1)
+ $clear(c.cans.commdate,c.cans.school3m,c.cans.grade,c.cans.arrest,c.cans.restype,c.cans.resother1,
+ c.cans.bipsq1, c.cans.bipsq2)
 end ClearPage4
 
 function AssessmentStaff() is null

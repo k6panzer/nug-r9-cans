@@ -575,6 +575,9 @@ function SaveData() is i
 				if c.cans.compd !dp and c.cans.aloc = "100"
 				 $clear(c.cans.aloc)
 				endif				 
+ if c.cans.type != "1" and c.cans.type != "2" then
+   $clear(c.cans.bipsq1,c.cans.bipsq2)
+ endif
                 SaveData = $dbupdate(02, $regid, 
 c.cans.rec,c.cans.staff,c.cans.ver,c.cans.date,c.cans.age,c.cans.aloc,c.cans.rloc,c.cans.dloc,c.cans.compd,c.cans.type,
 c.cans.school3m,c.cans.arrest,c.cans.grade,c.cans.restype,c.cans.resother1,c.cans.resother2,
@@ -604,6 +607,7 @@ c.cans.fc.selfcr,c.cans.fc.culstr,c.cans.fc.empedu,c.cans.fc.eduatt,c.cans.fc.le
 c.cans.tr.sexabs,c.cans.tr.phyabs,c.cans.tr.emoabs,c.cans.tr.medtrm,c.cans.tr.natdis,c.cans.tr.wtofam,c.cans.tr.wtocom,c.cans.tr.wcrime,c.cans.tr.waraff,c.cans.tr.teraff,c.cans.tr.emclos,c.cans.tr.freq ,c.cans.tr.durat,c.cans.tr.force,c.cans.tr.react,
 c.cans.ad.affreg,c.cans.ad.reexp,c.cans.ad.avoid,c.cans.ad.incaro,c.cans.ad.numres,c.cans.ad.timb4t,
 c.cans.rg.eating,c.cans.rg.elim,c.cans.rg.sensor,c.cans.rg.emot,
+c.cans.bipsq1,c.cans.bipsq2,
 c.cans.caredt)				
  endselect
   select SaveData
@@ -2412,6 +2416,16 @@ function Page4() is null
       $col()$textbox(c.cans.resother1,,100,110,"Y")
     $endtable("OTHER")
    $endblock("OTHER","OTHER")
+
+  $br(2)$text(q_text_bips11, "datatag")$text(q_text_bips12, "datatag")
+  $br()$radio(c.cans.bipsq1,a_text_bips11,"Y",,,,,,"Y")
+  $br()$radio(c.cans.bipsq1,a_text_bips12,"N",,,,,,"Y")
+  $br()$radio(c.cans.bipsq1,a_text_bips13,"U",,,,,,"Y")
+
+  $br(2)$text(q_text_bips2, "datatag")
+  $br()$radio(c.cans.bipsq2,a_text_bips21,"LAR",,,,,,"Y")
+  $br()$radio(c.cans.bipsq2,a_text_bips22,"SELF",,,,,,"Y")
+  $br()$radio(c.cans.bipsq2,a_text_bips23,"NLAR",,,,,,"Y")
   endif
  $sendform($funcname)
 end Page4
@@ -2447,6 +2461,23 @@ function Page4Rpt() is null
     $col("right")$text(q_text_resother1)
     $col()$text(c.cans.resother1)
   endif 
+   $row()
+    $col("right")$text(q_text_bips11)
+     $br()$text(q_text_bips12)
+    $col()
+     select c.cans.bipsq1
+      case "Y" $text(a_text_bips11)
+      case "N" $text(a_text_bips12)
+      case "U" $text(a_text_bips13)
+     endselect
+   $row()
+    $col("right")$text(q_text_bips2)
+    $col()
+     select c.cans.bipsq2
+      case "LAR"  $text(a_text_bips21)
+      case "SELF" $text(a_text_bips22)
+      case "NLAR" $text(a_text_bips23)
+     endselect
   $endtable($funcname)   
  endif
 end Page4Rpt
@@ -3384,7 +3415,8 @@ function ClearPage3() is null
 end ClearPage3
 
 function ClearPage4() is null
- $clear(c.cans.commdate,c.cans.school3m,c.cans.grade,c.cans.arrest,c.cans.restype,c.cans.resother1)
+ $clear(c.cans.commdate,c.cans.school3m,c.cans.grade,c.cans.arrest,c.cans.restype,c.cans.resother1,
+ c.cans.bipsq1, c.cans.bipsq2)
 end ClearPage4
 
 function AssessmentStaff() is null
