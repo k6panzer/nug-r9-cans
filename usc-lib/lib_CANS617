@@ -1,5 +1,5 @@
 library lib_CANS617()
- %version 1.0.012 07/17/2014
+ %version 1.0.013 05/04/2015
  %define row_color2 "bgcolor='White'"
  %define col_color_multi "bgcolor='LightGrey'"
  
@@ -2185,4 +2185,91 @@ function CrisisHisScoring(table_wbgcolor) is null
   $row()
    $col("center",,,"2")$tag("<hr/>")
  $endtable($funcname)
-end CrisisHisScoring  
+end CrisisHisScoring 
+
+function Page4Rpt(c.cans.type,c.cans.disreas,c.cans.grade,c.cans.restype,c.cans.commdate,c.cans.school3m,c.cans.arrest,c.cans.resother1,c.cans.bipsq1,c.cans.bipsq2,c_cans_grade,c_cans_restype,CansGradeDCT,CansResTypeDCT,q_text_commdate,q_text_school3m,
+                  q_text_grade,q_text_arrest,q_text_restype,q_text_resother1,q_text_bips11,q_text_bips12,q_text_bips2,a_text_bips11,a_text_bips12,a_text_bips13,a_text_bips21,a_text_bips22,a_text_bips23) is null
+ c.cans.type      is x
+ c.cans.disreas   is x
+ c.cans.grade     is x
+ c.cans.restype   is x
+ c.cans.commdate  is d
+ c.cans.school3m  is x
+ c.cans.arrest    is x
+ c.cans.resother1 is x
+ c.cans.bipsq1    is x
+ c.cans.bipsq2    is x
+ c_cans_grade     is x
+ c_cans_restype   is x
+ CansGradeDCT     is b
+ CansResTypeDCT   is b
+ q_text_commdate  is x
+ q_text_school3m  is x
+ q_text_grade     is x
+ q_text_arrest    is x
+ q_text_restype   is x
+ q_text_resother1 is x
+ q_text_bips11    is x
+ q_text_bips12    is x
+ q_text_bips2     is x
+ a_text_bips11    is x
+ a_text_bips12    is x
+ a_text_bips13    is x
+ a_text_bips21    is x
+ a_text_bips22    is x
+ a_text_bips23    is x
+
+ if c.cans.type = "1" or c.cans.type = "2" or (c.cans.type = "3" and c.cans.disreas = "9") or c.cans.type = "12"
+  c_cans_grade = $dct(CansGradeDCT,c.cans.grade)
+  c_cans_restype = $dct(CansResTypeDCT,c.cans.restype)
+  $table($funcname,,"width='100%' cellspacing='0' cellpadding='2' bgcolor='White'  style='border-style: solid; border-width: 1px'")
+   $row(,col_color_multi)
+    $col("center",,,"2")$text("Community Scales","datatag")
+   $row()
+    $col("right",,"50%")$text(q_text_commdate)
+    $col()$text(c.cans.commdate)
+   $row()
+    $col("right")$text(q_text_school3m)
+    $col()select c.cans.school3m
+           case "0" $text("No")
+	       case "1" $text("Yes")
+	       case "2" $text("NA")
+	      endselect 
+   $row()
+    $col("right")$text(q_text_grade)
+    $col()$text(c_cans_grade)
+   $row()
+    $col("right")$text(q_text_arrest)
+    $col()$text(c.cans.arrest)
+   $row()
+    $col("right")$text(q_text_restype)
+    $col()$text(c_cans_restype)       
+  if c.cans.resother1 dp
+   $row()
+    $col("right")$text(q_text_resother1)
+    $col()$text(c.cans.resother1)
+  endif 
+
+ if $operstaffid = "3737"
+   if c.cans.bipsq1 dp and c.cans.bipsq2 dp
+   $row()
+    $col("right")$text(q_text_bips11)
+        $br()$text(q_text_bips12)
+    select c.cans.bipsq1
+     case "Y" $col()$text(a_text_bips11)
+         case "N" $col()$text(a_text_bips12)
+         case "U" $col()$text(a_text_bips13)
+    endselect
+   $row()
+        $col("right")$text(q_text_bips2)
+    select c.cans.bipsq2
+     case "LAR"  $col()$text(a_text_bips21)
+         case "SELF" $col()$text(a_text_bips22)
+         case "NLAR" $col()$text(a_text_bips23)
+    endselect
+   endif
+  endif
+    
+  $endtable($funcname)   
+ endif
+end Page4Rpt 

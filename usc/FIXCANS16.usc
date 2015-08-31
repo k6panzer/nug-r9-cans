@@ -1,0 +1,60 @@
+start FIXCANS16()
+ $looplimit = 0
+ %include inc_CANS_DST
+' $trace("path.on","/c0/MIS/SCRIPT/S/LOVEC.trace")
+ logfile is x
+ cid     is x
+ rc      is i
+ rc2     is i
+ rc3     is i
+ uniqid  is uid
+ uniqid2 is x
+(void)$dbstart(02, CID)
+ $dblock()
+ rc = $dbread(2,cid,c.cans.rec,c.cans.uniqid)
+ if rc = 4
+  do until rc != 4
+   $dblock()
+   rc = $dbread(2,cid,c.cans.rec,c.cans.uniqid)
+   $sleep(10)
+  enddo
+ endif
+ do while rc < 3
+  if c.cans.rec dp
+   uniqid = c.cans.rec[uid]
+   uniqid2 = uniqid
+   uniqid2 = $replace(".","",uniqid2)
+   uniqid2 += cid
+   if c.cans.uniqid != uniqid2
+	c.cans.uniqid = uniqid2
+    rc2 = $dbupdate(2,cid,c.cans.rec,c.cans.uniqid)
+    (void)$dbread(2,cid,c.cans.rec,c.cans.uniqid)
+   endif 
+  endif
+  do while rc3 < 2 and c.cans.rec dp
+   if c.cans.rec dp
+    uniqid = c.cans.rec[uid]
+    uniqid2 = uniqid
+    uniqid2 = $replace(".","",uniqid2)
+    uniqid2 += cid
+	if c.cans.uniqid != uniqid2
+	 c.cans.uniqid = uniqid2
+     rc2 = $dbupdate(2,cid,c.cans.rec,c.cans.uniqid)
+     (void)$dbread(2,cid,c.cans.rec,c.cans.uniqid)
+	endif 
+   endif
+   $dblock()
+   rc3 = $dbreadnextdst(2,cid,c.cans.rec,c.cans.uniqid)
+  enddo  
+  $dblock()
+  rc = $dbreadnext(2,cid,c.cans.rec,c.cans.uniqid)
+  if rc = 4
+   do until rc != 4
+    $dblock()
+	rc = $dbread(2,cid,c.cans.rec,c.cans.uniqid)
+    $sleep(10)
+   enddo
+  endif
+  rc3 = 0
+ enddo
+end FIXCANS16

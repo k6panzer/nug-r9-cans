@@ -1,7 +1,7 @@
 'Include file for the CANS (Children's Assessment of Needs and Strengths) 3-5
 
 %global CansTypeDCT,CansIntRefDCT,CansDisReasDCT,CansDisRefDCT,CansAuthLevelDCT,CansDeviationDCT,CansGradeDCT,CansResTypeDCT,SkiPSer,AssessmentSer
-%global Title,RptTitle,ReportID,ChangeIrmsHeader,CheckStfCred,StaffSelectDCT
+%global Title,RptTitle,ReportID,ChangeIrmsHeader,CheckStfCred,StaffSelectDCT,OptStaffPin
 CansTypeDCT      is b
 CansIntRefDCT    is b
 CansDisReasDCT   is b
@@ -18,6 +18,7 @@ ReportID    	 is x 'IRMS form name
 ChangeIrmsHeader is x 'Y/N Call the changetitle function on the final snapshot? Not a very good var name, I agree
 CheckStfCred     is x 'Y/N Call the Check_UACredentials function?
 StaffSelectDCT   is b 'DCT used by the AssessmentStaff dropbox, used by Denton
+OptStaffPin      is x 'Y/N (DEFAULT:Y) Capture/verify assessor staff PIN prior to auth request
 
 '*********Datacode Tables, Change These*****************
 CansTypeDCT      = 9700
@@ -33,6 +34,7 @@ RptTitle 		 = Title
 ReportID 		 = "CANS"
 ChangeIrmsHeader = "Y"
 CheckStfCred 	 = "Y"		
+OptStaffPin      = "Y"
 
 'Various overrides based on the custnumber
  select $custnumber
@@ -41,19 +43,21 @@ CheckStfCred 	 = "Y"
               case "HELEN" SkipSer = "N"
                            AssessmentSer = 10
 			               $clear(StaffSelectDCT)
-              case "PECAN" SkipSer = "Y"
+              case "PECAN" SkipSer     = "Y"
+			               OptStaffPin = "N"
 			  			   $clear(StaffSelectDCT)
              endselect
 
  'GCC
    case 641
-      SkipSer = "Y"
-      CansDisRefDCT = 9704
-      Title = "CANS (3-5) Report"
-      RptTitle = Title
-      ReportID = "GCCCHDUA"
+      SkipSer          = "Y"
+      CansDisRefDCT    = 9704
+      Title            = "CANS (3-5) Report"
+      RptTitle         = Title
+      ReportID         = "GCCCHDUA"
       ChangeIrmsHeader = "N"
-      CheckStfCred = "N"
+      CheckStfCred     = "N"
+	  OptStaffPin      = "N"
 	  $clear(StaffSelectDCT)
 'Denton
    case 365
@@ -80,8 +84,8 @@ endif
 
 (void)$setdcvact(CansIntRefDCT,"5","I")
 (void)$setdcvact(CansDisReasDCT,"7","I")
-if $custnumber != 641 then
-   (void)$setdcvact(CansDisRefDCT,"5","I")
+if $custnumber != 641
+ (void)$setdcvact(CansDisRefDCT,"5","I")
 endif
 (void)$setdcvact(CansResTypeDCT,"9","I")
 
@@ -105,7 +109,10 @@ chk_MedNec is x
 %global c.cans.comment,c.cans.acomment
 %global c.cans.canstype
 %global c.cans.devjust
+%global c.cans.mcorx,c.cans.mcotx,c.cans.mconame,c.cans.mcoresp,c.cans.mcoauth1,c.cans.mcoauth2
+%global c.cans.pincode,c.cans.pindate,c.cans.pintime
 %global c.cans.bipsq1,c.cans.bipsq2
+%global c.cans.uniqid
 
 rc_cans_dstlist   is i
 cans_dstlist      is dstlist
@@ -154,9 +161,18 @@ c.cans.commdate   is d 'Community section date
 c.cans.comment    is dbtext-l 'CANS UA Staff Comment
 c.cans.acomment   is dbtext-l 'Cans ALOC Staff Comment
 c.cans.devjust    is dbtext-l 'Cans Deviation Justification
+c.cans.mcorx      is d
+c.cans.mcotx      is d
+c.cans.mconame    is x
+c.cans.mcoresp    is x
+c.cans.mcoauth1   is x
+c.cans.mcoauth2   is x
+c.cans.pincode    is x
+c.cans.pindate    is d
+c.cans.pintime    is t
 c.cans.bipsq1     is x
 c.cans.bipsq2     is x
-
+c.cans.uniqid     is x
 
 c.cans.canstype is X
 'c.cans.resv6 is X      'CLIENT CANS RESERVED 6
@@ -431,6 +447,17 @@ c.cans.rg.emot     is x      'CANS REGULATORY FUNCTIONING EMOTIONAL CONTROL
 %define q_text_restype "Primary Residence Type (Last 90 Days): "
 %define q_text_resother1 "Primary Residence Other: "
 
+'BIPS Related
+%define q_text_bips11 "Patient may be eligible for other HHSC Services, please indicate the patient's desire to send some limited assessment information to the HHSC Long Term Services and Support agency. "
+%define q_text_bips12 "The patient may be contacted by other agencies to further screen for eligibility for these services."
+%define a_text_bips11 "Yes, the patient/LAR would like assessment/referral information shared"
+%define a_text_bips12 "No, the patient/LAR does not want assessment information to be shared"
+%define a_text_bips13 "Patient/LAR did not indicate a preference"
+%define q_text_bips2 "Indicate who was present during the assessment process"
+%define a_text_bips21 "Patient (and patient does not have an LAR)"
+%define a_text_bips22 "Legally Authorized Individual (LAR)"
+%define a_text_bips23 "Not the patient or LAR"
+
 'Other Questions
 %define q_text_sped "Special Education: "
 %define q_text_extdrev "Extended Review Period Requested: "
@@ -462,17 +489,6 @@ c.cans.rg.emot     is x      'CANS REGULATORY FUNCTIONING EMOTIONAL CONTROL
 %define q_text_comment "Staff Comment: "
 %define q_text_acomment "Authorization Staff Comment: "
 %define q_text_devjust "Justification for Deviation: "
-
-'BIPS Related
-%define q_text_bips11 "Patient may be eligible for other HHSC Services, please indicate the patient's desire to send some limited assessment information to the HHSC Long Term Services and Support agency. "
-%define q_text_bips12 "The patient may be contacted by other agencies to further screen for eligibility for these services."
-%define a_text_bips11 "Yes, the patient/LAR would like assessment/referral information shared"
-%define a_text_bips12 "No, the patient/LAR does not want assessment information to be shared"
-%define a_text_bips13 "Patient/LAR did not indicate a preference"
-%define q_text_bips2 "Indicate who was present during the assessment process"
-%define a_text_bips21 "Patient (and patient does not have an LAR)"
-%define a_text_bips22 "Legally Authorized Individual (LAR)"
-%define a_text_bips23 "Not the patient or LAR"
 
 %global errors[]
 errors[] is x  'array for capturing errors by section
@@ -548,6 +564,10 @@ errors[] is x  'array for capturing errors by section
 %define locdev4_errortxt "Invalid Reason for Deviation. Must be Resource Limitations"
 %define locdev5_errortxt "Invalid Reason for Deviation. Must be Consumer Refused, Consumer Need or Other"
 %define fairhear_errtxt "Please answer Yes or No to the Medicaid Fair Hearing Letter required question."
+%define Jail_errortxt "Intakes Assessments cannot be completed if the client is currently in a Jail or Correctional Facility. Please contact UM for more information."
+%define Pincode_errtxt1 "Incorrect Pincode, Please retype and try again. After multiple incorrect entries the pincode access must be reset by MIS"
+%define Pincode_errtxt2 "Pincode Locked, Too many incorrect pincode entries. Please Contact MIS to unlock and create new pincode"
+%define Pincode_errtxt3 "Pincode Access Not allowed, Please Contact MIS to setup a pincode"
 
 rc_cans_dstlist = $dstlist(cans_dstlist,02,
 c.cans.rec,c.cans.staff,c.cans.ver,c.cans.date,c.cans.age,c.cans.aloc,c.cans.rloc,c.cans.dloc,c.cans.compd,c.cans.type,
@@ -562,8 +582,11 @@ c.cans.isn,
 c.cans.commdate,
 c.cans.comment,c.cans.acomment,
 c.cans.devjust,
-c.cans.canstype,
+c.cans.mcorx,c.cans.mcotx,c.cans.mconame,c.cans.mcoresp,c.cans.mcoauth1,c.cans.mcoauth2,
+c.cans.pincode,c.cans.pindate,c.cans.pintime,
 c.cans.bipsq1,c.cans.bipsq2,
+c.cans.uniqid,
+c.cans.canstype,
 'c.cans.resv6,c.cans.resv7,c.cans.resv8,c.cans.resv9,
 c.cans.ld.family,c.cans.ld.livsit,c.cans.ld.preday,c.cans.ld.socFun,c.cans.ld.recret,c.cans.ld.develp,c.cans.ld.motor,c.cans.ld.commun,c.cans.ld.medicl,c.cans.ld.physcl,c.cans.ld.sleep ,c.cans.ld.relper, 
 c.cans.cs.family,c.cans.cs.extfam,c.cans.cs.intper,c.cans.cs.adapt,c.cans.cs.persis,c.cans.cs.curios,

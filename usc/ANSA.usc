@@ -1,5 +1,5 @@
 Start ANSA(parmfile,option,client,retcode)
- %version 1.0.045 06/22/15 TxaCE
+ %version 1.0.048 08/31/2015
  $looplimit = 0
  %include inc_ANSA
  e.ser     is b
@@ -35,16 +35,16 @@ Start ANSA(parmfile,option,client,retcode)
  medicaid_status is x
  LocalCrisisDesc is x
  LocalIneligDesc is x
-
+ 
  %global c_ansa_pincode
- c_ansa_pincode  is x
-
+ c_ansa_pincode is x
+ 
  %global DXType, DX, DXCat, DXDate, DXGaf, IDD_Elig
- DXType is x
- DX     is x
- DXCat  is x 
- DXDate is d
- DXGaf  is i
+ DXType   is x
+ DX       is x
+ DXCat    is x 
+ DXDate   is d
+ DXGaf    is i
  IDD_Elig is x
 
  %global parmfile,option,client,retcode, rc
@@ -52,10 +52,23 @@ Start ANSA(parmfile,option,client,retcode)
  option   is x
  client   is x
  retcode  is i
- rc       is i
-
- if "lib_CLIENT":pickClient(client) > 0 then return endif
- if client dp then $regid = client endif
+ rc       is i 
+    
+ if $regid !dp
+  if client dp
+   $regid = client
+  else
+   $regid = {"lib_UACOMMON"}GetClientID() 
+   if $regid !dp
+    return
+   endif
+  endif
+ elseif ($regid dp and client dp) and client != $regid
+  $regid = {"lib_UACOMMON"}GetClientID() 
+  if $regid !dp
+   return
+  endif
+ endif
 
  if option = "reportonly" or option = "bigreport"
   if $dbread(2, $regid, c.ansa.rec, c.ansa.date) < 2
@@ -65,17 +78,17 @@ Start ANSA(parmfile,option,client,retcode)
   endif
   retcode = "0"
   return
- endif 
-
-if {"lib_UACOMMON"}StaffCanDo() = 1
+ endif
+ 
+ if {"lib_UACOMMON"}StaffCanDo() = 1
   return
  endif 
-
+ 
  if CheckStfCred = "Y"
   call "CHECK_UACREDENTIALS"() 
  endif 
  
- {"lib_ANSA"}GETDX($regid, DXType, DX, DXCat, DXDate, DXGaf,,IDD_Elig)
+ {"lib_ANSA"}GETDX(DXType, DX, DXCat, DXDate, DXGaf,,IDD_Elig)
 
  if Validate() = 1
   {"lib_UACOMMON"}DisplayErrors(errors[])
@@ -84,7 +97,7 @@ if {"lib_UACOMMON"}StaffCanDo() = 1
  
  %global assessments
  assessments[] is x
- {"lib_ANSA"}Allow_Assesment($regid,assessments[])  
+ {"lib_ANSA"}Allow_Assesment($regid,assessments[])
  {"lib_UAMEDICAID"}check_medicaid($regid,medicaid_status)  
  LocalCrisisDesc = $dct(ansaAuthLevelDCT,"100")
  LocalIneligDesc = $dct(ansaAuthLevelDCT,"120")
@@ -120,7 +133,7 @@ if {"lib_UACOMMON"}StaffCanDo() = 1
 	 $clear(c.ansa.date,c.ansa.compd,c.ansa.type,c.ansa.staff)
      $brmsg("ANSA Assessment Successfully Removed from the Database!",1,"C","Process Complete")
      $brmsg("The assessment will restart now.",2,"C")
-     $brmsg("",3, "W")
+	 $brmsg("",3, "W")	 
 	 Page = "0"
      {"lib_UACOMMON"}RemUMMonitor($regid,$scriptid)	 
 	elseif PromptNED = 2
@@ -133,7 +146,7 @@ if {"lib_UACOMMON"}StaffCanDo() = 1
      rc = $dbremovedst(02, $regid, c.ansa.rec,c.ansa.date)
      $brmsg("ANSA Assessment Successfully Removed from the Database!",1,"C","Process Complete")
      $brmsg("The assessment will exit now.",2,"C")
-     $brmsg("",3, "W")
+	 $brmsg("",3, "W")	 	 
 	 {"lib_UACOMMON"}RemUMMonitor($regid,$scriptid)	 
      return
 	elseif PromptNED = 4
@@ -141,14 +154,14 @@ if {"lib_UACOMMON"}StaffCanDo() = 1
 	elseif PromptNED = 5
      $brmsg("ANSA Assessment Currently Being Entered by Another Staff Member!",1,"C","In Progress")
      $brmsg("The assessment will exit now.",2,"C")
-     $brmsg("",3, "W")
+	 $brmsg("",3, "W")	 	 
      return	
 	else
      $clear(c.ansa.compd,c.ansa.type,c.ansa.staff)
      Page = "0"
     endif
    elseif c.ansa.staff !dp
-     $clear(c.ansa.compd,c.ansa.type,c.ansa.staff)
+    $clear(c.ansa.compd,c.ansa.type,c.ansa.staff)
 	Page = "0"
    else
     rc = $dbread(02, $regid, ansa_dstlist)
@@ -164,7 +177,7 @@ if {"lib_UACOMMON"}StaffCanDo() = 1
 	 $clear(c.ansa.date,c.ansa.compd,c.ansa.type,c.ansa.staff)
      $brmsg("ANSA Assessment Successfully Removed from the Database!",1,"C","Process Complete")
      $brmsg("The assessment will restart now.",2,"C")
-     $brmsg("",3, "W")
+	 $brmsg("",3, "W")	 	 
 	 Page = "0"	 
 	elseif PromptNED = 2
      rc = $dbread(02, $regid, ansa_dstlist)
@@ -176,14 +189,14 @@ if {"lib_UACOMMON"}StaffCanDo() = 1
      rc = $dbremovedst(02, $regid, c.ansa.rec,c.ansa.date)
      $brmsg("ANSA Assessment Successfully Removed from the Database!",1,"C","Process Complete")
      $brmsg("The assessment will exit now.",2,"C")
-     $brmsg("",3, "W")
+	 $brmsg("",3, "W")	 	 
      return
 	elseif PromptNED = 4
 	 return
 	elseif PromptNED = 5
      $brmsg("ANSA Assessment Currently Being Entered by Another Staff Member!",1,"C","In Progress")
      $brmsg("The assessment will exit now.",2,"C")
-     $brmsg("",3, "W")
+	 $brmsg("",3, "W")	 	 
      return	
 	else
      $clear(c.ansa.compd,c.ansa.type,c.ansa.staff)
@@ -199,7 +212,7 @@ if {"lib_UACOMMON"}StaffCanDo() = 1
    $clear(c.ansa.date,c.ansa.compd,c.ansa.type,c.ansa.staff)
    $brmsg("ANSA Assessment Successfully Removed from the Database!",1,"C","Process Complete")
    $brmsg("The assessment will restart now.",2,"C")
-     $brmsg("",3, "W")
+   $brmsg("",3, "W")	    
    Page = "0"   
   elseif PromptNED = 2
    rc = $dbread(02, $regid, ansa_dstlist)
@@ -211,14 +224,14 @@ if {"lib_UACOMMON"}StaffCanDo() = 1
    rc = $dbremovedst(02, $regid, c.ansa.rec,c.ansa.date)
    $brmsg("ANSA Assessment Successfully Removed from the Database!",1,"C","Process Complete")
    $brmsg("The assessment will exit now.",2,"C")
-     $brmsg("",3, "W")
+   $brmsg("",3, "W")	    
    return
   elseif PromptNED = 4
    return
   elseif PromptNED = 5
    $brmsg("ANSA Assessment Currently Being Entered by Another Staff Member!",1,"C","In Progress")
    $brmsg("The assessment will exit now.",2,"C")
-     $brmsg("",3, "W")
+   $brmsg("",3, "W")	    
    return	
   else
    $clear(c.ansa.compd,c.ansa.type,c.ansa.staff)
@@ -419,7 +432,7 @@ if {"lib_UACOMMON"}StaffCanDo() = 1
     if ValidateReport() = 0
      if SaveData() = 0
       Page = "Exit"
-	   {"lib_UACOMMON"}AddUMMonitor($regid,$scriptid)
+      {"lib_UACOMMON"}AddUMMonitor($regid,$scriptid)
      endif 
     else
      Page = "Report"
@@ -435,13 +448,13 @@ if {"lib_UACOMMON"}StaffCanDo() = 1
    elseif Page = "Report"
     c.ansa.rloc = {"lib_ANSA"}RLOC(c.ansa.b.depres,c.ansa.b.subabs,c.ansa.cr.episds,c.ansa.b.cog,c.ansa.hs.num180,c.ansa.hs.numg30,c.ansa.hs.numl30,c.ansa.ld.employ,c.ansa.ld.family,c.ansa.ld.living,c.ansa.ld.restab,
                                                          c.ansa.ld.slfcre,c.ansa.qids,c.ansa.r.crimbe,c.ansa.r.dangot,c.ansa.r.suicid,c.ansa.sr.hist,c.ansa.sr.idea,c.ansa.sr.intent,c.ansa.sr.plan,c.ansa.st.natsup,c.ansa.type,DXcat,DXgaf,DXtype)
-              if c.ansa.type = "3"
-               $clear(c.ansa.rloc,c.ansa.aloc,c.ansa.dloc)
-              endif									 
-              Report(page)
+     if c.ansa.type = "3"
+      $clear(c.ansa.rloc,c.ansa.aloc,c.ansa.dloc)
+     endif									 
+     Report(page)
 	 if $endbutton = "SUBMIT"
 	  if UM_StaffYN = "Y"
-	       if (c.ansa.staff = $operstaffid and c.ansa.staff dp)
+       if (c.ansa.staff = $operstaffid and c.ansa.staff dp)
 	    Page = "ValidateReport"
 	   else
 	    Page = "Exit"
@@ -500,7 +513,7 @@ if {"lib_UACOMMON"}StaffCanDo() = 1
 	   c.ansa.loc_dev = "3"
 	  endif
 	  if (c.ansa.aloc dp and c.ansa.aloc != c.ansa.rloc) and c.ansa.loc_dev !dp and c.ansa.type != "11"
-       $brmsg("Please select the reason for deviation from the Recommended LOC!",1,"W","Deviation Reason") 
+	   $brmsg("Please select the reason for deviation from the Recommended LOC!",1,"W","Deviation Reason") 
 	   Page = "Authorize"
 	  else									
 	   Page = "ValidateALOC"
@@ -1473,7 +1486,7 @@ function Page4() is null
    $row()
     $col("right",,"50%")$text(q_text_restype,"datatag")
     $col()$dropboxdct(c.ansa.restype,AnsaResTypeDCT,,,,"Y")
-'          $dropbox(c.ansa.restype,"Other","9",,,"RESTYPE","OTHER","Y")
+'          $dropbox(c.ansa.restype,"Other","9",,,"RESTYPE","OTHER","Y")       
   $endtable($funcname)
   $block("RESTYPE","OTHER")
    $table("OTHER",,table_nobgcolor)
@@ -1487,7 +1500,7 @@ function Page4() is null
     $col("right",,"50%")$text(q_text_minor, "datatag")
     $col()$radio(c.ansa.minor,"No","N",,,,,,"Y")$ctag("&nbsp;&nbsp;&nbsp;&nbsp;")$radio(c.ansa.minor,"Yes","Y",,,,,,"Y")   
   $endtable($funcname)
- if $operstaffid = "1869"
+
   $br(2)$text(q_text_bips11, "datatag")$text(q_text_bips12, "datatag")
   $br()$radio(c.ansa.bipsq1,a_text_bips11,"Y",,,,,,"Y")
   $br()$radio(c.ansa.bipsq1,a_text_bips12,"N",,,,,,"Y")
@@ -1497,7 +1510,7 @@ function Page4() is null
   $br()$radio(c.ansa.bipsq2,a_text_bips21,"LAR",,,,,,"Y")
   $br()$radio(c.ansa.bipsq2,a_text_bips22,"SELF",,,,,,"Y")
   $br()$radio(c.ansa.bipsq2,a_text_bips23,"NLAR",,,,,,"Y")
- endif
+
  $sendform($funcname)
 end Page4
 
@@ -2342,6 +2355,10 @@ function Validate4() is i
  datediff is i
  $clear(errors[])
  
+' if $uc($seg($mscname,1,5)) = "HELEN" and c.ansa.restype = "7" and (c.ansa.type = "1" or c.ansa.type = "11" or c.ansa.type = "12")
+'  (void)$arrpush(errors[],jail_errortxt)  
+' endif 
+ 
  if c.ansa.emptype != "4"
   $clear(c.ansa.labor,c.ansa.laboroth)
  elseif c.ansa.labor != "7"
@@ -2351,7 +2368,7 @@ function Validate4() is i
  if c.ansa.restype != "9"
   $clear(c.ansa.resother1)
  endif
-
+ 
  if {"lib_UACOMMON"}IsNumeric(c.ansa.arrest) = "N"
   (void)$arrpush(errors[],commarr_errortxt)  
  endif
@@ -2398,7 +2415,7 @@ end CanSkipPage2
 function CanSkipPage3() is x
  CanSkipPage3 = "Y"
  if c.ansa.type = "1" or c.ansa.type = "2" or (c.ansa.type = "3" and c.ansa.disreas = "14")
-  {"lib_ANSA"}GETDX($regid, DXType, DX, DXCat, DXDate, DXGaf)
+  {"lib_ANSA"}GETDX(DXType, DX, DXCat, DXDate, DXGaf)
   if {"lib_ANSA"}DXScaleRequired(DXType,c.ansa.date,MaxClinRatingAge) = "Y"
    CanSkipPage3 = "N"
   else 
@@ -2451,7 +2468,7 @@ function Report(mode) is null
  $form($funcname)
   {"lib_UACOMMON"}ClientPageHeader($regid,"Y")
   $br()$text("{center}ANSA{/center}")
-  $br()                              
+  $br()  
   if c.ansa.isn dp
    {"lib_UAEVENTS"}report(e.ser, e.ru, e.start, e.dur, e.loc)
   endif   
@@ -2501,7 +2518,7 @@ function Report(mode) is null
    $br(){"lib_ANSA"}Page3Rpt(c.ansa.bdss,c.ansa.bnsa,c.ansa.psrs,c.ansa.qids,c.ansa.qidsver,c.ansa.scaledt,dx,dxcat,dxdate,dxgaf,dxtype,q_text_bdss,q_text_bnsa,q_text_nonpp,q_text_psrs,q_text_qids,q_text_qidsver,q_text_scaledt)
    $br(){"lib_ANSA"}Page4Rpt(ansagradedct,ansarestypedct,c.ansa.arrest,c.ansa.commdate,c.ansa.emptype,c.ansa.grade,c.ansa.labor,c.ansa.laboroth,c.ansa.minor,c.ansa.resother1,c.ansa.restype,c_ansa_emptype,c_ansa_grade,c_ansa_labor,c_ansa_restype,
                              q_text_arrest,q_text_commdate,q_text_emptype,q_text_grade,q_text_labor,q_text_laboroth,q_text_minor,q_text_resother1,q_text_restype,
-        							 c.ansa.bipsq1,c.ansa.bipsq2,q_text_bips11,q_text_bips12,a_text_bips11,a_text_bips12,a_text_bips13,q_text_bips2,a_text_bips21,a_text_bips22,a_text_bips23)
+							 c.ansa.bipsq1,c.ansa.bipsq2,q_text_bips11,q_text_bips12,a_text_bips11,a_text_bips12,a_text_bips13,q_text_bips2,a_text_bips21,a_text_bips22,a_text_bips23)
   endif
   if mode = "Report"
    if UM_StaffYN = "Y" and (c.ansa.staff != $operstaffid and c.ansa.staff dp)
@@ -2512,14 +2529,13 @@ function Report(mode) is null
    else
     $br()RLOCRpt()
 	$br()
-    if $today > d_StaffPinStart and OptStaffPIN = "Y" then
-	    $tag("<hr/>")
-	    $br()
-	    $ctag("<div align='center'>")
- 	    $text("Staff Pincode: ","datatag")
-		 $textbox(c_ansa_pincode,,32,32,"Y","normal")
-       $ctag("</div>")
-     endif
+    if OptStaffPin = "Y"
+	 $tag("<hr/>")
+	 $br()$ctag("<div align='center'>")
+ 	       $text("Staff Pincode: ","datatag")
+		   $textbox(c_ansa_pincode,,32,32,"Y","normal")
+          $ctag("</div>")
+    endif
    endif
   elseif mode = "Authorize"
    $br()StaffComments()
@@ -2622,13 +2638,16 @@ function SaveData() is i
    if c.ansa.isn !dp
     c.ansa.isn = SaveEvent()
    endif
-   endif
-   c.ansa.rec[effd] = c.ansa.date
-   NewUID = c.ansa.rec[uid]
-   $clear(c.ansa.aloc)
-   SaveData = $dbadddst(02, $regid, ansa_dstlist)
+  endif
+  c.ansa.rec[effd] = c.ansa.date
+  NewUID = c.ansa.rec[uid]
+  c.ansa.uniqid = NewUID
+  c.ansa.uniqid = $replace(".","", c.ansa.uniqid)
+  c.ansa.uniqid += $regid 
+  $clear(c.ansa.aloc)
+  SaveData = $dbadddst(02, $regid, ansa_dstlist)
  elseif mode = "UPDATE"
-  ' c.ansa.rec[effd] = c.ansa.date
+'  c.ansa.rec[effd] = c.ansa.date
   if (c.ansa.dloc = c.ansa.rloc) and (c.ansa.dloc = c.ansa.aloc)
    $clear(c.ansa.dloc)
   endif
@@ -2807,8 +2826,8 @@ function Validate0() is i
  endif
  if c.ansa.staff !dp
   c.ansa.staff = $operstaffid
- endif
- c.ansa.ver  = $scriptver
+ endif 
+ c.ansa.ver = $scriptver
 end Validate0
 
 function AssessmentDate() is null
@@ -2893,7 +2912,7 @@ function ValidateALOC() is i
   if c.ansa.rloc = "100" and c.ansa.aloc != c.ansa.rloc
    (void)$arrpush(errors[],aloc1_errortxt)  
   endif
-
+  
   if c.ansa.type = "11" and c.ansa.rloc = "120" and (c.ansa.aloc != "100" and c.ansa.aloc != "120")
    (void)$arrpush(errors[],crisis3_errortxt)  
   endif   
@@ -2914,7 +2933,7 @@ function ValidateALOC() is i
 
   if (c.ansa.aloc != c.ansa.rloc)
    if c.ansa.loc_dev !dp
-    (void)$arrpush(errors[],aloc3_errortxt)
+	(void)$arrpush(errors[],aloc3_errortxt)
    else
 	if c.ansa.aloc = "109" and c.ansa.loc_dev != "1"
      (void)$arrpush(errors[],locdev4_errortxt)		
@@ -2931,8 +2950,8 @@ function ValidateALOC() is i
 	 (void)$arrpush(errors[],locdev5_errortxt)	
 	endif
    endif
- endif  
- 
+  endif
+  
   if $today < 11/7/2014
    if c.ansa.aloc = "111" and c.ansa.rloc != "111"
     (void)$arrpush(errors[],aloc12_errortxt)
@@ -2942,7 +2961,7 @@ function ValidateALOC() is i
     (void)$arrpush(errors[],aloc12_errortxt)
    endif  
   endif 
-
+  
   if c.ansa.aloc = "108" and (c.ansa.type != "1" and c.ansa.type != "12")
   (void)$arrpush(errors[],aloc13_errortxt)
   endif
@@ -2957,7 +2976,7 @@ function ValidateALOC() is i
   if c.ansa.aloc = "100" and (last_type = "I" or last_type = "U" or last_type = "1" or last_type = "2")
    if {"lib_ANSA"}OnWaitingList() != "Y"
     (void)$arrpush(errors[],aloc9_errortxt)  
-   endif
+   endif	
   endif
 
   if c.ansa.aloc = c.ansa.rloc and c.ansa.loc_dev dp
@@ -2968,17 +2987,22 @@ function ValidateALOC() is i
    (void)$arrpush(errors[],aloc4_errortxt)  
   endif
  endif
-
+ 
  if c.ansa.alocdate dp
   if c.ansa.alocdate > $today
    (void)$arrpush(errors[],aloc7_errortxt)    
+  else
+   datediff = $today - c.ansa.alocdate
+   if datediff > 30
+    (void)$arrpush(errors[],aloc8_errortxt)    
+   endif
   endif
   if c.ansa.alocdate <= last_alocdate
-   (void)$arrpush(errors[],aloc8_errortxt)    
+   (void)$arrpush(errors[],aloc6_errortxt)    
   endif
   if c.ansa.alocdate < c.ansa.commdate
    (void)$arrpush(errors[],commdt3_errortxt)      
-  endif  
+  endif
   if c.ansa.alocdate < c.ansa.date  
    (void)$arrpush(errors[],aloc16_errortxt)    
   endif
@@ -3080,13 +3104,13 @@ function ValidateReport() is i
  if c.ansa.rloc != "100" and c.ansa.type = "11" and c.ansa.dloc != "100"
   (void)$arrpush(errors[],dloc3_errortxt)
  endif
-
- if $today > d_StaffPinStart and OptStaffPIN = "Y" then
+ 
+ if OptStaffPin = "Y"
   pincode_test = {"l_pincode"}ValidatePin($operstaffid,c_ansa_pincode)
   select pincode_test
    case 0    c.ansa.pincode = "Y" 
              c.ansa.pindate = $today
-			    c.ansa.pintime = $timenow
+			 c.ansa.pintime = $timenow
    case 1002 (void)$arrpush(errors[],Pincode_errtxt1) 
              $clear(c_ansa_pincode,c.ansa.pincode)
    case 1004 (void)$arrpush(errors[],Pincode_errtxt2) 
@@ -3184,7 +3208,7 @@ function ReportHdr() is null
    $col()
    $col()$text("Medicaid Status:")
    $col()$text(medicaid_status)
- $endtable($funcname)
+  $endtable($funcname)
  $br()$tag("<hr/>")
  $br()
 end ReportHdr
