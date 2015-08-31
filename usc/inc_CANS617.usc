@@ -1,7 +1,7 @@
 'Include file for the CANS (Children's Assessment of Needs and Strengths) 6-17
  
 %global CansTypeDCT,CansIntRefDCT,CansDisReasDCT,CansDisRefDCT,CansAuthLevelDCT,CansDeviationDCT,CansGradeDCT,CansResTypeDCT,SkiPSer,AssessmentSer
-%global Title,RptTitle,ReportID,ChangeIrmsHeader,CheckStfCred,StaffSelectDCT
+%global Title,RptTitle,ReportID,ChangeIrmsHeader,CheckStfCred,StaffSelectDCT,OptStaffPin
 CansTypeDCT      is b
 CansIntRefDCT    is b
 CansDisReasDCT   is b
@@ -18,6 +18,7 @@ ReportID    	 is x 'IRMS form name
 ChangeIrmsHeader is x 'Y/N Call the changetitle function on the final snapshot? Not a very good var name, I agree
 CheckStfCred     is x 'Y/N Call the Check_UACredentials function?
 StaffSelectDCT   is b 'DCT used by the AssessmentStaff dropbox, used by Denton
+OptStaffPin      is x 'Y/N (DEFAULT:Y) Capture/verify assessor staff PIN prior to auth request
 
 '*********Datacode Tables, Change These*****************
 CansTypeDCT      = 9700
@@ -32,7 +33,8 @@ Title 		     = "CANS (6-17) Report"
 RptTitle 		 = Title
 ReportID 		 = "CANS"
 ChangeIrmsHeader = "Y"
-CheckStfCred     = "Y"		
+CheckStfCred     = "Y"
+OptStaffPin		 = "Y"
 
 'Various overrides based on the custnumber
  select $custnumber
@@ -41,19 +43,21 @@ CheckStfCred     = "Y"
               case "HELEN" SkipSer = "N"
                            AssessmentSer = 10
 						   $clear(StaffSelectDCT)			   
-              case "PECAN" SkipSer = "Y"
+              case "PECAN" SkipSer     = "Y"
+			               OptStaffPin = "N"
                            $clear(StaffSelectDCT)
              endselect
 
  'GCC
    case 641
       SkipSer = "Y"
-      CansDisRefDCT = 9704
-      Title = "CANS (6-17) Report"
-      RptTitle = Title
-      ReportID = "GCCCHDUA"
+      CansDisRefDCT    = 9704
+      Title            = "CANS (6-17) Report"
+      RptTitle         = Title
+      ReportID         = "GCCCHDUA"
       ChangeIrmsHeader = "N"
-      CheckStfCred = "N"
+      CheckStfCred     = "N"
+	  OptStaffPin      = "N"
       $clear(StaffSelectDCT)	  
 'Denton
    case 365
@@ -108,6 +112,7 @@ chk_MedNec is x
 %global c.cans.mcorx,c.cans.mcotx,c.cans.mconame,c.cans.mcoresp,c.cans.mcoauth1,c.cans.mcoauth2
 %global c.cans.pincode,c.cans.pindate,c.cans.pintime
 %global c.cans.bipsq1,c.cans.bipsq2
+%global c.cans.uniqid
 
 rc_cans_dstlist   is i
 cans_dstlist      is dstlist
@@ -168,7 +173,7 @@ c.cans.pindate    is d
 c.cans.pintime    is t
 c.cans.bipsq1     is x
 c.cans.bipsq2     is x
-
+c.cans.uniqid     is x
 
 'remove these?
 'c.cans.resv6 is X      'CLIENT CANS RESERVED 6
@@ -681,6 +686,9 @@ errors[] is x       'array for capturing errors by section
 %define disch4_errortxt "The Discharge Date must be after the last Authorization date"
 %define disch5_errortxt "The Discharge Date cannot be future dated with this discharge reason"
 %define disch6_errortxt "The Discharge Date cannot be before the last assessment date"
+%define disch7_errortxt "When Discharge Reason is Transition to Adult Services then Referred To must be Transition to Adult Services"
+%define disch8_errortxt "When Referred Too is Transition to Adult Services then the Discharge Reason must be Transition to Adult Services"
+%define disch9_errortxt "Transition to Adult Services cannot be selected until one month before the clients 18th birthday"
 %define diag_errortxt "A current diagnosis is required to complete this assessment for an Intake, Update or Discharge for Services Complete"
 %define age_errortxt "This client is older than 18, please complete the ANSA assessment"
 %define age1_errortxt "This client is younger than 3, there is no current assessment for this age"
@@ -747,6 +755,7 @@ c.cans.devjust,
 c.cans.mcorx,c.cans.mcotx,c.cans.mconame,c.cans.mcoresp,c.cans.mcoauth1,c.cans.mcoauth2,
 c.cans.pincode,c.cans.pindate,c.cans.pintime,
 c.cans.bipsq1,c.cans.bipsq2,
+c.cans.uniqid,
 c.cans.canstype,
 'c.cans.resv5,c.cans.resv6,c.cans.resv7,c.cans.resv8,c.cans.resv9,
 c.cans.ld.family,c.cans.ld.livsit,c.cans.ld.school,c.cans.ld.socFun,c.cans.ld.recret,c.cans.ld.develp,c.cans.ld.commun,c.cans.ld.judgmt,c.cans.ld.jobfun,c.cans.ld.legal,c.cans.ld.medicl,c.cans.ld.physcl,c.cans.ld.sexdev,c.cans.ld.sleep,c.cans.ld.indliv,

@@ -1,0 +1,174 @@
+'script to admit/discharge a client to a episode of care record
+
+start trrEpisodeAdmit(parmfile, option, client, retcode)
+
+parmfile    is x
+option      is x
+client      is x
+retcode     is b
+
+'implement the variables passed int by trr_wrap script in option
+client_type is x
+staff_id    is x
+
+$allowupdate(retcode)
+
+'amdit record dsts
+ProgRecDst  is x
+ProgDst     is x
+AdmitDst    is x
+DischDst    is x
+
+prog-rec    is h
+prog-ru     is b
+prog-clinic is x
+prog-admit  is d
+prog-disch  is d
+
+'ua dsts
+ua-rec      is h
+ua-type     is x
+ua-clinic   is x
+ua-stat     is x
+ua-date     is d
+ua-disch    is d
+
+ansaRecDst     is x
+ansaTypeDst    is x
+ansaClinicDst  is x
+ansaStatDst    is x
+ansaDateDst    is x
+ansaDischDst   is x
+
+cansRecDst     is x
+cansTypeDst    is x
+cansClinicDst  is x
+cansStatDst    is x
+cansDateDst    is x
+cansDischDst   is x
+
+cdb               is b
+
+'trigger values
+type_discharge    is x
+stat_authorized   is x
+progtable         is b
+
+'defaults
+cdb = 2
+
+progrecdst = "c.msarec"
+progdst = "c.msa.prog"
+admitdst = "c.msa.admt"
+dischdst  = "c.msa.dsch"
+
+ansaRecDst = "c.ansa.rec"
+ansaTypeDst = "c.ansa.type"
+ansaClinicDst = "c.ansa.clinic"
+ansaStatDst = "c.ansa.stat"
+ansaDateDst = "c.ansa.alocdate"
+ansaDischDst = "c.ansa.disdt"
+
+cansRecDst = "c.cans.rec"
+cansTypeDst = "c.cans.type"
+cansClinicDst = "c.cans.clinic"
+cansStatDst = "c.cans.stat"
+cansDateDst = "c.cans.alocdate"
+cansDischDst = "c.cans.disdt"
+
+type_discharge = "3"
+stat_authorized = "3"
+progtable = 9229
+
+'settings overrides
+GetParm(parmfile)
+GetOption(option)
+
+'set the names of the dsts
+$setvarname(prog-rec, $uc(ProgRecDst))
+$setvarname(prog-ru, $uc(ProgDst))
+$setvarname(prog-admit, $uc(AdmitDst))
+$setvarname(prog-disch, $uc(DischDst))
+
+if client_type = "A" then
+   $setvarname(ua-rec, $uc(ansaRecDst))
+   $setvarname(ua-type, $uc(ansaTypeDst))
+   $setvarname(ua-clinic, $uc(ansaClinicDst))
+   $setvarname(ua-stat, $uc(ansaStatDst))
+   $setvarname(ua-date, $uc(ansaDateDst))
+   $setvarname(ua-disch, $uc(ansaDischDst))
+endif
+if client_type = "C" then
+   $setvarname(ua-rec, $uc(cansRecDst))
+   $setvarname(ua-type, $uc(cansTypeDst))
+   $setvarname(ua-clinic, $uc(cansClinicDst))
+   $setvarname(ua-stat, $uc(cansStatDst))
+   $setvarname(ua-date, $uc(cansDateDst))
+   $setvarname(ua-disch, $uc(cansDischDst))
+endif
+
+'main
+
+'get all the needed data
+'only bother with the top layer
+$dblock()
+retcode = $dbread(cdb, client, 
+   ua-rec, ua-type, ua-clinic, ua-stat, ua-date, ua-disch,
+   prog-rec, prog-ru, prog-admit, prog-disch)
+
+retcode = $dcv(progTable, ua-clinic,,,, prog-clinic) 
+
+'process
+'ua is not finished - don't do anything
+if ua-stat != stat_authorized then
+   $dbunlock()
+   retcode = 11
+   return
+endif
+
+'client has been discharged - update the prog record with the discharge date
+if ua-type = type_discharge then
+   'only discharge if the top layer has a record and it is open
+   if prog-rec dp and prog-disch !dp then
+      prog-disch = ua-disch
+      retcode = 100 + $dbupdate(cdb, client, prog-rec, prog-disch)
+      $dbunlock()
+   endif
+   return
+endif
+
+'client is already open to the program - don't do anything
+if prog-clinic = prog-ru then
+   $dbunlock()
+   retcode = 20
+   return
+endif
+
+'open to a different program - close the current, and add a new
+if prog-admit dp and prog-disch !dp then
+   dischdst = $dateoffset(ua-date, -1)
+   retcode = 200 + $dbupdate(cdb, client, prog-rec, prog-disch)
+
+   $dblock()
+   retcode = $dbread(cdb, client, prog-rec)
+   prog-rec[effd] = $today
+   prog-ru = $casti(prog-clinic)
+   prog-admit = ua-date
+   retcode = $dbadddst(cdb, client, prog-rec, prog-ru, prog-admit)
+   $dbunlock()
+   return
+endif
+
+'no open program record - add the new admission record
+prog-rec[effd] = $today
+prog-ru = $casti(prog-clinic)
+prog-admit = ua-date
+retcode = $dbadddst(cdb, client, prog-rec, prog-ru, prog-admit)
+$dbunlock()
+
+end trrEpisodeAdmit
+
+'support functions
+
+%include inc_GetParm
+%include inc_GetOption

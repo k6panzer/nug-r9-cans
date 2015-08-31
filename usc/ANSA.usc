@@ -1,9 +1,5 @@
 Start ANSA(parmfile,option,client,retcode)
-<<<<<<< HEAD
- %version 1.0.047 07/15/2015
-=======
- %version 1.0.045 06/22/15 TxACE
->>>>>>> origin/master
+ %version 1.0.048 08/31/2015
  $looplimit = 0
  %include inc_ANSA
  e.ser     is b
@@ -1504,7 +1500,7 @@ function Page4() is null
     $col("right",,"50%")$text(q_text_minor, "datatag")
     $col()$radio(c.ansa.minor,"No","N",,,,,,"Y")$ctag("&nbsp;&nbsp;&nbsp;&nbsp;")$radio(c.ansa.minor,"Yes","Y",,,,,,"Y")   
   $endtable($funcname)
- if $operstaffid = "3737"
+
   $br(2)$text(q_text_bips11, "datatag")$text(q_text_bips12, "datatag")
   $br()$radio(c.ansa.bipsq1,a_text_bips11,"Y",,,,,,"Y")
   $br()$radio(c.ansa.bipsq1,a_text_bips12,"N",,,,,,"Y")
@@ -1514,7 +1510,7 @@ function Page4() is null
   $br()$radio(c.ansa.bipsq2,a_text_bips21,"LAR",,,,,,"Y")
   $br()$radio(c.ansa.bipsq2,a_text_bips22,"SELF",,,,,,"Y")
   $br()$radio(c.ansa.bipsq2,a_text_bips23,"NLAR",,,,,,"Y")
- endif
+
  $sendform($funcname)
 end Page4
 
@@ -2533,7 +2529,6 @@ function Report(mode) is null
    else
     $br()RLOCRpt()
 	$br()
-<<<<<<< HEAD
     if OptStaffPin = "Y"
 	 $tag("<hr/>")
 	 $br()$ctag("<div align='center'>")
@@ -2541,16 +2536,6 @@ function Report(mode) is null
 		   $textbox(c_ansa_pincode,,32,32,"Y","normal")
           $ctag("</div>")
     endif
-=======
-    if $today > d_StaffPinStart and OptStaffPIN = "Y" then
-	    $tag("<hr/>")
-	    $br()
-	    $ctag("<div align='center'>")
- 	    $text("Staff Pincode: ","datatag")
-		 $textbox(c_ansa_pincode,,32,32,"Y","normal")
-       $ctag("</div>")
-     endif
->>>>>>> origin/master
    endif
   elseif mode = "Authorize"
    $br()StaffComments()
@@ -2656,6 +2641,9 @@ function SaveData() is i
   endif
   c.ansa.rec[effd] = c.ansa.date
   NewUID = c.ansa.rec[uid]
+  c.ansa.uniqid = NewUID
+  c.ansa.uniqid = $replace(".","", c.ansa.uniqid)
+  c.ansa.uniqid += $regid 
   $clear(c.ansa.aloc)
   SaveData = $dbadddst(02, $regid, ansa_dstlist)
  elseif mode = "UPDATE"
@@ -3117,11 +3105,7 @@ function ValidateReport() is i
   (void)$arrpush(errors[],dloc3_errortxt)
  endif
  
-<<<<<<< HEAD
  if OptStaffPin = "Y"
-=======
- if $today > d_StaffPinStart and OptStaffPIN = "Y" then
->>>>>>> origin/master
   pincode_test = {"l_pincode"}ValidatePin($operstaffid,c_ansa_pincode)
   select pincode_test
    case 0    c.ansa.pincode = "Y" 

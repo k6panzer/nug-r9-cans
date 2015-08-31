@@ -1,0 +1,60 @@
+start FIXANSA16()
+ $looplimit = 0
+ %include inc_ANSA_DST
+' $trace("path.on","/c0/MIS/SCRIPT/S/LOVEC.trace")
+ logfile is x
+ cid     is x
+ rc      is i
+ rc2     is i
+ rc3     is i
+ uniqid  is uid
+ uniqid2 is x
+(void)$dbstart(02, CID)
+ $dblock()
+ rc = $dbread(2,cid,c.ansa.rec,c.ansa.uniqid)
+ if rc = 4
+  do until rc != 4
+   $dblock()
+   rc = $dbread(2,cid,c.ansa.rec,c.ansa.uniqid)
+   $sleep(10)
+  enddo
+ endif
+ do while rc < 3
+  if c.ansa.rec dp
+   uniqid = c.ansa.rec[uid]
+   uniqid2 = uniqid
+   uniqid2 = $replace(".","",uniqid2)
+   uniqid2 += cid
+   if c.ansa.uniqid != uniqid2
+	c.ansa.uniqid = uniqid2
+    rc2 = $dbupdate(2,cid,c.ansa.rec,c.ansa.uniqid)
+    (void)$dbread(2,cid,c.ansa.rec,c.ansa.uniqid)
+   endif 
+  endif
+  do while rc3 < 2 and c.ansa.rec dp
+   if c.ansa.rec dp
+    uniqid = c.ansa.rec[uid]
+    uniqid2 = uniqid
+    uniqid2 = $replace(".","",uniqid2)
+    uniqid2 += cid
+	if c.ansa.uniqid != uniqid2
+	 c.ansa.uniqid = uniqid2
+     rc2 = $dbupdate(2,cid,c.ansa.rec,c.ansa.uniqid)
+     (void)$dbread(2,cid,c.ansa.rec,c.ansa.uniqid)
+	endif 
+   endif
+   $dblock()
+   rc3 = $dbreadnextdst(2,cid,c.ansa.rec,c.ansa.uniqid)
+  enddo  
+  $dblock()
+  rc = $dbreadnext(2,cid,c.ansa.rec,c.ansa.uniqid)
+  if rc = 4
+   do until rc != 4
+    $dblock()
+	rc = $dbread(2,cid,c.ansa.rec,c.ansa.uniqid)
+    $sleep(10)
+   enddo
+  endif
+  rc3 = 0
+ enddo
+end FIXANSA16
