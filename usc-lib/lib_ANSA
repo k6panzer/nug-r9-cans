@@ -1,5 +1,5 @@
 library lib_ANSA()
- %version 1.0.029 09/02/2015
+ %version 1.0.030 09/02/2015
  %define row_color2 "bgcolor='White'"
  %define col_color_multi "bgcolor='LightGrey'"
 on load do:
@@ -2016,7 +2016,7 @@ end Page3Rpt
    $row()
     $col("right")$text(q_text_minor)
     $col()$text(c.ansa.minor)
-  if $operstaffid = "3737"
+
    if c.ansa.bipsq1 dp and c.ansa.bipsq2 dp
    $row()
     $col("right")$text(q_text_bips11)
@@ -2034,7 +2034,7 @@ end Page3Rpt
 	 case "NLAR" $col()$text(a_text_bips23)
     endselect
    endif
-  endif  
+
   $endtable($funcname)     
  end Page4Rpt
 
