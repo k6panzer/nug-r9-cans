@@ -1,5 +1,5 @@
 library lib_CANS617()
- %version 1.0.014 09/02/2015
+ %version 1.0.015 09/02/2015
  %define row_color2 "bgcolor='White'"
  %define col_color_multi "bgcolor='LightGrey'"
  
@@ -2250,7 +2250,6 @@ function Page4Rpt(c.cans.type,c.cans.disreas,c.cans.grade,c.cans.restype,c.cans.
     $col()$text(c.cans.resother1)
   endif 
 
- if $operstaffid = "3737"
    if c.cans.bipsq1 dp and c.cans.bipsq2 dp
    $row()
     $col("right")$text(q_text_bips11)
@@ -2268,7 +2267,6 @@ function Page4Rpt(c.cans.type,c.cans.disreas,c.cans.grade,c.cans.restype,c.cans.
      case "NLAR" $col()$text(a_text_bips23)
     endselect
    endif
-  endif
     
   $endtable($funcname)   
  endif

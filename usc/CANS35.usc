@@ -1,5 +1,5 @@
 start CANS35(parmfile,option,client,retcode)
- %version 1.0.045 09/02/2015
+ %version 1.0.046 09/02/2015
  $looplimit = 0
  %include inc_CANS35
  e.ser     is b
@@ -2499,7 +2499,6 @@ function Page4Rpt() is null
     $col()$text(c.cans.resother1)
   endif 
 
-  if $operstaffid = "3737"
     if c.cans.bipsq1 dp and c.cans.bipsq2 dp
     $row()
      $col("right")$text(q_text_bips11)
@@ -2510,14 +2509,13 @@ function Page4Rpt() is null
           case "U" $col()$text(a_text_bips13)
      endselect
     $row()
-         $col("right")$text(q_text_bips2)
+     $col("right")$text(q_text_bips2)
      select c.cans.bipsq2
       case "SELF" $col()$text(a_text_bips21)
       case "LAR"  $col()$text(a_text_bips22)
       case "NLAR" $col()$text(a_text_bips23)
      endselect
     endif
-   endif
 
   $endtable($funcname)   
  endif
