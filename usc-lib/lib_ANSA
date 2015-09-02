@@ -1,5 +1,5 @@
 library lib_ANSA()
- %version 1.0.028 06/02/2015
+ %version 1.0.029 09/02/2015
  %define row_color2 "bgcolor='White'"
  %define col_color_multi "bgcolor='LightGrey'"
 on load do:
@@ -2029,8 +2029,8 @@ end Page3Rpt
    $row() 
 	$col("right")$text(q_text_bips2)
     select c.ansa.bipsq2
-     case "LAR"  $col()$text(a_text_bips21)
-	 case "SELF" $col()$text(a_text_bips22)
+     case "SELF" $col()$text(a_text_bips21)
+	 case "LAR"  $col()$text(a_text_bips22)
 	 case "NLAR" $col()$text(a_text_bips23)
     endselect
    endif

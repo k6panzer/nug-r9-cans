@@ -1,5 +1,9 @@
 library lib_CANS617()
+<<<<<<< HEAD
  %version 1.0.013 05/04/2015
+=======
+ %version 1.0.014 09/02/2015
+>>>>>>> master
  %define row_color2 "bgcolor='White'"
  %define col_color_multi "bgcolor='LightGrey'"
  
@@ -2263,9 +2267,15 @@ function Page4Rpt(c.cans.type,c.cans.disreas,c.cans.grade,c.cans.restype,c.cans.
    $row()
         $col("right")$text(q_text_bips2)
     select c.cans.bipsq2
+<<<<<<< HEAD
      case "LAR"  $col()$text(a_text_bips21)
          case "SELF" $col()$text(a_text_bips22)
          case "NLAR" $col()$text(a_text_bips23)
+=======
+     case "SELF" $col()$text(a_text_bips21)
+     case "LAR"  $col()$text(a_text_bips22)
+     case "NLAR" $col()$text(a_text_bips23)
+>>>>>>> master
     endselect
    endif
   endif
