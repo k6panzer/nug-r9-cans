@@ -1,5 +1,5 @@
 start CANS35(parmfile,option,client,retcode)
- %version 1.0.043 08/31/2015
+ %version 1.0.044 09/02/2015
  $looplimit = 0
  %include inc_CANS35
  e.ser     is b
@@ -2455,8 +2455,8 @@ function Page4() is null
    $br()$radio(c.cans.bipsq1,a_text_bips13,"U",,,,,,"Y")
 
    $br(2)$text(q_text_bips2, "datatag")
-   $br()$radio(c.cans.bipsq2,a_text_bips21,"LAR",,,,,,"Y")
-   $br()$radio(c.cans.bipsq2,a_text_bips22,"SELF",,,,,,"Y")
+   $br()$radio(c.cans.bipsq2,a_text_bips21,"SELF",,,,,,"Y")
+   $br()$radio(c.cans.bipsq2,a_text_bips22,"LAR",,,,,,"Y")
    $br()$radio(c.cans.bipsq2,a_text_bips23,"NLAR",,,,,,"Y")
   
  $sendform($funcname)
@@ -2507,9 +2507,9 @@ function Page4Rpt() is null
     $row()
          $col("right")$text(q_text_bips2)
      select c.cans.bipsq2
-      case "LAR"  $col()$text(a_text_bips21)
-          case "SELF" $col()$text(a_text_bips22)
-          case "NLAR" $col()$text(a_text_bips23)
+      case "SELF" $col()$text(a_text_bips21)
+      case "LAR"  $col()$text(a_text_bips22)
+      case "NLAR" $col()$text(a_text_bips23)
      endselect
     endif
    endif

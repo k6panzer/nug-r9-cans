@@ -1,5 +1,5 @@
 start CANS617(parmfile,option,client,retcode)
- %version 1.0.041 08/31/2015
+ %version 1.0.042 09/02/2015
  $looplimit = 0
  %include inc_CANS617
  e.ser     is b
@@ -3337,8 +3337,8 @@ function Page4() is null
   $br()$radio(c.cans.bipsq1,a_text_bips13,"U",,,,,,"Y")
 
   $br(2)$text(q_text_bips2, "datatag")
-  $br()$radio(c.cans.bipsq2,a_text_bips21,"LAR",,,,,,"Y")
-  $br()$radio(c.cans.bipsq2,a_text_bips22,"SELF",,,,,,"Y")
+  $br()$radio(c.cans.bipsq2,a_text_bips21,"SELF",,,,,,"Y")
+  $br()$radio(c.cans.bipsq2,a_text_bips22,"LAR",,,,,,"Y")
   $br()$radio(c.cans.bipsq2,a_text_bips23,"NLAR",,,,,,"Y")
 
  $sendform($funcname)
