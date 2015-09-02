@@ -1,5 +1,5 @@
 Start ANSA(parmfile,option,client,retcode)
- %version 1.0.049 09/02/2015
+ %version 1.0.050 09/02/2015
  $looplimit = 0
  %include inc_ANSA
  e.ser     is b
@@ -2647,6 +2647,9 @@ function SaveData() is i
   $clear(c.ansa.aloc)
   SaveData = $dbadddst(02, $regid, ansa_dstlist)
  elseif mode = "UPDATE"
+  c.ansa.uniqid = NewUID
+  c.ansa.uniqid = $replace(".","", c.ansa.uniqid)
+  c.ansa.uniqid += $regid 
 '  c.ansa.rec[effd] = c.ansa.date
   if (c.ansa.dloc = c.ansa.rloc) and (c.ansa.dloc = c.ansa.aloc)
    $clear(c.ansa.dloc)
