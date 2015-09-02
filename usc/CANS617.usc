@@ -1,5 +1,5 @@
 start CANS617(parmfile,option,client,retcode)
- %version 1.0.043 09/02/2015
+ %version 1.0.044 09/02/2015
  $looplimit = 0
  %include inc_CANS617
  e.ser     is b
@@ -770,7 +770,8 @@ c.cans.hs.numprr,c.cans.hs.longst,c.cans.hs.durrec,c.cans.hs.timlst,
 c.cans.sr.hissui,c.cans.sr.hfmsui,c.cans.sr.firear,
 c.cans.caredt,
 c.cans.pincode,c.cans.pindate,c.cans.pintime,
-c.cans.bipsq1,c.cans.bipsq2)  
+c.cans.bipsq1,c.cans.bipsq2,
+c.cans.uniqid)  
  endif
  if SaveData = 0
   $brmsg("CANS Assessment Successfully saved to Database!",1,"W","Process Complete")

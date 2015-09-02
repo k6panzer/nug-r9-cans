@@ -635,7 +635,8 @@ c.cans.ad.affreg,c.cans.ad.reexp,c.cans.ad.avoid,c.cans.ad.incaro,c.cans.ad.numr
 c.cans.rg.eating,c.cans.rg.elim,c.cans.rg.sensor,c.cans.rg.emot,
 c.cans.caredt,
 c.cans.pincode,c.cans.pindate,c.cans.pintime,
-c.cans.bipsq1,c.cans.bipsq2)				
+c.cans.bipsq1,c.cans.bipsq2,
+c.cans.uniqid)				
  endselect
   select SaveData
    case 0 $brmsg("CANS Assessment Successfully saved to Database!",1,"W","Process Complete")
