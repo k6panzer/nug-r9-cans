@@ -1,0 +1,52 @@
+start FIXANSA17()
+ $looplimit = 0
+ c.ansa.rec    is h
+ c.ansa.date   is d
+ c.ansa.bipsq2 is x
+
+ logfile is x
+ cid     is x
+ rc      is i
+ rc2     is i
+ rc3     is i
+(void)$dbstart(02, CID)
+ $dblock()
+ rc = $dbread(2,cid,c.ansa.rec,c.ansa.date,c.ansa.bipsq2)
+ if rc = 4
+  do until rc != 4
+   $dblock()
+   rc = $dbread(2,cid,c.ansa.rec,c.ansa.date,c.ansa.bipsq2)
+   $sleep(10)
+  enddo
+ endif
+ do while rc < 3
+  if c.ansa.rec dp
+   if c.ansa.date < 9/2/2015 and c.ansa.bipsq2 = "LAR"
+    c.ansa.bipsq2 = "SELF"
+    rc2 = $dbupdate(2,cid,c.ansa.rec,c.ansa.bipsq2)
+    (void)$dbread(2,cid,c.ansa.rec,c.ansa.bipsq2)
+   endif 
+  endif
+  do while rc3 < 2 and c.ansa.rec dp
+   if c.ansa.rec dp
+    if c.ansa.date < 9/2/2015 and c.ansa.bipsq2 = "LAR"
+     c.ansa.bipsq2 = "SELF"
+     rc2 = $dbupdate(2,cid,c.ansa.rec,c.ansa.bipsq2)
+     (void)$dbread(2,cid,c.ansa.rec,c.ansa.bipsq2)
+    endif 
+   endif
+   $dblock()
+   rc3 = $dbreadnextdst(2,cid,c.ansa.rec,c.ansa.date,c.ansa.bipsq2)
+  enddo  
+  $dblock()
+  rc = $dbreadnext(2,cid,c.ansa.rec,c.ansa.date,c.ansa.bipsq2)
+  if rc = 4
+   do until rc != 4
+    $dblock()
+	rc = $dbread(2,cid,c.ansa.rec,c.ansa.date,c.ansa.bipsq2)
+    $sleep(10)
+   enddo
+  endif
+  rc3 = 0
+ enddo
+end FIXANSA17
