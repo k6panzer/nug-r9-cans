@@ -1,0 +1,22 @@
+{
+  "name": "trr-gcc",
+  "version": "1.0.0",
+  "description": "GCC TRR Scripts",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/gulfcoastcenter/trr-gcc.git"
+  },
+  "author": "Tim Markello",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/gulfcoastcenter/trr-gcc/issues"
+  },
+  "homepage": "https://github.com/gulfcoastcenter/trr-gcc",
+  "devDependencies": {
+    "mis-util": "^0.4.1"
+  }
+}

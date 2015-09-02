@@ -1,8 +1,13 @@
  <Transaction>
   <TransactionType>28</TransactionType> 
-  <ComponentCode>YOUR_COMPONENT_CODE</ComponentCode> 
+  <ComponentCode>230</ComponentCode> 
   <LocalCaseNbr>$REGID</LocalCaseNbr> 
-  <LocalUnitNbr></LocalUnitNbr>
+  <LocalUnitNbr/> 
+OPTIONAL  <ProviderKey>%C.ANSA.UNIQID%</ProviderKey>
+OPTIONAL  <FirstName></FirstName>
+OPTIONAL  <MiddleName></MiddleName>
+OPTIONAL  <LastName></LastName>
+OPTIONAL  <Suffix></Suffix>
   <Age>%C.ANSA.AGE%</Age> 
   <AssessmentType>%C.ANSA.TYPE%</AssessmentType> 
   <QuestionSet>3</QuestionSet> 
@@ -146,7 +151,7 @@
 	  <PmMedicalHospitalVisits>%C.ANSA.PM.MEHV%</PmMedicalHospitalVisits> 
 	  <PmMedicalPrescriptions>%C.ANSA.PM.MP%</PmMedicalPrescriptions> 
 	  <PerformedBy>$EDIT|DB``03|C.ANSA.STAFF</PerformedBy> 
-	  <PerformedByCredential>$DBREAD|03|C.ANSA.STAFF|S.RANDR.CRED</PerformedByCredential> 
+	  <PerformedByCredential>$DCVDB|03|C.ANSA.STAFF|S.UARDM.CRED|226|1</PerformedByCredential> 
 	  <AssessmentNotes>%C.ANSA.COMMENT%</AssessmentNotes> 
   </QuestionSetType>
  <Authorization>
@@ -160,7 +165,7 @@
   <EndDate>%C.ANSA.ALOCEDATE%</EndDate> 
   <SubjectToHearing></SubjectToHearing> 
   <AuthorizedBy>$EDIT|DB``03|C.ANSA.ALOCSTAFF</AuthorizedBy> 
-  <AuthorizedByCredential>$DBREAD|03|C.ANSA.ALOCSTAFF|S.RANDR.CRED</AuthorizedByCredential> 
+  <AuthorizedByCredential>$DCVDB|03|C.ANSA.ALOCSTAFF|S.UARDM.CRED|226|1</AuthorizedByCredential> 
   </Authorization>
  <CommunityData>
   <NumberOfArrest>%C.ANSA.ARREST%</NumberOfArrest> 
@@ -172,6 +177,8 @@
   <EmploymentType>%C.ANSA.EMPTYPE%</EmploymentType> 
   <ReasonNotWorking>%C.ANSA.LABOR%</ReasonNotWorking> 
   <ReasonNotWorkingOther>%C.ANSA.LABOROTH%</ReasonNotWorkingOther> 
+  <TermsOfUse>%C.ANSA.BIPSQ1%</TermsOfUse>
+  <TouAcknowledgment>%C.ANSA.BIPSQ2%</TouAcknowledgment>
   </CommunityData>
  <ClinicalRatingScale>
   <AssessmentDate>%C.ANSA.SCALEDT%</AssessmentDate> 

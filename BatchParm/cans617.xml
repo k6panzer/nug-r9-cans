@@ -1,8 +1,13 @@
    <Transaction>
       <TransactionType>29</TransactionType>
-      <ComponentCode>YOUR_COMPONENT_CODE</ComponentCode>
+      <ComponentCode>230</ComponentCode>
       <LocalCaseNbr>$REGID</LocalCaseNbr>
       <LocalUnitNbr></LocalUnitNbr>
+OPTIONAL  <ProviderKey>%C.CANS.UNIQID%</ProviderKey>
+OPTIONAL  <FirstName></FirstName>
+OPTIONAL  <MiddleName></MiddleName>
+OPTIONAL  <LastName></LastName>
+OPTIONAL  <Suffix></Suffix>
       <Age>%C.CANS.AGE%</Age>
       <AssessmentType>%C.CANS.TYPE%</AssessmentType>
       <CansAssessmentType>%C.CANS.CANSTYPE%</CansAssessmentType>
@@ -22,7 +27,7 @@
       <RiskOfPlacement>%C.CANS.RISKPLC%</RiskOfPlacement>
       <TCOOMMIConsumer>%C.CANS.TCOOMMI%</TCOOMMIConsumer>
       <DocumentStatus>3</DocumentStatus>
-      <DocumentStatusDate>%C.CANS.COMPD%</DocumentStatusDate>
+      <DocumentStatusDate>%C.CANS.ALOCDATE%</DocumentStatusDate>
       <BHOProviderId/>
       <NPI/>
       <VendorNbr/>
@@ -197,7 +202,7 @@
          <SrmFireLethalMed>%C.CANS.SR.FIREAR%</SrmFireLethalMed>
          <SrmHisOfSuicideAttempts>%C.CANS.SR.HFMSUI%</SrmHisOfSuicideAttempts>
          <PerformedBy>$EDIT|DB``03|C.CANS.STAFF</PerformedBy>
-         <PerformedByCredential>$DBREAD|03|C.CANS.STAFF|S.UA.CRED</PerformedByCredential>
+         <PerformedByCredential>$DCVDB|03|C.CANS.STAFF|S.UARDM.CRED|226|1</PerformedByCredential>
          <CansNotes>%C.CANS.COMMENT%</CansNotes>
       </CansType>
 
@@ -205,14 +210,14 @@
          <LevelAuthorized>%C.CANS.ALOC%</LevelAuthorized>
          <DeviationReason>%C.CANS.LOC_DEV%</DeviationReason>
          <DeviationReasonOther>%C.CANS.DEVOTH%</DeviationReasonOther>
-         <DeviationJustification>%C.CANS.DEVR1%</DeviationJustification>
+         <DeviationJustification>%C.CANS.DEVJUST%</DeviationJustification>
          <AuthorizationDate>%C.CANS.ALOCDATE%</AuthorizationDate>
          <JustificationForLateAuthorization>%C.CANS.ALATE%</JustificationForLateAuthorization>
          <OtherJustificationForLateAuthorization>%C.CANS.ALATEOTH%</OtherJustificationForLateAuthorization>
          <EndDate>%C.CANS.ALOCEDATE%</EndDate>
          <SubjectToHearing>%C.CANS.FAIRHEAR%</SubjectToHearing>
          <AuthorizedBy>$EDIT|DB``03|C.CANS.ALOCSTAFF</AuthorizedBy>
-         <AuthorizedByCredential>$DBREAD|03|C.CANS.ALOCSTAFF|S.UA.CRED</AuthorizedByCredential>
+         <AuthorizedByCredential>$DCVDB|03|C.CANS.ALOCSTAFF|S.UARDM.CRED|226|1</AuthorizedByCredential>
       </Authorization>
 
       <CommunityData>
@@ -222,6 +227,8 @@
          <Grade>%C.CANS.GRADE%</Grade>
          <PrimaryResidence>%C.CANS.RESTYPE%</PrimaryResidence>
          <PrimaryResidenceOther>%C.CANS.RESOTHER1%</PrimaryResidenceOther>
+         <TermsOfUse>%C.CANS.BIPSQ1%</TermsOfUse>
+         <TouAcknowledgment>%C.CANS.BIPSQ2%</TouAcknowledgment>
       </CommunityData>
 
    </Transaction>
