@@ -1,9 +1,5 @@
 Start ANSA(parmfile,option,client,retcode)
-<<<<<<< HEAD:usc/ANSA.usc
- %version 1.0.048 08/31/2015
-=======
  %version 1.0.049 09/02/2015
->>>>>>> master:usc/ANSA.usc
  $looplimit = 0
  %include inc_ANSA
  e.ser     is b
