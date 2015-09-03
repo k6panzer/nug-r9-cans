@@ -1,5 +1,5 @@
 start CANS617(parmfile,option,client,retcode)
- %version 1.0.044 09/02/2015
+ %version 1.0.045 09/03/2015
  $looplimit = 0
  %include inc_CANS617
  e.ser     is b
@@ -614,7 +614,9 @@ function SaveData() is i
  bad_char[2] = ">" 
  bad_char[3] = "&"  
  
- NewUID is n
+ NewUID     is n
+ CurrentUID is x
+ 
  c.cans.age = {"lib_UACOMMON"}ClientAge($regid, c.cans.date)
  if c.cans.compd !dp
   mode = "ADD"
@@ -624,6 +626,8 @@ function SaveData() is i
  if PromptNED = 2
   mode = "UPDATE"
  endif
+
+ CurrentUID = c.cans.rec[uid]
  $dblock()
  SaveData = $dbpoint(02, $regid, c.cans.rec) 
  if c.cans.compd dp
@@ -705,15 +709,11 @@ function SaveData() is i
   endif
   c.cans.rec[effd] = c.cans.date
   NewUID = c.cans.rec[uid]
-  c.cans.uniqid = NewUID
-  c.cans.uniqid = $replace(".","", c.cans.uniqid)
-  c.cans.uniqid += $regid   
   c.cans.canstype = "1"
   $clear(c.cans.aloc)
   SaveData = $dbadddst(02, $regid, cans_dstlist) 
  else
-  NewUID = c.cans.rec[uid]
-  c.cans.uniqid = NewUID
+  c.cans.uniqid = CurrentUID
   c.cans.uniqid = $replace(".","", c.cans.uniqid)
   c.cans.uniqid += $regid 
 '  c.cans.rec[effd] = c.cans.date

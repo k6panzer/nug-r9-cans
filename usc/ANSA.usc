@@ -1,5 +1,5 @@
 Start ANSA(parmfile,option,client,retcode)
- %version 1.0.051 09/02/2015
+ %version 1.0.052 09/03/2015
  $looplimit = 0
  %include inc_ANSA
  e.ser     is b
@@ -2553,7 +2553,8 @@ function SaveData() is i
  bad_char[2] = ">"
  bad_char[3] = "&" 
 
- NewUID is n
+ NewUID     is n
+ CurrentUID is x
  
  c.ansa.age = {"lib_UACOMMON"}ClientAge($regid, c.ansa.date)
  if c.ansa.compd !dp
@@ -2565,6 +2566,8 @@ function SaveData() is i
  if PromptNED = 2
   mode = "UPDATE"
  endif 
+ 
+ CurrentUID = c.ansa.rec[uid]
  
  $dblock()
  SaveData = $dbpoint(02, $regid, c.ansa.rec)	                          
@@ -2641,13 +2644,10 @@ function SaveData() is i
   endif
   c.ansa.rec[effd] = c.ansa.date
   NewUID = c.ansa.rec[uid]
-  c.ansa.uniqid = NewUID
-  c.ansa.uniqid = $replace(".","", c.ansa.uniqid)
-  c.ansa.uniqid += $regid 
   $clear(c.ansa.aloc)
   SaveData = $dbadddst(02, $regid, ansa_dstlist)
  elseif mode = "UPDATE"
-  c.ansa.uniqid = NewUID
+  c.ansa.uniqid = CurrentUID
   c.ansa.uniqid = $replace(".","", c.ansa.uniqid)
   c.ansa.uniqid += $regid 
 '  c.ansa.rec[effd] = c.ansa.date
