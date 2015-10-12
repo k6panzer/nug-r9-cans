@@ -10,21 +10,23 @@
   rc       is b 
   index    is i 
 
-  TP_B_index     is x
-  TP_S_index     is x
-  TP_MDDPF_index is x
-  TP_MDDWO_index is x
-  PP_index       is x
-  ID_index       is x
+  DX10_Code[]    is x
+  DX_Cat[]       is x
+  TP_B_index     is i
+  TP_S_index     is i
+  TP_MDDPF_index is i
+  TP_MDDWO_index is i
+  PP_index       is i
+  ID_index       is i
   
   {"lib_DX10"}getclientdx($regid,$today,,DXDate,,,,dx10_code[],,,,,dx_cat[])
   {"lib_DX10"}getClientGaf($regid,$today,,DXDate,DXGaf)  
-  TP_B_index = $find("TP_B",dx_cat,1,"F")
-  TP_S_index =  $find("TP_S",dx_cat,1,"F")
-  TP_MDDPF_index =  $find("TP_MDDPF",dx_cat,1,"F")
-  TP_MDDWO_index = $find("TP_MDDWO",dx_cat,1,"F")
-  PP_index = $find("PP",dx_cat,1,"F")
-  ID_Index = $find("ID",dx_cat,1,"F")
+  TP_B_index = $find("TP_B",dx_cat[],1,"F")
+  TP_S_index =  $find("TP_S",dx_cat[],1,"F")
+  TP_MDDPF_index =  $find("TP_MDDPF",dx_cat[],1,"F")
+  TP_MDDWO_index = $find("TP_MDDWO",dx_cat[],1,"F")
+  PP_index = $find("PP",dx_cat[],1,"F")
+  ID_Index = $find("ID",dx_cat[],1,"F")
   
   index = 0
   $clear(DXType)
@@ -42,6 +44,7 @@
 	case "TP_MDDWO" DXType = "D"
                     dxcat = "MDD - Without Psychotic Features"     
 				    DX = dx10_code[index]					
+   endselect
   enddo
 
   if DXType !dp
@@ -51,7 +54,6 @@
 
 'Priority Population
    PP = "N"
-   PP_index = $find("PP",dx_cat,1,"F")
    if PP_index > 0    
 	DXType = "O"
     dxcat = "Other"     
@@ -61,7 +63,6 @@
 
 'Business Rule R-40
    IDD_Elig = "N"	
-   ID_Index = $find("ID",dx_cat,1,"F")
    if ID_index > 0
     if $find("F840",dx10_code[],1,"F") > 0 or $find("F84.0",dx10_code[],1,"F") > 0
      if $find("F70",dx10_code[],1,"F") > 0 or $find("F71",dx10_code[],1,"F") > 0 or $find("F72",dx10_code[],1,"F") > 0 or $find("F73",dx10_code[],1,"F") > 0 or $find("F79",dx10_code[],1,"F") > 0
@@ -81,11 +82,13 @@
   client       is x
   compare_date is d
   dx_age       is i
+  c.dx10.rh    is h
+  c.dx10.dt    is d
   CurrentDX = "Y"
   if compare_date !dp
    compare_date = $today
   endif
-  (void)$dbread(02,client,dx10_dstlist)
+  (void)$dbread(02,client,c.dx10.rh,c.dx10.dt)
   (void)$datediff(c.dx10.dt,compare_date,dx_age)
   if c.dx10.rh !dp or dx_age > 0
    CurrentDX = "N"
