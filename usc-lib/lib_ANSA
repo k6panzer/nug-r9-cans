@@ -1,5 +1,5 @@
 library lib_ANSA()
- %version 1.0.031 11/25/2015
+ %version 1.0.032 11/25/2015
  %define row_color2 "bgcolor='White'"
  %define col_color_multi "bgcolor='LightGrey'"
 on load do:
@@ -1097,7 +1097,7 @@ on load do:
  end BipolarAlgRpt  
  
  function RLOC(c.ansa.b.depres,c.ansa.b.subabs,c.ansa.cr.episds,c.ansa.b.cog,c.ansa.hs.num180,c.ansa.hs.numg30,c.ansa.hs.numl30,c.ansa.ld.employ,c.ansa.ld.family,c.ansa.ld.living,c.ansa.ld.restab,c.ansa.ld.slfcre,
-               c.ansa.qids,c.ansa.r.crimbe,c.ansa.r.dangot,c.ansa.r.suicid,c.ansa.sr.hist,c.ansa.sr.idea,c.ansa.sr.intent,c.ansa.sr.plan,c.ansa.st.natsup,c.ansa.type,DXcat,DXgaf,DXtype) is x 
+               c.ansa.qids,c.ansa.r.crimbe,c.ansa.r.dangot,c.ansa.r.suicid,c.ansa.sr.hist,c.ansa.sr.idea,c.ansa.sr.intent,c.ansa.sr.plan,c.ansa.st.natsup,c.ansa.type,DXcat,DXgaf,DXtype,c.ansa.sr.ffsui) is x 
   c.ansa.b.depres    is x 
   c.ansa.b.subabs    is x 
   c.ansa.cr.episds   is x 
@@ -1123,6 +1123,7 @@ on load do:
   DXcat              is x 
   DXgaf              is x 
   DXtype             is x
+  c.ansa.sr.ffsui    is x
   datediff           is i
   last_ansa_type     is x
   last_ansa_alocdt   is d  
@@ -1145,7 +1146,7 @@ on load do:
   
 'Crisis
 '  if c.ansa.type = "1" or c.ansa.type = "11"
-   if c.ansa.r.suicid = "3" or (c.ansa.r.suicid = "2" and (c.ansa.sr.idea = "3" or $num(c.ansa.sr.intent) > 1 or $num(c.ansa.sr.plan) > 1 or $num(c.ansa.sr.hist) > 1)) or 
+   if c.ansa.r.suicid = "3" or (c.ansa.r.suicid = "2" and (c.ansa.sr.idea = "3" or $num(c.ansa.sr.intent) > 1 or $num(c.ansa.sr.plan) > 1 or $num(c.ansa.sr.hist) > 1 or $num(c.ansa.sr.ffsui) > 1)) or 
    c.ansa.r.dangot = "3" or c.ansa.ld.slfcre = "3" or c.ansa.b.cog = "3" or c.ansa.b.subabs = "3"
 	c.ansa.type = "11"
 	$allowupdate(c.ansa.type)
@@ -1203,26 +1204,6 @@ on load do:
   endif 
 
 '3/114/Intensive
-test is x
-test = c.ansa.r.suicid
-test = c.ansa.r.dangot
-test = c.ansa.hs.num180
-test = c.ansa.hs.numl30
-test = c.ansa.hs.numg30
-test = c.ansa.ld.living
-test = c.ansa.ld.slfcre
-test = c.ansa.ld.family
-test = c.ansa.st.natsup
-test = c.ansa.ld.employ
-test = c.ansa.ld.restab
-test = c.ansa.b.subabs
-test = c.ansa.r.crimbe
-test = c.ansa.cr.episds
-test = DXType
-test = c.ansa.b.depres
-test = c.ansa.qids
-
-
    if $num(c.ansa.r.suicid) < 3 and $num(c.ansa.r.dangot) < 3 and 
    ($num(c.ansa.hs.num180)  < 2 or $num(c.ansa.hs.numl30) < 3 or c.ansa.hs.numg30 = "0") and 
    ($num(c.ansa.ld.living) > 0 or (c.ansa.ld.slfcre = "1" or c.ansa.ld.slfcre = "2")) and 
