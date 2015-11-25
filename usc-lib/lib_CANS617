@@ -1,5 +1,5 @@
 library lib_CANS617()
- %version 1.0.015 09/02/2015
+ %version 1.0.016 11/25/2015
  %define row_color2 "bgcolor='White'"
  %define col_color_multi "bgcolor='LightGrey'"
  
@@ -1569,7 +1569,7 @@ function RLOC(c.cans.ac.sexgen,c.cans.ad.affreg,c.cans.ad.dissoc,c.cans.ad.intru
  Ineligible       = "110" 
  
 ' LevelOfCarePackage: CrisisServices
- if c.cans.type = "1" or c.cans.type = "11"
+' if c.cans.type = "1" or c.cans.type = "11"
   if (c.cans.cr.suicid = "3" or c.cans.cr.smutil = "3" or c.cans.cr.oslfhr = "3" or c.cans.cr.dangot = "3" or c.cans.cb.psychs = "3")
    RLOC = crisis
    c.cans.type = "11"
@@ -1582,7 +1582,7 @@ function RLOC(c.cans.ac.sexgen,c.cans.ad.affreg,c.cans.ad.dissoc,c.cans.ad.intru
    RLOC = crisis
    return
   endif
- endif 			
+' endif 			
 
  {"lib_ANSA"}GETDX(DXType,,,,,PP)
 'Non-Target and Non-Priority 

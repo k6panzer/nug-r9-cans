@@ -1,5 +1,5 @@
 library lib_ANSA()
- %version 1.0.030 09/02/2015
+ %version 1.0.031 11/25/2015
  %define row_color2 "bgcolor='White'"
  %define col_color_multi "bgcolor='LightGrey'"
 on load do:
@@ -1144,7 +1144,7 @@ on load do:
   Ineligible      = "120"   
   
 'Crisis
-  if c.ansa.type = "1" or c.ansa.type = "11"
+'  if c.ansa.type = "1" or c.ansa.type = "11"
    if c.ansa.r.suicid = "3" or (c.ansa.r.suicid = "2" and (c.ansa.sr.idea = "3" or $num(c.ansa.sr.intent) > 1 or $num(c.ansa.sr.plan) > 1 or $num(c.ansa.sr.hist) > 1)) or 
    c.ansa.r.dangot = "3" or c.ansa.ld.slfcre = "3" or c.ansa.b.cog = "3" or c.ansa.b.subabs = "3"
 	c.ansa.type = "11"
@@ -1152,7 +1152,7 @@ on load do:
 	RLOC = crisis
 	return
    endif
-  endif
+'  endif
   
 'Crisis Override handling
   if c.ansa.type = "11"
@@ -1203,6 +1203,26 @@ on load do:
   endif 
 
 '3/114/Intensive
+test is x
+test = c.ansa.r.suicid
+test = c.ansa.r.dangot
+test = c.ansa.hs.num180
+test = c.ansa.hs.numl30
+test = c.ansa.hs.numg30
+test = c.ansa.ld.living
+test = c.ansa.ld.slfcre
+test = c.ansa.ld.family
+test = c.ansa.st.natsup
+test = c.ansa.ld.employ
+test = c.ansa.ld.restab
+test = c.ansa.b.subabs
+test = c.ansa.r.crimbe
+test = c.ansa.cr.episds
+test = DXType
+test = c.ansa.b.depres
+test = c.ansa.qids
+
+
    if $num(c.ansa.r.suicid) < 3 and $num(c.ansa.r.dangot) < 3 and 
    ($num(c.ansa.hs.num180)  < 2 or $num(c.ansa.hs.numl30) < 3 or c.ansa.hs.numg30 = "0") and 
    ($num(c.ansa.ld.living) > 0 or (c.ansa.ld.slfcre = "1" or c.ansa.ld.slfcre = "2")) and 
