@@ -1,0 +1,4059 @@
+start CANS617(parmfile,option,client,retcode)
+ %version 1.0.049 11/30/2015
+ $looplimit = 0
+ %include inc_CANS617
+ if $operstaffid = "4583"
+  $log(`"" + $today + "|" + $timenow + "|" + $regid`,"/c0/EXPORT/LOGS/cansa_log.txt")
+ endif
+ e.ser     is b
+ e.ru      is b
+ e.start   is t
+ e.dur     is t
+ e.loc     is x
+ e.case.no is x
+ e.staff   is x
+ e.date    is d
+ e.cl.dur  is t
+ %global e.ser, e.ru, e.start, e.dur, e.loc, e.case.no, e.staff, e.date, e.cl.dur
+ addsal is x
+ 
+ %global radio_index
+ radio_index is i  
+ 
+ %global c_cans_rloc, c_cans_dloc, c_cans_aloc,c_cans_loc_dev,c_cans_fairhear,c_cans_grade,c_cans_restype,sigline,medicaid_status
+ c_cans_rloc     is x
+ c_cans_dloc     is x
+ c_cans_aloc     is x
+ c_cans_loc_dev  is x
+ c_cans_fairhear is x
+ c_cans_grade    is x
+ c_cans_restype  is x
+ sigline         is x
+ medicaid_status is x
+ 
+ %global c_cans_pincode
+ c_cans_pincode is x 
+
+ %global parmfile,option,client,retcode, rc
+ parmfile is x
+ option   is x
+ client   is x
+ retcode  is i
+ rc       is i
+ 
+ %global eighteenth_bd
+ c.bd          is d
+ eighteenth_bd is d
+
+ if $regid !dp
+  if client dp
+   $regid = client
+  else
+   $regid = {"lib_UACOMMON"}GetClientID() 
+   if $regid !dp
+    return
+   endif
+  endif
+ elseif ($regid dp and client dp) and client != $regid
+  $regid = {"lib_UACOMMON"}GetClientID() 
+  if $regid !dp
+   return
+  endif
+ endif
+ 
+ if $lc(option) = "reportonly" or $lc(option) = "bigreport"
+  if $dbread(2, $regid, c.cans.rec, c.cans.date) < 2
+   if {"l_snapLibSC"}sn_viewLatest(ReportID,Parmfile,$regid,2,$ScriptID) = 0
+    retcode = "0"
+   endif
+  endif
+  retcode = "0"
+  return
+ endif 
+
+ if {"lib_UACOMMON"}StaffCanDo() = 1
+  return
+ endif
+ 
+ if CheckStfCred = "Y"
+  call "CHECK_UACREDENTIALS"()
+ endif 
+
+ if Validate() = 1
+  {"lib_UACOMMON"}DisplayErrors(errors[])
+  return
+ endif
+
+ (void)$dbread(2,$regid,c.bd)
+ eighteenth_bd = $dateoffset(c.bd,,,18) 
+ 
+ %global assessments
+ assessments[] is x
+ {"lib_CANS"}Allow_Assesment($regid,assessments[])
+ {"lib_UAMEDICAID"}check_medicaid($regid,medicaid_status)  
+
+ %global bgcolor
+ bgcolor is x 
+ %define table_wbgcolor "width='100%' cellspacing='0' cellpadding='0' bgcolor='" + bgcolor + "'"
+ %define table_nobgcolor "width='100%' cellspacing='0' cellpadding='0'"  
+ %define row_color1 "bgcolor='LightSkyBlue'"
+ %define row_color2 "bgcolor='White'"
+ %define row_color3 "bgcolor='PaleGreen'"
+ %define col_color_multi "bgcolor='LightGrey'"
+ Page is x
+ %global UM_StaffYN, StaffAssign_YN
+ UM_StaffYN is x
+ UM_StaffYN = {"lib_UACOMMON"}UMStaff()
+ '****DENTON*****
+ StaffAssign_YN is x
+ StaffAssign_YN = {"lib_UACOMMON"}StaffAssign()
+'*************
+ %global PromptNED
+ PromptNED is i
+ 
+ if UM_StaffYN = "Y"
+  rc = $dbread(02, $regid, c.cans.rec,c.cans.compd,c.cans.type,c.cans.staff,c.cans.canstype)
+  if c.cans.compd !dp and c.cans.type dp
+   if c.cans.canstype != "1"
+    $brmsg("A CANS 3-5 Assessment is Currently Being Entered!",1,"C","In Progress")
+    $brmsg("The assessment will exit now.",2,"C")
+    $brmsg("",3, "W")	  		   	
+    return
+   endif	
+   if c.cans.staff = $operstaffid
+    PromptNED = {"lib_CANS"}PromptNewEditDel($regid)    
+    if PromptNED = 1
+     $dblock()
+     rc = $dbread(02, $regid, c.cans.rec,c.cans.date)	
+     rc = $dbremovedst(02, $regid, c.cans.rec,c.cans.date)
+	 $clear(c.cans.date,c.cans.compd,c.cans.type,c.cans.staff,c.cans.canstype)
+     $brmsg("CANS Assessment Successfully Removed from the Database!",1,"C","Process Complete")
+     $brmsg("The assessment will restart now.",2,"C")
+     $brmsg("",3, "W")	  		   		 
+	 Page = "0"
+	 {"lib_UACOMMON"}RemUMMonitor($regid,$scriptid)	 
+	elseif PromptNED = 2
+     rc = $dbread(02, $regid, cans_dstlist)
+     {"lib_UACOMMON"}GetEvent(c.cans.isn,e.ser,e.ru,e.start,e.dur,e.loc)
+     Page = "0"	
+	elseif PromptNED = 3
+     $dblock()
+     rc = $dbread(02, $regid, cans_dstlist)	       
+     rc = $dbremovedst(02, $regid, c.cans.rec,c.cans.date)
+     $brmsg("CANS Assessment Successfully Removed from the Database!",1,"C","Process Complete")
+     $brmsg("The assessment will exit now.",2,"C")
+     $brmsg("",3, "W")	  		   		 	 
+	 {"lib_UACOMMON"}RemUMMonitor($regid,$scriptid)	 
+     return
+	elseif PromptNED = 4
+	 return
+	elseif PromptNED = 5
+     $brmsg("CANS Assessment Currently Being Entered by Another Staff Member!",1,"C","In Progress")
+     $brmsg("The assessment will exit now.",2,"C")
+     $brmsg("",3, "W")	  		   		 	 
+     return	
+	else
+     $clear(c.cans.compd,c.cans.type,c.cans.staff,c.cans.canstype)
+     Page = "0"
+    endif
+   elseif c.cans.staff !dp
+    $clear(c.cans.compd,c.cans.type,c.cans.staff,c.cans.canstype)
+	Page = "0"
+   else
+    rc = $dbread(02, $regid, cans_dstlist)
+    {"lib_UACOMMON"}GetEvent(c.cans.isn,e.ser,e.ru,e.start,e.dur,e.loc)	
+    Page = "Authorize"
+   endif
+  else
+   PromptNED = {"lib_CANS"}PromptNewEditDel($regid)
+    if PromptNED = 1
+     $dblock()
+     rc = $dbread(02, $regid, c.cans.rec,c.cans.date)	
+     rc = $dbremovedst(02, $regid, c.cans.rec,c.cans.date)
+	 $clear(c.cans.date,c.cans.compd,c.cans.type,c.cans.staff,c.cans.canstype)
+     $brmsg("CANS Assessment Successfully Removed from the Database!",1,"C","Process Complete")
+     $brmsg("The assessment will restart now.",2,"C")
+     $brmsg("",3, "W")	  		   		 	 
+	 Page = "0"	 
+	elseif PromptNED = 2
+     rc = $dbread(02, $regid, cans_dstlist)
+     {"lib_UACOMMON"}GetEvent(c.cans.isn,e.ser,e.ru,e.start,e.dur,e.loc)
+     Page = "0"	
+	elseif PromptNED = 3
+     $dblock()
+     rc = $dbread(02, $regid, cans_dstlist)	       
+     rc = $dbremovedst(02, $regid, c.cans.rec,c.cans.date)
+     $brmsg("CANS Assessment Successfully Removed from the Database!",1,"C","Process Complete")
+     $brmsg("The assessment will exit now.",2,"C")
+     $brmsg("",3, "W")	  		   		 	 
+     return
+	elseif PromptNED = 4
+	 return
+	elseif PromptNED = 5
+     $brmsg("CANS Assessment Currently Being Entered by Another Staff Member!",1,"C","In Progress")
+     $brmsg("The assessment will exit now.",2,"C")
+     $brmsg("",3, "W")	  		   		 	 
+     return	
+	else
+     $clear(c.cans.compd,c.cans.type,c.cans.staff,c.cans.canstype)
+     Page = "0"
+    endif
+  endif
+ else
+  PromptNED = {"lib_CANS"}PromptNewEditDel($regid)
+  if PromptNED = 1
+   $dblock()
+   rc = $dbread(02, $regid, c.cans.rec,c.cans.date)	
+   rc = $dbremovedst(02, $regid, c.cans.rec,c.cans.date)
+   $clear(c.cans.date,c.cans.compd,c.cans.type,c.cans.staff,c.cans.canstype)
+   $brmsg("CANS Assessment Successfully Removed from the Database!",1,"C","Process Complete")
+   $brmsg("The assessment will restart now.",2,"C")
+   $brmsg("",3, "W")	  		   		    
+   Page = "0"   
+  elseif PromptNED = 2
+   rc = $dbread(02, $regid, cans_dstlist)
+   {"lib_UACOMMON"}GetEvent(c.cans.isn,e.ser,e.ru,e.start,e.dur,e.loc)
+   Page = "0"	
+  elseif PromptNED = 3
+   $dblock()
+   rc = $dbread(02, $regid, cans_dstlist)	       
+   rc = $dbremovedst(02, $regid, c.cans.rec,c.cans.date)
+   $brmsg("CANS Assessment Successfully Removed from the Database!",1,"C","Process Complete")
+   $brmsg("The assessment will exit now.",2,"C")
+   $brmsg("",3, "W")	  		   		       
+   return
+  elseif PromptNED = 4
+   return
+  elseif PromptNED = 5
+   $brmsg("CANS Assessment Currently Being Entered by Another Staff Member!",1,"C","In Progress")
+   $brmsg("The assessment will exit now.",2,"C")
+   $brmsg("",3, "W")	  		   		       
+   return	
+  else
+   $clear(c.cans.compd,c.cans.type,c.cans.staff,c.cans.canstype)
+   Page = "0"
+  endif
+ endif
+ 
+ do while 1 = 1
+  if Page = "0"
+   Page0()
+   if $endbutton = "SUBMIT"
+    Page = "Validate0"
+   else
+    if {"lib_UACOMMON"}ConfirmExit() = "Y"
+     return
+    endif
+   endif
+  elseif Page = "1" 
+   Page1()
+   if $endbutton = "SUBMIT"
+    Page = "Validate1"
+   else
+    Page = "0"
+   endif
+  elseif Page = "2"  
+   Page2()
+   if $endbutton = "SUBMIT"
+    Page = "Validate2"
+   else
+    Page = "1"
+   endif
+  elseif Page = "3"
+   Page3()  			
+   if $endbutton = "SUBMIT"
+    Page = "Validate3"
+   else
+    Page = "2"
+   endif
+  elseif Page = "4"
+   Page4()
+   if $endbutton = "SUBMIT"
+    Page = "Validate4"
+   else
+    if CanSkipPage3() = "Y"
+     if CanSkipPage2()= "Y"
+	  if CanSkipPage1() = "Y"
+	   Page = "0"
+	  else
+	   Page = "1"
+	  endif
+	 else
+	  Page = "2"
+	 endif
+    else
+     Page = "3"
+    endif  
+   endif			   
+  elseif Page = "Validate0"
+   if Validate0() = 0
+    if CanSkipPage1() = "Y"
+     if CanSkipPage4() = "Y"
+	  Page = "Report"
+	 else
+	  Page = "4"
+	 endif
+    else
+     Page = "1"
+    endif  
+   else
+    Page = "0"
+    {"lib_UACOMMON"}DisplayErrors(errors[])
+   endif  
+  elseif Page = "Validate1"
+   if Validate1() = 0
+    if CanSkipPage2() = "Y"
+     if CanSkipPage4() = "Y"
+      Page = "Report"
+     else
+      Page = "4"
+     endif
+    else
+     Page = "2"
+    endif
+   else
+    Page = "1"
+    {"lib_UACOMMON"}DisplayErrors(errors[])
+   endif
+  elseif Page = "Validate2"
+   if Validate2() = 0
+    if CanSkipPage3() = "Y"
+	 if CanSkipPage4() = "Y"
+      Page = "Report"
+	 else
+      Page = "4"	 
+	 endif 
+    else
+     Page = "3"
+    endif
+   else
+    Page = "2"
+    {"lib_UACOMMON"}DisplayErrors(errors[])
+   endif 
+  elseif Page = "Validate3"
+   if Validate3() = 0
+    Page = "4"
+   else
+    Page = "3"
+    {"lib_UACOMMON"}DisplayErrors(errors[])
+   endif
+  elseif Page = "Validate4"
+   if Validate4() = 0
+    c.cans.rloc = {"lib_CANS617"}Crisis_RLOC(c.cans.type,c.cans.cr.suicid,c.cans.cr.smutil,c.cans.cr.oslfhr,c.cans.cr.dangot,c.cans.cb.psychs,c.cans.cr.firset,c.cans.fs.planin)		
+	if c.cans.rloc = "100"
+	 c.cans.aloc = c.cans.rloc
+     Page = "Report"
+    else
+     Page = "SAL"
+    endif
+   else
+    Page = "4"
+    {"lib_UACOMMON"}DisplayErrors(errors[])
+   endif
+  elseif Page = "ValidateReport"
+   if ValidateReport() = 0
+    if SaveData() = 0
+     Page = "Exit"
+	 {"lib_UACOMMON"}AddUMMonitor($regid,$scriptid)
+    endif
+   else
+    Page = "Report"
+    {"lib_UACOMMON"}DisplayErrors(errors[])
+   endif
+  elseif Page = "ValidateALOC"
+   if ValidateALOC() = 0
+    Page = "Report"
+   else
+    Page = "Authorize"
+    {"lib_UACOMMON"}DisplayErrors(errors[])
+   endif
+  elseif Page = "Report"
+   c.cans.rloc = {"lib_CANS617"}RLOC(c.cans.ac.sexgen,c.cans.ad.affreg,c.cans.ad.dissoc,c.cans.ad.intrus,c.cans.cb.adjtrm,c.cans.cb.angctr,c.cans.cb.anxity,c.cans.cb.condct,
+                                     c.cans.cb.depres,c.cans.cb.eatdst,c.cans.cb.implsv,c.cans.cb.mania,c.cans.cb.oppdef,c.cans.cb.psychs,c.cans.cb.subabs,c.cans.cr.bully,
+                                     c.cans.cr.dangot,c.cans.cr.delqcy,c.cans.cr.episds,c.cans.cr.firset,c.cans.cr.oslfhr,c.cans.cr.runawy,c.cans.cr.sexagr,c.cans.cr.smutil,
+                                     c.cans.cr.socbeh,c.cans.cr.suicid,c.cans.dv.cognit,c.cans.dv.develp,c.cans.fs.inthrm,c.cans.fs.planin,c.cans.hs.durrec,c.cans.hs.timlst,
+                                     c.cans.jj.comsaf,c.cans.jj.histry,c.cans.jj.serios,c.cans.ld.commun,c.cans.ld.develp,c.cans.ld.family,c.cans.ld.indliv,c.cans.ld.jobfun,
+                                     c.cans.ld.judgmt,c.cans.ld.legal,c.cans.ld.livsit,c.cans.ld.medicl,c.cans.ld.physcl,c.cans.ld.recret,c.cans.ld.school,c.cans.ld.sexdev,
+                                     c.cans.ld.sleep,c.cans.ld.socfun,c.cans.ps.hosptl,c.cans.rf.comsc,c.cans.rf.rescon,c.cans.rn.frqncy,c.cans.rn.invill,c.cans.sa.envinf,
+                                     c.cans.sa.parinf,c.cans.sa.perinf,c.cans.sa.severe,c.cans.sa.stgrec,c.cans.sc.attend,c.cans.sc.behavr,c.cans.sr.hissui,c.cans.type,c.cans.vi.hxviol,
+						             c.cans.disreas) 
+   Report(page)									
+   if $endbutton = "SUBMIT"
+    if UM_StaffYN = "Y"
+	 if (c.cans.staff = $operstaffid and c.cans.staff dp)
+	  Page = "ValidateReport"
+	 else
+	  Page = "Exit"
+	 endif
+	else
+     Page = "ValidateReport"
+	endif
+   elseif $endbutton = "CANCEL"
+    if UM_StaffYN = "Y" and (c.cans.staff != $operstaffid and c.cans.staff dp)
+     Page = "Authorize"
+	else
+	 if (c.cans.type = "1" or c.cans.type = "12") and c.cans.isn !dp
+	  Page = "SAL"
+	 else
+	  if CanSkipPage4() = "Y"	  
+	   if CanSkipPage3() = "Y"
+	    if CanSkipPage2() = "Y"
+		 if CanSkipPage1() = "Y"
+		  Page = "0"
+		 else
+		  Page = "1"
+		 endif
+		else
+		 Page = "2"
+		endif 
+	   else
+	    Page = "3"
+	   endif	
+      else
+	   Page = "4"
+	  endif
+	 endif
+	endif 
+   else	
+    if SaveData() = 0
+     Page = "Exit"
+	 {"lib_UACOMMON"}RemUMMonitor($regid,$scriptid)
+	 {"lib_UACOMMON"}AddBatch($regid,$scriptid)	   	 
+    endif
+   endif
+  elseif Page = "Authorize" 
+   c.cans.rloc = {"lib_CANS617"}RLOC(c.cans.ac.sexgen,c.cans.ad.affreg,c.cans.ad.dissoc,c.cans.ad.intrus,c.cans.cb.adjtrm,c.cans.cb.angctr,c.cans.cb.anxity,c.cans.cb.condct,
+                                     c.cans.cb.depres,c.cans.cb.eatdst,c.cans.cb.implsv,c.cans.cb.mania,c.cans.cb.oppdef,c.cans.cb.psychs,c.cans.cb.subabs,c.cans.cr.bully,
+                                     c.cans.cr.dangot,c.cans.cr.delqcy,c.cans.cr.episds,c.cans.cr.firset,c.cans.cr.oslfhr,c.cans.cr.runawy,c.cans.cr.sexagr,c.cans.cr.smutil,
+                                     c.cans.cr.socbeh,c.cans.cr.suicid,c.cans.dv.cognit,c.cans.dv.develp,c.cans.fs.inthrm,c.cans.fs.planin,c.cans.hs.durrec,c.cans.hs.timlst,
+                                     c.cans.jj.comsaf,c.cans.jj.histry,c.cans.jj.serios,c.cans.ld.commun,c.cans.ld.develp,c.cans.ld.family,c.cans.ld.indliv,c.cans.ld.jobfun,
+                                     c.cans.ld.judgmt,c.cans.ld.legal,c.cans.ld.livsit,c.cans.ld.medicl,c.cans.ld.physcl,c.cans.ld.recret,c.cans.ld.school,c.cans.ld.sexdev,
+                                     c.cans.ld.sleep,c.cans.ld.socfun,c.cans.ps.hosptl,c.cans.rf.comsc,c.cans.rf.rescon,c.cans.rn.frqncy,c.cans.rn.invill,c.cans.sa.envinf,
+                                     c.cans.sa.parinf,c.cans.sa.perinf,c.cans.sa.severe,c.cans.sa.stgrec,c.cans.sc.attend,c.cans.sc.behavr,c.cans.sr.hissui,c.cans.type,c.cans.vi.hxviol,
+						             c.cans.disreas)   
+   Report(page)
+   if $endbutton = "SUBMIT"
+    if (c.cans.aloc dp and c.cans.aloc != c.cans.rloc) and c.cans.loc_dev !dp
+     $brmsg("Please select the reason for deviation from the Recommended LOC!",1,"W","Deviation Reason") 
+     Page = "Authorize"
+    else									
+     Page = "ValidateALOC"
+    endif  
+   else
+    if {"lib_UACOMMON"}ConfirmExit() = "Y"   
+     return
+    endif
+   endif 
+  elseif Page = "SAL"
+   if (c.cans.type = "1" or c.cans.type = "12") and SkipSer = "N"
+    if c.cans.isn !dp
+     e.ser = AssessmentSer
+	 {"lib_UAEVENTS"}event(e.ser, e.ru, e.start, e.dur, e.loc, addsal)
+     if $endbutton = "SUBMIT"
+	  if addsal = "YES"
+       {"lib_UAEVENTS"}overlap(errors[],e.ser,e.start,e.dur,c.cans.date,$operstaffid)
+       if $maxarray(errors[]) = 0
+        Page = "Report"
+       else
+        {"lib_UACOMMON"}DisplayErrors(errors[])
+		$clear(errors[])
+       endif	 
+	  else 
+	   $clear(e.ser,e.ru,e.start,e.dur,e.loc)
+	    Page = "4"
+	  endif	
+'No escape without the event info
+	 else
+	  Page = "4"
+	 endif
+	else
+	 Page = "Report"
+    endif
+   else
+    select $endbutton
+	 case "SUBMIT" Page = "Report"
+	 case "CANCEL" Page = "4"
+	endselect
+   endif
+  elseif Page = "Exit"
+   return					 
+  endif
+ enddo
+end CANS617
+'%include c_func-lib
+
+function Report(mode) is null
+ mode     is x
+ if (StaffAssign_YN = "Y" and UM_StaffYN = "Y") and (c.cans.staff != $operstaffid and c.cans.staff dp)
+  UM_StaffYN = "N"
+ endif 
+
+ if UM_StaffYN = "Y" and (c.cans.staff != $operstaffid and c.cans.staff dp)
+  if mode = "Report"
+   $submitopt("off", "")
+  else
+   $submitopt("off", "Authorize")
+  endif
+ else
+  $submitopt("off", "Send to UM")
+ endif
+ $cancelopt("off", "Back") 
+ $form($funcname)
+  {"lib_UACOMMON"}ClientPageHeader($regid)
+  $br()$text("{center}CANS{/center}")
+  $br()    
+  if c.cans.isn dp
+   {"lib_UAEVENTS"}report(e.ser, e.ru, e.start, e.dur, e.loc)
+  endif
+  
+  $style("siginfotag")
+  $br()ReportHdr()
+  if c.cans.type = "1" or c.cans.type = "2" or (c.cans.type = "3" and c.cans.disreas = "9") or (c.cans.type = "3" and c.cans.disreas = "16") or c.cans.type = "12"
+   OtherQuestionRpt()
+  endif 
+  {"lib_CANS617"}ChildRiskRpt(q_text_cr_suicid,c.cans.cr.suicid,q_text_cr_smutil,c.cans.cr.smutil,q_text_cr_oslfhr,c.cans.cr.oslfhr,
+                              q_text_cr_dangot,c.cans.cr.dangot,q_text_cr_sexagr,c.cans.cr.sexagr,
+   					          q_text_cr_runawy,c.cans.cr.runawy,
+                              q_text_cr_delqcy,c.cans.cr.delqcy,
+                              q_text_cr_firset,c.cans.cr.firset,q_text_cr_socbeh,c.cans.cr.socbeh,
+							  q_text_cr_bully,c.cans.cr.bully,
+					          q_text_eb_frsmgt,c.cans.eb.frsmgt,q_text_eb_hostil,c.cans.eb.hostil,
+							  q_text_eb_parand,c.cans.eb.parand,
+							  q_text_eb_secgan,c.cans.eb.secgan,q_text_eb_viothk,c.cans.eb.viothk,
+					          q_text_rf_viopot,c.cans.rf.viopot,q_text_rf_rescon,c.cans.rf.rescon,
+							  q_text_rf_comsc,c.cans.rf.comsc,q_text_rf_trtinv,c.cans.rf.trtinv,
+					          q_text_sb_relton,c.cans.sb.relton,q_text_sb_phyfrc,c.cans.sb.phyfrc,
+							  q_text_sb_planin,c.cans.sb.planin,q_text_sb_agedif,c.cans.sb.agedif,
+							  q_text_sb_typsex,c.cans.sb.typsex,q_text_sb_resacc,c.cans.sb.resacc,
+                              q_text_sb_temcon,c.cans.sb.temcon,q_text_sb_hxsxbh,c.cans.sb.hxsxbh,
+							  q_text_sb_svsxab,c.cans.sb.svsxab,q_text_sb_prirtx,c.cans.sb.prirtx,
+					          q_text_rn_frqncy,c.cans.rn.frqncy,q_text_rn_condes,c.cans.rn.condes,
+							  q_text_rn_safdes,c.cans.rn.safdes,
+					          q_text_rn_invill,c.cans.rn.invill,q_text_rn_retown,c.cans.rn.retown,
+							  q_text_rn_invoth,c.cans.rn.invoth,q_text_rn_relexp,c.cans.rn.relexp,q_text_rn_planin,
+                              c.cans.rn.planin,
+                              q_text_jj_serios,c.cans.jj.serios,q_text_jj_histry,c.cans.jj.histry,q_text_jj_arrest,c.cans.jj.arrest,q_text_jj_planin,c.cans.jj.planin,q_text_jj_comsaf,c.cans.jj.comsaf,q_text_jj_lefcom,c.cans.jj.lefcom,
+                              q_text_jj_perinf,c.cans.jj.perinf,q_text_jj_parinf,c.cans.jj.parinf,q_text_jj_envinf,c.cans.jj.envinf,
+                              q_text_fs_serios,c.cans.fs.serios,q_text_fs_histry,c.cans.fs.histry,q_text_fs_planin,c.cans.fs.planin,q_text_fs_useacc,c.cans.fs.useacc,q_text_fs_inthrm,c.cans.fs.inthrm,q_text_fs_comsaf,c.cans.fs.comsaf,
+                              q_text_fs_resacc,c.cans.fs.resacc,q_text_fs_remrse,c.cans.fs.remrse,q_text_fs_futfir,c.cans.fs.futfir,
+					          q_text_vi_hxpabs,c.cans.vi.hxpabs,q_text_vi_hxviol,c.cans.vi.hxviol,q_text_vi_wdomab,c.cans.vi.wdomab,q_text_vi_wenvab,c.cans.vi.wenvab,
+							  q_text_hissui,c.cans.sr.hissui,q_text_hfmsui,c.cans.sr.hfmsui,q_text_firear,c.cans.sr.firear,
+							  c.cans.type, c.cans.disreas)
+  {"lib_CANS617"}BehEmoRpt(q_text_cb_psychs,c.cans.cb.psychs,q_text_cb_mania,c.cans.cb.mania,q_text_cb_implsv,c.cans.cb.implsv,q_text_cb_depres,c.cans.cb.depres,q_text_cb_anxity,c.cans.cb.anxity,q_text_cb_oppdef,c.cans.cb.oppdef,
+                           q_text_cb_condct,c.cans.cb.condct,q_text_cb_adjtrm,c.cans.cb.adjtrm,q_text_cb_angctr,c.cans.cb.angctr,q_text_cb_subabs,c.cans.cb.subabs,q_text_cb_eatdst,c.cans.cb.eatdst,
+				           q_text_tr_sexabs,c.cans.tr.sexabs,q_text_tr_emclos,c.cans.tr.emclos,q_text_tr_freq,c.cans.tr.freq,q_text_tr_durat,c.cans.tr.durat,q_text_tr_force,c.cans.tr.force,q_text_tr_react,c.cans.tr.react,
+                           q_text_tr_phyabs,c.cans.tr.phyabs,q_text_tr_victim,c.cans.tr.victim,q_text_tr_emoabs,c.cans.tr.emoabs,q_text_tr_medtrm,c.cans.tr.medtrm,q_text_tr_natdis,c.cans.tr.natdis,q_text_tr_wtofam,c.cans.tr.wtofam,
+						   q_text_tr_wtocom,c.cans.tr.wtocom,
+				           q_text_tr_wcrime,c.cans.tr.wcrime,q_text_tr_waraff,c.cans.tr.waraff,q_text_tr_teraff,c.cans.tr.teraff,
+				           q_text_ad_affreg,c.cans.ad.affreg,q_text_ad_intrus,c.cans.ad.intrus,q_text_ad_attach,c.cans.ad.attach,q_text_ad_dissoc,c.cans.ad.dissoc,q_text_ad_timb4t,c.cans.ad.timb4t,
+				           q_text_sa_severe,c.cans.sa.severe,q_text_sa_durati,c.cans.sa.durati,q_text_sa_stgrec,c.cans.sa.stgrec,q_text_sa_perinf,c.cans.sa.perinf,q_text_sa_parinf,c.cans.sa.parinf,q_text_sa_envinf,c.cans.sa.envinf,
+						   c.cans.type,c.cans.disreas)
+  if c.cans.type = "1" or c.cans.type = "2" or (c.cans.type = "3" and c.cans.disreas = "9") or (c.cans.type = "3" and c.cans.disreas = "16") or c.cans.type = "12"
+   {"lib_CANS617"}LifeDomainRpt(q_text_ld_family,c.cans.ld.family,q_text_ld_livsit,c.cans.ld.livsit,q_text_ld_school,c.cans.ld.school,
+                      q_text_ld_socFun,c.cans.ld.socFun,q_text_ld_recret,c.cans.ld.recret,q_text_ld_develp,c.cans.ld.develp,q_text_ld_commun,c.cans.ld.commun,q_text_ld_judgmt,c.cans.ld.judgmt,
+                      q_text_ld_jobfun,c.cans.ld.jobfun,q_text_ld_legal,c.cans.ld.legal,q_text_ld_medicl,c.cans.ld.medicl,q_text_ld_physcl,c.cans.ld.physcl,
+                      q_text_ld_sexdev,c.cans.ld.sexdev,q_text_ld_sleep,c.cans.ld.sleep,q_text_ld_indliv,c.cans.ld.indliv,
+	   		          q_text_sc_behavr,c.cans.sc.behavr,q_text_sc_achiev,c.cans.sc.achiev,q_text_sc_attend,c.cans.sc.attend,q_text_sc_reltch,c.cans.sc.reltch,
+					  q_text_dv_cognit,c.cans.dv.cognit,q_text_dv_develp,c.cans.dv.develp,q_text_dv_selfcr,c.cans.dv.selfcr)
+   {"lib_CANS617"}CareGiveRpt(c.cans.cg.na,q_text_cg_super,c.cans.cg.super,q_text_cg_involv,
+                              c.cans.cg.involv,q_text_cg_knoldg,c.cans.cg.knoldg,q_text_cg_organz,
+                              c.cans.cg.organz,q_text_cg_socres,c.cans.cg.socres,q_text_cg_ressbl,
+                              c.cans.cg.ressbl,q_text_cg_physcl,c.cans.cg.physcl,q_text_cg_menhth,
+                              c.cans.cg.menhth,q_text_cg_subabs,c.cans.cg.subabs,q_text_cg_develp,
+                              c.cans.cg.develp,q_text_cg_chldcr,c.cans.cg.chldcr,q_text_cg_miltra,
+                              c.cans.cg.miltra,q_text_cg_famsts,c.cans.cg.famsts,q_text_cg_safety,c.cans.cg.safety,
+                              q_text_fc_selfcr,c.cans.fc.selfcr,q_text_fc_culstr,c.cans.fc.culstr,
+                              q_text_fc_empedu,c.cans.fc.empedu,q_text_fc_eduatt,c.cans.fc.eduatt,
+                              q_text_fc_legal,c.cans.fc.legal,q_text_fc_motive,c.cans.fc.motive,
+                              q_text_fc_finres,c.cans.fc.finres,q_text_fc_transp,c.cans.fc.transp)
+   {"lib_CANS617"}ChildStrRpt(q_text_cs_family,c.cans.cs.family,q_text_cs_intper,c.cans.cs.intper,
+                              q_text_cs_optims,c.cans.cs.optims,q_text_cs_educat,c.cans.cs.educat,
+                              q_text_cs_vocate,c.cans.cs.vocate,q_text_cs_talint,c.cans.cs.talint,
+                              q_text_cs_spirel,c.cans.cs.spirel,q_text_cs_comlif,c.cans.cs.comlif,
+                              q_text_cs_permin,c.cans.cs.permin,q_text_cs_youth,c.cans.cs.youth,
+                              q_text_cs_natsup,c.cans.cs.natsup)
+   {"lib_CANS617"}CultureRpt(q_text_ac_langua,c.cans.ac.langua,
+                             q_text_ac_identy,c.cans.ac.identy,
+                             q_text_ac_sexgen,c.cans.ac.sexgen,
+                             q_text_ac_ritual,c.cans.ac.ritual,
+                             q_text_ac_culstr,c.cans.ac.culstr)
+   {"lib_CANS617"}PsyHospRpt(q_text_ps_hosptl,c.cans.ps.hosptl,
+                             q_text_hs_numprr,c.cans.hs.numprr,
+                             q_text_hs_longst,c.cans.hs.longst,
+                             q_text_hs_durrec,c.cans.hs.durrec,
+                             q_text_hs_timlst,c.cans.hs.timlst)
+   {"lib_CANS617"}CrisisRpt(q_text_cr_episds,c.cans.cr.episds)
+   {"lib_CANS617"}Page4Rpt(c.cans.type,c.cans.disreas,c.cans.grade,c.cans.restype,c.cans.commdate,c.cans.school3m,c.cans.arrest,c.cans.resother1,c.cans.bipsq1,c.cans.bipsq2,c_cans_grade,c_cans_restype,CansGradeDCT,CansResTypeDCT,q_text_commdate,
+                           q_text_school3m,q_text_grade,q_text_arrest,q_text_restype,q_text_resother1,q_text_bips11,q_text_bips12,q_text_bips2,a_text_bips11,a_text_bips12,a_text_bips13,a_text_bips21,a_text_bips22,a_text_bips23)
+  endif
+  if mode = "Report"
+   if UM_StaffYN = "Y" and (c.cans.staff != $operstaffid and c.cans.staff dp)
+    $br(){"lib_CANS617"}StaffComments(q_text_comment,c.cans.comment,c.cans.staff)
+    $br()ALOCRpt()
+   else
+    $br()RLOCRpt()
+	$br()
+    if OptStaffPin = "Y"
+	 $tag("<hr/>")
+	 $br()$ctag("<div align='center'>")
+ 	       $text("Staff Pincode: ","datatag")
+		   $textbox(c_cans_pincode,,32,32,"Y","normal")
+          $ctag("</div>")   	
+    endif
+   endif  
+  else
+   $br(){"lib_CANS617"}StaffComments(q_text_comment,c.cans.comment,c.cans.staff)
+   $br()ALOC()
+  endif
+ $sendform($funcname)
+end Report
+
+function SaveData() is i
+ mode is x
+
+ bad_char_index is i
+ bad_char[] is x
+ bad_char[1] = "<"
+ bad_char[2] = ">" 
+ bad_char[3] = "&"  
+ 
+ NewUID     is n
+ CurrentUID is x
+ 
+ c.cans.age = {"lib_UACOMMON"}ClientAge($regid, c.cans.date)
+ if c.cans.compd !dp
+  mode = "ADD"
+ else
+  mode = "UPDATE"  
+ endif
+ if PromptNED = 2
+  mode = "UPDATE"
+ endif
+
+ CurrentUID = c.cans.rec[uid]
+ $dblock()
+ SaveData = $dbpoint(02, $regid, c.cans.rec) 
+ if c.cans.compd dp
+  c.cans.snapid = {"l_snapLibSC"}sn_GetSnapID()	                           
+ endif 
+ if c.cans.resother1 dp
+  c.cans.resother1 = $seg(c.cans.resother1,1,44)
+  c.cans.resother2 = $seg(c.cans.resother1,45,56)
+ else
+  $clear(c.cans.resother1,c.cans.resother2)
+ endif
+ if c.cans.aloc = "100"
+  $clear(c.cans.intref,c.cans.intrefoth)
+ endif 
+'replace characters that could cause parsing errors in the batch, textbox/block fields
+'Not sure what to replace them with yet, so for now just an underscore
+ if c.cans.resother1 dp
+  bad_char_index = 0
+  do while bad_char_index++ < $maxarray(bad_char[])
+   c.cans.resother1 = $replace(bad_char[bad_char_index],"_",c.cans.resother1)
+  enddo 
+ endif
+ if c.cans.resother2 dp
+  bad_char_index = 0
+  do while bad_char_index++ < $maxarray(bad_char[])
+   c.cans.resother2 = $replace(bad_char[bad_char_index],"_",c.cans.resother2)
+  enddo
+ endif
+ if c.cans.intrefoth dp
+  bad_char_index = 0
+  do while bad_char_index++ < $maxarray(bad_char[])
+   c.cans.intrefoth = $replace(bad_char[bad_char_index],"_",c.cans.intrefoth)
+  enddo
+ endif
+ if c.cans.disoth dp
+  bad_char_index = 0
+  do while bad_char_index++ < $maxarray(bad_char[])
+   c.cans.disoth = $replace(bad_char[bad_char_index],"_",c.cans.disoth)
+  enddo
+ endif
+ if c.cans.acomment dp
+  bad_char_index = 0
+  do while bad_char_index++ < $maxarray(bad_char[])
+   c.cans.acomment = $replace(bad_char[bad_char_index],"_",c.cans.acomment)
+  enddo
+ endif
+ if c.cans.comment dp
+  bad_char_index = 0
+  do while bad_char_index++ < $maxarray(bad_char[])
+   c.cans.comment = $replace(bad_char[bad_char_index],"_",c.cans.comment)
+  enddo
+ endif
+ if c.cans.devjust dp
+  bad_char_index = 0
+  do while bad_char_index++ < $maxarray(bad_char[])
+   c.cans.devjust = $replace(bad_char[bad_char_index],"_",c.cans.devjust)
+  enddo
+ endif
+ if c.cans.devoth dp
+  bad_char_index = 0
+  do while bad_char_index++ < $maxarray(bad_char[])
+   c.cans.devoth = $replace(bad_char[bad_char_index],"_",c.cans.devoth)
+  enddo 
+ endif  
+ if c.cans.devjust dp
+  c.cans.devR1 = $seg(c.cans.devjust,1,63)
+  c.cans.devR2 = $seg(c.cans.devjust,64,63)
+  c.cans.devR3 = $seg(c.cans.devjust,127,63)
+  c.cans.devR4 = $seg(c.cans.devjust,190,63)
+  c.cans.devR5 = $seg(c.cans.devjust,253,3)
+ else
+  $clear(c.cans.devR1,c.cans.devR2,c.cans.devR3,c.cans.devR4,c.cans.devR5)
+ endif 
+ if mode = "ADD"
+  if (c.cans.type = "1" or c.cans.type = "12") and c.cans.isn !dp
+   c.cans.isn = SaveEvent()
+  elseif c.cans.type = "3" and c.cans.disreas != "9"
+   $clear(c.cans.rloc,c.cans.aloc)
+  endif
+  c.cans.rec[effd] = c.cans.date
+  NewUID = c.cans.rec[uid]
+  c.cans.canstype = "1"
+  $clear(c.cans.aloc)
+  SaveData = $dbadddst(02, $regid, cans_dstlist) 
+ else
+  c.cans.uniqid = CurrentUID
+  c.cans.uniqid = $replace(".","", c.cans.uniqid)
+  c.cans.uniqid += $regid 
+'  c.cans.rec[effd] = c.cans.date
+  if c.cans.alocstaff dp
+   if (c.cans.dloc = c.cans.rloc) and (c.cans.dloc = c.cans.aloc)
+    $clear(c.cans.dloc)
+   endif
+   if c.cans.dloc dp and c.cans.dloc = c.cans.rloc
+    $clear(c.cans.dloc)
+   endif  
+   if c.cans.dloc dp and c.cans.aloc != c.cans.dloc
+    $clear(c.cans.dloc)
+   endif  
+  endif
+  if c.cans.compd !dp and c.cans.aloc = "100"
+   $clear(c.cans.aloc)
+  endif
+  if c.cans.type != "1" and c.cans.type != "2"
+   $clear(c.cans.bipsq1,c.cans.bipsq2)
+  endif 
+  if (c.cans.bipsq1 != "Y" and c.cans.bipsq2 dp) and c.cans.alocstaff dp
+   $clear(c.cans.bipsq2)
+  endif  
+  SaveData = $dbupdate(02, $regid, 
+c.cans.rec,c.cans.staff,c.cans.ver,c.cans.date,c.cans.age,c.cans.aloc,c.cans.rloc,c.cans.dloc,c.cans.compd,c.cans.type,
+c.cans.school3m,c.cans.arrest,c.cans.grade,c.cans.restype,c.cans.resother1,c.cans.resother2,
+c.cans.sped,c.cans.extdrev,c.cans.foster,c.cans.riskplc,c.cans.tcoommi,
+c.cans.disdt,c.cans.disreas,c.cans.disref,c.cans.disoth,
+c.cans.intref,c.cans.intrefoth,
+c.cans.loc_dev,c.cans.devoth,c.cans.devr1,c.cans.devr2,c.cans.devr2,c.cans.devr3,c.cans.devr4,c.cans.devr5,
+c.cans.alocstaff,c.cans.alocdate,c.cans.alocedate,c.cans.fairhear,
+c.cans.snapid,
+c.cans.isn,
+c.cans.commdate,
+c.cans.comment,c.cans.acomment,
+c.cans.devjust,
+c.cans.canstype,
+'c.cans.resv5,c.cans.resv6,c.cans.resv7,c.cans.resv8,c.cans.resv9,
+c.cans.ld.family,c.cans.ld.livsit,c.cans.ld.school,c.cans.ld.socFun,c.cans.ld.recret,c.cans.ld.develp,c.cans.ld.commun,c.cans.ld.judgmt,c.cans.ld.jobfun,c.cans.ld.legal,c.cans.ld.medicl,c.cans.ld.physcl,c.cans.ld.sexdev,c.cans.ld.sleep,c.cans.ld.indliv,
+c.cans.cs.family,c.cans.cs.intper,c.cans.cs.optims,c.cans.cs.educat,c.cans.cs.vocate,c.cans.cs.talint,c.cans.cs.spirel,c.cans.cs.comlif,c.cans.cs.permin,c.cans.cs.youth,c.cans.cs.natsup,
+c.cans.ac.langua,c.cans.ac.identy,c.cans.ac.sexgen,c.cans.ac.ritual,c.cans.ac.culstr,
+c.cans.ps.hosptl,
+c.cans.cr.episds,
+c.cans.cg.na,c.cans.cg.super,c.cans.cg.involv,c.cans.cg.knoldg,c.cans.cg.organz,c.cans.cg.socres,c.cans.cg.ressbl,c.cans.cg.physcl,c.cans.cg.menhth,c.cans.cg.subabs,c.cans.cg.develp,c.cans.cg.chldcr,c.cans.cg.miltra,c.cans.cg.famsts,c.cans.cg.safety,
+c.cans.cb.psychs,c.cans.cb.mania,c.cans.cb.implsv,c.cans.cb.depres,c.cans.cb.anxity,c.cans.cb.oppdef,c.cans.cb.condct,c.cans.cb.adjtrm,c.cans.cb.angctr,c.cans.cb.subabs,c.cans.cb.eatdst,
+c.cans.cr.suicid,c.cans.cr.smutil,c.cans.cr.oslfhr,c.cans.cr.dangot,c.cans.cr.sexagr,c.cans.cr.runawy,c.cans.cr.delqcy,c.cans.cr.firset,c.cans.cr.socbeh,c.cans.cr.bully,
+c.cans.sc.behavr,c.cans.sc.achiev,c.cans.sc.attend,c.cans.sc.reltch,
+c.cans.dv.cognit,c.cans.dv.develp,c.cans.dv.selfcr,
+c.cans.fc.selfcr,c.cans.fc.culstr,c.cans.fc.empedu,c.cans.fc.eduatt,c.cans.fc.legal,c.cans.fc.motive,c.cans.fc.finres,c.cans.fc.transp,
+c.cans.tr.sexabs,c.cans.tr.phyabs,c.cans.tr.victim,c.cans.tr.emoabs,c.cans.tr.medtrm,c.cans.tr.natdis,c.cans.tr.wtofam,c.cans.tr.wtocom,c.cans.tr.wcrime,c.cans.tr.waraff,c.cans.tr.teraff,c.cans.tr.emclos,c.cans.tr.freq ,c.cans.tr.durat,
+c.cans.tr.force,c.cans.tr.react,
+c.cans.ad.affreg,c.cans.ad.intrus,c.cans.ad.attach,c.cans.ad.dissoc,c.cans.ad.timb4t,
+c.cans.sa.severe,c.cans.sa.durati,c.cans.sa.stgrec,c.cans.sa.perinf,c.cans.sa.parinf,c.cans.sa.envinf,
+c.cans.vi.hxpabs,c.cans.vi.hxviol,c.cans.vi.wdomab,c.cans.vi.wenvab,
+c.cans.eb.frsmgt,c.cans.eb.hostil,c.cans.eb.parand,c.cans.eb.secgan,c.cans.eb.viothk,
+c.cans.rf.viopot,c.cans.rf.rescon,c.cans.rf.comsc,c.cans.rf.trtinv,
+c.cans.sb.relton,c.cans.sb.phyfrc,c.cans.sb.planin,c.cans.sb.agedif,c.cans.sb.typsex,c.cans.sb.resacc,c.cans.sb.temcon,c.cans.sb.hxsxbh,c.cans.sb.svsxab,c.cans.sb.prirtx,
+c.cans.rn.frqncy,c.cans.rn.condes,c.cans.rn.safdes,c.cans.rn.invill,c.cans.rn.retown,c.cans.rn.invoth,c.cans.rn.relexp,c.cans.rn.planin,
+c.cans.jj.serios,c.cans.jj.histry,c.cans.jj.arrest,c.cans.jj.planin,c.cans.jj.comsaf,c.cans.jj.lefcom,c.cans.jj.perinf,c.cans.jj.parinf,c.cans.jj.envinf,
+c.cans.fs.serios,c.cans.fs.histry,c.cans.fs.planin,c.cans.fs.useacc,c.cans.fs.inthrm,c.cans.fs.comsaf,c.cans.fs.resacc,c.cans.fs.remrse,c.cans.fs.futfir,
+c.cans.hs.numprr,c.cans.hs.longst,c.cans.hs.durrec,c.cans.hs.timlst,
+c.cans.sr.hissui,c.cans.sr.hfmsui,c.cans.sr.firear,
+c.cans.caredt,
+c.cans.pincode,c.cans.pindate,c.cans.pintime,
+c.cans.bipsq1,c.cans.bipsq2,
+c.cans.uniqid)  
+ endif
+ if SaveData = 0
+  $brmsg("CANS Assessment Successfully saved to Database!",1,"W","Process Complete")
+ elseif SaveData = 4 
+  $brmsg("Client is currently locked by another process, please wait a moment and retry",1,"W","Please Retry") 
+ else
+  $brmsg(`"Error Saving Data,  RC=" + SaveData`,1,"W","Error Saving")
+ endif
+end SaveData
+
+'Life Domain
+function LifeDomain() is null
+ bgcolor = "white"
+ if $find(ld_errortxt,errors[],,"F") > 0
+  bgcolor = "red"
+ endif
+ $fieldset("Life Domain",,"datatag")
+  {"lib_CANS617"}LDScoring(`table_wbgcolor`)
+  $table($funcname)
+   $row()
+    $col("center",,"50%")
+    $col("center",,"10%")$text("NA")
+    radio_index = -1
+	do while radio_index++ < 3
+	 $col("center",,"10%")$text(radio_index)
+	enddo
+   $row()
+    radio_index = 0
+	do while radio_index++ < 6
+	 $col()$tag("<hr/>")
+	enddo
+   $row(,row_color1)
+    $col()$text(q_text_ld_family)
+    $col("center")$radio(c.cans.ld.family,,"9")
+	radio_index = -1
+	do while radio_index++ < 3
+     $col("center")$radio(c.cans.ld.family,,$castx(radio_index))
+	enddo
+   $row(,row_color2)
+    $col()$text(q_text_ld_livsit)
+    $col("center")
+	radio_index = -1
+	do while radio_index++ < 3
+     $col("center")$radio(c.cans.ld.livsit,,$castx(radio_index))
+	enddo
+   $row(,row_color1)
+    $col()$text(q_text_ld_school)$text("{sup}9{/sup}")
+    $col("center")
+    $col("center")$radio(c.cans.ld.school,,"0")
+	radio_index = 0
+	do while radio_index++ < 3
+     $col("center",,,,,col_color_multi) $radio(c.cans.ld.school,,$castx(radio_index))
+	enddo
+   $row(,row_color2)
+    $col()$text(q_text_ld_socFun)
+    $col("center")
+    radio_index = -1
+	do while radio_index++ < 3
+     $col("center")$radio(c.cans.ld.socFun,,$castx(radio_index))	
+	enddo
+   $row(,row_color1)
+    $col()$text(q_text_ld_recret)
+    $col("center")
+    radio_index = -1
+	do while radio_index++ < 3	
+	 $col("center")$radio(c.cans.ld.recret,,$castx(radio_index))
+    enddo
+   $row(,row_color2)
+    $col()$text(q_text_ld_develp)$text("{sup}10{/sup}")
+    $col("center")
+    $col("center")$radio(c.cans.ld.develp,,"0")
+	radio_index = 0
+	do while radio_index++ < 3
+     $col("center",,,,,col_color_multi) $radio(c.cans.ld.develp,,$castx(radio_index))  
+	enddo
+   $row(,row_color1)
+    $col()$text(q_text_ld_commun)
+    $col("center")
+	radio_index = -1
+	do while radio_index++ < 3
+     $col("center")$radio(c.cans.ld.commun,,$castx(radio_index))
+	enddo
+   $row(,row_color2)
+    $col()$text(q_text_ld_judgmt)
+    $col("center")
+	radio_index = -1
+	do while radio_index++ < 3
+     $col("center")$radio(c.cans.ld.judgmt,,$castx(radio_index))
+	enddo
+   $row(,row_color1)
+    $col()$text(q_text_ld_jobfun)
+    $col("center")$radio(c.cans.ld.jobfun,,"9")
+	radio_index = -1
+	do while radio_index++ < 3
+     $col("center")$radio(c.cans.ld.jobfun,,$castx(radio_index))
+	enddo
+   $row(,row_color2)
+    $col()$text(q_text_ld_legal) 
+    $col("center")
+	radio_index = -1
+	do while radio_index++ < 3
+     $col("center")$radio(c.cans.ld.legal,,$castx(radio_index))
+	enddo
+   $row(,row_color1)
+    $col()$text(q_text_ld_medicl)
+    $col("center")
+	radio_index = -1
+	do while radio_index++ < 3	
+     $col("center")$radio(c.cans.ld.medicl,,$castx(radio_index))
+	enddo
+   $row(,row_color2)
+    $col()$text(q_text_ld_physcl)
+    $col("center")
+	radio_index = -1
+	do while radio_index++ < 3		
+     $col("center")$radio(c.cans.ld.physcl,,$castx(radio_index))
+    enddo
+   $row(,row_color1)
+    $col()$text(q_text_ld_sexdev)
+    $col("center")
+	radio_index = -1
+	do while radio_index++ < 3			
+     $col("center")$radio(c.cans.ld.sexdev,,$castx(radio_index))
+    enddo	
+   $row(,row_color2)
+    $col()$text(q_text_ld_sleep) 
+    $col("center")
+	radio_index = -1
+	do while radio_index++ < 3				
+     $col("center")$radio(c.cans.ld.sleep,,$castx(radio_index))
+	enddo
+   $row(,row_color1)
+    $col()$text(q_text_ld_indliv)
+	radio_index = -1
+    $col("center")$radio(c.cans.ld.indliv,,"9")
+	do while radio_index++ < 3					
+     $col("center")$radio(c.cans.ld.indliv,,$castx(radio_index))
+	enddo
+  $endtable($funcname)
+ $endfieldset()
+end LifeDomain
+
+function CareGive() is null
+ bgcolor = "white"
+ if $find(cg_errortxt,errors[],,"F") > 0
+  bgcolor = "red"
+ endif
+ $fieldset("Caregiver Strengths and Needs",,"datatag")
+  $text("Caregiver identified?","error")$radio(c.cans.cg.na,"Yes", "",,,"CG","Y")$radio(c.cans.cg.na,"No or N/A", "9",,,"CG","N")
+  $block("CG","Y") 
+   {"lib_CANS617"}CareGiverScoring(`table_wbgcolor`)
+   $table($funcname)
+    $row()
+     $col("center",,"50%")
+     $col("center",,"10%")$text("NA")
+	 radio_index = -1
+	 do while radio_index++ < 3
+      $col("center",,"10%")$text(radio_index)
+	 enddo
+    $row()
+     radio_index = 0
+	 do while radio_index++ < 6
+	  $col()$tag("<hr/>")
+	 enddo
+    $row(,row_color1)
+     $col()$text(q_text_cg_super)
+     $col("center")$radio(c.cans.cg.super,,"9")
+	 radio_index = -1
+	 do while radio_index++ < 3
+      $col("center")$radio(c.cans.cg.super,,$castx(radio_index))
+	 enddo
+    $row(,row_color2)
+     $col()$text(q_text_cg_involv)
+     $col("center")$radio(c.cans.cg.involv,,"9")
+	 radio_index = -1
+	 do while radio_index++ < 3	 
+      $col("center")$radio(c.cans.cg.involv,,$castx(radio_index))
+	 enddo
+    $row(,row_color1)
+     $col()$text(q_text_cg_knoldg) 
+     $col("center")$radio(c.cans.cg.knoldg,,"9")
+	 radio_index = -1
+	 do while radio_index++ < 3	 	 
+      $col("center")$radio(c.cans.cg.knoldg,,$castx(radio_index))
+	 enddo
+    $row(,row_color2)
+    $col()$text(q_text_cg_organz)
+     $col("center")$radio(c.cans.cg.organz,,"9")
+	 radio_index = -1
+	 do while radio_index++ < 3
+      $col("center")$radio(c.cans.cg.organz,,$castx(radio_index))
+	 enddo
+    $row(,row_color1)
+     $col()$text(q_text_cg_socres)
+     $col("center")$radio(c.cans.cg.socres,,"9")
+	 radio_index = -1
+	 do while radio_index++ < 3
+      $col("center")$radio(c.cans.cg.socres,,$castx(radio_index))
+	 enddo
+    $row(,row_color2)
+     $col()$text(q_text_cg_ressbl)
+     $col("center")$radio(c.cans.cg.ressbl,,"9")
+	 radio_index = -1
+	 do while radio_index++ < 3
+      $col("center")$radio(c.cans.cg.ressbl,,$castx(radio_index))
+	 enddo
+    $row(,row_color1)
+     $col()$text(q_text_cg_physcl)
+     $col("center")$radio(c.cans.cg.physcl,,"9")
+     radio_index = -1
+	 do while radio_index++ < 3
+	  $col("center")$radio(c.cans.cg.physcl,,$castx(radio_index))
+	 enddo
+    $row(,row_color2)
+     $col()$text(q_text_cg_menhth)
+     $col("center")$radio(c.cans.cg.menhth,,"9")
+	 radio_index = -1
+	 do while radio_index++ < 3
+      $col("center")$radio(c.cans.cg.menhth,,$castx(radio_index))
+	 enddo
+    $row(,row_color1)
+     $col()$text(q_text_cg_subabs)
+     $col("center")$radio(c.cans.cg.subabs,,"9")
+	 radio_index = -1
+	 do while radio_index++ < 3
+      $col("center")$radio(c.cans.cg.subabs,,$castx(radio_index))
+	 enddo
+    $row(,row_color2)
+     $col()$text(q_text_cg_develp) 
+     $col("center")$radio(c.cans.cg.develp,,"9")
+	 radio_index = -1
+	 do while radio_index++ < 3
+      $col("center")$radio(c.cans.cg.develp,,$castx(radio_index))
+	 enddo
+    $row(,row_color1)
+     $col()$text(q_text_cg_chldcr)
+     $col("center")$radio(c.cans.cg.chldcr,,"9")
+	 radio_index = -1
+	 do while radio_index++ < 3
+      $col("center")$radio(c.cans.cg.chldcr,,$castx(radio_index))
+	 enddo
+    $row(,row_color2)
+     $col()$text(q_text_cg_miltra)
+     $col("center")$radio(c.cans.cg.miltra,,"9")
+	 radio_index = -1
+	 do while radio_index++ < 3
+      $col("center")$radio(c.cans.cg.miltra,,$castx(radio_index))
+	 enddo
+    $row(,row_color1)
+     $col()$text(q_text_cg_famsts)$text("{sup}11{/sup}")
+     $col("center")$radio(c.cans.cg.famsts,,"9")
+     $col("center")$radio(c.cans.cg.famsts,,"0")
+	 radio_index = 0
+	 do while radio_index++ < 3
+      $col("center",,,,,col_color_multi)$radio(c.cans.cg.famsts,,$castx(radio_index))
+	 enddo
+    $row(,row_color2)
+     $col()$text(q_text_cg_safety)
+     $col("center")$radio(c.cans.cg.safety,,"9")
+	 radio_index = -1
+	 do while radio_index++ < 3
+      $col("center")$radio(c.cans.cg.safety,,$castx(radio_index))
+	 enddo
+   $endtable($funcname)
+  $endblock("CG","Y" )
+ $endfieldset() 
+end CareGive
+
+'Child Strengths
+function ChildStrength() is null
+ bgcolor = "white"
+ if $find(cs_errortxt,errors[],,"F") > 0
+  bgcolor = "red"
+ endif
+ $fieldset("Child Strengths",,"datatag")
+  {"lib_CANS617"}ChildSRScoring(`table_wbgcolor`)
+  $table($funcname)
+   $row()
+    $col("center",,"60%")
+    radio_index = -1
+	do while radio_index++ < 3
+	 $col("center",,"10%")$text(radio_index)
+	enddo
+   $row()
+    radio_index = 0
+	do while radio_index++ < 5
+	 $col()$tag("<hr/>")
+	enddo
+   $row(,row_color1)
+    $col()$text(q_text_cs_family)
+    radio_index = -1
+	do while radio_index++ < 3
+	 $col("center")$radio(c.cans.cs.family,,$castx(radio_index))
+	enddo
+   $row(,row_color2)
+    $col()$text(q_text_cs_intper) 
+    radio_index = -1
+	do while radio_index++ < 3
+     $col("center")$radio(c.cans.cs.intper,,$castx(radio_index))
+	enddo
+   $row(,row_color1)
+    $col()$text(q_text_cs_optims)
+    radio_index = -1
+	do while radio_index++ < 3
+     $col("center")$radio(c.cans.cs.optims,,$castx(radio_index))
+	enddo	
+   $row(,row_color2)
+    $col()$text(q_text_cs_educat)
+    radio_index = -1
+	do while radio_index++ < 3
+     $col("center")$radio(c.cans.cs.educat,,$castx(radio_index))
+	enddo	
+   $row(,row_color1)
+    $col()$text(q_text_cs_vocate)
+    radio_index = -1
+	do while radio_index++ < 3
+     $col("center")$radio(c.cans.cs.vocate,,$castx(radio_index))
+	enddo	
+   $row(,row_color2)
+    $col()$text(q_text_cs_talint)
+    radio_index = -1
+	do while radio_index++ < 3
+     $col("center")$radio(c.cans.cs.talint,,$castx(radio_index))
+	enddo
+   $row(,row_color1)
+    $col()$text(q_text_cs_spirel)
+    radio_index = -1
+	do while radio_index++ < 3
+     $col("center")$radio(c.cans.cs.spirel,,$castx(radio_index))
+	enddo	
+   $row(,row_color2)
+    $col()$text(q_text_cs_comlif)
+    radio_index = -1
+	do while radio_index++ < 3
+     $col("center")$radio(c.cans.cs.comlif,,$castx(radio_index))
+	enddo	
+   $row(,row_color1)
+    $col()$text(q_text_cs_permin)
+    radio_index = -1
+	do while radio_index++ < 3
+     $col("center")$radio(c.cans.cs.permin,,$castx(radio_index))
+	enddo	 
+   $row(,row_color2)
+    $col()$text(q_text_cs_youth)
+    radio_index = -1
+	do while radio_index++ < 3
+     $col("center")$radio(c.cans.cs.youth,,$castx(radio_index))
+	enddo	
+   $row(,row_color1)
+    $col()$text(q_text_cs_natsup)
+    radio_index = -1
+	do while radio_index++ < 3
+     $col("center")$radio(c.cans.cs.natsup,,$castx(radio_index))
+	enddo	
+  $endtable($funcname)
+ $endfieldset()
+end ChildStrength
+
+'Child Behavioral and Emotional Needs
+function ChildBehave() is null
+ bgcolor = "white"
+ if $find(cb_errortxt,errors[],,"F") > 0
+  bgcolor = "red"
+ endif
+ $fieldset("Child Behavioral and Emotional Needs",,"datatag")
+  {"lib_CANS617"}CBScoring(`table_wbgcolor`)
+  $table($funcname)
+   $row()
+    $col("center",,"60%")
+    radio_index = -1
+	do while radio_index++ < 3
+     $col("center",,"10%")$text(radio_index)
+	enddo
+   $row()
+    radio_index = 0
+	do while radio_index++ < 5
+     $col()$tag("<hr/>")
+	enddo
+   $row(,row_color1)
+    $col()$text(q_text_cb_psychs)
+    radio_index = -1
+	do while radio_index++ < 3
+     $col("center")$radio(c.cans.cb.psychs,,$castx(radio_index))
+	enddo	
+   $row(,row_color2)
+    $col()$text(q_text_cb_mania)
+    radio_index = -1
+	do while radio_index++ < 3
+     $col("center")$radio(c.cans.cb.mania,,$castx(radio_index))
+	enddo	 
+   $row(,row_color1)
+    $col()$text(q_text_cb_implsv)
+    radio_index = -1
+	do while radio_index++ < 3
+     $col("center")$radio(c.cans.cb.implsv,,$castx(radio_index))
+	enddo	 
+   $row(,row_color2)
+    $col()$text(q_text_cb_depres)
+    radio_index = -1
+	do while radio_index++ < 3
+     $col("center")$radio(c.cans.cb.depres,,$castx(radio_index))
+	enddo	
+   $row(,row_color1)
+    $col()$text(q_text_cb_anxity)
+    radio_index = -1
+	do while radio_index++ < 3
+     $col("center")$radio(c.cans.cb.anxity,,$castx(radio_index))
+	enddo	
+   $row(,row_color2)
+    $col()$text(q_text_cb_oppdef)
+    radio_index = -1
+	do while radio_index++ < 3
+     $col("center")$radio(c.cans.cb.oppdef,,$castx(radio_index))
+	enddo	
+   $row(,row_color1)
+    $col()$text(q_text_cb_condct)
+    radio_index = -1
+	do while radio_index++ < 3
+     $col("center")$radio(c.cans.cb.condct,,$castx(radio_index))
+	enddo	
+   $row(,row_color2)
+    $col()$text(q_text_cb_adjtrm)$text("{sup}7{/sup}")
+    $col("center")$radio(c.cans.cb.adjtrm,,"0")
+	radio_index = 0
+	do while radio_index++ < 3
+     $col("center",,,,,col_color_multi) $radio(c.cans.cb.adjtrm,,$castx(radio_index))
+	enddo
+   $row(,row_color1)
+    $col()$text(q_text_cb_angctr)
+    radio_index = -1
+	do while radio_index++ < 3
+     $col("center")$radio(c.cans.cb.angctr,,$castx(radio_index))
+	enddo	
+   $row(,row_color2)
+    $col()$text(q_text_cb_subabs)$text("{sup}8{/sup}")
+    $col("center")$radio(c.cans.cb.subabs,,"0")
+	radio_index = 0
+	do while radio_index++ < 3	
+     $col("center",,,,,col_color_multi) $radio(c.cans.cb.subabs,,$castx(radio_index))
+	enddo
+   $row(,row_color1)
+    $col()$text(q_text_cb_eatdst)
+    radio_index = -1
+	do while radio_index++ < 3
+     $col("center")$radio(c.cans.cb.eatdst,,$castx(radio_index))
+	enddo	
+  $endtable($funcname)
+ $endfieldset()
+end ChildBehave
+
+function ChildBehavCrisis() is null
+ bgcolor = "white"
+ if $find(cb_errortxt,errors[],,"F") > 0
+  bgcolor = "red"
+ endif
+ $fieldset("Child Behavioral and Emotional Needs: Crisis",,"datatag")
+  {"lib_CANS617"}CBScoring(`table_wbgcolor`)
+  $table($funcname)
+   $row()
+    $col("center",,"60%")
+    radio_index = -1
+	do while radio_index++ < 3
+     $col("center",,"10%")$text(radio_index)
+	enddo
+   $row()
+    radio_index = 0
+	do while radio_index++ < 5
+     $col()$tag("<hr/>")
+	enddo
+   $row(,row_color1)
+    $col()$text(q_text_cb_psychs)
+    radio_index = -1
+	do while radio_index++ < 3
+     $col("center")$radio(c.cans.cb.psychs,,$castx(radio_index))
+	enddo	
+  $endtable($funcname)
+ $endfieldset()
+end ChildBehavCrisis
+
+'Culture
+function Culture() is null
+ bgcolor = "white"
+ if $find(ac_errortxt,errors[],,"F") > 0
+  bgcolor = "red"
+ endif
+ $fieldset("Culture",,"datatag")
+ {"lib_CANS617"}CultureScoring(`table_wbgcolor`)
+ $table($funcname)
+  $row()
+   $col("center",,"60%")
+    radio_index = -1
+	do while radio_index++ < 3
+     $col("center",,"10%")$text(radio_index)
+	enddo   
+  $row()
+   radio_index = -1
+   do while radio_index++ < 5
+    $col()$tag("<hr/>")
+   enddo
+  $row(,row_color1)
+   $col()$text(q_text_ac_langua)
+   radio_index = -1
+   do while radio_index++ < 3
+    $col("center")$radio(c.cans.ac.langua,,$castx(radio_index))
+   enddo   
+  $row(,row_color2)
+   $col()$text(q_text_ac_identy) 
+   radio_index = -1
+   do while radio_index++ < 3
+    $col("center")$radio(c.cans.ac.identy,,$castx(radio_index))
+   enddo   
+  $row(,row_color1)
+   $col()$text(q_text_ac_sexgen) 
+   radio_index = -1
+   do while radio_index++ < 3
+    $col("center")$radio(c.cans.ac.sexgen,,$castx(radio_index))
+   enddo     
+  $row(,row_color2)
+   $col()$text(q_text_ac_ritual)
+   radio_index = -1
+   do while radio_index++ < 3
+    $col("center")$radio(c.cans.ac.ritual,,$castx(radio_index))
+   enddo   
+  $row(,row_color1)
+   $col()$text(q_text_ac_culstr)
+   radio_index = -1
+   do while radio_index++ < 3
+    $col("center")$radio(c.cans.ac.culstr,,$castx(radio_index))
+   enddo   
+  $endtable($funcname)
+ $endfieldset()
+end Culture
+
+'Child Risk Behaviors
+function ChildRisk() is null
+ bgcolor = "white"
+ if $find(cr_errortxt,errors[],,"F") > 0
+  bgcolor = "red"
+ endif
+ $fieldset("Child Risk Behaviors",,"datatag")
+  {"lib_CANS617"}ChildRiskScoring(`table_wbgcolor`)
+  $table($funcname)
+   $row()
+    $col("center",,"60%")
+    radio_index = -1
+    do while radio_index++ < 3
+     $col("center",,"10%")$text(radio_index)
+    enddo
+   $row()
+    radio_index = 0
+    do while radio_index++ < 5
+    $col()$tag("<hr/>")
+    enddo
+   $row(,row_color1)
+    $col()$text(q_text_cr_suicid)$text("{sup}1{/sup}")
+    $col("center")$radio(c.cans.cr.suicid,,"0")
+    radio_index = 0
+    do while radio_index++ < 3
+     $col("center",,,,,col_color_multi)$radio(c.cans.cr.suicid,,$castx(radio_index))
+    enddo	
+   $row(,row_color2)
+    $col()$text(q_text_cr_smutil)
+    radio_index = -1
+    do while radio_index++ < 3
+     $col("center")$radio(c.cans.cr.smutil,,$castx(radio_index))
+    enddo	 
+   $row(,row_color1)
+    $col()$text(q_text_cr_oslfhr)
+    radio_index = -1
+    do while radio_index++ < 3
+     $col("center")$radio(c.cans.cr.oslfhr,,$castx(radio_index))
+    enddo	
+   $row(,row_color2)
+    $col()$text(q_text_cr_dangot)$text("{sup}2{/sup}")
+    $col("center")$radio(c.cans.cr.dangot,,"0")
+	radio_index = 0
+	do while radio_index++ < 3
+     $col("center",,,,,col_color_multi)$radio(c.cans.cr.dangot,,$castx(radio_index))
+	enddo
+   $row(,row_color1)
+    $col()$text(q_text_cr_sexagr)$text("{sup}3{/sup}")
+    $col("center")$radio(c.cans.cr.sexagr,,"0")
+	radio_index = 0
+	do while radio_index++ < 3	
+     $col("center",,,,,col_color_multi)$radio(c.cans.cr.sexagr,,$castx(radio_index))
+    enddo
+   $row(,row_color2)
+    $col()$text(q_text_cr_runawy)$text("{sup}4{/sup}")
+    $col("center")$radio(c.cans.cr.runawy,,"0")
+	radio_index = 0
+	do while radio_index++ < 3		
+     $col("center",,,,,col_color_multi)$radio(c.cans.cr.runawy,,$castx(radio_index))
+	enddo
+   $row(,row_color1)
+    $col()$text(q_text_cr_delqcy)$text("{sup}5{/sup}")
+    $col("center")$radio(c.cans.cr.delqcy,,"0")
+	radio_index = 0
+	do while radio_index++ < 3			
+     $col("center",,,,,col_color_multi)$radio(c.cans.cr.delqcy,,$castx(radio_index))
+	enddo
+   $row(,row_color2)
+    $col()$text(q_text_cr_firset)$text("{sup}6{/sup}")
+    $col("center")$radio(c.cans.cr.firset,,"0")
+	radio_index = 0
+	do while radio_index++ < 3			
+     $col("center",,,,,col_color_multi) $radio(c.cans.cr.firset,,$castx(radio_index))
+	enddo
+   $row(,row_color1)
+    $col()$text(q_text_cr_socbeh)
+    radio_index = -1
+    do while radio_index++ < 3
+     $col("center")$radio(c.cans.cr.socbeh,,$castx(radio_index))
+    enddo	 
+   $row(,row_color2)
+    $col()$text(q_text_cr_bully)
+    radio_index = -1
+    do while radio_index++ < 3
+     $col("center")$radio(c.cans.cr.bully,,$castx(radio_index))
+	enddo
+  $endtable($funcname)
+ $endfieldset()
+end ChildRisk
+
+'Child Risk Behaviors
+function ChildRiskCrisis() is null
+ bgcolor = "white"
+ if $find(cr_errortxt,errors[],,"F") > 0
+  bgcolor = "red"
+ endif
+ $fieldset("Child Risk Behaviors: Crisis",,"datatag")
+  {"lib_CANS617"}ChildRiskScoring(`table_wbgcolor`)
+  $table($funcname)
+   $row()
+    $col("center",,"60%")
+    radio_index = -1
+    do while radio_index++ < 3
+     $col("center",,"10%")$text(radio_index)
+    enddo
+   $row()
+    radio_index = 0
+    do while radio_index++ < 5
+    $col()$tag("<hr/>")
+    enddo
+   $row(,row_color1)
+    $col()$text(q_text_cr_suicid)$text("{sup}1{/sup}")
+    $col("center")$radio(c.cans.cr.suicid,,"0")
+    radio_index = 0
+    do while radio_index++ < 3
+     $col("center",,,,,col_color_multi)$radio(c.cans.cr.suicid,,$castx(radio_index))
+    enddo	
+   $row(,row_color2)
+    $col()$text(q_text_cr_smutil)
+    radio_index = -1
+    do while radio_index++ < 3
+     $col("center")$radio(c.cans.cr.smutil,,$castx(radio_index))
+    enddo	 
+   $row(,row_color1)
+    $col()$text(q_text_cr_oslfhr)
+    radio_index = -1
+    do while radio_index++ < 3
+     $col("center")$radio(c.cans.cr.oslfhr,,$castx(radio_index))
+    enddo	
+   $row(,row_color2)
+    $col()$text(q_text_cr_dangot)$text("{sup}2{/sup}")
+    $col("center")$radio(c.cans.cr.dangot,,"0")
+	radio_index = 0
+	do while radio_index++ < 3
+     $col("center",,,,,col_color_multi)$radio(c.cans.cr.dangot,,$castx(radio_index))
+	enddo
+   $row(,row_color1)
+    $col()$text(q_text_cr_firset)$text("{sup}6{/sup}")
+    $col("center")$radio(c.cans.cr.firset,,"0")
+	radio_index = 0
+	do while radio_index++ < 3			
+     $col("center",,,,,col_color_multi) $radio(c.cans.cr.firset,,$castx(radio_index))
+	enddo
+  $endtable($funcname)
+ $endfieldset()
+end ChildRiskCrisis
+
+'Psychiatric Hospitalizations
+function PsyHosp() is null
+ bgcolor = "white"
+ if $find(ps_errortxt,errors[],,"F") > 0
+  bgcolor = "red"
+ endif
+ $fieldset("Psychiatric Hospitalization",,"datatag")
+  {"lib_CANS617"}PHScoring(`table_wbgcolor`)
+  $table($funcname)
+   $row()
+    $col("center",,"80%")
+    $col("center",,"10%")$text("0")
+    $col("center",,"10%")$text("1")
+   $row()
+    $col()$tag("<hr/>")
+    $col()$tag("<hr/>")
+    $col()$tag("<hr/>")
+   $row(,row_color1)
+    $col()$text(q_text_ps_hosptl)$text("{sup}12{/sup}")
+    $col("center")$radio(c.cans.ps.hosptl,,"0")
+    $col("center",,,,,col_color_multi) $radio(c.cans.ps.hosptl,"","1")
+  $endtable($funcname)
+ $endfieldset()
+end PsyHosp
+
+'Crisis History
+function CrisisHistory() is null
+ bgcolor = "white"
+ if $find(crs_errortxt,errors[],,"F") > 0
+  bgcolor = "red"
+ endif
+ $fieldset("Crisis History:  Number of Crisis Episodes Past 90 Days",,"datatag")
+  {"lib_CANS617"}CrisisHisScoring(`table_wbgcolor`)
+  $table($funcname)
+   $row()
+    $col("center",,"60%")
+	radio_index = -1
+	do while radio_index++ < 3
+     $col("center",,"10%")$text(radio_index)
+	enddo
+   $row()
+    radio_index = 0
+	do while radio_index++ < 5
+	 $col()$tag("<hr/>")
+	enddo
+   $row(,row_color1)
+    $col()$text(q_text_cr_episds)
+    radio_index = -1
+    do while radio_index++ < 3
+     $col("center")$radio(c.cans.cr.episds,,$castx(radio_index))
+    enddo	
+  $endtable($funcname)
+ $endfieldset()
+end CrisisHistory
+
+'School Module
+function School() is null
+ bgcolor = "white" 
+ if $find(sc_errortxt,errors[],,"F") > 0
+  bgcolor = "red"
+ endif
+ $fieldset("School",,"datatag")
+  $table($funcname,,`table_wbgcolor`)
+   $row()
+    $col("center",,"60%")
+	radio_index = -1
+	do while radio_index++ < 3
+     $col("center",,"10%")$text(radio_index)
+	enddo
+   $row()
+    radio_index = 0
+	do while radio_index++ < 5
+	 $col()$tag("<hr/>")
+	enddo
+   $row(,row_color3)
+    $col()$text(q_text_sc_behavr)
+	radio_index = -1
+	do while radio_index++ < 3
+     $col("center")$radio(c.cans.sc.behavr,,$castx(radio_index))
+	enddo
+   $row(,row_color2)
+    $col()$text(q_text_sc_achiev) 
+	radio_index = -1
+	do while radio_index++ < 3
+     $col("center")$radio(c.cans.sc.achiev,,$castx(radio_index))
+	enddo
+   $row(,row_color3)
+    $col()$text(q_text_sc_attend)
+	radio_index = -1
+	do while radio_index++ < 3
+     $col("center")$radio(c.cans.sc.attend,,$castx(radio_index))
+	enddo
+   $row(,row_color2)
+    $col()$text(q_text_sc_reltch)
+	radio_index = -1
+	do while radio_index++ < 3
+     $col("center")$radio(c.cans.sc.reltch,,$castx(radio_index))
+	enddo
+  $endtable($funcname)
+ $endfieldset()
+end School
+
+'Developmental Needs
+function DevNeeds() is null
+ bgcolor = "white"
+ if $find(dv_errortxt,errors[],,"F") > 0
+  bgcolor = "red"
+ endif
+ $fieldset("Developmental Needs",,"datatag")
+  $table($funcname,,`table_wbgcolor`)
+   $row()
+    $col("center",,"60%")
+    radio_index = -1
+    do while radio_index++ < 3
+     $col("center",,"10%")$text(radio_index)
+    enddo 	
+   $row()
+   radio_index = 0
+    do while radio_index++ < 5
+     $col()$tag("<hr/>")
+    enddo 
+   $row(,row_color3)
+    $col()$text(q_text_dv_cognit)
+	radio_index = -1
+	do while radio_index++ < 3
+     $col("center")$radio(c.cans.dv.cognit,,$castx(radio_index))
+	enddo	
+   $row(,row_color2)
+    $col()$text(q_text_dv_develp) 
+	radio_index = -1
+	do while radio_index++ < 3
+     $col("center")$radio(c.cans.dv.develp,,$castx(radio_index))
+	enddo	
+   $row(,row_color3)
+    $col()$text(q_text_dv_selfcr)
+	radio_index = -1
+	do while radio_index++ < 3
+     $col("center")$radio(c.cans.dv.selfcr,,$castx(radio_index))
+	enddo	
+  $endtable($funcname)
+ $endfieldset()
+end DevNeeds
+
+'Family Caregiver Module
+function FamilyCareGive() is null
+ bgcolor = "white"
+ if $find(fcg_errortxt,errors[],,"F") > 0
+  bgcolor = "red"
+ endif
+ $fieldset("Family Caregiver",,"datatag")
+  $table($funcname,,`table_wbgcolor`)
+  $row()
+   $col("center",,"60%")
+   radio_index = -1
+   do while radio_index++ < 3
+    $col("center",,"10%")$text(radio_index)
+   enddo   
+  $row()
+   radio_index = 0
+   do while radio_index++ < 5
+    $col()$tag("<hr/>")
+   enddo
+  $row(,row_color3)
+   $col()$text(q_text_fc_selfcr)
+   radio_index = -1
+   do while radio_index++ < 3
+    $col("center")$radio(c.cans.fc.selfcr,,$castx(radio_index))
+   enddo   
+  $row(,row_color2)
+   $col()$text(q_text_fc_culstr) 
+   radio_index = -1
+   do while radio_index++ < 3
+    $col("center")$radio(c.cans.fc.culstr,,$castx(radio_index))
+   enddo   
+  $row(,row_color3)
+   $col()$text(q_text_fc_empedu)
+   radio_index = -1
+   do while radio_index++ < 3
+    $col("center")$radio(c.cans.fc.empedu,,$castx(radio_index))
+   enddo      
+  $row(,row_color2)
+   $col()$text(q_text_fc_eduatt) 
+   radio_index = -1
+   do while radio_index++ < 3
+    $col("center")$radio(c.cans.fc.eduatt,,$castx(radio_index))
+   enddo      
+  $row(,row_color3)
+   $col()$text(q_text_fc_legal)
+   radio_index = -1
+   do while radio_index++ < 3
+    $col("center")$radio(c.cans.fc.legal,,$castx(radio_index))
+   enddo      
+  $row(,row_color2)
+   $col()$text(q_text_fc_motive)
+   radio_index = -1
+   do while radio_index++ < 3
+    $col("center")$radio(c.cans.fc.motive,,$castx(radio_index))
+   enddo       
+  $row(,row_color3)
+   $col()$text(q_text_fc_finres)
+   radio_index = -1
+   do while radio_index++ < 3
+    $col("center")$radio(c.cans.fc.finres,,$castx(radio_index))
+   enddo      
+  $row(,row_color2)
+   $col()$text(q_text_fc_transp) 
+   radio_index = -1
+   do while radio_index++ < 3
+    $col("center")$radio(c.cans.fc.transp,,$castx(radio_index))
+   enddo      
+ $endtable($funcname)
+$endfieldset()
+end FamilyCareGive
+
+'Family Caregiver Module
+function trauma() is null
+ bgcolor = "white"
+ if $find(tr_errortxt,errors[],,"F") > 0
+  bgcolor = "red"
+ endif
+ $fieldset("Trauma",,"datatag")
+  $table($funcname,,`table_wbgcolor`)
+   $row()
+    $col("center",,"60%")
+	radio_index = -1
+	do while radio_index++ < 3
+     $col("center",,"10%")$text(radio_index)
+	enddo
+   $row()
+    radio_index = 0
+	do while radio_index++ < 5
+     $col()$tag("<hr/>")
+	enddo
+   $row(,row_color3)
+    $col(,,"60%")$text(q_text_tr_sexabs)
+    $col("center")$radio(c.cans.tr.sexabs,,"0")
+	radio_index = 0
+	do while radio_index++ < 3
+     $col("center",,,,,col_color_multi)$radio(c.cans.tr.sexabs,,$castx(radio_index))
+	enddo
+  $endtable($funcname)
+  $table($funcname,,table_nobgcolor)
+   $row(,row_color2)
+    $col(,,"60%")$text(q_text_tr_phyabs)
+	radio_index = -1
+	do while radio_index++ < 3
+     $col("center")$radio(c.cans.tr.phyabs,,$castx(radio_index))
+	enddo	 
+   $row(,row_color3)
+    $col()$text(q_text_tr_emoabs)
+	radio_index = -1
+	do while radio_index++ < 3
+     $col("center")$radio(c.cans.tr.emoabs,,$castx(radio_index))
+	enddo
+   $row(,row_color2)
+    $col()$text(q_text_tr_victim)
+	radio_index = -1
+	do while radio_index++ < 3
+     $col("center")$radio(c.cans.tr.victim,,$castx(radio_index))
+	enddo
+   $row(,row_color3)
+    $col()$text(q_text_tr_medtrm) 
+	radio_index = -1
+	do while radio_index++ < 3
+     $col("center")$radio(c.cans.tr.medtrm,,$castx(radio_index))
+	enddo
+   $row(,row_color2)
+    $col()$text(q_text_tr_natdis)
+	radio_index = -1
+	do while radio_index++ < 3
+     $col("center")$radio(c.cans.tr.natdis,,$castx(radio_index))
+	enddo
+   $row(,row_color3)
+    $col()$text(q_text_tr_wtofam) 
+	radio_index = -1
+	do while radio_index++ < 3
+     $col("center")$radio(c.cans.tr.wtofam,,$castx(radio_index))
+	enddo
+   $row(,row_color2)
+    $col()$text(q_text_tr_wtocom)
+	radio_index = -1
+	do while radio_index++ < 3
+     $col("center")$radio(c.cans.tr.wtocom,,$castx(radio_index))
+	enddo
+   $row(,row_color3)
+    $col()$text(q_text_tr_wcrime)
+	radio_index = -1
+	do while radio_index++ < 3
+     $col("center")$radio(c.cans.tr.wcrime,,$castx(radio_index))
+	enddo
+   $row(,row_color2)
+    $col()$text(q_text_tr_waraff) 
+	radio_index = -1
+	do while radio_index++ < 3
+     $col("center")$radio(c.cans.tr.waraff,,$castx(radio_index))
+	enddo
+   $row(,row_color3)
+    $col()$text(q_text_tr_teraff)
+	radio_index = -1
+	do while radio_index++ < 3
+     $col("center")$radio(c.cans.tr.teraff,,$castx(radio_index))
+	enddo
+  $endtable($funcname)
+ $endfieldset()
+end trauma
+
+function sexab1() is null
+ bgcolor = "white" 
+ if $find(sxab_errortxt,errors[],,"F") > 0
+  bgcolor = "red" 
+ endif 
+ $fieldset("Trauma Module Continued",,"datatag")
+  {"lib_CANS617"}CBScoring(`table_wbgcolor`) 
+  $table($funcname)
+   $row()
+    $col("center",,"60%")
+	radio_index = -1
+	do while radio_index++ < 3
+     $col("center",,"10%")$text(radio_index)
+	enddo
+   $row()
+    radio_index = 0
+	do while radio_index++ < 5
+     $col()$tag("<hr/>")
+    enddo 
+   $row(,row_color3)
+    $col()$text(q_text_tr_emclos)
+	radio_index = -1
+	do while radio_index++ < 3
+     $col("center")$radio(c.cans.tr.emclos,,$castx(radio_index))
+	enddo
+   $row(,row_color2)
+    $col()$text(q_text_tr_freq)
+	radio_index = -1
+	do while radio_index++ < 3
+     $col("center")$radio(c.cans.tr.freq,,$castx(radio_index))
+	enddo	
+   $row(,row_color3)
+    $col()$text(q_text_tr_durat) 
+	radio_index = -1
+	do while radio_index++ < 3
+     $col("center")$radio(c.cans.tr.durat,,$castx(radio_index))
+	enddo	
+   $row(,row_color2)
+    $col()$text(q_text_tr_force)
+	radio_index = -1
+	do while radio_index++ < 3
+     $col("center")$radio(c.cans.tr.force,,$castx(radio_index))
+	enddo	
+   $row(,row_color3)
+    $col()$text(q_text_tr_react) 
+	radio_index = -1
+	do while radio_index++ < 3
+     $col("center")$radio(c.cans.tr.react,,$castx(radio_index))
+	enddo	
+  $endtable($funcname)
+ $endfieldset() 
+end sexab1
+
+'Adjustment------------------------------------
+function adjust() is null
+ bgcolor = "white"
+ if $find(adj_errortxt,errors[],,"F") > 0
+  bgcolor = "red"
+ endif
+ $fieldset("Adjustment",,"datatag")
+  $table($funcname,,`table_wbgcolor`)
+   $row()
+    $col("center",,"60%")
+	radio_index = -1
+	do while radio_index++ < 3
+     $col("center",,"10%")$text(radio_index)
+	enddo
+   $row()
+    radio_index = 0
+	do while radio_index++ < 5
+	 $col()$tag("<hr/>")
+	enddo
+   $row(,row_color3)
+    $col()$text(q_text_ad_affreg)
+	radio_index = -1
+	do while radio_index++ < 3
+     $col("center")$radio(c.cans.ad.affreg,,$castx(radio_index))
+	enddo	
+   $row(,row_color2)
+    $col()$text(q_text_ad_intrus) 
+	radio_index = -1
+	do while radio_index++ < 3
+     $col("center")$radio(c.cans.ad.intrus,,$castx(radio_index))
+	enddo	
+   $row(,row_color3)
+    $col()$text(q_text_ad_attach)
+	radio_index = -1
+	do while radio_index++ < 3
+     $col("center")$radio(c.cans.ad.attach,,$castx(radio_index))
+	enddo	
+   $row(,row_color2)
+    $col()$text(q_text_ad_dissoc)
+	radio_index = -1
+	do while radio_index++ < 3
+     $col("center")$radio(c.cans.ad.dissoc,,$castx(radio_index))
+	enddo	
+   $row(,row_color3)
+    $col()$text(q_text_ad_timb4t)
+	radio_index = -1
+	do while radio_index++ < 3
+     $col("center")$radio(c.cans.ad.timb4t,,$castx(radio_index))
+	enddo	
+  $endtable($funcname)
+ $endfieldset()
+end adjust
+
+'Substance Abuse------------------------------------
+function subab() is null
+ bgcolor = "white"
+ if $find(sud_errortxt,errors[],,"F") > 0
+  bgcolor = "red"
+ endif
+ $fieldset("Substance Abuse (SUD)",,"datatag")
+  $table($funcname,,`table_wbgcolor`)
+   $row()
+    $col("center",,"60%")
+	radio_index = -1
+	do while radio_index++ < 3
+     $col("center",,"10%")$text(radio_index)
+	enddo
+   $row()
+    radio_index = 0
+	do while radio_index++ < 5
+     $col()$tag("<hr/>")
+    enddo
+   $row(,row_color3)
+    $col()$text(q_text_sa_severe)
+	radio_index = -1
+	do while radio_index++ < 3
+     $col("center")$radio(c.cans.sa.severe,,$castx(radio_index))
+	enddo	
+   $row(,row_color2)
+    $col()$text(q_text_sa_durati) 
+	radio_index = -1
+	do while radio_index++ < 3
+     $col("center")$radio(c.cans.sa.durati,,$castx(radio_index))
+	enddo		
+   $row(,row_color3)
+    $col()$text(q_text_sa_stgrec)
+	radio_index = -1
+	do while radio_index++ < 3
+     $col("center")$radio(c.cans.sa.stgrec,,$castx(radio_index))
+	enddo	
+   $row(,row_color2)
+    $col()$text(q_text_sa_perinf)
+	radio_index = -1
+	do while radio_index++ < 3
+     $col("center")$radio(c.cans.sa.perinf,,$castx(radio_index))
+	enddo	
+   $row(,row_color3)
+    $col()$text(q_text_sa_parinf)
+	radio_index = -1
+	do while radio_index++ < 3
+     $col("center")$radio(c.cans.sa.parinf,,$castx(radio_index))
+	enddo	
+   $row(,row_color2)
+    $col()$text(q_text_sa_envinf)
+	radio_index = -1
+	do while radio_index++ < 3
+     $col("center")$radio(c.cans.sa.envinf,,$castx(radio_index))
+	enddo	
+  $endtable($funcname)
+ $endfieldset()
+end subab
+
+'Suicide Risk Module
+function suiciderisk() is null
+ bgcolor = "white"
+ if $find(sr_errortxt,errors[],,"F") > 0
+  bgcolor = "red"
+ endif
+ $fieldset("Suicide Risk Module",,"datatag")
+  $table($funcname,,`table_wbgcolor`)
+   $row()
+    $col("center",,"60%")
+	radio_index = -1
+	do while radio_index++ < 3
+     $col("center",,"10%")$text(radio_index)
+	enddo
+   $row()
+    radio_index = 0
+	do while radio_index++ < 5
+     $col()$tag("<hr/>")
+	enddo
+   $row(,row_color3) 
+    $col()$text(q_text_hissui)
+	radio_index = -1
+	do while radio_index++ < 3
+     $col("center")$radio(c.cans.sr.hissui,,$castx(radio_index))
+	enddo	
+   $row(,row_color2)
+    $col()$text(q_text_hfmsui)
+	radio_index = -1
+	do while radio_index++ < 3
+     $col("center")$radio(c.cans.sr.hfmsui,,$castx(radio_index))
+	enddo	  
+   $row(,row_color3)	
+    $col()$text(q_text_firear)
+	radio_index = -1
+	do while radio_index++ < 3
+     $col("center")$radio(c.cans.sr.firear,,$castx(radio_index))
+	enddo	
+  $endtable($funcname)
+ $endfieldset()
+end suiciderisk
+
+'Violence Module---------------------------------------------------
+function violence() is null
+ bgcolor = "white"
+ if $find(vi_errortxt,errors[],,"F") > 0
+  bgcolor = "red"
+ endif
+ $fieldset("Violence Module",,"datatag")
+  $table($funcname,,`table_wbgcolor`)
+   $row()
+    $col("center",,"60%")
+	radio_index = -1
+	do while radio_index++ < 3
+     $col("center",,"10%")$text(radio_index)
+	enddo
+   $row()
+    radio_index = 0
+	do while radio_index++ < 5
+     $col()$tag("<hr/>")	
+	enddo
+   $row(,row_color3)
+    $col()$text(q_text_vi_hxpabs)
+	radio_index = -1
+	do while radio_index++ < 3
+     $col("center")$radio(c.cans.vi.hxpabs,,$castx(radio_index))
+	enddo	
+   $row(,row_color2)
+    $col()$text(q_text_vi_hxviol) 
+	radio_index = -1
+	do while radio_index++ < 3
+     $col("center")$radio(c.cans.vi.hxviol,,$castx(radio_index))
+	enddo	
+   $row(,row_color3)
+    $col()$text(q_text_vi_wdomab)
+	radio_index = -1
+	do while radio_index++ < 3
+     $col("center")$radio(c.cans.vi.wdomab,,$castx(radio_index))
+	enddo	
+   $row(,row_color2)
+    $col()$text(q_text_vi_wenvab)
+	radio_index = -1
+	do while radio_index++ < 3
+     $col("center")$radio(c.cans.vi.wenvab,,$castx(radio_index))
+	enddo	
+  $endtable($funcname)
+ $endfieldset()
+end violence
+
+'Emotional Behavioral Risks---------------------------------------------------                                                                                                                                                              
+function embeh() is null                                                                                                                                                                                                       
+ bgcolor = "white"
+ if $find(eb_errortxt,errors[],,"F") > 0
+  bgcolor = "red"
+ endif 
+ $fieldset("Emotional/Behavioral Risks",,"datatag")                                                                          
+  $table($funcname,,`table_wbgcolor`)
+   $row()
+    $col("center",,"60%")
+	radio_index = -1
+	do while radio_index++ < 3
+     $col("center",,"10%")$text(radio_index)
+	enddo
+   $row()
+    radio_index = 0
+	do while radio_index++ < 5
+     $col()$tag("<hr/>")
+	enddo                                                                                                 
+   $row(,row_color3)                                                                                 
+    $col()$text(q_text_eb_frsmgt)                                                                          
+	radio_index = -1
+	do while radio_index++ < 3
+     $col("center")$radio(c.cans.eb.frsmgt,,$castx(radio_index))                                                                
+	enddo	
+   $row(,row_color2)                                                                                        
+    $col()$text(q_text_eb_hostil)                                                                          
+	radio_index = -1
+	do while radio_index++ < 3
+     $col("center")$radio(c.cans.eb.hostil,,$castx(radio_index))                                                                
+	enddo
+   $row(,row_color3)                                                                                 
+    $col()$text(q_text_eb_parand)                                                                          
+	radio_index = -1
+	do while radio_index++ < 3
+     $col("center")$radio(c.cans.eb.parand,,$castx(radio_index))                                                                
+	enddo
+   $row(,row_color2)                                                                                        
+    $col()$text(q_text_eb_secgan)                                                                          
+	radio_index = -1
+	do while radio_index++ < 3
+     $col("center")$radio(c.cans.eb.secgan,,$castx(radio_index))                                                                
+	enddo
+   $row(,row_color3)                                                                                 
+    $col()$text(q_text_eb_viothk)                                                                          
+	radio_index = -1
+	do while radio_index++ < 3
+     $col("center")$radio(c.cans.eb.viothk,,$castx(radio_index))                                                                
+	enddo
+  $endtable($funcname)                                                                                            
+ $endfieldset()                                                                                                                                                                                                                    
+end embeh
+
+'Emotional Behavioral Risks---------------------------------------------------                                                                                                                                                               
+function resiliency() is null                                                                                      
+ bgcolor = "white"
+ if $find(res_errortxt,errors[],,"F") > 0
+  bgcolor = "red"
+ endif                                                                                                                 
+ $fieldset("Resiliency Factors",,"datatag")                                                                          
+  $table($funcname,,`table_wbgcolor`) 
+   $row()
+    $col("center",,"60%")
+	radio_index = -1
+	do while radio_index++ < 3
+     $col("center",,"10%")$text(radio_index)
+	enddo
+   $row()
+    radio_index = 0
+	do while radio_index++ < 5
+     $col()$tag("<hr/>")
+	enddo                                                                                                    
+   $row(,row_color3)                                                                                 
+    $col()$text(q_text_rf_viopot)                                                                          
+	radio_index = -1
+	do while radio_index++ < 3
+    $col("center")$radio(c.cans.rf.viopot,,$castx(radio_index))                                                                
+	enddo	
+   $row(,row_color2)                                                                                        
+    $col()$text(q_text_rf_rescon)                                                                          
+	radio_index = -1
+	do while radio_index++ < 3
+     $col("center")$radio(c.cans.rf.rescon,,$castx(radio_index))                                                                
+	enddo	
+   $row(,row_color3)                                                                                 
+    $col()$text(q_text_rf_comsc)                                                                          
+	radio_index = -1
+	do while radio_index++ < 3
+     $col("center")$radio(c.cans.rf.comsc,,$castx(radio_index))                                                                
+	enddo	
+   $row(,row_color2)                                                                                        
+    $col()$text(q_text_rf_trtinv)                                                                          
+	radio_index = -1
+	do while radio_index++ < 3
+     $col("center")$radio(c.cans.rf.trtinv,,$castx(radio_index))                                                                
+	enddo	
+  $endtable($funcname)                                                                                            
+ $endfieldset()                                                                                                                                                                                                                    
+end resiliency                                                
+
+'Sexually Agressive Behavior (SAB)---------------------------------------------------                                              
+function sexagg() is null                                                                                                                                                                                                       
+ bgcolor = "white"
+ if $find(sab_errortxt,errors[],,"F") > 0
+  bgcolor = "red"
+ endif
+ $fieldset("Sexually Agressive Behavior (SAB)",,"datatag")                                                                          
+  $table($funcname,,`table_wbgcolor`)
+   $row()
+    $col("center",,"60%")
+	radio_index = -1
+	do while radio_index++ < 3
+     $col("center",,"10%")$text(radio_index)
+	enddo
+   $row()
+    radio_index = 0
+	do while radio_index++ < 5
+     $col()$tag("<hr/>")
+	enddo                                                                                                    
+   $row(,row_color3)                                                                                 
+    $col()$text(q_text_sb_relton)
+	radio_index = -1
+	do while radio_index++ < 3
+     $col("center")$radio(c.cans.sb.relton,,$castx(radio_index))                                                                
+	enddo	                                                                          
+   $row(,row_color2)                                                                                        
+    $col()$text(q_text_sb_phyfrc)                                                                          
+	radio_index = -1
+	do while radio_index++ < 3
+     $col("center")$radio(c.cans.sb.phyfrc,,$castx(radio_index))                                                                
+	enddo
+   $row(,row_color3)                                                                                 
+    $col()$text(q_text_sb_planin)                                                                          
+	radio_index = -1
+	do while radio_index++ < 3
+     $col("center")$radio(c.cans.sb.planin,,$castx(radio_index))                                                                
+	enddo
+   $row(,row_color2)                                                                                        
+    $col()$text(q_text_sb_agedif)                                                                          
+	radio_index = -1
+	do while radio_index++ < 3
+     $col("center")$radio(c.cans.sb.agedif,,$castx(radio_index))                                                                
+	enddo
+   $row(,row_color3)                                                                                 
+    $col()$text(q_text_sb_typsex)                                                                          
+	radio_index = -1
+	do while radio_index++ < 3
+     $col("center")$radio(c.cans.sb.typsex,,$castx(radio_index))                                                                
+	enddo
+   $row(,row_color2)                                                                                        
+    $col()$text(q_text_sb_resacc)                                                                          
+	radio_index = -1
+	do while radio_index++ < 3
+     $col("center")$radio(c.cans.sb.resacc,,$castx(radio_index))                                                                
+	enddo
+   $row(,row_color3)                                                                                 
+    $col()$text(q_text_sb_temcon)                                                                          
+	radio_index = -1
+	do while radio_index++ < 3
+     $col("center")$radio(c.cans.sb.temcon,,$castx(radio_index))                                                                
+	enddo
+   $row(,row_color2)                                                                                        
+    $col()$text(q_text_sb_hxsxbh)                                                                          
+	radio_index = -1
+	do while radio_index++ < 3
+     $col("center")$radio(c.cans.sb.hxsxbh,,$castx(radio_index))                                                                
+	enddo
+   $row(,row_color3)                                                                                 
+    $col()$text(q_text_sb_svsxab)                                                                          
+	radio_index = -1
+	do while radio_index++ < 3
+     $col("center")$radio(c.cans.sb.svsxab,,$castx(radio_index))                                                                
+	enddo
+   $row(,row_color2)                                                                                        
+    $col()$text(q_text_sb_prirtx)                                                                          
+	radio_index = -1
+	do while radio_index++ < 3
+     $col("center")$radio(c.cans.sb.prirtx,,$castx(radio_index))                                                                
+	enddo                                                          
+  $endtable($funcname)                                                                                            
+ $endfieldset()                                                                                                                                                                                                                    
+end sexagg                                                
+
+'Runaway---------------------------------------------------                                              
+                                                                                                                 
+function Runaway() is null                                                                                      
+ bgcolor = "white"
+ if $find(rw_errortxt,errors[],,"F") > 0
+  bgcolor = "red"
+ endif                                                                                                                
+ $fieldset("Runaway",,"datatag")                                                                          
+  $table($funcname,,`table_wbgcolor`)                                               
+   $row()
+    $col("center",,"60%")
+	radio_index = -1
+	do while radio_index++ < 3
+     $col("center",,"10%")$text(radio_index)
+	enddo
+   $row()
+    radio_index = 0
+	do while radio_index++ < 5
+     $col()$tag("<hr/>")
+	enddo                                                                                                  
+   $row(,row_color3)                                                                                 
+    $col()$text(q_text_rn_frqncy)
+	radio_index = -1
+	do while radio_index++ < 3
+     $col("center")$radio(c.cans.rn.frqncy,,$castx(radio_index))                                                                
+	enddo	                                                                          
+   $row(,row_color2)                                                                                        
+    $col()$text(q_text_rn_condes)                                                                          
+	radio_index = -1
+	do while radio_index++ < 3
+     $col("center")$radio(c.cans.rn.condes,,$castx(radio_index))                                                                
+	enddo	        
+   $row(,row_color3)                                                                                 
+    $col()$text(q_text_rn_safdes)                                                                          
+	radio_index = -1
+	do while radio_index++ < 3
+     $col("center")$radio(c.cans.rn.safdes,,$castx(radio_index))                                                                
+	enddo	        
+   $row(,row_color2)                                                                                        
+    $col()$text(q_text_rn_invill)                                                                          
+	radio_index = -1
+	do while radio_index++ < 3
+     $col("center")$radio(c.cans.rn.invill,,$castx(radio_index))                                                                
+	enddo	        
+   $row(,row_color3)                                                                                 
+    $col()$text(q_text_rn_retown)                                                                          
+	radio_index = -1
+	do while radio_index++ < 3
+     $col("center")$radio(c.cans.rn.retown,,$castx(radio_index))                                                                
+	enddo	        
+   $row(,row_color2)                                                                                        
+    $col()$text(q_text_rn_invoth)                                                                          
+	radio_index = -1
+	do while radio_index++ < 3
+     $col("center")$radio(c.cans.rn.invoth,,$castx(radio_index))                                                                
+	enddo	        
+   $row(,row_color3)                                                                                 
+    $col()$text(q_text_rn_relexp)                                                                          
+	radio_index = -1
+	do while radio_index++ < 3
+     $col("center")$radio(c.cans.rn.relexp,,$castx(radio_index))                                                                
+	enddo	        
+   $row(,row_color2)                                                                                        
+    $col()$text(q_text_rn_planin)                                                                          
+	radio_index = -1
+	do while radio_index++ < 3
+     $col("center")$radio(c.cans.rn.planin,,$castx(radio_index))                                                                
+	enddo	        
+  $endtable($funcname)                                                                                            
+ $endfieldset()                                                                                                                                                                                                                    
+end Runaway                                                
+
+'Juvenile Justice---------------------------------------------------                                                                                                                                                               
+function jjustice() is null                                                                                      
+ bgcolor = "white"
+ if $find(jj_errortxt,errors[],,"F") > 0
+  bgcolor = "red"
+ endif                                                                                                                 
+ $fieldset("Juvenile Justice",,"datatag")                                                                          
+  $table($funcname,,`table_wbgcolor`)
+   $row()
+    $col("center",,"60%")
+	radio_index = -1
+	do while radio_index++ < 3
+     $col("center",,"10%")$text(radio_index)
+	enddo
+   $row()
+    radio_index = 0
+	do while radio_index++ < 5
+     $col()$tag("<hr/>")
+	enddo                                                                                                 
+   $row(,row_color3)                                                                                 
+    $col()$text(q_text_jj_serios)                                                                          
+	radio_index = -1
+	do while radio_index++ < 3
+     $col("center")$radio(c.cans.jj.serios,,$castx(radio_index))                                                                
+	enddo	
+   $row(,row_color2)                                                                                        
+    $col()$text(q_text_jj_histry)                                                                          
+	radio_index = -1
+	do while radio_index++ < 3
+     $col("center")$radio(c.cans.jj.histry,,$castx(radio_index))                                                                
+	enddo
+   $row(,row_color3)                                                                                 
+    $col()$text(q_text_jj_arrest)                                                                          
+	radio_index = -1
+	do while radio_index++ < 3
+     $col("center")$radio(c.cans.jj.arrest,,$castx(radio_index))                                                                
+	enddo
+   $row(,row_color2)                                                                                        
+    $col()$text(q_text_jj_planin)                                                                          
+	radio_index = -1
+	do while radio_index++ < 3
+     $col("center")$radio(c.cans.jj.planin,,$castx(radio_index))                                                                
+	enddo
+   $row(,row_color3)                                                                                 
+    $col()$text(q_text_jj_comsaf)                                                                          
+	radio_index = -1
+	do while radio_index++ < 3
+     $col("center")$radio(c.cans.jj.comsaf,,$castx(radio_index))                                                                
+	enddo
+   $row(,row_color2)                                                                                        
+    $col()$text(q_text_jj_lefcom)                                                                          
+	radio_index = -1
+	do while radio_index++ < 3
+     $col("center")$radio(c.cans.jj.lefcom,,$castx(radio_index))                                                                
+	enddo
+   $row(,row_color3)                                                                                 
+    $col()$text(q_text_jj_perinf)                                                                          
+	radio_index = -1
+	do while radio_index++ < 3
+    $col("center")$radio(c.cans.jj.perinf,,$castx(radio_index))                                                                
+	enddo
+   $row(,row_color2)                                                                                        
+    $col()$text(q_text_jj_parinf)                                                                          
+	radio_index = -1
+	do while radio_index++ < 3
+     $col("center")$radio(c.cans.jj.parinf,,$castx(radio_index))                                                                
+	enddo
+   $row(,row_color3)                                                                                 
+    $col()$text(q_text_jj_envinf)                                                                          
+	radio_index = -1
+	do while radio_index++ < 3
+     $col("center")$radio(c.cans.jj.envinf,,$castx(radio_index))                                                                
+	enddo
+  $endtable($funcname)                                                                                            
+ $endfieldset()                                                                                                                                                                                                                    
+end jjustice                                                
+
+'Fire Setting---------------------------------------------------                                                                                                                                                               
+function fire() is null                                                                                                                                                                                                        
+ bgcolor = "white"
+ if $find(fs_errortxt,errors[],,"F") > 0
+  bgcolor = "red"
+ endif
+ $fieldset("Fire Setting",,"datatag")                                                                          
+  $table($funcname,,`table_wbgcolor`)
+   $row()
+    $col("center",,"60%")
+	radio_index = -1
+	do while radio_index++ < 3
+     $col("center",,"10%")$text(radio_index)
+	enddo
+   $row()
+    radio_index = 0
+	do while radio_index++ < 5
+     $col()$tag("<hr/>")
+	enddo                                                                                                  
+   $row(,row_color3)                                                                                 
+    $col()$text(q_text_fs_serios)
+	radio_index = -1
+	do while radio_index++ < 3
+     $col("center")$radio(c.cans.fs.serios,,$castx(radio_index))                                                                
+	enddo	                                                                          
+   $row(,row_color2)                                                                                        
+    $col()$text(q_text_fs_histry)                                                                          
+	radio_index = -1
+	do while radio_index++ < 3
+     $col("center")$radio(c.cans.fs.histry,,$castx(radio_index))                                                                
+	enddo
+   $row(,row_color3)                                                                                 
+    $col()$text(q_text_fs_planin)                                                                          
+	radio_index = -1
+	do while radio_index++ < 3
+     $col("center")$radio(c.cans.fs.planin,,$castx(radio_index))                                                                
+	enddo
+   $row(,row_color2)                                                                                        
+    $col()$text(q_text_fs_useacc)                                                                          
+	radio_index = -1
+	do while radio_index++ < 3
+     $col("center")$radio(c.cans.fs.useacc,,$castx(radio_index))                                                                
+	enddo
+   $row(,row_color3)                                                                                 
+    $col()$text(q_text_fs_inthrm)                                                                          
+	radio_index = -1
+	do while radio_index++ < 3
+     $col("center")$radio(c.cans.fs.inthrm,,$castx(radio_index))                                                                
+	enddo
+   $row(,row_color2)                                                                                        
+    $col()$text(q_text_fs_comsaf)                                                                          
+	radio_index = -1
+	do while radio_index++ < 3
+     $col("center")$radio(c.cans.fs.comsaf,,$castx(radio_index))                                                                
+	enddo
+   $row(,row_color3)                                                                                 
+    $col()$text(q_text_fs_resacc)                                                                          
+	radio_index = -1
+	do while radio_index++ < 3
+     $col("center")$radio(c.cans.fs.resacc,,$castx(radio_index))                                                                
+	enddo
+   $row(,row_color2)                                                                                        
+    $col()$text(q_text_fs_remrse)                                                                          
+	radio_index = -1
+	do while radio_index++ < 3
+     $col("center")$radio(c.cans.fs.remrse,,$castx(radio_index))                                                                
+	enddo
+   $row(,row_color3)                                                                                 
+    $col()$text(q_text_fs_futfir)                                                                          
+	radio_index = -1
+	do while radio_index++ < 3
+     $col("center")$radio(c.cans.fs.futfir,,$castx(radio_index))                                                                
+	enddo
+  $endtable($funcname)                                                                                            
+ $endfieldset()                                                                                                                                                                                                                    
+end fire                                                
+                                                               
+'Psychiatric Hospitalization History---------------------------------------------------                                                                                                                                                               
+function PsyHospHx() is null                                                                                      
+ bgcolor = "white"
+ if $find(pshx_errortxt,errors[],,"F") > 0
+  bgcolor = "red"
+ endif                                                                                                                 
+ $fieldset("Psychiatric Hospitalization History",,"datatag")                                                                          
+  $table($funcname,,`table_wbgcolor`)
+   $row()
+    $col("center",,"60%")
+	radio_index = -1
+	do while radio_index++ < 3
+     $col("center",,"10%")$text(radio_index)
+	enddo
+   $row()
+    radio_index = 0
+	do while radio_index++ < 5
+     $col()$tag("<hr/>")
+	enddo                                                                                                  
+   $row(,row_color3)                                                                                 
+    $col()$text(q_text_hs_numprr)
+	radio_index = -1
+	do while radio_index++ < 3
+     $col("center")$radio(c.cans.hs.numprr,,$castx(radio_index))                                                                
+	enddo	                                                                          
+   $row(,row_color2)                                                                                        
+    $col()$text(q_text_hs_longst)                                                                          
+	radio_index = -1
+	do while radio_index++ < 3
+     $col("center")$radio(c.cans.hs.longst,,$castx(radio_index))                                                                
+	enddo
+   $row(,row_color3)                                                                                 
+    $col()$text(q_text_hs_durrec)                                                                          
+	radio_index = -1
+	do while radio_index++ < 3
+     $col("center")$radio(c.cans.hs.durrec,,$castx(radio_index))                                                                
+	enddo
+   $row(,row_color2)                                                                                        
+    $col()$text(q_text_hs_timlst)                                                                          
+	radio_index = -1
+	do while radio_index++ < 3
+     $col("center")$radio(c.cans.hs.timlst,,$castx(radio_index))                                                                
+	enddo
+  $endtable($funcname)                                                                                            
+ $endfieldset()                                                                                                                                                                                                                    
+end PsyHospHx                                                                                                             
+
+'Initial Validations before starting the assessment
+function Validate() is i
+ $clear(errors[])
+ c.cans.age = {"lib_UACOMMON"}ClientAge($regid)
+ if c.cans.age > 17
+  (void)$arrpush(errors[],age_errortxt)
+ elseif c.cans.age < 3
+  (void)$arrpush(errors[],age1_errortxt)
+ elseif c.cans.age = 0 
+  (void)$arrpush(errors[],age2_errortxt)
+ endif
+ 
+  if errors[1] dp	
+   Validate = 1
+  else
+   Validate = 0	
+  endif
+end Validate
+
+function Validate0() is i
+ assessment_age is i
+ last_type     is x
+ last_rloc     is x
+ last_aloc     is x
+ last_date     is d
+ last_alocdate is d
+ datediff      is i
+ $clear(errors[])
+ if {"lib_UACOMMON"}CurrentDX($regid,c.cans.date) = "N" and (c.cans.type != "3" and c.cans.type != "11")
+  (void)$arrpush(errors[],diag_errortxt)
+ endif 
+ if c.cans.type = "1" or c.cans.type = "12"
+  $clear(c.cans.disdt,c.cans.disreas,c.cans.disref,c.cans.disoth)
+  if c.cans.intref != "5"
+   $clear(c.cans.intrefoth)
+  endif
+  if c.cans.tcoommi !dp
+   (void)$arrpush(errors[],oth_tc_errortxt)   
+  endif
+  if c.cans.sped !dp
+   (void)$arrpush(errors[],oth_ed_errortxt)   
+  endif  
+  if c.cans.foster !dp
+   (void)$arrpush(errors[],oth_fc_errortxt)
+  endif  
+  if c.cans.riskplc !dp
+   (void)$arrpush(errors[],oth_rp_errortxt)
+  endif 
+ elseif c.cans.type = "2"
+  $clear(c.cans.intref,c.cans.intrefoth,c.cans.disdt,c.cans.disreas,c.cans.disref,c.cans.disoth)
+  if c.cans.tcoommi !dp
+   (void)$arrpush(errors[],oth_tc_errortxt)   
+  endif
+  if c.cans.sped !dp
+   (void)$arrpush(errors[],oth_ed_errortxt)   
+  endif  
+  if c.cans.extdrev !dp and {"lib_CANS"}Allow_ExtdRevYN() = "Y"
+   (void)$arrpush(errors[],oth_ex_errortxt)
+  endif
+  if c.cans.foster !dp
+   (void)$arrpush(errors[],oth_fc_errortxt)
+  endif  
+  if c.cans.riskplc !dp
+   (void)$arrpush(errors[],oth_rp_errortxt)
+  endif 
+ elseif c.cans.type = "3"
+  $clear(c.cans.intref,c.cans.intrefoth)
+  if c.cans.disreas = "9" or c.cans.disreas = "16"
+   if c.cans.tcoommi !dp
+    (void)$arrpush(errors[],oth_tc_errortxt)   
+   endif
+   if c.cans.sped !dp
+    (void)$arrpush(errors[],oth_ed_errortxt)   
+   endif  
+   if c.cans.foster !dp
+    (void)$arrpush(errors[],oth_fc_errortxt)
+   endif  
+   if c.cans.riskplc != "N"
+    (void)$arrpush(errors[],oth_rp2_errortxt)
+   endif
+  else
+   ClearPage1()
+   ClearPage2()
+   ClearPage3()
+   ClearPage4()      
+  endif
+ elseif c.cans.type = "11"
+  $clear(c.cans.intref,c.cans.intrefoth,c.cans.disdt,c.cans.disreas,c.cans.disref,c.cans.disoth)
+  ClearPage1()
+  ClearPage2()
+  ClearPage3()
+  ClearPage4()
+ endif
+ 
+ {"lib_CANS"}Last_Assessment($regid,,,,last_date,,last_aloc,last_rloc,,,last_alocdate)
+ if c.cans.type = "3"
+'  datediff = c.cans.disdt - c.cans.date
+  datediff = c.cans.disdt - $today
+  if c.cans.disdt !dp
+   (void)$arrpush(errors[],disch1_errortxt)
+  endif
+  if c.cans.disdt < last_alocdate
+   (void)$arrpush(errors[],disch4_errortxt)
+  endif  
+  if c.cans.disreas = "11"
+   if datediff > 0
+    (void)$arrpush(errors[],disch5_errortxt)
+   elseif datediff < -30
+    (void)$arrpush(errors[],disch3_errortxt)        
+   endif
+  else 
+   if datediff > 30
+    (void)$arrpush(errors[],disch2_errortxt)     
+   endif
+   if datediff < -30
+    (void)$arrpush(errors[],disch3_errortxt)        
+   endif
+   if last_date > c.cans.disdt
+    (void)$arrpush(errors[],disch6_errortxt)           
+   endif
+  endif 
+ endif    
+
+ if c.cans.date < $today
+  assessment_age = $today - c.cans.date 
+  if assessment_age > 30
+   (void)$arrpush(errors[],date1_errortxt)
+  endif
+ endif
+ if c.cans.date > $today
+  (void)$arrpush(errors[],date2_errortxt)
+ endif
+ if c.cans.date < last_date
+  (void)$arrpush(errors[],date3_errortxt)  
+ endif
+ if c.cans.date = last_date 
+  (void)$arrpush(errors[],date4_errortxt)  
+ endif    	
+
+ if errors[1] dp	
+  Validate0 = 1
+ else
+  Validate0 = 0	
+ endif 
+ if c.cans.staff !dp
+  c.cans.staff = $operstaffid
+ endif 
+ c.cans.ver   = $scriptver
+end Validate0
+
+function Validate1() is i
+ last_type     is x
+ last_rloc     is x
+ last_aloc     is x
+ last_date     is d
+ last_alocdate is d
+ $clear(errors[])
+ if c.cans.type = "1" or c.cans.type = "2" or (c.cans.type = "3" and c.cans.disreas = "9") or (c.cans.type = "3" and c.cans.disreas = "16") or c.cans.type = "12"
+  if c.cans.ld.family !dp or c.cans.ld.livsit !dp or c.cans.ld.school !dp or c.cans.ld.socFun !dp or c.cans.ld.recret !dp or c.cans.ld.develp !dp or c.cans.ld.commun !dp or c.cans.ld.judgmt !dp or 
+  c.cans.ld.jobfun !dp or c.cans.ld.legal  !dp or c.cans.ld.medicl !dp or c.cans.ld.physcl !dp or c.cans.ld.sexdev !dp or c.cans.ld.sleep  !dp or c.cans.ld.indliv !dp
+ (void)$arrpush(errors[],ld_errortxt)
+  endif  
+
+  if c.cans.cs.family !dp or c.cans.cs.intper !dp or c.cans.cs.optims !dp or c.cans.cs.educat !dp or c.cans.cs.vocate !dp or c.cans.cs.talint !dp or c.cans.cs.spirel !dp or c.cans.cs.comlif !dp or c.cans.cs.permin !dp or c.cans.cs.youth !dp or 
+     c.cans.cs.natsup !dp    
+   (void)$arrpush(errors[],cs_errortxt)
+  endif  
+
+  if c.cans.ac.langua !dp or c.cans.ac.identy !dp or c.cans.ac.sexgen !dp or c.cans.ac.ritual !dp or c.cans.ac.culstr !dp 
+   (void)$arrpush(errors[],ac_errortxt)
+  endif  
+
+  if c.cans.cr.episds !dp
+   (void)$arrpush(errors[],crs_errortxt )
+  endif  
+ 
+  if c.cans.ps.hosptl !dp
+   (void)$arrpush(errors[],ps_errortxt)
+  endif
+   
+  if c.cans.cg.na != "9" and (c.cans.cg.super  !dp or c.cans.cg.involv !dp or c.cans.cg.knoldg !dp or c.cans.cg.organz !dp or c.cans.cg.socres !dp or c.cans.cg.ressbl !dp or c.cans.cg.physcl !dp or c.cans.cg.menhth !dp or 
+     c.cans.cg.subabs !dp or c.cans.cg.develp !dp or c.cans.cg.chldcr !dp or c.cans.cg.miltra !dp or c.cans.cg.famsts !dp or c.cans.cg.safety !dp)
+   (void)$arrpush(errors[],cg_errortxt)
+  endif   
+ 
+  if c.cans.cb.psychs !dp or c.cans.cb.mania !dp or c.cans.cb.implsv !dp or c.cans.cb.depres !dp or c.cans.cb.anxity !dp or c.cans.cb.oppdef !dp or c.cans.cb.condct !dp or c.cans.cb.adjtrm !dp or c.cans.cb.angctr !dp or c.cans.cb.subabs !dp or
+  c.cans.cb.eatdst !dp 
+ (void)$arrpush(errors[],cb_errortxt)
+  endif
+
+  if c.cans.cr.suicid !dp or c.cans.cr.smutil !dp or c.cans.cr.oslfhr !dp or c.cans.cr.dangot !dp or c.cans.cr.sexagr !dp or c.cans.cr.runawy !dp or c.cans.cr.delqcy !dp or c.cans.cr.firset !dp or c.cans.cr.socbeh !dp or c.cans.cr.bully !dp
+   (void)$arrpush(errors[],cr_errortxt)
+  endif
+ endif
+
+ if c.cans.type = "2" and ((c.cans.cr.suicid = "3" or c.cans.cr.smutil = "3" or c.cans.cr.oslfhr = "3" or c.cans.cr.dangot = "3" or c.cans.cb.psychs = "3") or (c.cans.cr.firset = "3" and c.cans.fs.planin = "3"))
+  (void)$arrpush(errors[],crisis1_errortxt)
+ endif 
+ 
+ if c.cans.type = "11"
+'require the crisis subsection of ChildRisk
+  if (c.cans.cr.suicid !dp and c.cans.cr.smutil !dp and c.cans.cr.oslfhr !dp and c.cans.cr.dangot !dp and c.cans.cr.firset !dp)
+   (void)$arrpush(errors[],cr_errortxt)
+'require the the psychosis question from behaviors
+  endif
+  if c.cans.cb.psychs !dp
+   (void)$arrpush(errors[],cb_errortxt)
+  endif 
+'if the scores are not valid don't continue
+  if (c.cans.cr.suicid != "3" and c.cans.cr.smutil != "3" and c.cans.cr.oslfhr != "3" and c.cans.cr.dangot != "3" and c.cans.cb.psychs != "3" and c.cans.cr.firset != "3")
+   (void)$arrpush(errors[],crisis2_errortxt)
+  endif
+ endif
+
+ if c.cans.type = "1"
+  $clear(c.cans.disdt,c.cans.disreas,c.cans.disref)
+ elseif c.cans.type = "2"
+  $clear(c.cans.intref,c.cans.disdt,c.cans.disreas,c.cans.disref)
+ elseif c.cans.type = "3"
+  $clear(c.cans.intref)
+ elseif c.cans.type = "11"
+  $clear(c.cans.intref,c.cans.disdt,c.cans.disreas,c.cans.disref) 
+ elseif c.cans.type = "12"
+  $clear(c.cans.disdt,c.cans.disreas,c.cans.disref) 
+ endif 
+
+ if c.cans.cg.na = "9"  
+  c.cans.cg.super = "9"  
+  c.cans.cg.involv = "9"  
+  c.cans.cg.knoldg = "9"  
+  c.cans.cg.organz = "9"  
+  c.cans.cg.socres = "9"  
+  c.cans.cg.ressbl = "9"  
+  c.cans.cg.physcl = "9"  
+  c.cans.cg.menhth = "9"  
+  c.cans.cg.subabs = "9"  
+  c.cans.cg.develp = "9"  
+  c.cans.cg.chldcr = "9"  
+  c.cans.cg.miltra = "9"  
+  c.cans.cg.famsts = "9"  
+  c.cans.cg.safety = "9"  
+ endif 
+
+ if errors[1] !dp
+  {"lib_CANS"}Last_Assessment($regid,,,,last_date,,last_aloc,last_rloc,,,last_alocdate) 
+  if last_type = "1" or last_type = "2"
+   c.cans.rloc = {"lib_CANS617"}RLOC(c.cans.ac.sexgen,c.cans.ad.affreg,c.cans.ad.dissoc,c.cans.ad.intrus,c.cans.cb.adjtrm,c.cans.cb.angctr,c.cans.cb.anxity,c.cans.cb.condct,
+                                     c.cans.cb.depres,c.cans.cb.eatdst,c.cans.cb.implsv,c.cans.cb.mania,c.cans.cb.oppdef,c.cans.cb.psychs,c.cans.cb.subabs,c.cans.cr.bully,
+                                     c.cans.cr.dangot,c.cans.cr.delqcy,c.cans.cr.episds,c.cans.cr.firset,c.cans.cr.oslfhr,c.cans.cr.runawy,c.cans.cr.sexagr,c.cans.cr.smutil,
+                                     c.cans.cr.socbeh,c.cans.cr.suicid,c.cans.dv.cognit,c.cans.dv.develp,c.cans.fs.inthrm,c.cans.fs.planin,c.cans.hs.durrec,c.cans.hs.timlst,
+                                     c.cans.jj.comsaf,c.cans.jj.histry,c.cans.jj.serios,c.cans.ld.commun,c.cans.ld.develp,c.cans.ld.family,c.cans.ld.indliv,c.cans.ld.jobfun,
+                                     c.cans.ld.judgmt,c.cans.ld.legal,c.cans.ld.livsit,c.cans.ld.medicl,c.cans.ld.physcl,c.cans.ld.recret,c.cans.ld.school,c.cans.ld.sexdev,
+                                     c.cans.ld.sleep,c.cans.ld.socfun,c.cans.ps.hosptl,c.cans.rf.comsc,c.cans.rf.rescon,c.cans.rn.frqncy,c.cans.rn.invill,c.cans.sa.envinf,
+                                     c.cans.sa.parinf,c.cans.sa.perinf,c.cans.sa.severe,c.cans.sa.stgrec,c.cans.sc.attend,c.cans.sc.behavr,c.cans.sr.hissui,c.cans.type,c.cans.vi.hxviol,
+			                         c.cans.disreas)
+   if c.cans.rloc = "110" and last_rloc = "110" and last_aloc != "110"
+    (void)$arrpush(errors[],inelig_errortxt)  
+   endif
+  endif
+ endif 			  
+
+ if errors[1] dp	
+  Validate1 = 1
+ else
+  Validate1 = 0	
+'Clear dependant fields
+  if $num(c.cans.ps.hosptl) != 1
+   $clear(q_text_hs_numprr, q_text_hs_longst, q_text_hs_durrec, q_text_hs_timlst)
+  endif
+  if c.cans.cg.famsts = "0" or c.cans.cg.famsts = "9"
+   $clear(c.cans.fc.selfcr, c.cans.fc.culstr, c.cans.fc.empedu, c.cans.fc.eduatt, c.cans.fc.legal, c.cans.fc.motive, c.cans.fc.finres, c.cans.fc.transp)	
+  endif
+  if c.cans.cb.adjtrm = "0"
+   $clear(c.cans.tr.sexabs, c.cans.tr.phyabs, c.cans.tr.emoabs, c.cans.tr.medtrm, c.cans.tr.natdis, c.cans.tr.wtofam, c.cans.tr.wtocom, c.cans.tr.wcrime, c.cans.tr.waraff, c.cans.tr.teraff)    
+   $clear(c.cans.ad.affreg, c.cans.ad.intrus, c.cans.ad.attach, c.cans.ad.dissoc, c.cans.ad.timb4t)	
+  endif
+  if c.cans.cb.subabs = "0"
+   $clear(c.cans.sa.severe, c.cans.sa.durati, c.cans.sa.stgrec, c.cans.sa.perinf, c.cans.sa.parinf, c.cans.sa.envinf)
+  endif
+  if c.cans.cr.dangot = "0"
+   $clear(c.cans.eb.frsmgt, c.cans.eb.hostil, c.cans.eb.parand, c.cans.eb.secgan, c.cans.eb.viothk)	
+   $clear(c.cans.vi.hxpabs, c.cans.vi.hxviol, c.cans.vi.wdomab, c.cans.vi.wenvab)
+   $clear(c.cans.rf.viopot, c.cans.rf.rescon, c.cans.rf.comsc , c.cans.rf.trtinv)	
+  endif
+  if c.cans.cr.sexagr = "0"
+   $clear(c.cans.sb.relton, c.cans.sb.phyfrc, c.cans.sb.planin, c.cans.sb.agedif, c.cans.sb.typsex, c.cans.sb.resacc, c.cans.sb.temcon, c.cans.sb.hxsxbh, c.cans.sb.svsxab)
+  endif
+  if c.cans.cr.runawy = "0"
+   $clear(c.cans.rn.frqncy, c.cans.rn.condes, c.cans.rn.safdes, c.cans.rn.invill, c.cans.rn.retown, c.cans.rn.invoth, c.cans.rn.relexp, c.cans.rn.planin)
+  endif
+  if c.cans.cr.delqcy = "0"
+   $clear(c.cans.jj.serios, c.cans.jj.histry, c.cans.jj.arrest, c.cans.jj.planin, c.cans.jj.comsaf, c.cans.jj.lefcom, c.cans.jj.perinf, c.cans.jj.parinf, c.cans.jj.envinf)
+  endif
+  if c.cans.cr.firset = "0"
+   $clear(c.cans.fs.serios, c.cans.fs.histry, c.cans.fs.planin, c.cans.fs.useacc, c.cans.fs.inthrm, c.cans.fs.comsaf, c.cans.fs.resacc, c.cans.fs.remrse, c.cans.fs.futfir)	
+  endif     
+  if c.cans.ld.school = "0"
+   $clear(c.cans.sc.behavr, c.cans.sc.achiev, c.cans.sc.attend, c.cans.sc.reltch)
+  endif  
+  if c.cans.ld.develp = "0"
+   $clear(c.cans.dv.cognit, c.cans.dv.develp, c.cans.dv.selfcr)
+  endif      
+  if c.cans.tr.sexabs = "0"
+   $clear(c.cans.tr.emclos, c.cans.tr.freq, c.cans.tr.durat, c.cans.tr.force, c.cans.tr.react)
+  endif  	 
+ endif
+end Validate1
+
+function Validate2() is i
+ $clear(errors[])
+ if ($num(c.cans.ld.school) > 0) and (c.cans.sc.behavr !dp or c.cans.sc.achiev !dp or c.cans.sc.attend !dp or c.cans.sc.reltch !dp) 
+  (void)$arrpush(errors[],sc_errortxt)
+ endif  
+ 
+ if ($num(c.cans.ld.develp) > 0) and (c.cans.dv.cognit !dp or c.cans.dv.develp !dp or c.cans.dv.selfcr !dp) 
+  (void)$arrpush(errors[],dv_errortxt)
+ endif     
+
+ if c.cans.ps.hosptl = "1" and (c.cans.hs.numprr !dp or c.cans.hs.longst !dp or c.cans.hs.durrec !dp or c.cans.hs.timlst !dp)
+  (void)$arrpush(errors[],pshx_errortxt)
+ endif
+
+ if (c.cans.cg.famsts != "0" and c.cans.cg.famsts != "9" and c.cans.cg.famsts dp) and (c.cans.fc.selfcr !dp or c.cans.fc.culstr !dp or c.cans.fc.empedu !dp or c.cans.fc.eduatt !dp or c.cans.fc.legal !dp or c.cans.fc.motive !dp or 
+     c.cans.fc.finres !dp or c.cans.fc.transp !dp)
+  (void)$arrpush(errors[],fcg_errortxt)
+ endif
+
+ if c.cans.cb.adjtrm != "0" and c.cans.cb.adjtrm dp and (c.cans.tr.sexabs !dp or c.cans.tr.phyabs !dp or c.cans.tr.emoabs !dp or c.cans.tr.medtrm !dp or c.cans.tr.natdis !dp or 
+    c.cans.tr.wtofam !dp or c.cans.tr.wtocom !dp or c.cans.tr.wcrime !dp or c.cans.tr.waraff !dp or c.cans.tr.teraff !dp)    
+  (void)$arrpush(errors[],tr_errortxt)
+ endif  	                            
+                               
+ if c.cans.cb.adjtrm != "0" and c.cans.cb.adjtrm dp and (c.cans.ad.affreg !dp or c.cans.ad.intrus !dp or c.cans.ad.attach !dp or c.cans.ad.dissoc !dp or c.cans.ad.timb4t !dp)    
+  (void)$arrpush(errors[],adj_errortxt)
+ endif  	                            
+                           
+ if c.cans.cb.subabs != "0" and c.cans.cb.subabs dp and(c.cans.sa.severe !dp or c.cans.sa.durati !dp or c.cans.sa.stgrec !dp or c.cans.sa.perinf !dp or c.cans.sa.parinf !dp or c.cans.sa.envinf !dp)    
+  (void)$arrpush(errors[],sud_errortxt)
+ endif  	                            
+
+ if c.cans.cr.suicid != "0" and c.cans.cr.suicid dp and (c.cans.sr.hissui !dp or c.cans.sr.hfmsui !dp or c.cans.sr.firear !dp)
+  (void)$arrpush(errors[],sr_errortxt)   
+ endif
+   
+ if c.cans.cr.dangot != "0" and c.cans.cr.dangot dp and(c.cans.vi.hxpabs !dp or c.cans.vi.hxviol !dp or c.cans.vi.wdomab !dp or c.cans.vi.wenvab !dp)
+  (void)$arrpush(errors[],vi_errortxt)
+ endif  	                            
+
+ if c.cans.cr.dangot != "0" and c.cans.cr.dangot dp and (c.cans.eb.frsmgt !dp or c.cans.eb.hostil !dp or c.cans.eb.parand !dp or c.cans.eb.secgan !dp or c.cans.eb.viothk !dp )
+  (void)$arrpush(errors[],eb_errortxt) 
+ endif  	                            
+
+ if c.cans.cr.dangot != "0" and c.cans.cr.dangot dp and (c.cans.rf.viopot !dp or c.cans.rf.rescon !dp or c.cans.rf.comsc  !dp or c.cans.rf.trtinv !dp )
+  (void)$arrpush(errors[],res_errortxt)
+ endif  	                            
+
+ if c.cans.cr.sexagr != "0" and c.cans.cr.sexagr dp and 
+   (c.cans.sb.relton !dp or c.cans.sb.phyfrc !dp or c.cans.sb.planin !dp or c.cans.sb.agedif !dp or c.cans.sb.typsex !dp or c.cans.sb.resacc !dp or c.cans.sb.temcon !dp or c.cans.sb.hxsxbh !dp or c.cans.sb.svsxab !dp )
+  (void)$arrpush(errors[],sab_errortxt) 
+ endif  	                            
+
+ if c.cans.cr.runawy != "0" and c.cans.cr.runawy dp and (c.cans.rn.frqncy !dp or c.cans.rn.condes !dp or c.cans.rn.safdes !dp or c.cans.rn.invill !dp or c.cans.rn.retown !dp or c.cans.rn.invoth !dp or c.cans.rn.relexp !dp or c.cans.rn.planin !dp )
+  (void)$arrpush(errors[], rw_errortxt)
+ endif  	                            
+
+ if c.cans.cr.delqcy != "0" and c.cans.cr.delqcy dp and 
+   (c.cans.jj.serios !dp or c.cans.jj.histry !dp or c.cans.jj.arrest !dp or c.cans.jj.planin !dp or c.cans.jj.comsaf !dp or c.cans.jj.lefcom !dp or c.cans.jj.perinf !dp or c.cans.jj.parinf !dp or c.cans.jj.envinf !dp )
+  (void)$arrpush(errors[],jj_errortxt)
+ endif  	                            
+
+ if c.cans.cr.firset != "0" and c.cans.cr.firset dp and 
+    (c.cans.fs.serios !dp or c.cans.fs.histry !dp or c.cans.fs.planin !dp or c.cans.fs.useacc !dp or c.cans.fs.inthrm !dp or c.cans.fs.comsaf !dp or c.cans.fs.resacc !dp or c.cans.fs.remrse !dp or c.cans.fs.futfir !dp )
+  (void)$arrpush(errors[],fs_errortxt)
+ endif 
+ 
+  if c.cans.type = "11"
+'if the scores are not valid don't continue
+  if (c.cans.cr.firset != "3" and c.cans.fs.planin != "3") and (c.cans.cr.suicid != "3" and c.cans.cr.smutil != "3" and c.cans.cr.oslfhr != "3" and c.cans.cr.dangot != "3" and c.cans.cb.psychs != "3")
+   (void)$arrpush(errors[],crisis2_errortxt)
+  endif
+  if (c.cans.cr.firset = "3" and c.cans.fs.planin != "3") and (c.cans.cr.suicid != "3" and c.cans.cr.smutil != "3" and c.cans.cr.oslfhr != "3" and c.cans.cr.dangot != "3" and c.cans.cb.psychs != "3")  
+   (void)$arrpush(errors[],crisis2_errortxt)
+  endif
+ endif                    
+
+ if errors[1] dp	
+  Validate2 = 1
+ else
+  Validate2 = 0	
+'Clear dependant fields
+  if $num(c.cans.ps.hosptl) != 1
+   $clear(c.cans.hs.numprr, c.cans.hs.longst, c.cans.hs.durrec, c.cans.hs.timlst)
+  endif
+  if c.cans.cg.famsts = "0" or c.cans.cg.famsts = "9"
+   $clear(c.cans.fc.selfcr, c.cans.fc.culstr, c.cans.fc.empedu, c.cans.fc.eduatt, c.cans.fc.legal, c.cans.fc.motive, c.cans.fc.finres, c.cans.fc.transp)	
+  endif
+  if c.cans.cb.adjtrm = "0"
+   $clear(c.cans.tr.sexabs, c.cans.tr.phyabs, c.cans.tr.emoabs, c.cans.tr.medtrm, c.cans.tr.natdis, c.cans.tr.wtofam, c.cans.tr.wtocom, c.cans.tr.wcrime, c.cans.tr.waraff, c.cans.tr.teraff)    
+   $clear(c.cans.ad.affreg, c.cans.ad.intrus, c.cans.ad.attach, c.cans.ad.dissoc, c.cans.ad.timb4t)	
+  endif
+  if c.cans.cb.subabs = "0"
+   $clear(c.cans.sa.severe, c.cans.sa.durati, c.cans.sa.stgrec, c.cans.sa.perinf, c.cans.sa.parinf, c.cans.sa.envinf)
+  endif
+  if c.cans.cr.dangot = "0"
+   $clear(c.cans.eb.frsmgt, c.cans.eb.hostil, c.cans.eb.parand, c.cans.eb.secgan, c.cans.eb.viothk)	
+   $clear(c.cans.vi.hxpabs, c.cans.vi.hxviol, c.cans.vi.wdomab, c.cans.vi.wenvab)
+   $clear(c.cans.rf.viopot, c.cans.rf.rescon, c.cans.rf.comsc , c.cans.rf.trtinv)	
+  endif
+  if c.cans.cr.sexagr = "0"
+   $clear(c.cans.sb.relton, c.cans.sb.phyfrc, c.cans.sb.planin, c.cans.sb.agedif, c.cans.sb.typsex, c.cans.sb.resacc, c.cans.sb.temcon, c.cans.sb.hxsxbh, c.cans.sb.svsxab)
+  endif
+  if c.cans.cr.runawy = "0"
+   $clear(c.cans.rn.frqncy, c.cans.rn.condes, c.cans.rn.safdes, c.cans.rn.invill, c.cans.rn.retown, c.cans.rn.invoth, c.cans.rn.relexp, c.cans.rn.planin)
+  endif
+  if c.cans.cr.delqcy = "0"
+   $clear(c.cans.jj.serios, c.cans.jj.histry, c.cans.jj.arrest, c.cans.jj.planin, c.cans.jj.comsaf, c.cans.jj.lefcom, c.cans.jj.perinf, c.cans.jj.parinf, c.cans.jj.envinf)
+  endif
+  if c.cans.cr.firset = "0"
+   $clear(c.cans.fs.serios, c.cans.fs.histry, c.cans.fs.planin, c.cans.fs.useacc, c.cans.fs.inthrm, c.cans.fs.comsaf, c.cans.fs.resacc, c.cans.fs.remrse, c.cans.fs.futfir)	
+  endif     
+  if c.cans.ld.school = "0"
+   $clear(c.cans.sc.behavr, c.cans.sc.achiev, c.cans.sc.attend, c.cans.sc.reltch)
+  endif  
+  if c.cans.ld.develp = "0"
+   $clear(c.cans.dv.cognit, c.cans.dv.develp, c.cans.dv.selfcr)
+  endif      
+ endif
+end Validate2
+
+function Validate3() is i
+ $clear(errors[])
+ if c.cans.tr.sexabs != "0" and c.cans.tr.sexabs dp and (c.cans.tr.emclos !dp or c.cans.tr.freq !dp or   c.cans.tr.durat !dp or  c.cans.tr.force !dp or  c.cans.tr.react !dp)    
+  (void)$arrpush(errors[],sxab_errortxt)
+ endif  	                            
+ if errors[1] dp	
+  Validate3 = 1
+  else
+  Validate3 = 0
+  if $num(c.cans.tr.sexabs) = 0
+   $clear(c.cans.tr.emclos, c.cans.tr.freq, c.cans.tr.durat, c.cans.tr.force, c.cans.tr.react)
+  endif  	 
+ endif 
+end Validate3
+
+function Validate4() is i
+ datediff is i
+
+' if $uc($seg($mscname,1,5)) = "HELEN" and c.cans.restype = "7" and (c.cans.type = "1" or c.cans.type = "11" or c.cans.type = "12")
+'  (void)$arrpush(errors[],jail_errortxt)
+' endif
+
+ $clear(errors[])
+ if c.cans.commdate !dp
+  (void)$arrpush(errors[],commdt1_errortxt)
+ endif
+
+ if c.cans.commdate dp and c.cans.commdate < c.cans.date
+  (void)$arrpush(errors[],commdt2_errortxt) 
+ endif 
+ 
+ if c.cans.school3m !dp or c.cans.grade !dp or c.cans.restype !dp
+  (void)$arrpush(errors[],comm_errortxt)
+ endif
+
+ if c.cans.restype != "9"
+  $clear(c.cans.resother1)
+ endif
+
+ if {"lib_UACOMMON"}IsNumeric(c.cans.arrest) = "N"
+  (void)$arrpush(errors[],commarr_errortxt)
+ endif 
+ 
+ datediff = c.cans.commdate - c.cans.date
+ if datediff > 30 or datediff < -30
+  (void)$arrpush(errors[],commdt4_errortxt)
+ endif 
+
+ if errors[1] dp
+  Validate4 = 1
+ else
+  Validate4 = 0
+ endif
+end Validate4
+
+function ReportHdr() is null
+ c_cans_type    is x
+ c_cans_intref  is x
+ c_cans_disreas is x
+ c_cans_disref  is x
+ c_cans_type    = $dct(CansTypeDCT,c.cans.type)
+ c_cans_intref  = $dct(CansIntRefDCT,c.cans.intref)
+ c_cans_disreas = $dct(CansDisReasDCT,c.cans.disreas)
+ c_cans_disref  = $dct(CansDisRefDCT,c.cans.disref) 
+ $table($funcname,,"width='100%' cellspacing='0' cellpadding='2' bgcolor='White' style='border-style: solid; border-width: 1px'")
+  $row()
+   $col(,,"5%")
+   $col(,,"15%")$text(q_text_date)
+   $col(,,"80%")$text(c.cans.date)
+  $row()
+   $col()
+   $col()$text(q_text_type)
+   $col()$text(c_cans_type) 
+  if c.cans.type = "1" or c.cans.type = "12"
+   $row()
+    $col()
+    $col()$text(q_text_intref)
+    $col()$text(c_cans_intref)
+   if c.cans.intrefoth dp
+    $row()
+     $col()
+     $col()$text(q_text_intrefoth)
+     $col()$text(c.cans.intrefoth)
+   endif
+  endif
+  if c.cans.type = "3"
+   $row()
+    $col()
+    $col()if c.cans.alocdate dp
+	       $text(q_text_disdt)
+		  else
+	       $text(q_text_rdisdt)		  
+		  endif 
+    $col()$text(c.cans.disdt)
+   $row()
+    $col()
+    $col()$text(q_text_disreas)
+    $col()$text(c_cans_disreas)
+   if c.cans.disoth dp
+    $row()
+     $col()
+     $col()$text(q_text_disoth)
+     $col()$text(c.cans.disoth)
+   endif
+   $row()
+    $col()
+    $col()$text(q_text_disref)
+    $col()$text(c_cans_disref)
+  endif  
+   $row()
+    $col()
+    $col()$text("Medicaid Status:")
+    $col()$text(medicaid_status)
+ $endtable($funcname)
+ $br()$tag("<hr/>")
+ $br()
+end ReportHdr
+
+function Page0() is null
+ $submitopt("off", "Submit")
+ $cancelopt("off", "Back")
+ $form($funcname)
+  {"lib_UACOMMON"}ClientPageHeader($regid)
+  $br()AssessmentDate()
+  if StaffAssign_YN = "Y"
+   $br()AssessmentStaff()
+  endif  
+  $br()AssessmentType()
+  $tag("<hr/>")
+  $br()OtherQuestions()
+  if {"lib_UACOMMON"}CurrentDX($regid,c.cans.date) = "N"
+   $br()$tag("<hr/>")
+   $br()$text(diag_errortxt,"error")
+  endif
+ $sendform($funcname)  
+end Page0
+
+function Page1() is null
+  $submitopt("off", "SUBMIT")
+  $cancelopt("off", "BACK")
+  $form($funcname)  
+   {"lib_UACOMMON"}ClientPageHeader($regid)
+   $br()ReportHdr()
+   OtherQuestionRpt()
+   $tag("<hr/>")
+   $br()   
+   if c.cans.type = "11"
+    $table("1",,table_nobgcolor)
+     $row()
+      $col(,,"50%")ChildRiskCrisis()
+	  $col()
+    $endtable("1")   
+    $br()
+    $tag("<hr/>")
+    $br()
+    $table("2",,table_nobgcolor)
+     $row()
+      $col(,,"50%")ChildBehavCrisis()
+      $col()
+    $endtable("2")	
+   endif
+   if c.cans.type = "1" or c.cans.type = "2" or (c.cans.type = "3" and c.cans.disreas = "9") or (c.cans.type = "3" and c.cans.disreas = "16") or c.cans.type = "12"
+    $table("1",,table_nobgcolor)
+     $row()
+      $col(,,"50%")ChildRisk()
+	  $col()
+    $endtable("1")
+    $br()
+    $tag("<hr/>")
+    $br()
+    $table("2",,table_nobgcolor)
+     $row()
+      $col(,,"50%")ChildBehave()
+      $col()
+    $endtable("2")
+    $br()
+    $tag("<hr/>")
+    $br()
+    $table("3",,table_nobgcolor)
+     $row()
+      $col(,,"50%")LifeDomain()
+	  $col()
+    $endtable("3")
+    $br()
+    $tag("<hr/>")
+    $br()
+    $table("4",,table_nobgcolor)
+     $row()
+      $col(,,"50%")CareGive()
+	  $col()
+    $endtable("4")
+    $br()
+    $tag("<hr/>")
+    $br()
+    $table("5",,table_nobgcolor)
+     $row()
+      $col(,,"50%")ChildStrength()
+      $col()Culture()
+	        $br()CrisisHistory()
+    $endtable("5")
+    $br()
+    $tag("<hr/>")
+    $br()
+    $table("6",,table_nobgcolor)
+     $row()
+      $col(,,"50%")PsyHosp()
+	  $col()
+    $endtable("6")
+    $br()
+    $tag("<hr/>")
+    $br()
+  endif
+  $sendform($funcname)
+end Page1
+
+function Page2() is null
+ $submitopt("off", "SUBMIT")
+ $cancelopt("off", "BACK")
+ $form($funcname) 
+  {"lib_UACOMMON"}ClientPageHeader($regid)
+  $br()ReportHdr()
+  OtherQuestionRpt()
+  $tag("<hr/>")  
+  $table($funcname,,table_nobgcolor)
+   if $num(c.cans.cr.suicid) > 0 or
+      $num(c.cans.cr.dangot) > 0 or 
+      $num(c.cans.cr.sexagr) > 0 or 
+	  $num(c.cans.cr.runawy) > 0 or 
+	  $num(c.cans.cr.delqcy) > 0 or 
+	  $num(c.cans.cr.firset) > 0
+
+'Make sure the background color is right
+    bgcolor = "white"
+    if $num(c.cans.cr.suicid) > 0
+	 if $find(sr_errortxt,errors[],,"F") > 0
+      bgcolor = "red"
+     endif
+	endif
+	if $num(c.cans.cr.dangot) > 0
+	 if $find(vi_errortxt,errors[],,"F") > 0
+      bgcolor = "red"
+     endif
+	 if $find(eb_errortxt,errors[],,"F") > 0
+      bgcolor = "red"
+     endif	 
+	 if $find(res_errortxt,errors[],,"F") > 0
+      bgcolor = "red"
+     endif	 	 
+	endif	
+    if $num(c.cans.cr.sexagr) > 0
+	 if $find(sab_errortxt,errors[],,"F") > 0
+      bgcolor = "red"
+     endif
+	endif
+	if $num(c.cans.cr.runawy) > 0
+	 if $find(rw_errortxt,errors[],,"F") > 0
+      bgcolor = "red"
+     endif
+	endif
+	if $num(c.cans.cr.delqcy) > 0
+	 if $find(jj_errortxt,errors[],,"F") > 0
+      bgcolor = "red"
+     endif
+	endif
+	if $num(c.cans.cr.firset) > 0
+	 if $find(fs_errortxt,errors[],,"F") > 0
+      bgcolor = "red"
+     endif
+	endif		
+	
+	$row()
+	 $col(,,"50%")$fieldset("Child Risk Behaviors",,"datatag")
+	       {"lib_CANS617"}ChildRiskScoring(`table_wbgcolor`)
+		   $endfieldset()
+	 $col()     
+   endif	  
+   if $num(c.cans.cr.suicid) > 0
+    $row()
+     $col(,,"50%")suiciderisk()	
+     $col()
+   endif
+   if $num(c.cans.cr.dangot) > 0
+    $row()
+     $col(,,"50%")violence() 
+                  embeh() 
+                  resiliency()
+	
+     $col()
+   endif 
+   if $num(c.cans.cr.sexagr) > 0
+    $row()
+     $col(,,"50%")sexagg()
+     $col()
+   endif 
+   if $num(c.cans.cr.runawy) > 0
+    $row()
+     $col(,,"50%")runaway()
+     $col()
+   endif
+   if $num(c.cans.cr.delqcy) > 0
+    $row()
+     $col(,,"50%")jjustice()
+     $col()
+   endif
+   if $num(c.cans.cr.firset) > 0	 
+    $row()
+     $col(,,"50%")fire()
+     $col()
+   endif
+   if $num(c.cans.cb.adjtrm) > 0 
+    bgcolor = "white"
+	if $find(tr_errortxt,errors[],,"F") > 0
+     bgcolor = "red"
+    endif
+	if $find(adj_errortxt,errors[],,"F") > 0
+     bgcolor = "red"
+    endif	
+    $row()
+	 $col(,,"50%")$fieldset("Child Behavioral and Emotional Needs",,"datatag")
+	               {"lib_CANS617"}CBScoring(`table_wbgcolor`)
+				  $endfieldset() 
+	 $col()
+	$row()
+     $col(,,"50%")
+   	              trauma() 
+                  adjust()
+     $col()
+   endif
+   if $num(c.cans.cb.subabs) > 0
+    $row()
+     $col(,,"50%")subab() 
+     $col()
+   endif
+   if $num(c.cans.ld.school) > 0 or $num(c.cans.ld.develp) > 0
+    bgcolor = "white"
+	if $find(sc_errortxt,errors[],,"F") > 0
+     bgcolor = "red"
+    endif
+	if $find(dv_errortxt,errors[],,"F") > 0
+     bgcolor = "red"
+    endif	
+     $row()
+	  $col(,,"50%")$fieldset("Life Domain",,"datatag")
+	                {"lib_CANS617"}LDScoring(`table_wbgcolor`)
+				   $endfieldset()
+	  $col()	
+   endif
+   if $num(c.cans.ld.school) > 0	
+    $row()
+     $col(,,"50%")school()
+     $col()
+   endif
+   if $num(c.cans.ld.develp) > 0
+    $row()
+     $col(,,"50%")DevNeeds()
+     $col()
+   endif
+   if $num(c.cans.cg.famsts) > 0 and $num(c.cans.cg.famsts) != 9
+    bgcolor = "white"
+	if $find(fcg_errortxt,errors[],,"F") > 0
+     bgcolor = "red"
+    endif
+    $row()
+	 $col()$fieldset("Care Giver Strengths and Needs",,"datatag")
+	        {"lib_CANS617"}CareGiverScoring(`table_wbgcolor`)
+		   $endfieldset()
+	 $col()
+    $row()
+     $col(,,"50%")FamilyCareGive()
+     $col()
+   endif
+   if c.cans.ps.hosptl = "1"
+    bgcolor = "white"
+	if $find(pshx_errortxt,errors[],,"F") > 0
+     bgcolor = "red"
+    endif   
+    $row()
+	 $col()$fieldset("Psychiatric Hospitalization",,"datatag")
+	        {"lib_CANS617"}PHHScoring(`table_wbgcolor`)
+		   $endfieldset()
+	 $col()
+	$row()
+     $col(,,"50%")PsyHospHx()
+     $col()
+   endif
+  $endtable($funcname)	
+ $sendform($funcname)
+end Page2
+
+function Page3() is null
+ $submitopt("off", "SUBMIT")
+ $cancelopt("off", "BACK")
+ $form($funcname)
+  {"lib_UACOMMON"}ClientPageHeader($regid)
+  $br()ReportHdr()
+  OtherQuestionRpt()
+  $tag("<hr/>")
+  $table($funcname,,table_nobgcolor)
+   $row()
+   $col(,,"50%")sexab1()
+   $col()
+  $endtable($funcname)
+ $sendform($funcname)
+end Page3
+
+function Page4() is null
+ $submitopt("off","Submit")
+ $cancelopt("off","Back")
+ $form($funcname)    
+  {"lib_UACOMMON"}ClientPageHeader($regid)
+  $br()ReportHdr()
+  if c.cans.type = "1" or c.cans.type = "2" or (c.cans.type = "3" and c.cans.disreas = "9") or (c.cans.type = "3" and c.cans.disreas = "16") or c.cans.type = "12"
+   OtherQuestionRpt()
+   $tag("<hr/>")  
+   $table($funcname,,table_nobgcolor)
+    $row()
+     $col("right",,"50%")$text(q_text_commdate,"datatag")
+     $col()$textbox(c.cans.commdate,"CAL",10,6,"Y","normal")
+    $row()
+     $col("right",,"50%")$text(q_text_school3m,"datatag")
+     $col()$radio(c.cans.school3m,"No","0")$ctag("&nbsp;&nbsp;")$radio(c.cans.school3m,"Yes","1")$ctag("&nbsp;&nbsp;")$radio(c.cans.school3m,"N/A","2")
+    $row()
+     $col("right")$text(q_text_grade,"datatag")
+     $col()$dropboxdct(c.cans.grade,CansGradeDCT,,,,"Y")
+    $row()
+     $col("right")$text(q_text_arrest,"datatag")
+     $col()$textbox(c.cans.arrest,,2,2,"Y")
+    $row()
+     $col("right")$text(q_text_restype,"datatag")
+     $col()$dropboxdct(c.cans.restype,CansResTypeDCT,,,,"Y")
+	       $dropbox(c.cans.restype,"Other","9",,,"OTHER","OTHER","Y")       
+   $endtable($funcname)
+   $block("OTHER","OTHER")
+    $table("OTHER",,table_nobgcolor)
+     $row()
+      $col("right")$text(q_text_resother1,"datatag")
+      $col()$textbox(c.cans.resother1,,100,110,"Y")
+    $endtable("OTHER")
+   $endblock("OTHER","OTHER")
+  endif
+
+  $br(2)$text(q_text_bips11, "datatag")$text(q_text_bips12, "datatag")
+  $br()$radio(c.cans.bipsq1,a_text_bips11,"Y",,,,,,"Y")
+  $br()$radio(c.cans.bipsq1,a_text_bips12,"N",,,,,,"Y")
+  $br()$radio(c.cans.bipsq1,a_text_bips13,"U",,,,,,"Y")
+
+  $br(2)$text(q_text_bips2, "datatag")
+  $br()$radio(c.cans.bipsq2,a_text_bips21,"SELF",,,,,,"Y")
+  $br()$radio(c.cans.bipsq2,a_text_bips22,"LAR",,,,,,"Y")
+  $br()$radio(c.cans.bipsq2,a_text_bips23,"NLAR",,,,,,"Y")
+
+ $sendform($funcname)
+end Page4
+
+function CanSkipPage1() is x
+ CanSkipPage1 = "N"
+ if c.cans.type = "3" 
+  if c.cans.disreas !=  "9"
+   CanSkipPage1 = "Y"
+  endif
+ endif 
+end CanSkipPage1
+
+function CanSkipPage2() is x
+ CanSkipPage2 = "Y"
+ if $num(c.cans.cr.dangot) > 0 or 
+    $num(c.cans.cr.sexagr) > 0 or 
+	$num(c.cans.cr.runawy) > 0 or 
+	$num(c.cans.cr.delqcy) > 0 or 
+	$num(c.cans.cr.firset) > 0 or 
+	$num(c.cans.cb.adjtrm) > 0 or 
+	$num(c.cans.cb.subabs) > 0 or
+	$num(c.cans.ld.school) > 0 or 
+	$num(c.cans.ld.develp) > 0 or 
+	(c.cans.cg.famsts != "0" and c.cans.cg.famsts != "9" and c.cans.cg.famsts dp) or 
+	$num(c.cans.cr.suicid) > 0 or
+	c.cans.ps.hosptl = "1"
+  CanSkipPage2 = "N"
+ endif
+
+'There is a crisis situation that can be triggered by only the psychosis score being  "3" while the other risk scores are not "3". In this case there's no subquestions on Page2 that are tied to psychosis so it can be skipped 
+'Commented out, Ralph feels that if this is a crisis situation then the subfields should be filled out on page2, they are marked as optional for a crisis however
+'if c.cans.type = "11" and c.cans.cb.psychs = "3" and (c.cans.cr.suicid != "3" and c.cans.cr.smutil != "3" and c.cans.cr.oslfhr != "3" and c.cans.cr.dangot != "3" and c.cans.cr.firset != "3")
+' CanSkipPage2 = "Y"  
+'endif
+
+'Commented out, but if active would allow staff to skip page2,3 if this was a crisis and there were definately crisis scores in the 
+' if c.cans.type = "11" and (c.cans.cr.suicid = "3" or c.cans.cr.smutil = "3" or c.cans.cr.oslfhr = "3" or c.cans.cr.dangot = "3" or c.cans.cb.psychs = "3")
+'  CanSkipPage2 = "Y"  
+' endif
+
+'Commented out, but if the above was active then this would need to be used also due to the firesetting question also being tired to the planning to set more fires question on page 2 that would
+'definately flag this as a crisis, complicated enough yet?
+' if c.cans.type = "11" and (c.cans.cr.suicid != "3" and c.cans.cr.smutil != "3" and c.cans.cr.oslfhr != "3" and c.cans.cr.dangot != "3" and c.cans.cb.psychs = "3" and $num(c.cans.cr.firset) > 0)
+'  CanSkipPage2 = "N"    
+' endif  
+end CanSkipPage2
+
+function CanSkipPage3() is x
+ CanSkipPage3 = "Y"
+ if $num(c.cans.tr.sexabs) > 0
+  CanSkipPage3 = "N"
+ endif
+end CanSkipPage3
+
+function CanSkipPage4() is x
+ CanSkipPage4 = "N"
+ if c.cans.type = "3"
+  if c.cans.disreas != "9"
+   CanSkipPage4 = "Y"
+  endif
+ elseif c.cans.type = "11"
+  CanSkipPage4 = "Y"
+ endif
+ if c.cans.rloc = "100"
+  CanSkipPage4 = "Y" 
+ endif 
+end CanSkipPage4
+
+function AssessmentDate() is null
+ $table($funcname,,table_nobgcolor)
+  $row()
+   $col("right",,"50%")$text(q_text_date, "datatag")
+   $col()$textbox(c.cans.date,"CAL",10,6,"Y","normal")
+ $endtable($funcname)
+end AssessmentDate
+
+function AssessmentType() is null
+ index         is i
+ days_until_18 is i
+ days_until_18 = eighteenth_bd - $today
+ index = 0
+ $table($funcname,,table_nobgcolor)
+  $row()
+   $col("right",,"50%")$text(q_text_type,"datatag")
+   $col()do while index++ < $maxarray(assessments[])
+          $radio(c.cans.type,$dct(CansTypeDCT,assessments[index]),assessments[index],,,assessments[index],assessments[index])$ctag("&nbsp;&nbsp;&nbsp;")
+		 enddo
+  $endtable($funcname)		 
+  $block("1","1")
+   $table("1",,table_nobgcolor)
+    $row()
+     $col("right",,"50%")$text(q_text_intref,"datatag")
+     $col()$dropboxdct(c.cans.intref,CansIntRefDCT,,,,"Y")
+	       $dropbox(c.cans.intref,"Other","5",,,"1","OTHER","Y")
+   $endtable("1")
+  $endblock("1","1")
+  $block("1","OTHER")
+   $table("OTHER",,table_nobgcolor)
+    $row()
+     $col("right",,"50%")$text(q_text_intrefoth,"datatag")
+     $col()$textbox(c.cans.intrefoth,,50,60,"Y")
+   $endtable("OTHER")
+  $endblock("1","OTHER")
+  $block("3","3")
+   $table("3",,table_nobgcolor)
+    $row()
+     $col("right",,"50%")$text(q_text_rdisdt,"datatag")
+     $col()$textbox(c.cans.disdt,"CAL",10,6,,"normal")
+    $row()
+     $col("right",,"50%")$text(q_text_disreas,"datatag")
+     $col()$dropboxdct(c.cans.disreas,CansDisReasDCT,,,,"Y")
+'           if days_until_18 < 30
+'		    $dropbox(c.cans.disreas,"Transition to Adult Services","16",,,,,"Y")	 
+'		   endif	
+           $dropbox(c.cans.disreas,"Other","7",,,"3","OTHER","Y")	 
+    $row()
+     $col("right",,"50%")$text(q_text_disref,"datatag")
+     $col()$dropboxdct(c.cans.disref,CansDisRefDCT,,,,"Y")
+'	       if days_until_18 < 30
+'	        $dropbox(c.cans.disref,"Transition to Adult Services","14",,,,,"Y")	 		   
+'		   endif	
+   $endtable("3")
+  $endblock("3","3")
+  $block("3","OTHER")
+   $table("OTHER",,table_nobgcolor)
+    $row()
+     $col("right",,"50%")$text(q_text_disoth,"datatag")
+     $col()$textbox(c.cans.disoth,,50,60,"Y")
+   $endtable("OTHER")
+  $endblock("3","OTHER")  
+end AssessmentType
+
+function OtherQuestions() is null
+ $table($funcname,,table_nobgcolor)
+  $row()
+   $col("right",,"50%")$text(q_text_tcoommi,"datatag")
+   $col()$radio(c.cans.tcoommi,"No","N")$radio(c.cans.tcoommi,"Yes","Y")
+  $row()
+   $col("right",,"50%")$text(q_text_sped,"datatag")
+   $col()$radio(c.cans.sped,"No","N")$radio(c.cans.sped,"Yes","Y")
+  if {"lib_CANS"}Allow_ExtdRevYN() = "Y"
+   $row()
+    $col("right",,"50%")$text(q_text_extdrev,"datatag")
+    $col()$radio(c.cans.extdrev,"No","N")$radio(c.cans.extdrev,"Yes","Y")
+  endif
+  $row()
+   $col("right",,"50%")$text(q_text_foster,"datatag")
+   $col()$radio(c.cans.foster,"No","N")$radio(c.cans.foster,"Yes","Y")
+  $row()
+   $col("right",,"50%")$text(q_text_riskplc,"datatag")
+   $col()$radio(c.cans.riskplc,"No","N")$radio(c.cans.riskplc,"Yes","Y")
+ $endtable($funcname)
+end OtherQuestions
+
+function OtherQuestionRpt() is null
+ if c.cans.type = "1" or c.cans.type = "2" or (c.cans.type = "3" and c.cans.disreas = "9") or (c.cans.type = "3" and c.cans.disreas = "16") or c.cans.type = "12"
+  $br()
+  $table($funcname,,"width='100%' cellspacing='0' cellpadding='2' bgcolor='White' style='border-style: solid; border-width: 1px'")
+   $row()
+    $col("right",,"50%")$text(q_text_tcoommi)
+	$col()$text(c.cans.tcoommi)
+   $row()
+    $col("right",,"50%")$text(q_text_sped)
+    $col()$text(c.cans.sped)
+   if c.cans.extdrev dp
+    $row()
+     $col("right",,"50%")$text(q_text_extdrev)
+     $col()$text(c.cans.extdrev)
+   endif
+   $row()
+    $col("right",,"50%")$text(q_text_foster)
+    $col()$text(c.cans.foster)
+   $row()
+    $col("right",,"50%")$text(q_text_riskplc)
+    $col()$text(c.cans.riskplc)
+  $endtable($funcname)
+ endif
+end OtherQuestionRpt
+
+function ALOC() is null
+ last_type     is x
+ last_aloc     is x
+ last_alocdate is d
+ CurrentDX     is x
+ 
+ c_cans_rloc = $dct(CansAuthLevelDCT,c.cans.rloc)
+ c_cans_dloc = $dct(CansAuthLevelDCT,c.cans.dloc)
+ c_cans_aloc = $dct(CansAuthLevelDCT,c.cans.aloc) 
+ 
+ CurrentDX = {"lib_UACOMMON"}CurrentDX($regid,c.cans.date)
+ if c.cans.rloc = "100" or c.cans.type = "11" or (c.cans.type = "3" and c.cans.disreas != "9")
+  CurrentDX = "Y"
+ endif
+ {"lib_CANS"}Last_Assessment($regid,last_type,,,,,last_aloc) 
+ $table($funcname,,"width='100%' cellspacing='0' cellpadding='2' bgcolor='White'  style='border-style: solid; border-width: 1px'")
+  $row(,col_color_multi)
+   if c.cans.type = "1" or c.cans.type = "2" or c.cans.type = "12"
+    $col("center",,,"2")$text("Authorized Level Of Care","datatag")
+   elseif c.cans.type = "3"
+    $col("center",,,"2")$text("Discharge","datatag")	
+   elseif c.cans.type = "11"
+    $col("center",,,"2")$text("Authorized Level Of Care: Crisis","datatag")
+   endif
+   if c.cans.type = "3"
+    $row()
+     $col("right",,"50%")$text(q_text_rdisdt,"datatag")
+     $col()$textbox(c.cans.disdt,"CAL",10,6,,"normal")  
+   endif  
+   if CurrentDX = "Y"
+    if c.cans.extdrev = "Y"
+     $row()
+      $col("right",,"50%")$text(q_text_extdrev,"datatag")
+      $col()$radio(c.cans.extdrev,"No","N")$radio(c.cans.extdrev,"Yes","Y")
+	endif
+	$row()
+     $col("right",,"50%")$text(q_text_alocdate,"datatag")
+     $col()$textbox(c.cans.alocdate,"CAL",10,6,"Y","normal")
+     if c.cans.type = "1" or c.cans.type = "2" or c.cans.type = "12"
+      $row()
+       $col("right",,"50%")$text(q_text_rloc,"datatag")
+       $col()$text(c_cans_rloc)
+      if c.cans.dloc dp
+       $row()
+        $col("right",,"50%")$text(q_text_dloc,"error")
+	    $col()$text(c_cans_dloc) 
+      endif	
+      $row()
+       $col("right",,"50%")$text(q_text_aloc,"datatag")
+	   $col()$dropboxdct(c.cans.aloc,CansAuthLevelDCT,,,,"Y")
+      if (c.cans.aloc dp and c.cans.rloc dp) and (c.cans.rloc != c.cans.aloc)
+	   $row()
+        $col("right",,"50%")$text(q_text_loc_dev,"datatag")
+	    $col()$dropboxdct(c.cans.loc_dev,CansDeviationDCT)
+              $dropbox(c.cans.loc_dev,"Other","5",,,"OTHER","OTHER")	
+       $row()
+        $col("right",,"50%")$text(q_text_devjust,"datatag")
+        $col()$textblock(c.cans.devjust,5,,,"Y",255,"width:100%;")$countbox(c.cans.devjust,"(max chars is 255)")			 
+      endif
+     endif
+     if c.cans.type = "11" or c.cans.rloc = "100"
+      c.cans.aloc = "100"
+	  c_cans_aloc = $dct(CansAuthLevelDCT,c.cans.aloc) 
+      $row()
+       $col("right",,"50%")$text(q_text_rloc,"datatag")
+       $col()$text(c_cans_rloc)  
+      $row()
+       $col("right",,"50%")$text(q_text_aloc,"datatag")
+       $col()$text(c_cans_aloc)  
+     endif	 	
+ $endtable($funcname)
+  $block("OTHER","OTHER")
+   $table("OTHER",,table_nobgcolor)
+    $row()
+     $col("right",,"50%")$text(q_text_devoth,"datatag")
+     $col()$textblock(c.cans.devoth,5,,,"Y",50,"width:100%;")$countbox(c.cans.devoth,"(max chars is 50)")
+   $endtable("OTHER")
+  $endblock("OTHER","OTHER")
+
+  if medicaid_status = "Medicaid Recipient"
+   if (($num(c.cans.aloc) <  $num(last_aloc) and last_aloc dp) and (c.cans.type = "2" or (c.cans.type = "3" and c.cans.disreas != "9"))) or
+      (c.cans.type = "1" and $num(c.cans.aloc) < $num(c.cans.rloc))
+    $table($funcname,,table_nobgcolor)
+     $row()
+      $col("right",,"50%")$text(q_text_fairhear,"datatag")
+      $col()$radio(c.cans.fairhear,"Yes","Y",,,,,,"Y")$ctag("&nbsp;&nbsp;&nbsp;&nbsp;")$radio(c.cans.fairhear,"No","N",,,,,,"Y")
+   $endtable($funcname)
+   endif 		  
+  endif  
+
+
+   $table($funcname,,table_nobgcolor)
+    $row()
+     $col("right",,"50%")$text(q_text_acomment,"datatag")
+     $col()$textblock(c.cans.acomment,5,,,,255,"width:100%;")$countbox(c.cans.acomment,"(max chars is 255)")  
+    if c.cans.type != "3"
+      $row()
+       $col("right")$text("Include LPHA Medical Necessity Statement?")
+       $col()$checkbox(chk_MedNec, "Yes", "Y")
+    else
+     chk_MedNec = "N"
+    endif
+   $endtable($funcname) 
+   
+   else
+     $row()
+      $col("center",,"100%","2")$text(diag_errortxt,"error")
+    $endtable($funcname) 
+   endif
+end ALOC
+
+function ALOCRpt() is null
+ c_cans_pintime  is x 
+ 
+ sigline = $dct(2071, $oper, "D")
+ sigline += " (" + $operstaffid + ")" 
+ 
+ c_cans_rloc     = $dct(CansAuthLevelDCT,c.cans.rloc)
+ c_cans_dloc     = $dct(CansAuthLevelDCT,c.cans.dloc)
+ c_cans_aloc     = $dct(CansAuthLevelDCT,c.cans.aloc)
+ c_cans_loc_dev  = $dct(CansDeviationDCT,c.cans.loc_dev)
+ c_cans_fairhear = $dct(29,c.cans.fairhear) 
+
+ $table($funcname,,"width='100%' cellspacing='0' cellpadding='2' bgcolor='White'  style='border-style: solid; border-width: 1px'")
+  $row(,col_color_multi)
+   if c.cans.type = "1" or c.cans.type = "2" or c.cans.type = "12"
+    $col("center",,,"2")$text("Authorized Level Of Care","datatag")
+   elseif c.cans.type = "3"
+    $col("center",,,"2")$text("Discharge","datatag")
+   elseif c.cans.type = "11"
+    $col("center",,,"2")$text("Authorized Level Of Care: Crisis","datatag")
+   endif
+  $row()
+   $col("right",,"50%")$text(q_text_alocstaff,"datatag")
+   $col()$text(sigline)
+  $row()
+   $col("right",,"50%")$text(q_text_alocdate,"datatag")
+   $col()$text(c.cans.alocdate)
+  if c.cans.type != "3"
+   $row()
+    $col("right",,"50%")$text(q_text_alocedate,"datatag")
+    $col()$text(c.cans.alocedate)
+    $row()
+  endif
+  if c.cans.type = "1" or c.cans.type = "2" or c.cans.type = "11" or c.cans.type = "12"
+   $row()
+    $col("right",,"50%")$text(q_text_rloc,"datatag")
+    $col()$text(c_cans_rloc)
+  endif
+  if c.cans.dloc dp
+   $row()
+    $col("right",,"50%")$text(q_text_dloc,"datatag")
+    $col()$text(c_cans_dloc)              
+  endif	
+  if c.cans.type = "1" or c.cans.type = "2" or c.cans.type = "11" or c.cans.type = "12"
+   $row()
+    $col("right",,"50%")$text(q_text_aloc,"datatag")
+    $col()$text(c_cans_aloc) 
+  endif
+  if c.cans.loc_dev dp
+   $row()
+    $col("right",,"50%")$text(q_text_loc_dev,"datatag")
+    $col()$text(c_cans_loc_dev)
+  endif  
+  if c.cans.devoth dp
+   $row()
+    $col("right",,"50%")$text(q_text_devoth,"datatag")
+    $col()$text(c.cans.devoth)
+  endif
+  if c.cans.devjust dp
+   $row()
+    $col("right",,"50%")$text(q_text_devjust,"datatag")
+    $col()$text(c.cans.devjust)
+  endif  
+  if c.cans.fairhear dp
+   $row()
+    $col("right",,"50%")$text(q_text_fairhear,"datatag")
+    $col()$text(c_cans_fairhear)
+  endif 
+  if c.cans.acomment dp
+   $row()
+    $col("right",,"50%")$text(q_text_acomment,"datatag")
+    $col()$text(c.cans.acomment) 
+  endif
+ $endtable($funcname)
+ 
+ if c.cans.pincode = "Y"
+  c_cans_pintime = $format(c.cans.pintime,"HH:MM AP")
+  $br()
+  $table($funcname,,"width='100%' cellspacing='0' cellpadding='2' bgcolor='White'  style='border-style: none;'")
+   $row()
+    $col(,,"34%")$ctag("&nbsp;")
+    $col("center",,"32%",,,"style='border-bottom:0.1em solid #000000;'")$text("{center}Electronically signed.{/center}","normal")
+    $col(,,"34%")$ctag("&nbsp;")
+  $endtable($funcname)	  	  	  
+  $table($funcname,,"width='100%' cellspacing='0' cellpadding='2' bgcolor='White'  style='border-style: none;'")	
+   $row()
+    $col(,,"34%")$ctag("&nbsp;")
+    $col(,,"16%")$text($dct(9071,c.cans.staff),"sigdate")$text(", ","sigdate")$text(c.cans.staff,"sigdate")
+    $col("right",,"16%")$text($castx(c.cans.pindate),"sigdate")$ctag("&nbsp;")$text(c_cans_pintime,"sigdate")
+    $col(,,"345%",,"1")$ctag("&nbsp;")
+  $endtable($funcname)	  	  
+ endif   
+ 
+ if chk_MedNec = "Y"
+  $br(2)$text(MedicalNecessity,"siginfo")
+ endif 
+ $br()
+ if ChangeIRMSHeader = "Y"
+  {"lib_UACOMMON"}ChangeTitle($scriptid)
+ endif 
+ {"l_snapLibSC"}sn_CreateReport(RptTitle,,,ReportID)
+end ALOCRpt
+
+function ValidateALOC() is i
+ $clear(errors[])
+ CurrentDX     is x
+ last_type     is x
+ last_aloc     is x
+ last_date     is d
+ last_alocdate is d
+ datediff      is i
+ 
+  $clear(last_type)
+ {"lib_CANS"}Last_Assessment($regid,last_type,,,,,last_aloc,,,,last_alocdate)  
+ if c.cans.extdrev = "Y"
+  if c.cans.aloc != "101"
+   (void)$arrpush(errors[],extdrv1_errortxt)  
+  endif
+  if c.cans.rloc != "101"
+   (void)$arrpush(errors[],extdrv2_errortxt)   
+  endif 
+ endif 
+ 
+  if c.cans.aloc = "108" and c.cans.type != "1"
+  (void)$arrpush(errors[],aloc13_errortxt)
+  endif
+  if c.cans.aloc = "109" and c.cans.type != "1"
+  (void)$arrpush(errors[],aloc15_errortxt)
+  endif
+
+  if c.cans.aloc = "110" and (c.cans.type != "1" and c.cans.type != "11")
+   (void)$arrpush(errors[],aloc14_errortxt)
+  endif   
+  
+ if c.cans.aloc dp 
+  if c.cans.rloc = "100" and c.cans.aloc != c.cans.rloc
+   (void)$arrpush(errors[],aloc1_errortxt)  
+  endif
+
+  if c.cans.aloc != c.cans.rloc
+   if c.cans.loc_dev !dp
+    (void)$arrpush(errors[],aloc3_errortxt)
+   else
+	if c.cans.aloc = "109" and c.cans.loc_dev != "1"
+     (void)$arrpush(errors[],locdev4_errortxt)		
+	elseif c.cans.aloc = "108" and c.cans.loc_dev != "2"
+     (void)$arrpush(errors[],locdev3_errortxt)		
+	endif
+	if (c.cans.aloc != "109" and c.cans.aloc != "108" and c.cans.aloc != "107") and $num(c.cans.aloc) > $num(c.cans.rloc) and (c.cans.loc_dev != "3" and c.cans.loc_dev != "4" and c.cans.loc_dev != "5")
+     (void)$arrpush(errors[],locdev1_errortxt)	
+	endif
+    if (c.cans.aloc != "109" and c.cans.aloc != "108" and c.cans.aloc != "107") and $num(c.cans.aloc) < $num(c.cans.rloc) and 
+       (c.cans.loc_dev != "1" and  c.cans.loc_dev != "2" and  c.cans.loc_dev != "3" and  c.cans.loc_dev != "4" and  c.cans.loc_dev != "5")
+     (void)$arrpush(errors[],locdev2_errortxt)	
+	endif	
+   endif
+  endif 
+
+  if medicaid_status = "Medicaid Recipient" and c.cans.fairhear !dp
+   if ($num(c.cans.aloc) <  $num(last_aloc) and last_aloc dp) and (c.cans.type = "2" or (c.cans.type = "3" and c.cans.disreas != "9"))
+    (void)$arrpush(errors[],fairhear_errtxt)  
+   endif  
+   if c.cans.type = "1" and $num(c.cans.aloc) < $num(c.cans.rloc)
+    (void)$arrpush(errors[],fairhear_errtxt)     
+   endif
+  endif     
+
+  if c.cans.aloc = "100" and (last_type = "I" or last_type = "U" or last_type = "1" or last_type = "2")
+   if {"lib_CANS"}OnWaitingList() != "Y"
+    (void)$arrpush(errors[],aloc9_errortxt)  
+   endif	
+  endif
+  if c.cans.aloc = c.cans.rloc and c.cans.loc_dev dp
+   $clear(c.cans.loc_dev,c.cans.devoth,c.cans.devR1,c.cans.devR2,c.cans.devR3,c.cans.devR4,c.cans.devR5, c.cans.devjust)   
+  endif
+ else
+  if c.cans.type = "1" or c.cans.type = "2" or c.cans.type = "12"
+   (void)$arrpush(errors[],aloc4_errortxt)  
+  endif
+ endif
+ if c.cans.alocdate dp
+  if c.cans.alocdate > $today
+   (void)$arrpush(errors[],aloc7_errortxt)    
+  else
+   datediff = $today - c.cans.alocdate
+   if datediff > 30
+    (void)$arrpush(errors[],aloc8_errortxt)       
+   endif
+  endif
+  if c.cans.alocdate <= last_alocdate
+   (void)$arrpush(errors[],aloc6_errortxt)    
+  endif
+  if c.cans.alocdate < c.cans.commdate
+   (void)$arrpush(errors[],commdt3_errortxt)      
+  endif
+  if c.cans.alocdate < c.cans.date  
+   (void)$arrpush(errors[],aloc16_errortxt)    
+  endif    
+ else
+  (void)$arrpush(errors[],aloc5_errortxt)  
+ endif
+
+ if c.cans.type = "3"
+'  datediff = c.cans.disdt - c.cans.date
+  datediff = c.cans.disdt - $today
+  if c.cans.disdt !dp
+   (void)$arrpush(errors[],disch1_errortxt)
+  endif
+  if c.cans.disdt < last_alocdate
+   (void)$arrpush(errors[],disch4_errortxt)
+  endif  
+  if c.cans.disreas = "11"
+   if datediff > 0
+    (void)$arrpush(errors[],disch5_errortxt)
+   elseif datediff < -30
+    (void)$arrpush(errors[],disch3_errortxt)        
+   endif
+  else 
+   if datediff > 30
+    (void)$arrpush(errors[],disch2_errortxt)     
+   endif
+   if datediff < -30
+    (void)$arrpush(errors[],disch3_errortxt)        
+   endif
+   if last_date > c.cans.disdt
+    (void)$arrpush(errors[],disch6_errortxt)           
+   endif
+  endif 
+ endif    
+
+ CurrentDX = {"lib_UACOMMON"}CurrentDX($regid,c.cans.date)
+ if CurrentDX = "N"
+  if c.cans.rloc = "100" or c.cans.type = "11" or (c.cans.type = "3" and c.cans.disreas != "9")
+   CurrentDX = "Y"
+  endif
+ endif
+
+ if errors[1] dp	
+  ValidateALOC = 1
+ else
+  ValidateALOC = 0	
+ endif 
+ c.cans.alocedate = {"lib_CANS"}EndDate(c.cans.aloc,c.cans.alocdate,c.cans.extdrev)
+ c.cans.alocstaff = $operstaffid
+ c.cans.compd = $today
+ if c.cans.aloc = "100"
+  c.cans.type = "11"
+ elseif c.cans.aloc = "110"
+  if c.cans.type = "1"
+   c.cans.type = "12"
+  endif
+ elseif c.cans.aloc = "108"
+  if c.cans.type = "1"
+   c.cans.type = "12"
+  endif 
+  c.cans.loc_dev = "2"
+  $clear(c.cans.devjust)     
+ elseif c.cans.aloc = "109"
+  c.cans.loc_dev = "1"
+  $clear(c.cans.devjust)       
+ endif
+ if c.cans.type = "12" and (c.cans.aloc != "108" and c.cans.aloc != "110")
+  c.cans.type = "1"
+ endif
+ if c.cans.dloc = "108" or c.cans.dloc = "109" or c.cans.dloc = "110"
+  $clear(c.cans.dloc)
+ endif 
+end ValidateALOC
+
+function ValidateReport() is i
+ pincode_test is b
+ $clear(errors[])
+ if c.cans.type = "2" and c.cans.rloc = "110" and c.cans.dloc !dp
+  (void)$arrpush(errors[],loc9_1_errortxt) 
+ endif 
+ if c.cans.dloc = c.cans.rloc and c.cans.dloc dp
+  (void)$arrpush(errors[],dloc_errortxt)
+  $clear(c.cans.dloc)
+ endif 
+ 
+ if OptStaffPin = "Y"
+  pincode_test = {"l_pincode"}ValidatePin($operstaffid,c_cans_pincode)
+  select pincode_test
+   case 0    c.cans.pincode = "Y" 
+             c.cans.pindate = $today
+			 c.cans.pintime = $timenow
+   case 1002 (void)$arrpush(errors[],Pincode_errtxt1) 
+             $clear(c_cans_pincode,c.cans.pincode)
+   case 1004 (void)$arrpush(errors[],Pincode_errtxt2) 
+             $clear(c_cans_pincode,c.cans.pincode)
+   case 1005 (void)$arrpush(errors[],Pincode_errtxt1) 
+             $clear(c_cans_pincode,c.cans.pincode)			
+   case 1006 (void)$arrpush(errors[],Pincode_errtxt3) 
+             $clear(c_cans_pincode,c.cans.pincode)			
+  endselect
+ endif  
+ 
+ if errors[1] dp	
+  ValidateReport = 1
+ else
+  ValidateReport = 0	
+ endif 
+ if c.cans.dloc !dp
+  $clear(c.cans.dloc)
+ endif
+end ValidateReport
+
+function SaveEvent() is x
+ e.case.no = $regid
+ e.staff   = $operstaffid
+ e.date    = c.cans.date
+ e.cl.dur  = e.dur
+ rc = $insertevent(e.date, e.staff, e.case.no, e.ru, e.ser, e.start, e.cl.dur, e.dur, e.loc)
+ rc = $isncreate("T",,,$erkey,e.case.no, e.staff, e.date, e.start, e.ser, "Y")
+ SaveEvent = $isnkey
+end SaveEvent
+
+function RLOCRpt() is null 
+ c_cans_rloc = $dct(CansAuthLevelDCT,c.cans.rloc)
+  $table($funcname,,"width='100%' cellspacing='0' cellpadding='2' bgcolor='White'  style='border-style: solid; border-width: 1px'")
+  if c.cans.type = "1" or c.cans.type = "2" or c.cans.type = "12"
+  $row(,col_color_multi)
+   $col("center",,,"2")$text("Recommended Level Of Care","datatag")
+   $row()
+    $col("right",,"50%")$text(q_text_rloc,"datatag")
+    $col()$text(c_cans_rloc)
+   $row()
+    $col("right",,"50%")$text(q_text_dloc,"datatag")
+    $col()$dropboxdct(c.cans.dloc,CansAuthLevelDCT)
+  elseif c.cans.type = "11"
+  $row(,col_color_multi)
+   $col("center",,,"2")$text("Recommended Level Of Care: Crisis","datatag")
+   $row()
+    $col("right",,"50%")$text(q_text_rloc,"datatag")
+    $col()$text(c_cans_rloc)  
+  elseif c.cans.type = "3"
+  $row(,col_color_multi)
+   $col("center",,,"2")$text("Discharge","datatag")  
+  endif
+  $row()
+   $col("right",,"50%")$text(q_text_comment,"datatag")
+   $col()$textblock(c.cans.comment,5,,,,255,"width:100%;")$countbox(c.cans.comment,"(max chars is 255)")
+ $endtable($funcname)
+end RLOCRpt
+
+function ClearPage1() is null
+ if c.cans.type = "11"
+  $clear(c.cans.cr.sexagr,c.cans.cr.runawy,c.cans.cr.delqcy,c.cans.cr.socbeh,c.cans.cr.bully)
+  $clear(c.cans.cb.mania,c.cans.cb.implsv,c.cans.cb.depres,c.cans.cb.anxity,c.cans.cb.oppdef,c.cans.cb.condct,c.cans.cb.adjtrm,c.cans.cb.angctr,c.cans.cb.subabs,c.cans.cb.eatdst)
+ else
+  $clear(c.cans.cr.suicid,c.cans.cr.smutil,c.cans.cr.oslfhr,c.cans.cr.dangot,c.cans.cr.sexagr,c.cans.cr.runawy,c.cans.cr.delqcy,c.cans.cr.firset,c.cans.cr.socbeh,c.cans.cr.bully)
+  $clear(c.cans.cb.psychs,c.cans.cb.mania,c.cans.cb.implsv,c.cans.cb.depres,c.cans.cb.anxity,c.cans.cb.oppdef,c.cans.cb.condct,c.cans.cb.adjtrm,c.cans.cb.angctr,c.cans.cb.subabs,c.cans.cb.eatdst)
+  $clear(c.cans.ld.family,c.cans.ld.livsit,c.cans.ld.school,c.cans.ld.socFun,c.cans.ld.recret,c.cans.ld.develp,c.cans.ld.commun,c.cans.ld.judgmt,c.cans.ld.jobfun,c.cans.ld.legal,c.cans.ld.medicl,c.cans.ld.physcl,c.cans.ld.sexdev,c.cans.ld.sleep)
+  $clear(c.cans.ld.indliv)
+  $clear(c.cans.cg.na,c.cans.cg.super,c.cans.cg.involv,c.cans.cg.knoldg,c.cans.cg.organz,c.cans.cg.socres,c.cans.cg.ressbl,c.cans.cg.physcl,c.cans.cg.menhth,c.cans.cg.subabs,c.cans.cg.develp,c.cans.cg.chldcr,c.cans.cg.miltra,c.cans.cg.famsts)
+  $clear(c.cans.cg.safety)
+  $clear(c.cans.cs.family,c.cans.cs.intper,c.cans.cs.optims,c.cans.cs.educat,c.cans.cs.vocate,c.cans.cs.talint,c.cans.cs.spirel,c.cans.cs.comlif,c.cans.cs.permin,c.cans.cs.youth,c.cans.cs.natsup)
+  $clear(c.cans.ac.langua,c.cans.ac.identy,c.cans.ac.sexgen,c.cans.ac.ritual,c.cans.ac.culstr)
+  $clear(c.cans.cr.episds)
+  $clear(c.cans.hs.numprr,c.cans.hs.longst,c.cans.hs.durrec,c.cans.hs.timlst)
+ endif
+end ClearPage1
+
+function ClearPage2() is null
+ if c.cans.type = "11"
+  $clear(c.cans.sb.relton,c.cans.sb.phyfrc,c.cans.sb.planin,c.cans.sb.agedif,c.cans.sb.typsex,c.cans.sb.resacc,c.cans.sb.temcon,c.cans.sb.hxsxbh,c.cans.sb.svsxab,c.cans.sb.prirtx)
+  $clear(c.cans.jj.serios,c.cans.jj.histry,c.cans.jj.arrest,c.cans.jj.planin,c.cans.jj.comsaf,c.cans.jj.lefcom,c.cans.jj.perinf,c.cans.jj.parinf,c.cans.jj.envinf)
+  $clear(c.cans.tr.sexabs,c.cans.tr.phyabs,c.cans.tr.emoabs,c.cans.tr.victim,c.cans.tr.medtrm,c.cans.tr.natdis,c.cans.tr.wtofam,c.cans.tr.wtocom,c.cans.tr.wcrime,c.cans.tr.waraff,c.cans.tr.teraff)
+  $clear(c.cans.ad.affreg,c.cans.ad.intrus,c.cans.ad.attach,c.cans.ad.dissoc,c.cans.ad.timb4t)
+  $clear(c.cans.sa.severe,c.cans.sa.durati,c.cans.sa.stgrec,c.cans.sa.perinf,c.cans.sa.parinf,c.cans.sa.envinf)
+  $clear(c.cans.sc.behavr,c.cans.sc.achiev,c.cans.sc.attend,c.cans.sc.reltch)
+  $clear(c.cans.dv.cognit,c.cans.dv.develp,c.cans.dv.selfcr)
+  $clear(c.cans.fc.selfcr,c.cans.fc.culstr,c.cans.fc.empedu,c.cans.fc.eduatt,c.cans.fc.legal,c.cans.fc.motive,c.cans.fc.finres,c.cans.fc.transp)
+  $clear(c.cans.hs.numprr,c.cans.hs.longst,c.cans.hs.durrec,c.cans.hs.timlst)
+ else
+  $clear(c.cans.sr.hissui,c.cans.sr.hfmsui,c.cans.sr.firear)
+  $clear(c.cans.vi.hxpabs,c.cans.vi.hxviol,c.cans.vi.wdomab,c.cans.vi.wenvab)
+  $clear(c.cans.eb.frsmgt,c.cans.eb.hostil,c.cans.eb.parand,c.cans.eb.secgan,c.cans.eb.viothk)
+  $clear(c.cans.rf.viopot,c.cans.rf.rescon,c.cans.rf.comsc,c.cans.rf.trtinv)
+  $clear(c.cans.sb.relton,c.cans.sb.phyfrc,c.cans.sb.planin,c.cans.sb.agedif,c.cans.sb.typsex,c.cans.sb.resacc,c.cans.sb.temcon,c.cans.sb.hxsxbh,c.cans.sb.svsxab,c.cans.sb.prirtx)
+  $clear(c.cans.jj.serios,c.cans.jj.histry,c.cans.jj.arrest,c.cans.jj.planin,c.cans.jj.comsaf,c.cans.jj.lefcom,c.cans.jj.perinf,c.cans.jj.parinf,c.cans.jj.envinf)
+  $clear(c.cans.fs.serios,c.cans.fs.histry,c.cans.fs.planin,c.cans.fs.useacc,c.cans.fs.inthrm,c.cans.fs.comsaf,c.cans.fs.resacc,c.cans.fs.remrse,c.cans.fs.futfir)
+  $clear(c.cans.tr.sexabs,c.cans.tr.phyabs,c.cans.tr.emoabs,c.cans.tr.victim,c.cans.tr.medtrm,c.cans.tr.natdis,c.cans.tr.wtofam,c.cans.tr.wtocom,c.cans.tr.wcrime,c.cans.tr.waraff,c.cans.tr.teraff)
+  $clear(c.cans.ad.affreg,c.cans.ad.intrus,c.cans.ad.attach,c.cans.ad.dissoc,c.cans.ad.timb4t)
+  $clear(c.cans.sa.severe,c.cans.sa.durati,c.cans.sa.stgrec,c.cans.sa.perinf,c.cans.sa.parinf,c.cans.sa.envinf)
+  $clear(c.cans.sc.behavr,c.cans.sc.achiev,c.cans.sc.attend,c.cans.sc.reltch)
+  $clear(c.cans.dv.cognit,c.cans.dv.develp,c.cans.dv.selfcr)
+  $clear(c.cans.fc.selfcr,c.cans.fc.culstr,c.cans.fc.empedu,c.cans.fc.eduatt,c.cans.fc.legal,c.cans.fc.motive,c.cans.fc.finres,c.cans.fc.transp)
+  $clear(c.cans.hs.numprr,c.cans.hs.longst,c.cans.hs.durrec,c.cans.hs.timlst)
+ endif
+end ClearPage2
+
+function ClearPage3() is null
+ $clear(c.cans.tr.emclos,c.cans.tr.freq,c.cans.tr.durat,c.cans.tr.force,c.cans.tr.react)
+end ClearPage3
+
+function ClearPage4() is null
+ $clear(c.cans.commdate,c.cans.school3m,c.cans.grade,c.cans.arrest,c.cans.restype,c.cans.resother1,c.cans.bipsq1,c.cans.bipsq2)
+end ClearPage4
+
+function AssessmentStaff() is null
+ if StaffSelectDCT dp
+  $table($funcname)
+   $row()
+    $col("right",,"50%")$text("Staff ID: ","datatag")
+    $col()$dropboxdct(c.cans.staff,StaffSelectDCT,,,,"Y")
+  $endtable($funcname)
+ endif
+end AssessmentStaff

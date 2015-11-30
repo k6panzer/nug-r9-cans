@@ -1,5 +1,5 @@
 Start ANSA(parmfile,option,client,retcode)
- %version 1.0.056 11/25/2015
+ %version 1.0.057 11/30/2015
  $looplimit = 0
  %include inc_ANSA
  e.ser     is b
@@ -2675,6 +2675,9 @@ function SaveData() is i
   endif  
   if c.ansa.type != "1" and c.ansa.type != "2"
    $clear(c.ansa.bipsq1,c.ansa.bipsq2)
+  endif
+  if (c.ansa.bipsq1 != "Y" and c.ansa.bipsq2 dp) and c.ansa.alocstaff dp
+   $clear(c.ansa.bipsq2)
   endif
   SaveData = $dbupdate(02, $regid, 
 c.ansa.rec,c.ansa.staff,c.ansa.ver,c.ansa.date,c.ansa.caredt,c.ansa.age,c.ansa.aloc,c.ansa.rloc,c.ansa.dloc,c.ansa.compd,c.ansa.type,
