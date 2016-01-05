@@ -1,5 +1,5 @@
 library lib_CANS()
- %version 1.0.006 06/02/2015
+ %version 1.0.007 01/04/2016
  function Allow_Assesment(clientid,assessments[]) is null
   clientid        is x
   c.cans.rec      is h
@@ -101,6 +101,7 @@ library lib_CANS()
    case "106" EndDate = c.cans.alocdate + 90
    case "107" EndDate = c.cans.alocdate + 90
    case "108" EndDate = c.cans.alocdate + 365
+   case "122" EndDate = c.cans.alocdate + 365
    case other EndDate = c.cans.alocdate
   endselect 
  end EndDate
